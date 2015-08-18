@@ -16,6 +16,17 @@ snapshot = dict(event, **{
         'type': 'dict',
         'schema': device
     },
+    'events': {
+        'type': 'list',
+        'schema': {
+            'type': 'objectid',
+            'data_relation': {
+                'resource': 'events',
+                'field': '_id',
+                'embeddable': True
+            }
+        }
+    }
 })
 
 snapshot_settings = {

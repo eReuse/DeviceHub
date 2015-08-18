@@ -1,8 +1,7 @@
 __author__ = 'Xavier Bustamante Talavera'
 from app.event.settings import event, event_settings
-from app.device.settings import device
 
-snapshot = dict(event, **{
+add = dict(event, **{
     'component': {
         'type': 'objectid',
         'data_relation': {
@@ -13,9 +12,9 @@ snapshot = dict(event, **{
     }
 })
 
-snapshot_settings = {
+add_settings = {
     'resource_methods': ['GET', 'POST'],
-    'schema': snapshot,
+    'schema': add,
     'datasource': {
         'source': 'events',
         'filter': {'@type': {'$eq': 'snapshot'}},

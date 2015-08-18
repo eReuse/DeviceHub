@@ -1,21 +1,10 @@
-import pprint
 from app.event.snapshot.snapshot import Snapshot
-
 __author__ = 'Xavier Bustamante Talavera'
 
 
-def pre_get_snapshot(request, lookup):
-    pprint.pprint("hi")
-
-
 def pre_post_snapshot(request):
-    snapshot = Snapshot(request.json)
+    snapshot = Snapshot(request.json['device'], request.json['components'])
     snapshot.prepare()
-    snapshot.execute_all()
+    request.json['events'] = [new_events['_id'] for new_events in snapshot.process()]
     request.json['device'] = request.json['device']['_id']
-    _ids = []
-    for component in request.json['components']:
-        _ids.append(component['_id'])
-    request.json['components'] = _ids
-
-
+    request.json['components'] = [component['_id'] for component in request.json['components']]

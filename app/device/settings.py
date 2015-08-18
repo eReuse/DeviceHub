@@ -1,5 +1,5 @@
 __author__ = 'Xavier Bustamante Talavera'
-from app.common_schema import thing
+from app.schema import thing
 HID_REGEX = '^([a-zA-Z0-9]*-){5}[a-zA-Z0-9]*$'
 
 product = dict(thing, **{

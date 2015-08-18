@@ -1,6 +1,6 @@
 __author__ = 'Xavier'
 
-APP_NAME = "PackageManager"
+APP_NAME = "DeviceWare"
 
 # Statement for enabling the development environment
 DEBUG = True

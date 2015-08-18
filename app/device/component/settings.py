@@ -1,5 +1,5 @@
 __author__ = 'Xavier Bustamante Talavera'
-from app.device.settings import device, HID_REGEX, device_settings
+from app.device.settings import device, device_settings
 
 component = dict(device, **{
 

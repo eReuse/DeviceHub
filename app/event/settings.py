@@ -1,5 +1,5 @@
 __author__ = 'Xavier Bustamante Talavera'
-from app.common_schema import thing
+from app.schema import thing
 
 event = dict(thing, **{
     'date': {

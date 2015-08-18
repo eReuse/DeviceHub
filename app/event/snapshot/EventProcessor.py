@@ -1,4 +1,5 @@
 from eve.methods.post import post_internal
+
 from app.exceptions import StandardError
 
 __author__ = 'Xavier Bustamante Talavera'
@@ -15,7 +16,7 @@ class EventProcessor:
         self._add('Remove', old_parent, component)
 
     def add_add(self, component, new_parent):
-        self._add('Add',new_parent, component)
+        self._add('Add', new_parent, component)
 
     def add_insert(self, device):
         self.inserts.append(device)
@@ -31,21 +32,31 @@ class EventProcessor:
         else:
             self.events[event][uid].append(unique)
 
-    def process(self):
-        self._insert()
+    def process(self) -> list:
+        """
+        Executes all events stored.
+
+        First execute the inserts so the stored devices can get the _id and then executes the rest of events.
+        :return: A list of the executed events
+        """
+        new_events = self._insert()
         for event_name, common_reference in self.events.items():
             for unique in self.events[event_name][common_reference]:
                 device = self.references[common_reference]
-                self._execute(event_name, {'component': unique, 'device': device})
+                new_events.append(self._execute(event_name, {'component': unique, 'device': device}))
+        return new_events
 
-    def _insert(self):
+    def _insert(self) -> list:
         """
         Inserts a new device and updates the device dict with the new _id
         :return:
         """
+        new_events = []
         for device_to_insert in self.inserts:
             response = self._execute('device', device_to_insert)
             device_to_insert['_id'] = response['_id']
+            new_events.append(response)
+        return new_events
 
     @staticmethod
     def _execute(resource, payload):
@@ -55,7 +66,8 @@ class EventProcessor:
             else:
                 return response
 
-    def check_viability(self):
+    @staticmethod
+    def check_viability():
         """
         Checks, for all events in self.events if:
         - the user has permission to execute a concrete event.

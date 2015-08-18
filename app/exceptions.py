@@ -1,5 +1,7 @@
 from flask import jsonify
+
 from DeviceWare import app
+
 __author__ = 'Xavier Bustamante Talavera'
 
 
@@ -17,11 +19,6 @@ class StandardError(Exception):
 class ValidationError(StandardError):
     status_code = 400
     title = 'The element has not passed validation'
-
-
-class HidError(StandardError):
-    status_code = 400
-    title = 'The Hid could not be computed for the device'
 
 
 @app.errorhandler(StandardError)

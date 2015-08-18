@@ -10,11 +10,11 @@ rdfs = {
     }
 }
 
-thing = dict({
+thing = dict(rdfs, **{
     'url': {
         'type': 'string'
     },
     'sameAs': {
         'type': 'string'
     }
-}, **rdfs)
+})

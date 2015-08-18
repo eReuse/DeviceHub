@@ -1,4 +1,4 @@
-__author__ = 'busta'
+__author__ = 'Xavier Bustamante Talavera'
 from app.common_schema import thing
 
 event = dict(thing, **{
@@ -10,14 +10,6 @@ event = dict(thing, **{
     },
     'incidence': {
         'type': 'boolean'
-    },
-    'device': {
-        'type': 'objectid',
-        'data_relation': {
-            'resource': 'devices',
-            'field': '_id',
-            'embeddable': True
-        }
     }
 })
 

@@ -1,6 +1,6 @@
 import pprint
 
-__author__ = 'busta'
+__author__ = 'Xavier Bustamante Talavera'
 
 
 def pre_get_event(request, lookup):

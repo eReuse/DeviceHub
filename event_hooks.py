@@ -1,4 +1,4 @@
-__author__ = 'busta'
+__author__ = 'Xavier Bustamante Talavera'
 
 
 def event_hooks(app):

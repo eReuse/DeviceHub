@@ -1,4 +1,4 @@
-__author__ = 'busta'
+__author__ = 'Xavier Bustamante Talavera'
 # This is the default settings loaded by Eve. Don't modify this file to get settings,
 # use as said here http://python-eve.org/config.html#development-production
 

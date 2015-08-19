@@ -1,33 +1,27 @@
-from cerberus import Validator
-
 from app.device.Device import Device
-from app.device import settings
-from app.event.snapshot.EventProcessor import EventProcessor
-from app.exceptions import ValidationError
+from .EventProcessor import EventProcessor
+
 
 __author__ = 'Xavier Bustamante Talavera'
 
 
 class Snapshot:
     def __init__(self, device: dict, components: dict):
-        self.validator = Validator(settings.device)
         self.events = EventProcessor()
         self.device = device
         self.components = components
 
     def prepare(self):
-        self.validate(self.device)  # We validate against the schema
+        """
+        We don't need to validate devices against the schema as it's has already been done in snapshot's schema
+        :return:
+        """
         Device.compute_hid(self.device)  # Then we try to generate the hid
         self.get_events(self.device)  # We get the events that will be need to be performed
         for component in self.components:
-            self.validate(component)
             Device.compute_hid(component)
             self.get_events(component, self.device)
         self.events.check_viability()
-
-    def validate(self, device: dict):
-        if not self.validator.validate(device):
-            raise ValidationError(self.validator.errors)
 
     def process(self) -> list:
         return self.events.process()
@@ -42,19 +36,20 @@ class Snapshot:
         """
         existing_device = Device.get_device_by_identifiers(device)
         if existing_device is not None:
+            device['_id'] = existing_device['_id']
             old_parent = Device.get_parent(existing_device['_id'])
             if old_parent is not None:
-                if new_parent is None or not Device.seem_equal(old_parent, new_parent):    # todo implement seem_equals
+                if new_parent is None or not Device.seem_equal(old_parent, new_parent):
                     #  Parents differ, so we need to remove it from the old parent
-                    self.events.add_remove(device, old_parent)
+                    self.events.add_remove(existing_device, old_parent)
             if new_parent is not None:
-                self.events.add_add(device, new_parent)
+                self.events.add_add(existing_device, new_parent)
             if len(new_components) > 0:
-                repeating_components = set(new_components).intersection(existing_device.components)
-                orphaned_components = set(existing_device.components) - repeating_components
+                repeating_components = set(new_components).intersection(existing_device['components'])
+                orphaned_components = set(existing_device['components']) - repeating_components
                 # We apply it to the parent device as the orphaned components won't be processed by themselves
                 for orphaned_component in orphaned_components:
-                    self.events.add_remove(orphaned_component, device)
+                    self.events.add_remove(orphaned_component, existing_device)
 
         else:
             self.events.add_insert(device)

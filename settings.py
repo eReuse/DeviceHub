@@ -4,18 +4,19 @@
 
 # Please note that MONGO_HOST and MONGO_PORT could very well be left
 # out as they already default to a bare bones local 'mongod' instance.
-MONGO_DBNAME = 'trading_hub'
+MONGO_DBNAME = 'device_ware'
 
 from app.device.settings import device_settings
 from app.event.settings import event_settings
 from app.event.snapshot.settings import snapshot_settings
 from app.event.add.settings import add_settings
+from app.event.register.settings import register_settings
 DOMAIN = {
-    #'devices': device_settings,
-    #'events': event_settings,
-    #'snapshot': snapshot_settings,
-    #'add': add_settings
-    'his': {}
+    'devices': device_settings,
+    'events': event_settings,
+    'snapshot': snapshot_settings,
+    'add': add_settings,
+    'register': register_settings
 }
 
 X_DOMAINS = '*'

@@ -10,6 +10,14 @@ event = dict(thing, **{
     },
     'incidence': {
         'type': 'boolean'
+    },
+    'device': {
+        'type': 'objectid',
+             'data_relation': {
+                'resource': 'devices',
+                'field': '_id',
+                'embeddable': True
+            }
     }
 })
 

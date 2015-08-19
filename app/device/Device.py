@@ -1,5 +1,7 @@
-from DeviceWare import app
-from app.device.exceptions import HidError
+from app.app import app
+from .exceptions import HidError
+import re
+from .settings import HID_REGEX
 
 __author__ = 'Xavier Bustamante Talavera'
 
@@ -7,19 +9,20 @@ __author__ = 'Xavier Bustamante Talavera'
 class Device:
     @staticmethod
     def compute_hid(device: dict) -> int:
-        if not device['manufacturer']:
-            raise HidError('Device manufacturer doesn\'t exist.')
-        if not device['serialNumber']:
-            raise HidError('Device serialNumber doesn\'t exist.')
-        device['hid'] = device['manufacturer'] + device['serialNumber']
+        try:
+            device['hid'] = device['manufacturer'] + '-' + device['serialNumber']
+        except KeyError as e:
+            raise HidError('Device value ' + str(e) + ' does not exist.')
+        if not re.compile(HID_REGEX).match(device['hid']):
+            raise HidError('Manufacturer or SerialNumber variables do not led creating a valid HID')
         return device['hid']
 
     @staticmethod
     def get_device_by_identifiers(device: dict) -> dict:
         query = {}
-        if device['hid']:
+        if 'hid' in device:
             query.update({'hid': device['hid']})
-        if device['pid']:
+        if 'pid' in device:
             query.update({'pid': device['pid']})
         if len(query) > 1:
             query = {'$or': query}

@@ -1,6 +1,6 @@
 __author__ = 'Xavier Bustamante Talavera'
 from app.schema import thing
-HID_REGEX = '^([a-zA-Z0-9]*-){5}[a-zA-Z0-9]*$'
+HID_REGEX = '^([\w]*-){1}[\w]*$'
 
 product = dict(thing, **{
     'model': {
@@ -29,7 +29,7 @@ individualProduct = dict(product, **{
     }
 })
 
-device = dict(thing, **{
+device = dict(individualProduct, **{
     '_id': {
         'type': 'string'
     },
@@ -49,11 +49,11 @@ device = dict(thing, **{
 })
 
 device_settings = {
-    'resource_methods': ['GET'],
+    'resource_methods': ['GET', 'POST'],
     'schema': device,
     'additional_lookup': {
         'field': 'hid',
         'url': 'regex("' + HID_REGEX + '")'
     },
-    'url': 'devices/<regex("[a-f0-9]{24}"):device>'
+    'url': 'devices'
 }

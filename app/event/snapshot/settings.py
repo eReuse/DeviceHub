@@ -10,21 +10,18 @@ snapshot = dict(event, **{
         'type': 'boolean'
     },
     'version': {
-        'type': float,
+        'type': 'float',
     },
     'device': {
         'type': 'dict',
         'schema': device
     },
-    'events': {
+
+    'components': {
         'type': 'list',
         'schema': {
-            'type': 'objectid',
-            'data_relation': {
-                'resource': 'events',
-                'field': '_id',
-                'embeddable': True
-            }
+            'type': 'dict',
+            'schema': device
         }
     }
 })
@@ -34,7 +31,7 @@ snapshot_settings = {
     'schema': snapshot,
     'datasource': {
         'source': 'events',
-        'filter': {'@type': {'$eq': 'snapshot'}},
+        'filter': {'@type': {'$eq': 'Snapshot'}},
     },
-    'url': event_settings.url + '/snapshot'
+    'url': 'snapshot'
 }

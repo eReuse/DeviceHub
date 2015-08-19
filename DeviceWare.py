@@ -1,6 +1,4 @@
-from eve import Eve
-
-app = Eve()
+from app.app import app
 app.config.from_object('app.config')
 
 from event_hooks import event_hooks

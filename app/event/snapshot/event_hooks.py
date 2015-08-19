@@ -1,10 +1,11 @@
-from app.event.snapshot.snapshot import Snapshot
+from .snapshot import Snapshot
 __author__ = 'Xavier Bustamante Talavera'
 
 
-def pre_post_snapshot(request):
-    snapshot = Snapshot(request.json['device'], request.json['components'])
-    snapshot.prepare()
-    request.json['events'] = [new_events['_id'] for new_events in snapshot.process()]
-    request.json['device'] = request.json['device']['_id']
-    request.json['components'] = [component['_id'] for component in request.json['components']]
+def on_insert_snapshot(items):
+    for item in items:
+        snapshot = Snapshot(item['device'], item['components'])
+        snapshot.prepare()
+        item['events'] = [new_events['_id'] for new_events in snapshot.process()]
+        item['device'] = item['device']['_id']
+        item['components'] = [component['_id'] for component in item['components']]

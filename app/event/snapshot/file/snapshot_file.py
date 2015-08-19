@@ -19,8 +19,6 @@ class SnapshotFile(Snapshot):
     def get_register_object(self):
         import json
         data = json.loads(self.string)
-
-        root = Et.fromstring(self.string)
         if data['version'] == 1.0:
             from app.event.register.translation1_0 import Translation1_0
             self.register = Translation1_0.translate(root)

@@ -1,6 +1,5 @@
 from flask import jsonify
-
-from DeviceWare import app
+from app.app import app
 
 __author__ = 'Xavier Bustamante Talavera'
 
@@ -19,6 +18,12 @@ class StandardError(Exception):
 class ValidationError(StandardError):
     status_code = 400
     title = 'The element has not passed validation'
+
+
+class InnerRequestError(StandardError):
+    def __init__(self, status_code, message):
+        self.status_code = status_code
+        super().__init__(message)
 
 
 @app.errorhandler(StandardError)

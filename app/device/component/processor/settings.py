@@ -1,24 +1,24 @@
 __author__ = 'Xavier Bustamante Talavera'
-from app.device.settings import device
+from app.device.component.settings import component, component_sub_settings
 
-processor = dict(device, **{
+processor = dict(component, **{
     'numberOfCores': {
-        'type': int,
+        'type': 'integer',
         'min': 1,
     },
     'speed': {  # In Ghz
-        'type': float
+        'type': 'float'
     },
     'busClock': {
-        'type': float,
+        'type': 'float',
     },
     'address': {  # In bytes
-        'type': int,
+        'type': 'integer',
         'allowed': [8, 16, 32, 64, 128, 256]
     },
 })
 
-processor_settings = {
-    'internal_resource': True,
-    'schema': processor
-}
+processor_settings = dict(component_sub_settings, **{
+    'schema': processor,
+    'url': component_sub_settings['url'] + 'processor'
+})

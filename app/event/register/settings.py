@@ -1,5 +1,5 @@
 __author__ = 'Xavier Bustamante Talavera'
-from app.event.settings import event, event_settings
+from app.event.settings import event, event_sub_settings
 
 register = dict(event, **{
     'components': {
@@ -15,12 +15,7 @@ register = dict(event, **{
     }
 })
 
-register_settings = {
-    'resource_methods': ['GET', 'POST'],
+register_settings = dict(event_sub_settings, **{
     'schema': register,
-    'datasource': {
-        'source': 'events',
-        'filter': {'@type': {'$eq': 'Register'}},
-    },
-    'url': event_settings['url'] + '/register'
-}
+    'url': event_sub_settings['url'] + 'register'
+})

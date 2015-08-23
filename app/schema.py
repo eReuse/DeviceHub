@@ -18,3 +18,4 @@ thing = dict(rdfs, **{
         'type': 'string'
     }
 })
+

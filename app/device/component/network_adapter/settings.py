@@ -1,14 +1,14 @@
 __author__ = 'Xavier Bustamante Talavera'
-from app.device.settings import device
+from app.device.component.settings import component, component_sub_settings
 
-network_adapter = dict(device, **{
+network_adapter = dict(component, **{
     'speed': {      # Speed in MB
-        'type': int,
+        'type': 'integer',
         'allowed': [10, 100, 1000, 10000]
     }
 })
 
-network_adapter_settings = {
-    'internal_resource': True,
-    'schema': network_adapter
-}
+network_adapter_settings = dict(component_sub_settings, **{
+    'schema': network_adapter,
+    'url': component_sub_settings['url'] + 'network-adapter'
+})

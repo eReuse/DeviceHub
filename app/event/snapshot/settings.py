@@ -1,6 +1,6 @@
 __author__ = 'Xavier Bustamante Talavera'
-from app.event.settings import event, event_settings
-from app.device.settings import device
+from app.event.settings import event, event_sub_settings
+from app.device.computer.settings import computer
 
 snapshot = dict(event, **{
     'offline': {
@@ -14,24 +14,18 @@ snapshot = dict(event, **{
     },
     'device': {
         'type': 'dict',
-        'schema': device
+        'schema': computer
     },
 
     'components': {
         'type': 'list',
         'schema': {
             'type': 'dict',
-            'schema': device
         }
     }
 })
 
-snapshot_settings = {
-    'resource_methods': ['GET', 'POST'],
+snapshot_settings = dict(event_sub_settings, **{
     'schema': snapshot,
-    'datasource': {
-        'source': 'events',
-        'filter': {'@type': {'$eq': 'Snapshot'}},
-    },
     'url': 'snapshot'
-}
+})

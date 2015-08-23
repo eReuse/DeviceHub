@@ -1,3 +1,4 @@
+from bson import objectid
 from app.app import app
 from .exceptions import HidError
 import re
@@ -29,12 +30,15 @@ class Device:
         return app.data.driver.db['devices'].find_one(query)
 
     @staticmethod
-    def get_parent(_id: 'objectid') -> dict or None:
+    def get_parent(_id: objectid) -> dict or None:
         return app.data.driver.db['devices'].find_one({'components': [_id]})
 
     @staticmethod
     def seem_equal(x: dict, y: dict) -> bool:
-        if id(x) == id(y): return True
-        elif x['hid'] and y['hid'] and x['hid'] == y['hid']: return True
-        elif x['pid'] and y['pid'] and x['pid'] == y['pid']: return True
+        if id(x) == id(y):
+            return True
+        elif x['hid'] and y['hid'] and x['hid'] == y['hid']:
+            return True
+        elif x['pid'] and y['pid'] and x['pid'] == y['pid']:
+            return True
         #  todo improve

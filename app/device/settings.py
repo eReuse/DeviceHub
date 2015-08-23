@@ -1,5 +1,9 @@
+from app.Utils import register_sub_types
+from app.device.component.Component import Component
+
 __author__ = 'Xavier Bustamante Talavera'
 from app.schema import thing
+
 HID_REGEX = '^([\w]*-){1}[\w]*$'
 
 product = dict(thing, **{
@@ -49,11 +53,24 @@ device = dict(individualProduct, **{
 })
 
 device_settings = {
-    'resource_methods': ['GET', 'POST'],
+    'resource_methods': ['GET'],
     'schema': device,
+    'allow_unknown': True,  # It let us get all the fields of any subtype of device
     'additional_lookup': {
         'field': 'hid',
         'url': 'regex("' + HID_REGEX + '")'
     },
     'url': 'devices'
 }
+
+device_sub_settings = {
+    'resource_methods': ['POST'],
+    'url': device_settings['url'] + '/',
+    'datasource': {
+        'source': 'devices'
+    },
+}
+
+
+def register_parent_devices(domain: dict):
+    register_sub_types(domain, 'app.device', ('computer',))

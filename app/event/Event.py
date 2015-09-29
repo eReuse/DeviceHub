@@ -6,7 +6,7 @@ __author__ = 'busta'
 class Event:
     @staticmethod
     def get_types() -> ():
-        return 'Add', 'Register', 'Snapshot'
+        return 'Add', 'Register', 'Snapshot', 'Remove'
 
     @staticmethod
     def resource_types():

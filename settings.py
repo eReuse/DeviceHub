@@ -4,7 +4,7 @@
 
 # Please note that MONGO_HOST and MONGO_PORT could very well be left
 # out as they already default to a bare bones local 'mongod' instance.
-MONGO_DBNAME = 'DeviceWare'
+MONGO_DBNAME = 'DeviceHub'
 
 from app.device.settings import device_settings, register_parent_devices
 from app.event.settings import event_settings, register_events

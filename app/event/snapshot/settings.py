@@ -27,5 +27,5 @@ snapshot = dict(event, **{
 
 snapshot_settings = dict(event_sub_settings, **{
     'schema': snapshot,
-    'url': 'snapshot'
+    'url': 'snapshot',
 })

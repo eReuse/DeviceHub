@@ -28,7 +28,8 @@ event_settings = {
     'resource_methods': ['GET', 'POST'],
     'schema': event,
     'allow_unknown': True,
-    'url': 'devices/<regex("[a-f0-9]{24}"):device>/events',
+    'url': 'events'
+    #'url': 'devices/<regex("[a-f0-9]{24}"):device>/events',
 }
 
 event_sub_settings = {
@@ -37,7 +38,8 @@ event_sub_settings = {
         'source': 'events',
         'filter': {'@type': {'$eq': 'Add'}},
     },
-    'url': event_settings['url'] + '/'
+    #'url': event_settings['url'] + '/'
+    'url': 'devices/<regex("[a-f0-9]{24}"):device>/events/'
 }
 
 def register_events(domain: dict):

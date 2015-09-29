@@ -1,6 +1,6 @@
 __author__ = 'Xavier'
 
-APP_NAME = "DeviceWare"
+APP_NAME = "DeviceHub"
 
 # Statement for enabling the development environment
 DEBUG = True

@@ -24,7 +24,8 @@ class Snapshot:
         self.events.check_viability()
 
     def process(self) -> list:
-        return self.events.process()
+        executed_events = self.events.process()
+        return executed_events
 
     def get_events(self, device: dict, new_parent: dict=None, new_components: list=list()):
         """

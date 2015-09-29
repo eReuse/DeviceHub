@@ -31,6 +31,14 @@ class EventProcessor:
         self._add('register', parent, component)
 
     def _add(self, event, common, unique):
+        """
+        Stores an event so it is executed later.
+
+        :param event:
+        :param common: Common property of the event (usually 'device' property).
+        :param unique: Unique property of the event (usually 'component' one).
+        :return:
+        """
         reference = id(common)
         self.references[reference] = common
         self.events.setdefault(event, {}).setdefault(reference, []).append(unique)
@@ -70,7 +78,7 @@ class EventProcessor:
         response = app.test_client().post(url, data=json.dumps(payload), content_type='application/json')
         data = json.loads(response.data)
         if response._status_code != 201:  # statusCode
-            raise InnerRequestError(response._status_code, data)
+            raise InnerRequestError(response._status_code, data) #+ ' URL: ' + url + '. Payload: ' + json.dumps(payload)
         pprint('Executed POST in ' + url + ' for _id ' + str(data['_id']))
         return data
 

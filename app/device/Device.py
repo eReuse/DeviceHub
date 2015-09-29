@@ -31,7 +31,7 @@ class Device:
 
     @staticmethod
     def get_parent(_id: objectid) -> dict or None:
-        return app.data.driver.db['devices'].find_one({'components': [_id]})
+        return app.data.driver.db['devices'].find_one({'components': {'$in': [_id]}})
 
     @staticmethod
     def seem_equal(x: dict, y: dict) -> bool:
@@ -39,6 +39,6 @@ class Device:
             return True
         elif x['hid'] and y['hid'] and x['hid'] == y['hid']:
             return True
-        elif x['pid'] and y['pid'] and x['pid'] == y['pid']:
+        elif 'pid' in x and 'pid' in y and x['pid'] == y['pid']:
             return True
         #  todo improve

@@ -19,3 +19,4 @@ register_settings = dict(event_sub_settings, **{
     'schema': register,
     'url': event_sub_settings['url'] + 'register'
 })
+register_settings['datasource']['filter'] = {'@type': {'$eq': 'Register'}}

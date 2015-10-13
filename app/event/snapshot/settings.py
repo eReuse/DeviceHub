@@ -16,7 +16,6 @@ snapshot = dict(event, **{
         'type': 'dict',
         'schema': computer
     },
-
     'components': {
         'type': 'list',
         'schema': {
@@ -29,3 +28,4 @@ snapshot_settings = dict(event_sub_settings, **{
     'schema': snapshot,
     'url': 'snapshot',
 })
+snapshot_settings['datasource']['filter'] = {'@type': {'$eq': 'Snapshot'}}

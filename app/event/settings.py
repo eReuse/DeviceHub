@@ -28,6 +28,9 @@ event_settings = {
     'resource_methods': ['GET', 'POST'],
     'schema': event,
     'allow_unknown': True,
+    'datasource': {
+        'default_sort': [('_created', -1)]
+    },
     'url': 'events'
     #'url': 'devices/<regex("[a-f0-9]{24}"):device>/events',
 }
@@ -36,7 +39,7 @@ event_sub_settings = {
     'resource_methods': ['GET', 'POST'],
     'datasource': {
         'source': 'events',
-        'filter': {'@type': {'$eq': 'Add'}},
+        'default_sort': [('_created', -1)]
     },
     #'url': event_settings['url'] + '/'
     'url': 'devices/<regex("[a-f0-9]{24}"):device>/events/'

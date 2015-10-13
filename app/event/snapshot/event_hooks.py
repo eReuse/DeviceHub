@@ -1,4 +1,7 @@
+from flask import request
+from app.app import app
 from .snapshot import Snapshot
+
 __author__ = 'Xavier Bustamante Talavera'
 
 
@@ -9,3 +12,6 @@ def on_insert_snapshot(items):
         item['events'] = [new_events['_id'] for new_events in snapshot.process()]
         item['device'] = item['device']['_id']
         item['components'] = [component['_id'] for component in item['components']]
+
+
+

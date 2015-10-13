@@ -1,5 +1,7 @@
 from bson import objectid
+from flask import json
 from app.app import app
+from app.exceptions import InnerRequestError
 from .exceptions import HidError
 import re
 from .settings import HID_REGEX
@@ -20,7 +22,7 @@ class Device:
 
     @staticmethod
     def get_device_by_identifiers(device: dict) -> dict:
-        query = {}
+        """  query = {}
         if 'hid' in device:
             query.update({'hid': device['hid']})
         if 'pid' in device:
@@ -28,6 +30,13 @@ class Device:
         if len(query) > 1:
             query = {'$or': query}
         return app.data.driver.db['devices'].find_one(query)
+        """
+        response = app.test_client().get('devices/' + device['hid'] + '?embedded=' + json.dumps({'components': 1}),
+                                         content_type='application/json')
+        data = json.loads(response.data)
+        if response._status_code != 200:  # statusCode
+            raise InnerRequestError(response._status_code, data)
+        return data
 
     @staticmethod
     def get_parent(_id: objectid) -> dict or None:
@@ -41,4 +50,24 @@ class Device:
             return True
         elif 'pid' in x and 'pid' in y and x['pid'] == y['pid']:
             return True
-        #  todo improve
+            #  todo improve
+
+    @staticmethod
+    def difference(list_to_remove_devices_from, checking_list):
+        """
+        Computes the difference between two lists of devices.
+
+        To compute the difference the position of the parameters is important
+        :param list_to_remove_devices_from:
+        :param checking_list:
+        :return:
+        """
+        difference = []
+        for x in list_to_remove_devices_from:
+            found = False
+            for y in checking_list:
+                if Device.seem_equal(x, y):
+                    found = True
+            if not found:
+                difference.append(x)
+        return difference

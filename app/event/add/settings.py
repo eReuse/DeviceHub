@@ -19,3 +19,5 @@ add_settings = dict(event_sub_settings, **{
     'schema': add,
     'url': event_sub_settings['url'] + 'add'
 })
+
+add_settings['datasource']['filter'] = {'@type': {'$eq': 'Add'}}

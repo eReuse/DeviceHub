@@ -13,5 +13,5 @@ def add_components(request, payload):
     """
     app.data.driver.db['devices'].update(
         {'_id': request.json['device']},
-        {'$addToSet': {'components': request.json['components']}}
+        {'$addToSet': {'components': {'$each': request.json['components']}}}
     )

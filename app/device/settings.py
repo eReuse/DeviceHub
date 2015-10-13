@@ -4,7 +4,7 @@ from app.device.component.Component import Component
 __author__ = 'Xavier Bustamante Talavera'
 from app.schema import thing
 
-HID_REGEX = '^([\w]*-){1}[\w]*$'
+HID_REGEX = '[\w]+-[\w]+'
 
 product = dict(thing, **{
     'model': {

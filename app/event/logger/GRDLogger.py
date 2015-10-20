@@ -51,7 +51,7 @@ class GRDLogger:
         data = dict(self.sanitize_generic_event(event), **{
             'device': event['device']['hid']
         })
-        url = 'api/devices/' + data['device']['hid'] + '/' + event['@type'].lower()
+        url = 'api/devices/' + data['device'] + '/' + event['@type'].lower()  # We replaced full device per hid
         self._post(data, url)
 
     @classmethod
@@ -97,8 +97,11 @@ class GRDLogger:
             try:
                 r.raise_for_status()
             except HTTPError or ConnectionError:
-                logging.error("GRDLogger, error: event " + json.dumps(event) + ": " + str(
-                    r.status_code) + ' from url ' + url + '\n' + str(r.json()))
+                text = ''
+                if r.status_code != 500:
+                    text = str(r.json())
+                logging.error("Error: event " + json.dumps(event) + ": " + str(
+                    r.status_code) + ' from url ' + url + '\n' + text)
             else:
                 logging.debug("GRDLogger: Succeed POST event " + json.dumps(event) + ' from url ' + url)
 

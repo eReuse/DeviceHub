@@ -31,8 +31,7 @@ class Device:
             query = {'$or': query}
         return app.data.driver.db['devices'].find_one(query)
         """
-        response = app.test_client().get('devices/' + device['hid'] + '?embedded=' + json.dumps({'components': 1}),
-                                         content_type='application/json')
+        response = app.test_client().get('devices/' + device['hid'])
         data = json.loads(response.data)
         if response._status_code != 200:  # statusCode
             raise InnerRequestError(response._status_code, data)

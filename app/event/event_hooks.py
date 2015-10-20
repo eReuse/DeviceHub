@@ -19,6 +19,12 @@ def set_type(resource: str, request):
 
 
 def embed(resource, response):
+    """
+    embed events to Snapshot
+    :param resource:
+    :param response:
+    :return:
+    """
     import json
     if resource in Event.resource_types() or resource == 'events':
         try:
@@ -34,7 +40,7 @@ def embed(resource, response):
 
 
                     # def get_events_for_components(resource: str, request, lookup):
-    """
+        """
     When retrieving for the events of a device, appends all the events where the device is a component.
     :param request:
     :return:

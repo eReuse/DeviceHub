@@ -7,17 +7,19 @@ __author__ = 'busta'
 
 
 def embed_components(resource, response):
-    try:
+    """ try:
         embedded = json.loads(request.args.get('embedded'))
     except TypeError:
         pass
     else:
+
         if embedded.get('components', 0) == 1:
-            if '_items' in response:
-                for item in response['_items']:
-                    get_component(item)
-            else:
-                get_component(response)
+    """
+    if '_items' in response:
+        for item in response['_items']:
+            get_component(item)
+    else:
+        get_component(response)
 
 
 def get_component(item):

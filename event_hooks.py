@@ -22,5 +22,5 @@ def event_hooks(app):
     app.on_fetched_item += embed_components
    # app.on_fetched_item += embed_components
 
-    from app.event.logger.settings import register_logging_events
-    register_logging_events(app)
+    from app.event.logger.settings import get_info_from_hook
+    app.on_inserted = get_info_from_hook

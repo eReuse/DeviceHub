@@ -5,19 +5,21 @@ __author__ = 'busta'
 
 class Logger:
     queue = Queue()
-
-    @classmethod
-    def init(cls):
-        thread = Process(target=cls._loop, args=(cls.queue,))
-        thread.daemon = True
-        thread.start()
+    thread = None
 
     @classmethod
     def log_event(cls, event):
+        if not cls.thread:
+            cls._init()
         cls.queue.put(event)
 
-    @staticmethod
-    def _loop(queue: Queue):
-        while True:
-            event = queue.get(True)  # We block ourselves waiting for something in the queue
-            GRDLogger(event)
+    @classmethod
+    def _init(cls):
+        cls.thread = Process(target=_loop, args=(cls.queue,))
+        cls.thread.daemon = True
+        cls.thread.start()
+
+def _loop(queue: Queue):
+    while True:
+        event = queue.get(True)  # We block ourselves waiting for something in the queue
+        GRDLogger(event)

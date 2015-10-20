@@ -1,4 +1,4 @@
-from bson import objectid
+from bson import objectid, ObjectId
 from flask import json
 from app.app import app
 from app.exceptions import InnerRequestError
@@ -71,3 +71,7 @@ class Device:
             if not found:
                 difference.append(x)
         return difference
+
+    @staticmethod
+    def get_device_by_id(_id: ObjectId) -> dict:
+        return app.data.driver.db['devices'].find_one({'_id': _id})

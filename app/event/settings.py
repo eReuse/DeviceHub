@@ -28,6 +28,7 @@ event_settings = {
     'resource_methods': ['GET', 'POST'],
     'schema': event,
     'allow_unknown': True,
+    'embedded_fields': ['device'],
     'datasource': {
         'default_sort': [('_created', -1)]
     },
@@ -37,6 +38,7 @@ event_settings = {
 
 event_sub_settings = {
     'resource_methods': ['GET', 'POST'],
+    'embedded_fields': ['device'],
     'datasource': {
         'source': 'events',
         'default_sort': [('_created', -1)]

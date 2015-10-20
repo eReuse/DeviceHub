@@ -2,6 +2,13 @@ __author__ = 'Xavier'
 
 APP_NAME = "DeviceHub"
 
+ENCODING = "utf-8"  # used just in some scenarios where default Flask doesn't happen (default is utf-8)
+# SERVER_NAME = 'my.server'
+# _SERVER_NAME = SERVER_NAME
+_SERVER_NAME = "https://devicehub.ereue.org"  # Name used not by flask or python-eve but for sending it to other servers (can be false :-D)
+GRD_DOMAIN = 'https://sandbox.ereuse.org/'
+
+
 # Statement for enabling the development environment
 DEBUG = True
 

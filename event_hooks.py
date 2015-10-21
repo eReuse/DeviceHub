@@ -23,4 +23,7 @@ def event_hooks(app):
    # app.on_fetched_item += embed_components
 
     from app.event.logger.settings import get_info_from_hook
-    app.on_inserted = get_info_from_hook
+    app.on_inserted += get_info_from_hook
+
+    from app.accounts.event_hooks import add_token
+    app.on_insert_accounts += add_token

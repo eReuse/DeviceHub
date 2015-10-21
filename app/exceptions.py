@@ -25,6 +25,10 @@ class InnerRequestError(StandardError):
         self.status_code = status_code
         super().__init__(message)
 
+class WrongCredentials(StandardError):
+    status_code = 401
+    title = 'Unauthorized'
+
 
 @app.errorhandler(StandardError)
 def handle_standard_error(error):

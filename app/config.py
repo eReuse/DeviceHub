@@ -28,3 +28,9 @@ CSRF_ENABLED = True
 
 # Application settings
 APP_SYSTEM_ERROR_SUBJECT_LINE = APP_NAME + " system error"
+
+ADMIN = 'admin'
+USER = 'user'
+SUPERUSER = 'superuser'
+ROLES = [ADMIN, USER, SUPERUSER]
+PRIVILEGED_ROLES = [ADMIN, SUPERUSER]

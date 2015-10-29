@@ -1,8 +1,6 @@
 from importlib import import_module
-import json
-from eve.methods.post import post_internal
-import inflection as inflection
 
+import inflection as inflection
 
 __author__ = 'busta'
 

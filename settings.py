@@ -14,14 +14,15 @@ DOMAIN = {
     'devices': device_settings,
     'events': event_settings,
     'component': component_settings,
-    #'accounts': account_settings
+    'accounts': account_settings
 }
 register_parent_devices(DOMAIN)
 register_components(DOMAIN)
 register_events(DOMAIN)
 
 X_DOMAINS = '*'
-X_HEADERS = ['Content-Type', 'If-Match']
+X_HEADERS = ['Content-Type', 'If-Match', 'Authorization']
+X_EXPOSE_HEADERS = ['Authorization']
 
 
 from app.config import ROLES

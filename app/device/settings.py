@@ -35,7 +35,8 @@ individualProduct = dict(product, **{
 
 device = dict(individualProduct, **{
     '_id': {
-        'type': 'string'
+        'type': 'string',
+        'unique': True
     },
     'hid': {
         'type': 'string',

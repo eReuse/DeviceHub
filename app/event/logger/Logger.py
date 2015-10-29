@@ -1,6 +1,8 @@
 from multiprocessing import Process, Queue
+from eve.methods.post import post_internal
+from app.app import app
 from app.event.logger.GRDLogger import GRDLogger
-
+import json
 __author__ = 'busta'
 
 class Logger:
@@ -10,6 +12,7 @@ class Logger:
     """
     queue = Queue()
     thread = None
+    token = None
 
     @classmethod
     def log_event(cls, event_id: str):
@@ -25,11 +28,17 @@ class Logger:
         """
         Prepares stuff, just needs to be executed at the beginning, once.
         """
-        cls.thread = Process(target=_loop, args=(cls.queue,))
+        account_to_register = {'email': 'logger', 'password': '43fa22kaxlñ0', 'role': 'employee'}
+        account_to_login = dict(account_to_register)
+        post_internal('accounts', account_to_register, True)  # If user already existed, do nothing.
+        response = app.test_client().post('login', data=json.dumps(account_to_login), content_type='application/json')
+        js = json.loads(response.data.decode(app.config['ENCODING']))
+        cls.token = js['token']
+        cls.thread = Process(target=_loop, args=(cls.queue, cls.token))
         cls.thread.daemon = True
         cls.thread.start()
 
-def _loop(queue: Queue):
+def _loop(queue: Queue, token: str):
     """
     Technically part of Logger, but outside of it for the system need. This method is in the child thread containing
     the threads.
@@ -40,4 +49,4 @@ def _loop(queue: Queue):
     """
     while True:
         event_id = queue.get(True)  # We block ourselves waiting for something in the queue
-        GRDLogger(event_id)
+        GRDLogger(event_id, token)

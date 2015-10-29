@@ -1,11 +1,15 @@
 __author__ = 'Xavier Bustamante Talavera'
 
 def event_hooks(app):
+    """
+    pre_POST methods are not executed by post_internal
+    :param app:
+    :return:
+    """
     from app.event.snapshot.event_hooks import on_insert_snapshot
     app.on_insert_snapshot += on_insert_snapshot
 
-    from app.event.event_hooks import set_type, embed
-    app.on_pre_POST += set_type
+    from app.event.event_hooks import embed
     app.on_fetched_resource += embed
 
     from app.event.add.event_hooks import add_components
@@ -20,10 +24,10 @@ def event_hooks(app):
     from app.device.event_hooks import embed_components
     app.on_fetched_resource += embed_components
     app.on_fetched_item += embed_components
-   # app.on_fetched_item += embed_components
 
     from app.event.logger.settings import get_info_from_hook
     app.on_inserted += get_info_from_hook
 
-    from app.accounts.event_hooks import add_token
+    from app.accounts.event_hooks import add_token, block_users
     app.on_insert_accounts += add_token
+    app.on_insert_accounts += block_users  # Block users by default

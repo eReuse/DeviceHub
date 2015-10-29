@@ -17,12 +17,13 @@ class GRDLogger:
 
     DEBUG = False
 
-    def __init__(self, event_id: str):
+    def __init__(self, event_id: str, token: str):
         """
         Sends the vent that event_id represents to GRD.
         :param event_id: String version of the ObjectId of an event.
         """
-        response = app.test_client().get('events/' + event_id)
+        response = app.test_client().get('events/' + event_id, environ_base={'HTTP_AUTHORIZATION': 'Basic ' + token})
+
         event = json.loads(response.data.decode(app.config['ENCODING']))
         if event['@type'] == 'Register':
             self.register(event)

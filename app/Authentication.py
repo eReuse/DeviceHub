@@ -1,4 +1,7 @@
-from eve.auth import TokenAuth, BasicAuth
+from eve.auth import TokenAuth
+
+from app.accounts.User import User
+from app.config import MANAGERS
 
 __author__ = 'busta'
 
@@ -9,21 +12,28 @@ class RolesAuth(TokenAuth):
         username/password combo, which sould then validated against the account
         data stored on the DB.
         """
-        from app.app import app
         # use Eve's own db driver; no additional connections/resources are used
-        accounts = app.data.driver.db['accounts']
-        lookup = {'token': token}
-        if allowed_roles:  # only retrieve a user if his roles match ``allowed_roles``
-            lookup['roles'] = {'$in': allowed_roles}
-        account = accounts.find_one(dict(lookup))
-        if account and app.config['ADMIN'] not in account['roles']:
-            # if the user is not an admin, we need to check for some things:
-            if account and '_id' in account:
-                # for the domains (and only those) that have 'auth_field' in their settings, activate the checking.
-                self.set_request_auth_value(account['_id'])
-        return account
-
+        has_perm = False
+        if User.actual:
+            if allowed_roles and User.actual['role'] in allowed_roles:
+                if User.actual['role'] not in MANAGERS:
+                    self.set_request_auth_value(User.actual['_id'])
+                    has_perm = True
+            elif not allowed_roles:
+                has_perm = True
+        return has_perm
+"""
+    def check_post(self, resource, account):
+        from settings import DOMAIN
+        from flask import request
+        for field_name, field in DOMAIN[resource]['schema'].items():
+            if ALLOWED_WRITE_ROLES in field and field_name in request.json:
+                return account['role'] in ALLOWED_WRITE_ROLES
+        return True
+"""
 
 class AccountAuth(RolesAuth):
     def check_auth(self, token, allowed_roles, resource, method):
-        super()
+        return super(AccountAuth, self).check_auth(token, allowed_roles, resource, method)
+
+

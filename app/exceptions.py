@@ -8,8 +8,8 @@ class StandardError(Exception):
     status_code = 500
     title = 'Unexpected error'
 
-    def __init__(self, message):
-        self.message = message
+    def __init__(self, message=""):
+        self.message = self.title + "\n" + message
 
     def to_dict(self):
         return {'message': self.message, 'title': self.title}
@@ -25,9 +25,14 @@ class InnerRequestError(StandardError):
         self.status_code = status_code
         super().__init__(message)
 
+
 class WrongCredentials(StandardError):
     status_code = 401
     title = 'Unauthorized'
+
+
+class UserIsAnonymous(WrongCredentials):
+    pass
 
 
 @app.errorhandler(StandardError)

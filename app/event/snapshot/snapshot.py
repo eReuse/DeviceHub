@@ -51,7 +51,7 @@ class Snapshot:
         else:
             device['_id'] = existing_device['_id']
             if 'components' in existing_device:  # todo can exist empty lists of components?
-                device['components'] = existing_device['components']
+                device['components'] = existing_device['components']  # todo make sure components are or full object or objectid
             old_parent = Device.get_parent(ObjectId(existing_device['_id']))
             if old_parent is not None:
                 if new_parent is None or not Device.seem_equal(old_parent, new_parent):

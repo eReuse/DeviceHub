@@ -29,8 +29,13 @@ CSRF_ENABLED = True
 # Application settings
 APP_SYSTEM_ERROR_SUBJECT_LINE = APP_NAME + " system error"
 
-ADMIN = 'admin'
-USER = 'user'
-SUPERUSER = 'superuser'
-ROLES = [ADMIN, USER, SUPERUSER]
-PRIVILEGED_ROLES = [ADMIN, SUPERUSER]
+# Roles specify what users can do generally.
+# Locations alter what users can do. Locations permissions > roles. Admins don't get affected by location perms.
+
+BASIC = 'basic'  # Most basic user. Cannot do anything (except its account). Useful for external people.
+AMATEUR = 'amateur'  # Can create devices, however can just see and edit the ones it created. Events are restricted.
+EMPLOYEE = 'employee'  # Technicians. Full spectre of operations. Can interact with devices of others.
+ADMIN = 'admin'  # worker role + manage other users (except superusers). No location restrictions. Can see analytics.
+SUPERUSER = 'superuser'  # admin + they don't appear as public users, and they can manage other superusers.
+ROLES = [BASIC, AMATEUR, EMPLOYEE, ADMIN, SUPERUSER]
+MANAGERS = [ADMIN, SUPERUSER]

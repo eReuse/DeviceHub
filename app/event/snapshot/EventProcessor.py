@@ -1,6 +1,7 @@
 from pprint import pprint
 
 from bson import ObjectId
+from eve.methods.post import post_internal
 
 from flask import json
 
@@ -50,13 +51,19 @@ class EventProcessor:
         First execute the inserts so the stored devices can get the _id and then executes the rest of events.
         :return: A list of the executed events
         """
-        new_events = self._insert()
+        self._insert() # POST of devices is not an event we are going to save as (We save Register).
+        new_events = []
         for event_name, common_reference_dict in self.events.items():
             for reference, unique in common_reference_dict.items():
                 device = self.references[reference]
-                new_events.append(self._execute('/devices/' + str(device['_id']) + '/events/' + event_name,
-                                                {'components': [str(x['_id']) for x in
-                                                                unique]}))  # 'device': device['_id']
+                # new_events.append(self._execute('/devices/' + str(device['_id']) + '/events/' + event_name,
+                #                               {'components': [str(x['_id']) for x in
+                #                                                unique]}))  # 'device': device['_id']
+                new_events.append(self._execute(event_name, {
+                    '@type': event_name.title(),
+                    'device': device['_id'],
+                    'components': [str(x['_id']) for x in unique]
+                }))
         return new_events
 
     def _insert(self) -> list:
@@ -66,7 +73,7 @@ class EventProcessor:
         """
         new_events = []
         for device_to_insert in self.inserts:
-            response = self._execute('devices/' + get_resource_name(device_to_insert['@type']), device_to_insert)
+            response = self._execute(get_resource_name(device_to_insert['@type']), device_to_insert)
             device_to_insert['_id'] = ObjectId(response['_id'])
             new_events.append(response)
         return new_events
@@ -74,13 +81,12 @@ class EventProcessor:
     # noinspection PyProtectedMember
     @staticmethod
     def _execute(url, payload):
-        # todo this vs post_internal?
-        response = app.test_client().post(url, data=json.dumps(payload), content_type='application/json')
-        data = json.loads(response.data)
-        if response._status_code != 201:  # statusCode
-            raise InnerRequestError(response._status_code, data) #+ ' URL: ' + url + '. Payload: ' + json.dumps(payload)
-        pprint('Executed POST in ' + url + ' for _id ' + str(data['_id']))
-        return data
+        # response = app.test_client().post(url, data=json.dumps(payload), content_type='application/json')
+        response = post_internal(url, payload, True)
+        if response[3] != 201:  # statusCode
+            raise InnerRequestError(response._status_code, str(response[0]))
+        pprint('Executed POST in ' + url + ' for _id ' + str(response[0]['_id']))
+        return response[0]  # Actual data
 
     @staticmethod
     def check_viability():

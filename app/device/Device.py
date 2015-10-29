@@ -31,10 +31,14 @@ class Device:
             query = {'$or': query}
         return app.data.driver.db['devices'].find_one(query)
         """
-        response = app.test_client().get('devices/' + device['hid'])
+        from flask import request
+        response = app.test_client().get('devices/' + device['hid'], environ_base={'HTTP_AUTHORIZATION':
+                                                                                   request.headers.environ[
+                                                                                       'HTTP_AUTHORIZATION']})
         data = json.loads(response.data)
         if response._status_code != 200:  # statusCode
-            raise InnerRequestError(response._status_code, data)
+            raise InnerRequestError(response._status_code, data['_error']['message'])
+        data['_id'] = ObjectId(data['_id'])
         return data
 
     @staticmethod

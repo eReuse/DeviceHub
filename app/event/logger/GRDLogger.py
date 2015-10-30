@@ -2,9 +2,9 @@ import json
 import logging
 from pprint import pprint
 
-from pip._vendor import requests
-from pip._vendor.requests import HTTPError
-from pip._vendor.requests.auth import AuthBase
+import requests
+from requests import HTTPError
+from requests.auth import AuthBase
 from app.app import app
 
 __author__ = 'busta'

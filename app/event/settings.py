@@ -25,7 +25,7 @@ event = dict(thing, **{
 })
 
 event_settings = {
-    'resource_methods': ['GET', 'POST'],
+    'resource_methods': ['GET'],
     'schema': event,
     'allow_unknown': True,
     'embedded_fields': ['device'],
@@ -37,7 +37,8 @@ event_settings = {
 }
 
 event_sub_settings = {
-    'resource_methods': ['GET', 'POST'],
+    'resource_methods': ['POST'],
+    'item_methods': [],
     'embedded_fields': ['device'],
     'datasource': {
         'source': 'events',

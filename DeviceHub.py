@@ -1,5 +1,7 @@
 import logging
-from app.app import app
+##from app.app import app
+from app.docs import app
+
 
 app.config.from_object('app.config')
 

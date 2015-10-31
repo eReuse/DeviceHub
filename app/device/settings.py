@@ -66,6 +66,7 @@ device_settings = {
 
 device_sub_settings = {
     'resource_methods': ['POST'],
+    'item_methods': [],
     'url': device_settings['url'] + '/',
     'datasource': {
         'source': 'devices'

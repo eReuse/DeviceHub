@@ -1,7 +1,11 @@
-__author__ = 'Xavier Bustamante Talavera'
-from app.event.settings import event, event_sub_settings
+import copy
 
-add = dict(event, **{
+__author__ = 'Xavier Bustamante Talavera'
+from app.event.settings import event_with_one_device, event_sub_settings_one_device
+
+add = copy.deepcopy(event_with_one_device)
+add_settings = copy.deepcopy(event_sub_settings_one_device)
+add.update({
     'components': {
         'type': 'list',
         'schema': {
@@ -14,10 +18,8 @@ add = dict(event, **{
         }
     }
 })
-
-add_settings = dict(event_sub_settings, **{
+add_settings.update({
     'schema': add,
-    'url': event_sub_settings['url'] + 'add'
+    'url': event_sub_settings_one_device['url'] + 'add'
 })
-
 add_settings['datasource']['filter'] = {'@type': {'$eq': 'Add'}}

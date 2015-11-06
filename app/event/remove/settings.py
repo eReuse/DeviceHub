@@ -1,7 +1,10 @@
-__author__ = 'Xavier Bustamante Talavera'
-from app.event.settings import event, event_sub_settings
+import copy
 
-remove = dict(event, **{
+__author__ = 'Xavier Bustamante Talavera'
+from app.event.settings import event_with_one_device, event_sub_settings_one_device
+
+remove = copy.deepcopy(event_with_one_device)
+remove.update({
     'components': {
         'type': 'list',
         'schema': {
@@ -15,8 +18,9 @@ remove = dict(event, **{
     }
 })
 
-remove_settings = dict(event_sub_settings, **{
+remove_settings = copy.deepcopy(event_sub_settings_one_device)
+remove_settings.update({
     'schema': remove,
-    'url': event_sub_settings['url'] + 'remove'
+    'url': event_sub_settings_one_device['url'] + 'remove'
 })
 remove_settings['datasource']['filter'] = {'@type': {'$eq': 'Remove'}}

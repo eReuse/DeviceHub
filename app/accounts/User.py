@@ -13,7 +13,7 @@ class User:
 
     @ClassProperty
     @classmethod
-    def actual(cls):
+    def actual(cls) -> dict:
         if cls._actual is None:
             from flask import request
             try:

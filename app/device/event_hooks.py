@@ -26,4 +26,3 @@ def get_component(item):
     if 'components' in item:
         item['components'] = list(app.app.data.driver.db['devices'].find(
             {'_id': {'$in': [ObjectId(e) for e in item['components']]}}))
-

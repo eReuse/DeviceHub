@@ -6,7 +6,8 @@ rdfs = {
         'type': 'string',
     },
     '@type': {
-        'type': 'string'
+        'type': 'string',
+        'required': True
     }
 }
 

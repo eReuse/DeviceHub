@@ -1,7 +1,10 @@
+import copy
+
 __author__ = 'Xavier Bustamante Talavera'
 from app.device.settings import device, device_sub_settings
 
-computer = dict(device, **{
+computer = copy.deepcopy(device)
+computer.update({
     'type': {
         'type': 'string',
         'allowed': ['Desktop', 'Laptop', 'Netbook', 'Server', 'Microtower']
@@ -11,7 +14,8 @@ computer = dict(device, **{
     }
 })
 
-computer_settings = dict(device_sub_settings, **{
+computer_settings = copy.deepcopy(device_sub_settings)
+computer_settings.update({
     'schema': computer,
     'url': device_sub_settings['url'] + 'computer'
 })

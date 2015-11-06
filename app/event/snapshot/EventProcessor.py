@@ -82,7 +82,7 @@ class EventProcessor:
     @staticmethod
     def _execute(url, payload):
         # response = app.test_client().post(url, data=json.dumps(payload), content_type='application/json')
-        response = post_internal(url, payload, True)
+        response = post_internal(url, payload)
         if response[3] != 201:  # statusCode
             raise InnerRequestError(response._status_code, str(response[0]))
         pprint('Executed POST in ' + url + ' for _id ' + str(response[0]['_id']))

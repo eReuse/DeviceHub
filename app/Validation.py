@@ -5,6 +5,7 @@ __author__ = 'busta'
 from eve.io.mongo import Validator
 
 ALLOWED_WRITE_ROLES = 'dh_allowed_write_roles'
+DEFAULT_AUTHOR = 'dh_default_author'
 
 class DeviceHubValidator(Validator):
     def _validate_dh_allowed_write_roles(self, roles, field, value):

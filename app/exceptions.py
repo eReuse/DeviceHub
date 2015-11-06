@@ -7,9 +7,11 @@ __author__ = 'Xavier Bustamante Talavera'
 class StandardError(Exception):
     status_code = 500
     title = 'Unexpected error'
+    message = None
 
     def __init__(self, message=""):
-        self.message = self.title + "\n" + message
+        if self.message is None:
+            self.message = self.title + "\n" + message
 
     def to_dict(self):
         return {'message': self.message, 'title': self.title}
@@ -17,7 +19,8 @@ class StandardError(Exception):
 
 class ValidationError(StandardError):
     status_code = 400
-    title = 'The element has not passed validation'
+    title = 'Bad Request'
+    message = 'The element has not passed validation'
 
 
 class InnerRequestError(StandardError):
@@ -34,6 +37,16 @@ class WrongCredentials(StandardError):
 class UserIsAnonymous(WrongCredentials):
     pass
 
+
+class NoPlaceForGivenCoordinates(StandardError):
+    status_code = 400
+    title = 'Bad Request'
+    message = 'There is no place in such coordinates'
+
+class CoordenatesAndPlaceDoNotMatch(StandardError):
+    status_code = 400
+    title = 'Bad Request'
+    message = 'Place and coordenates do not match'
 
 @app.errorhandler(StandardError)
 def handle_standard_error(error):

@@ -36,7 +36,8 @@ account = {
 }
 
 account_settings = {
-    'resource_methods': ['GET', 'POST', 'DELETE'],
+    'resource_methods': ['GET', 'POST'],
+    'item_methods': ['PATCH', 'DELETE'],
     # the standard account entry point is defined as
     # '/accounts/<ObjectId>'. We define  an additional read-only entry
     # point accessible at '/accounts/<username>'.
@@ -44,9 +45,9 @@ account_settings = {
         'url': 'regex("[\w]+")',
         'field': 'email',
     },
-    'public_methods': ['POST'],  # Everyone can create an user, which will be blocked (not active)
+    'public_methods': ['POST'],  # Everyone can create an account, which will be blocked (not active)
 
-    'datasource':{
+    'datasource': {
         'projection': {'token': 0}  # We exclude from showing tokens to everyone
     },
 
@@ -65,5 +66,5 @@ account_settings = {
     # Finally, let's add the schema definition for this endpoint.
     'schema': account,
 
-    'authentication': AccountAuth
+   # 'authentication': AccountAuth
 }

@@ -1,3 +1,4 @@
+import copy
 from app.Utils import register_sub_types
 from app.device.component.Component import Component
 
@@ -33,7 +34,8 @@ individualProduct = dict(product, **{
     }
 })
 
-device = dict(individualProduct, **{
+device = copy.deepcopy(individualProduct)
+device.update({
     '_id': {
         'type': 'string',
         'unique': True
@@ -75,4 +77,4 @@ device_sub_settings = {
 
 
 def register_parent_devices(domain: dict):
-    register_sub_types(domain, 'app.device', ('computer',))
+    register_sub_types(domain, 'app.device', ('Computer',))

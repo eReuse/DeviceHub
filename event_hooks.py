@@ -9,8 +9,10 @@ def event_hooks(app):
     from app.event.snapshot.event_hooks import on_insert_snapshot
     app.on_insert_snapshot += on_insert_snapshot
 
-    from app.event.event_hooks import embed
+    from app.event.event_hooks import embed, get_place
     app.on_fetched_resource += embed
+    app.on_insert += get_place
+
 
     from app.event.add.event_hooks import add_components
     app.on_post_POST_add += add_components
@@ -31,3 +33,13 @@ def event_hooks(app):
     from app.accounts.event_hooks import add_token, block_users
     app.on_insert_accounts += add_token
     app.on_insert_accounts += block_users  # Block users by default
+
+    from app.Utils import set_byUser
+    app.on_insert += set_byUser
+
+    from app.place.event_hooks import set_place_in_devices, update_place_in_devices, unset_place_in_devices
+    #app.on_inserted_places += add_children,
+    app.on_inserted_places += set_place_in_devices
+    app.on_updated_places += update_place_in_devices
+    app.on_deleted_places += unset_place_in_devices
+

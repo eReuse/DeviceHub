@@ -50,19 +50,24 @@ device.update({
     'components': {
         'type': 'list',
         'schema': {
-            'type': 'objectid'
+            'type': 'objectid',
+            'data_relation': {
+                'resource': 'devices',
+                'embeddable': True,
+                'field': '_id'
+            }
         }
     }
 })
 
 device_settings = {
     'resource_methods': ['GET'],
-    'schema': device,
-    'allow_unknown': True,  # It let us get all the fields of any subtype of device
+    'schema': None,
     'additional_lookup': {
         'field': 'hid',
         'url': 'regex("' + HID_REGEX + '")'
     },
+    'embedded_fields': ['components'],
     'url': 'devices'
 }
 
@@ -73,8 +78,9 @@ device_sub_settings = {
     'datasource': {
         'source': 'devices'
     },
+    'embedded_fields': device_settings['embedded_fields']
 }
 
 
 def register_parent_devices(domain: dict):
-    register_sub_types(domain, 'app.device', ('Computer',))
+    return register_sub_types(domain, 'app.device', ('Computer',))

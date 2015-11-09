@@ -18,9 +18,10 @@ DOMAIN = {
     'accounts': account_settings,
     'places': place_settings
 }
-register_parent_devices(DOMAIN)
-register_components(DOMAIN)
-register_events(DOMAIN)
+DOMAIN['events']['schema'] = register_events(DOMAIN)
+full_device_schema = register_parent_devices(DOMAIN)
+full_device_schema.update(register_components(DOMAIN))
+DOMAIN['devices']['schema'] = full_device_schema
 
 X_DOMAINS = '*'
 X_HEADERS = ['Content-Type', 'Authorization']

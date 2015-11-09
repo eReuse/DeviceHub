@@ -23,7 +23,8 @@ component_sub_settings.update({
     'datasource': component_settings['datasource']
 })
 
+
 def register_components(domain: dict):
-    register_sub_types(domain, 'app.device.component', Component.get_types_of_components())
+    return register_sub_types(domain, 'app.device.component', Component.get_types_of_components())
 
 

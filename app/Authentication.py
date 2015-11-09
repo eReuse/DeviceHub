@@ -18,7 +18,7 @@ class RolesAuth(TokenAuth):
             if allowed_roles and User.actual['role'] in allowed_roles:
                 if User.actual['role'] not in MANAGERS:
                     self.set_request_auth_value(User.actual['_id'])
-                    has_perm = True
+                has_perm = True
             elif not allowed_roles:
                 has_perm = True
         return has_perm

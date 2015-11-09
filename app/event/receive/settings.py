@@ -1,5 +1,5 @@
 import copy
-from app.Validation import DEFAULT_AUTHOR
+from app.Validation import DEFAULT_AUTHOR, OR
 
 __author__ = 'Xavier Bustamante Talavera'
 from app.event.settings import event_with_devices, event_sub_settings_multiple_devices
@@ -11,9 +11,8 @@ receive.update({
         'data_relation': {
             'resource': 'accounts',
             'field': '_id',
-            'embeddable': True
+            'embeddable': True,
         },
-        'anyof': [{'required': True}, {'dependencies': ['receiverEmail']}]  # me OR email
     },
     'receiverEmail': {
         'type': 'string',
@@ -33,11 +32,13 @@ receive.update({
         'allowed': ['FinalUser', 'CollectionPoint', 'RecyclingPoint']
     }
 })
+receive['@type'][OR] = ['receiver', 'receiverEmail']
+# Receiver OR ReceiverEmail. We need to hook this in a required field so it is always executed
+# And @type is an always required field so we can happily hook on it
 
 receive_settings = copy.deepcopy(event_sub_settings_multiple_devices)
 receive_settings.update({
     'schema': receive,
-    #'url': event_sub_settings_multiple_devices['url'] + 'locate', todo choose url
-    'url': 'events/receive'
+    'url': event_sub_settings_multiple_devices['url'] + 'receive'
 })
 receive_settings['datasource']['filter'] = {'@type': {'$eq': 'Receive'}}

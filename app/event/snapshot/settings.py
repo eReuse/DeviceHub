@@ -24,6 +24,18 @@ snapshot.update({
         'schema': {
             'type': 'dict',
         }
+    },
+    'events': {  # Snapshot generates this automatically
+        'type': 'list',
+        'schema': {
+            'type': 'objectid',
+            'data_relation': {
+                'resource': 'events',
+                'embeddable': True,
+                'field': '_id'
+            }
+        },
+        'readonly': True
     }
 })
 

@@ -1,7 +1,7 @@
 from bson import ObjectId
 from flask import request
 from app.app import app
-from app.exceptions import CoordenatesAndPlaceDoNotMatch
+from app.exceptions import CoordinatesAndPlaceDoNotMatch
 from app.exceptions import NoPlaceForGivenCoordinates
 
 __author__ = 'busta'
@@ -65,7 +65,7 @@ def get_place(resource_name: str, events: list):
                     })
                     if 'place' in event:
                         if event['place']['_id'] != str(place['_id']):  # geo 1 place 1
-                            raise CoordenatesAndPlaceDoNotMatch()
+                            raise CoordinatesAndPlaceDoNotMatch()
                         else:
                             event['place'] = place['_id']  # geo 1 place found in DB
                 except KeyError:

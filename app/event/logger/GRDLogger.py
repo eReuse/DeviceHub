@@ -1,3 +1,4 @@
+import copy
 import json
 import logging
 from pprint import pprint
@@ -23,12 +24,18 @@ class GRDLogger:
         :param event_id: String version of the ObjectId of an event.
         """
         response = app.test_client().get('events/' + event_id, environ_base={'HTTP_AUTHORIZATION': 'Basic ' + token})
-
         event = json.loads(response.data.decode(app.config['ENCODING']))
         if event['@type'] == 'Register':
             self.register(event)
         else:
-            self.generic(event)
+            if 'devices' in event:  # We send the same event as many times as devices has
+                e = copy.deepcopy(event)
+                del e['devices']
+                for device in event['devices']:
+                    e['device'] = device
+                    self.generic(e)
+            else:
+                self.generic(event)
 
     def register(self, event: dict):
         """

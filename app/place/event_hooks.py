@@ -39,8 +39,9 @@ def remove_children(item: dict):
 
 def set_place_in_devices(items: list):
     for item in items:
-        for device_id in item['devices']:
-            _device_set_place(device_id, item['_id'])
+        if 'devices' in item:
+            for device_id in item['devices']:
+                _device_set_place(device_id, item['_id'])
 
 
 def update_place_in_devices(updated: dict, original: dict):

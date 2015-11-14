@@ -1,6 +1,5 @@
 import copy
 
-__author__ = 'Xavier Bustamante Talavera'
 from app.event.settings import event_with_one_device, event_sub_settings_one_device
 from app.device.computer.settings import computer
 
@@ -26,17 +25,17 @@ snapshot.update({
         }
     },
     'events': {  # Snapshot generates this automatically
-        'type': 'list',
-        'schema': {
-            'type': 'objectid',
-            'data_relation': {
-                'resource': 'events',
-                'embeddable': True,
-                'field': '_id'
-            }
-        },
-        'readonly': True
-    }
+                 'type': 'list',
+                 'schema': {
+                     'type': 'objectid',
+                     'data_relation': {
+                         'resource': 'events',
+                         'embeddable': True,
+                         'field': '_id'
+                     }
+                 },
+                 'readonly': True
+                 }
 })
 
 snapshot_settings = copy.deepcopy(event_sub_settings_one_device)

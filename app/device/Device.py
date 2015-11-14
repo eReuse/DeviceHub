@@ -1,12 +1,13 @@
+import re
+
 from bson import objectid, ObjectId
+
 from flask import json
+
 from app.app import app
 from app.exceptions import InnerRequestError
 from .exceptions import HidError
-import re
 from .settings import HID_REGEX
-
-__author__ = 'Xavier Bustamante Talavera'
 
 
 class Device:
@@ -33,8 +34,8 @@ class Device:
         """
         from flask import request
         response = app.test_client().get('devices/' + device['hid'], environ_base={'HTTP_AUTHORIZATION':
-                                                                                   request.headers.environ[
-                                                                                       'HTTP_AUTHORIZATION']})
+                                                                                       request.headers.environ[
+                                                                                           'HTTP_AUTHORIZATION']})
         data = json.loads(response.data)
         if response._status_code != 200:  # statusCode
             raise InnerRequestError(response._status_code, data['_error']['message'])

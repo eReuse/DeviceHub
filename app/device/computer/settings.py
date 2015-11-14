@@ -1,6 +1,5 @@
 import copy
 
-__author__ = 'Xavier Bustamante Talavera'
 from app.device.settings import device, device_sub_settings
 
 computer = copy.deepcopy(device)
@@ -10,8 +9,8 @@ computer.update({
         'allowed': ['Desktop', 'Laptop', 'Netbook', 'Server', 'Microtower']
     },
     'totalMemory': {  # In Gigabytes
-        'type': 'float'
-    }
+                      'type': 'float'
+                      }
 })
 
 computer_settings = copy.deepcopy(device_sub_settings)

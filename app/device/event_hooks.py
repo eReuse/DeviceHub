@@ -1,9 +1,3 @@
-import json
-from bson import ObjectId
-from flask import request
-from app import app
-
-__author__ = 'busta'
 """
 
 def embed_components(resource, response):

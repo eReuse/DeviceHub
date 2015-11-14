@@ -3,13 +3,8 @@ from pprint import pprint
 from bson import ObjectId
 from eve.methods.post import post_internal
 
-from flask import json
-
 from app.Utils import get_resource_name
 from app.exceptions import InnerRequestError
-from app.app import app
-
-__author__ = 'Xavier Bustamante Talavera'
 
 
 class EventProcessor:
@@ -51,7 +46,7 @@ class EventProcessor:
         First execute the inserts so the stored devices can get the _id and then executes the rest of events.
         :return: A list of the executed events
         """
-        self._insert() # POST of devices is not an event we are going to save as (We save Register).
+        self._insert()  # POST of devices is not an event we are going to save as (We save Register).
         new_events = []
         for event_name, common_reference_dict in self.events.items():
             for reference, unique in common_reference_dict.items():

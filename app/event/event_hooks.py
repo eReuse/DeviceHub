@@ -1,11 +1,9 @@
 from bson import ObjectId
 from flask import request
+
 from app.app import app
 from app.exceptions import CoordinatesAndPlaceDoNotMatch
 from app.exceptions import NoPlaceForGivenCoordinates
-
-__author__ = 'busta'
-
 from .Event import Event
 
 

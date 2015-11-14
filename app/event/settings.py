@@ -1,9 +1,9 @@
 import copy
+
 from app.Utils import register_sub_types
 from app.event.Event import Event
 from app.schema import thing
 
-__author__ = 'Xavier Bustamante Talavera'
 """
 Event Settings file.
 

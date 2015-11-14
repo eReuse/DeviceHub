@@ -1,7 +1,6 @@
 import copy
-from app.schema import thing
 
-__author__ = 'Xavier Bustamante Talavera'
+from app.schema import thing
 
 place = copy.deepcopy(thing)
 place.update({
@@ -21,7 +20,8 @@ place.update({
                 'field': '_id',
                 'embeddable': True
             }
-        }
+        },
+        'default': []
     },
     'description': {
         'type': 'string'

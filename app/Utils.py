@@ -1,13 +1,12 @@
 import copy
 from importlib import import_module
 import json
-from flask import Response
 
+from flask import Response
 import inflection as inflection
 from werkzeug.local import LocalProxy
-from app.accounts.User import User
 
-__author__ = 'busta'
+from app.accounts.User import User
 
 
 def get_resource_name(string: str) -> str:
@@ -45,6 +44,7 @@ def register_sub_types(domain: dict, parent_type: str, types_to_register=()) -> 
     x = copy.deepcopy(merged_schema)  # We copy it so we avoid others to work with references
     x['@type']['allowed'] = [parent_type]
     return x
+
 
 def set_byUser(resource_name: str, items: list):
     from app.app import app

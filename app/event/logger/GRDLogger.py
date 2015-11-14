@@ -6,9 +6,8 @@ from pprint import pprint
 import requests
 from requests import HTTPError
 from requests.auth import AuthBase
-from app.app import app
 
-__author__ = 'busta'
+from app.app import app
 
 
 class GRDLogger:

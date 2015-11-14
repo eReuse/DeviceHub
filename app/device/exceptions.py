@@ -1,5 +1,3 @@
-__author__ = 'busta'
-
 from app.exceptions import StandardError
 
 

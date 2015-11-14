@@ -11,6 +11,7 @@ from app.event.settings import event_settings, register_events
 from app.device.component.settings import register_components, component_settings
 from app.accounts.settings import account_settings
 from app.place.settings import place_settings
+
 DOMAIN = {
     'devices': device_settings,
     'events': event_settings,
@@ -22,11 +23,13 @@ DOMAIN['events']['schema'] = register_events(DOMAIN)
 full_device_schema = register_parent_devices(DOMAIN)
 full_device_schema.update(register_components(DOMAIN))
 DOMAIN['devices']['schema'] = full_device_schema
+MONGO_QUERY_BLACKLIST = ['$where']
 
 X_DOMAINS = '*'
 X_HEADERS = ['Content-Type', 'Authorization']
 X_EXPOSE_HEADERS = ['Authorization']
 IF_MATCH = False  # We do not need concurrency control for PUT (if true, we need to prive an etag (include it in x-headers!))
 
-from app.config import ROLES
-ALLOWED_ROLES = ROLES
+from app.accounts.User import Role
+
+ALLOWED_ROLES = list(Role.ROLES)

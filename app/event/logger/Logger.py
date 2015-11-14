@@ -1,9 +1,11 @@
 from multiprocessing import Process, Queue
+import json
+
 from eve.methods.post import post_internal
+
 from app.app import app
 from app.event.logger.GRDLogger import GRDLogger
-import json
-__author__ = 'busta'
+
 
 class Logger:
     """
@@ -37,6 +39,7 @@ class Logger:
         cls.thread = Process(target=_loop, args=(cls.queue, cls.token))
         cls.thread.daemon = True
         cls.thread.start()
+
 
 def _loop(queue: Queue, token: str):
     """

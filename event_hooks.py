@@ -1,6 +1,3 @@
-__author__ = 'Xavier Bustamante Talavera'
-
-
 def event_hooks(app):
     """
     pre_POST methods are not executed by post_internal
@@ -9,6 +6,10 @@ def event_hooks(app):
     """
     from app.Utils import set_jsonld_link
     app.on_post_GET += set_jsonld_link
+
+    from app.security.event_hooks import project_item, project_resource
+    app.on_fetched_item += project_item
+    app.on_fetched_resource += project_resource
 
     from app.event.snapshot.event_hooks import on_insert_snapshot
     app.on_insert_snapshot += on_insert_snapshot

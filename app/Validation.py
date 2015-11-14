@@ -1,8 +1,6 @@
-from app.accounts.User import User
-
-__author__ = 'busta'
-
 from eve.io.mongo import Validator
+
+from app.accounts.User import User
 
 ALLOWED_WRITE_ROLES = 'dh_allowed_write_roles'
 DEFAULT_AUTHOR = 'dh_default_author'

@@ -1,6 +1,4 @@
-__author__ = 'Xavier Bustamante Talavera'
 from app.event.snapshot.settings import snapshot_settings
-
 
 snapshot_file = {
     'file': {

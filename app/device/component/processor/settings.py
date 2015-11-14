@@ -1,6 +1,5 @@
 import copy
 
-__author__ = 'Xavier Bustamante Talavera'
 from app.device.component.settings import component, component_sub_settings
 
 processor = copy.deepcopy(component)
@@ -12,15 +11,15 @@ processor.update({
         'min': 1,
     },
     'speed': {  # In Ghz
-        'type': 'float'
-    },
+                'type': 'float'
+                },
     'busClock': {
         'type': 'float',
     },
     'address': {  # In bytes
-        'type': 'integer',
-        'allowed': [8, 16, 32, 64, 128, 256]
-    },
+                  'type': 'integer',
+                  'allowed': [8, 16, 32, 64, 128, 256]
+                  },
 })
 processor_settings.update({
     'schema': processor,

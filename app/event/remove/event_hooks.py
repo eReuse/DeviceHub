@@ -1,7 +1,5 @@
 from app.app import app
 
-__author__ = 'busta'
-
 
 def remove_components(request, payload):
     """
@@ -16,6 +14,3 @@ def remove_components(request, payload):
         {'_id': request.json['device']},
         {'$pull': {'components': {'$in': request.json['components']}}}
     )
-
-
-

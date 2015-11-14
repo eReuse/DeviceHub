@@ -1,14 +1,13 @@
-from app.Authentication import AccountAuth
-from app.Validation import ALLOWED_WRITE_ROLES
-from app.config import ROLES, MANAGERS, BASIC
+import pymongo
 
-__author__ = 'busta'
+from app.Validation import ALLOWED_WRITE_ROLES
+from .User import Role
 
 account = {
     'email': {
         'type': 'string',
         'required': True,
-        'unique': True,
+        'unique': True
     },
     'password': {
         'type': 'string',
@@ -17,9 +16,9 @@ account = {
     },
     'role': {
         'type': 'string',
-        'allowed': ROLES,
-        'default': BASIC,
-        ALLOWED_WRITE_ROLES: MANAGERS
+        'allowed': Role.ROLES,
+        'default': Role.BASIC,
+        ALLOWED_WRITE_ROLES: Role.MANAGERS
     },
     'token': {
         'type': 'string',
@@ -31,13 +30,13 @@ account = {
     'active': {
         'type': 'boolean',
         'default': False,
-        ALLOWED_WRITE_ROLES: MANAGERS
+        ALLOWED_WRITE_ROLES: Role.MANAGERS
     }
 }
 
 account_settings = {
     'resource_methods': ['GET', 'POST'],
-    'item_methods': ['PATCH', 'DELETE'],
+    'item_methods': ['PATCH', 'DELETE', 'GET'],
     # the standard account entry point is defined as
     # '/accounts/<ObjectId>'. We define  an additional read-only entry
     # point accessible at '/accounts/<username>'.
@@ -59,12 +58,20 @@ account_settings = {
     # Allow 'token' to be returned with POST responses
     'extra_response_fields': ['token', 'email', 'role', 'active', 'name'],
 
-
-    # Just the author can work with it's account
-    #'auth_field': 'user_id',
-
     # Finally, let's add the schema definition for this endpoint.
     'schema': account,
 
-   # 'authentication': AccountAuth
+    'mongo_indexes': {
+        'email': [('email', pymongo.DESCENDING)],
+        'name': [('name', pymongo.DESCENDING)],
+        'email and name': [('email', pymongo.DESCENDING), ('name', pymongo.DESCENDING)]
+    },
+
+    'get_projection_blacklist': {  # whitelist has more preference than blacklist
+        '*': ('password',),  # No one can see password
+        Role.EMPLOYEE: ('active',)  # Regular users cannot see if someone is active or not
+    },
+    'get_projection_whitelist': {
+        'author': ('password', 'active')  # Except the own author
+    }
 }

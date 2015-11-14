@@ -1,6 +1,3 @@
-__author__ = 'Xavier Bustamante Talavera'
-
-
 rdfs = {
     'label': {
         'type': 'string',
@@ -19,4 +16,3 @@ thing = dict(rdfs, **{
         'type': 'string'
     }
 })
-

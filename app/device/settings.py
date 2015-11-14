@@ -1,8 +1,6 @@
 import copy
-from app.Utils import register_sub_types
-from app.device.component.Component import Component
 
-__author__ = 'Xavier Bustamante Talavera'
+from app.Utils import register_sub_types
 from app.schema import thing
 
 HID_REGEX = '[\w]+-[\w]+'
@@ -12,14 +10,14 @@ product = dict(thing, **{
         'type': 'string'
     },
     'weight': {  # In kilograms
-        'type': 'float',
-    },
+                 'type': 'float',
+                 },
     'width': {  # In meters
-        'type': 'float'
-    },
+                'type': 'float'
+                },
     'height': {  # In meters
-        'type': 'float'
-    },
+                 'type': 'float'
+                 },
     'manufacturer': {
         'type': 'string'
     },

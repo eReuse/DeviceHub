@@ -1,7 +1,5 @@
 from app.app import app
 
-__author__ = 'busta'
-
 
 def set_components(request, payload):
     """

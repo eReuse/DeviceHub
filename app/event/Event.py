@@ -1,7 +1,5 @@
 from app.Utils import get_resource_name
 
-__author__ = 'busta'
-
 
 class Event:
     @staticmethod

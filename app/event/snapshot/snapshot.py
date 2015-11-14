@@ -1,9 +1,8 @@
 from bson import ObjectId
+
 from app.device.Device import Device
 from .EventProcessor import EventProcessor
 from app.exceptions import InnerRequestError
-
-__author__ = 'Xavier Bustamante Talavera'
 
 
 class Snapshot:
@@ -51,14 +50,15 @@ class Snapshot:
         else:
             device['_id'] = existing_device['_id']
             if 'components' in existing_device:  # todo can exist empty lists of components?
-                device['components'] = existing_device['components']  # todo make sure components are or full object or objectid
+                device['components'] = existing_device[
+                    'components']  # todo make sure components are or full object or objectid
             old_parent = Device.get_parent(ObjectId(existing_device['_id']))
             if old_parent is not None:
                 if new_parent is None or not Device.seem_equal(old_parent, new_parent):
                     #  Parents differ, so we need to remove it from the old parent
                     self.events.add_remove(existing_device, old_parent)
             if new_parent is not None:
-                if old_parent is not None and not Device.seem_equal(old_parent, new_parent):   # todo sure?
+                if old_parent is not None and not Device.seem_equal(old_parent, new_parent):  # todo sure?
                     self.events.add_add(existing_device, new_parent)
 
     def remove_nonexistent_components(self, device, new_components):

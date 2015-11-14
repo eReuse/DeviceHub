@@ -1,6 +1,5 @@
 import copy
 
-__author__ = 'Xavier Bustamante Talavera'
 from app.device.component.settings import component, component_sub_settings
 
 hard_drive = copy.deepcopy(component)
@@ -11,8 +10,8 @@ hard_drive.update({
         'type': 'string',
     },
     'size': {  # In Megabytes
-        'type': 'float'
-    }
+               'type': 'float'
+               }
 })
 hard_drive_settings.update({
     'schema': hard_drive,

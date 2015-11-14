@@ -1,6 +1,3 @@
-__author__ = 'busta'
-
-
 class Component:
     @staticmethod
     def get_types_of_components() -> ():

@@ -1,4 +1,3 @@
-__author__ = 'Xavier Bustamante Talavera'
 from app.event.snapshot.snapshot import Snapshot
 
 

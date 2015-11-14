@@ -1,10 +1,10 @@
 import base64
+
 from flask import request, jsonify
+
 from app.app import app
 from app.exceptions import WrongCredentials
 from .access_control import crossdomain
-
-__author__ = 'busta'
 
 
 @app.route('/login', methods=['POST', 'OPTIONS'])

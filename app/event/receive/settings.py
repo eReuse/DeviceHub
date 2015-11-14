@@ -1,7 +1,6 @@
 import copy
-from app.Validation import DEFAULT_AUTHOR, OR
 
-__author__ = 'Xavier Bustamante Talavera'
+from app.Validation import OR
 from app.event.settings import event_with_devices, event_sub_settings_multiple_devices
 
 receive = copy.deepcopy(event_with_devices)

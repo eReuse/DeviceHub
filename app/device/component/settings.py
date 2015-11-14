@@ -1,6 +1,5 @@
 import copy
 
-__author__ = 'Xavier Bustamante Talavera'
 from app.device.settings import device, device_settings, device_sub_settings
 from .Component import Component
 from app.Utils import register_sub_types
@@ -26,5 +25,3 @@ component_sub_settings.update({
 
 def register_components(domain: dict):
     return register_sub_types(domain, 'app.device.component', Component.get_types_of_components())
-
-

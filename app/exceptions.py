@@ -1,8 +1,7 @@
 from flask import jsonify, Response
+
 from app.Utils import get_header_link
 from app.app import app
-
-__author__ = 'Xavier Bustamante Talavera'
 
 
 class StandardError(Exception):
@@ -24,16 +23,11 @@ class StandardError(Exception):
         }
 
 
-"""class ValidationError(StandardError):
-    status_code = 400
-    message = 'The element has not passed validation'
-"""
-
-
 class InnerRequestError(StandardError):
     """
     Encapsulates errors produced by internal requests (GET, POST...).
     """
+
     def __init__(self, status_code, message):
         self.status_code = status_code
         super().__init__(message)

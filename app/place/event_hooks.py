@@ -1,13 +1,7 @@
-import json
 from bson import ObjectId
-from eve.methods.patch import patch_internal
-from flask import request
-from app.Utils import difference
-from app.accounts.User import User
-from app.app import app
-from app.device.Device import Device
 
-__author__ = 'busta'
+from app.Utils import difference
+from app.app import app
 
 """
 def add_children(items: list):
@@ -45,12 +39,13 @@ def set_place_in_devices(items: list):
 
 
 def update_place_in_devices(updated: dict, original: dict):
-    devices_to_remove_id = difference(original['devices'], updated['devices'])
-    for device_id in devices_to_remove_id:
-        _device_unset_place(device_id)
-    devices_to_add_places = difference(updated['devices'], original['devices'])
-    for device_id in devices_to_add_places:
-        _device_set_place(device_id, updated['_id'])
+    if 'devices' in updated:  # PATCH do not need to send us devices. For POST, the default is [].
+        devices_to_remove_id = difference(original['devices'], updated['devices'])
+        for device_id in devices_to_remove_id:
+            _device_unset_place(device_id)
+        devices_to_add_places = difference(updated['devices'], original['devices'])
+        for device_id in devices_to_add_places:
+            _device_set_place(device_id, updated['_id'])
 
 
 def unset_place_in_devices(item):

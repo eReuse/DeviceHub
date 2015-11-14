@@ -1,6 +1,6 @@
 from eve.auth import TokenAuth
 
-from app.accounts.User import User
+from app.accounts.user import User
 
 
 class RolesAuth(TokenAuth):

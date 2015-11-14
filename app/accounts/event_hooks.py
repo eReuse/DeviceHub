@@ -1,5 +1,6 @@
 import random
 import string
+from app.accounts.user import User
 
 from app.app import app
 
@@ -20,3 +21,9 @@ def block_users(documents: dict):
 def generate_token() -> str:
     return (''.join(random.choice(string.ascii_uppercase)
                     for x in range(10)))
+
+def set_byUser(resource_name: str, items: list):
+    from app.app import app
+    if 'byUser' in app.config['DOMAIN'][resource_name]['schema']:
+        for item in items:
+            item['byUser'] = User.actual['_id']

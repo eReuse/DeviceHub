@@ -1,8 +1,8 @@
 import copy
 
 from app.device.settings import device, device_settings, device_sub_settings
-from .Component import Component
-from app.Utils import register_sub_types
+from .component import Component
+from app.utils import register_sub_types
 
 component = copy.deepcopy(device)
 component_sub_settings = copy.deepcopy(device_sub_settings)

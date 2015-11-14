@@ -6,8 +6,6 @@ from flask import Response
 import inflection as inflection
 from werkzeug.local import LocalProxy
 
-from app.accounts.User import User
-
 
 def get_resource_name(string: str) -> str:
     """
@@ -45,14 +43,6 @@ def register_sub_types(domain: dict, parent_type: str, types_to_register=()) -> 
     x['@type']['allowed'] = [parent_type]
     return x
 
-
-def set_byUser(resource_name: str, items: list):
-    from app.app import app
-    if 'byUser' in app.config['DOMAIN'][resource_name]['schema']:
-        for item in items:
-            item['byUser'] = User.actual['_id']
-
-
 def difference(new_list: list, old_list: list) -> list:
     """
     Computes the difference between two lists of values
@@ -87,3 +77,4 @@ def set_jsonld_link(resource: str, request: LocalProxy, payload: Response):
 
 def get_header_link(resource_type: str) -> ():
     return 'Link', '<http://www.ereuse.org/onthology/' + resource_type + '.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+

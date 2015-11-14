@@ -1,4 +1,5 @@
 from werkzeug.http import parse_authorization_header
+from app.exceptions import WrongCredentials
 
 
 class ClassProperty(property):
@@ -9,6 +10,7 @@ class ClassProperty(property):
 class User:
     _actual = None
 
+    # noinspection PyNestedDecorators
     @ClassProperty
     @classmethod
     def actual(cls) -> dict:
@@ -17,12 +19,13 @@ class User:
             try:
                 x = request.headers.environ['HTTP_AUTHORIZATION']
                 token = parse_authorization_header(x)['username']
+                from app.app import app
+                cls._actual = app.data.driver.db['accounts'].find_one({'token': token})
+                cls._actual['role'] = Role(cls._actual['role'])
             except KeyError:
-                from app.exceptions import UserIsAnonymous
                 raise UserIsAnonymous("You need to be logged in.")
-            from app.app import app
-            cls._actual = app.data.driver.db['accounts'].find_one({'token': token})
-            cls._actual['role'] = Role(cls._actual['role'])
+            except TypeError:
+                raise NoUserForGivenToken()
         return cls._actual
 
 
@@ -85,3 +88,11 @@ class Role:
 
     def __hash__(self):
         return self.role.__hash__()
+
+
+class UserIsAnonymous(WrongCredentials):
+    pass
+
+
+class NoUserForGivenToken(WrongCredentials):
+    pass

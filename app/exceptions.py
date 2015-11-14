@@ -1,9 +1,3 @@
-from flask import jsonify, Response
-
-from app.Utils import get_header_link
-from app.app import app
-
-
 class StandardError(Exception):
     status_code = 500
     message = None
@@ -40,10 +34,6 @@ class WrongCredentials(StandardError):
     status_code = 401
 
 
-class UserIsAnonymous(WrongCredentials):
-    pass
-
-
 class NoPlaceForGivenCoordinates(StandardError):
     """
     We throw this error if given coordinates do not match any existing place.
@@ -62,10 +52,4 @@ class CoordinatesAndPlaceDoNotMatch(StandardError):
     message = 'Place and coordinates do not match'
 
 
-@app.errorhandler(StandardError)
-def handle_standard_error(error: StandardError) -> Response:
-    response = jsonify(error.to_dict())
-    header_name, header_value = get_header_link(type(error).__name__)
-    response.headers[header_name] = header_value
-    response.status_code = error.status_code
-    return response
+

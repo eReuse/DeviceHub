@@ -1,5 +1,5 @@
 from app.app import app
-from app.accounts.User import User
+from app.accounts.user import User
 GET_PROJECTION_BLACKLIST = 'get_projection_blacklist'
 GET_PROJECTION_WHITELIST = 'get_projection_whitelist'
 

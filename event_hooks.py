@@ -4,7 +4,7 @@ def event_hooks(app):
     :param app:
     :return:
     """
-    from app.Utils import set_jsonld_link
+    from app.utils import set_jsonld_link
     app.on_post_GET += set_jsonld_link
 
     from app.security.event_hooks import project_item, project_resource
@@ -33,7 +33,7 @@ def event_hooks(app):
     app.on_insert_accounts += add_token
     app.on_insert_accounts += block_users  # Block users by default
 
-    from app.Utils import set_byUser
+    from app.accounts.event_hooks import set_byUser
     app.on_insert += set_byUser
 
     from app.place.event_hooks import set_place_in_devices, update_place_in_devices, unset_place_in_devices

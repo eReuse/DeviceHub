@@ -1,6 +1,6 @@
 import copy
 
-from app.Utils import register_sub_types
+from app.utils import register_sub_types
 from app.schema import thing
 
 HID_REGEX = '[\w]+-[\w]+'

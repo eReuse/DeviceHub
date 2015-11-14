@@ -1,7 +1,7 @@
 from bson import ObjectId
 
-from app.device.Device import Device
-from .EventProcessor import EventProcessor
+from app.device.device import Device
+from .event_processor import EventProcessor
 from app.exceptions import InnerRequestError
 
 

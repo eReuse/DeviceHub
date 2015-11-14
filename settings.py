@@ -30,6 +30,6 @@ X_HEADERS = ['Content-Type', 'Authorization']
 X_EXPOSE_HEADERS = ['Authorization']
 IF_MATCH = False  # We do not need concurrency control for PUT (if true, we need to prive an etag (include it in x-headers!))
 
-from app.accounts.User import Role
+from app.accounts.user import Role
 
 ALLOWED_ROLES = list(Role.ROLES)

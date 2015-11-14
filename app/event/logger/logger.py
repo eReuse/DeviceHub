@@ -4,7 +4,7 @@ import json
 from eve.methods.post import post_internal
 
 from app.app import app
-from app.event.logger.GRDLogger import GRDLogger
+from app.event.logger.grd_logger import GRDLogger
 
 
 class Logger:

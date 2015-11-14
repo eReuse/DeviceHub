@@ -4,7 +4,7 @@ from flask import request
 from app.app import app
 from app.exceptions import CoordinatesAndPlaceDoNotMatch
 from app.exceptions import NoPlaceForGivenCoordinates
-from .Event import Event
+from .event import Event
 
 
 def embed(resource, response):

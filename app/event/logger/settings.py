@@ -1,5 +1,5 @@
-from app.event.Event import Event
-from app.event.logger.Logger import Logger
+from app.event.event import Event
+from app.event.logger.logger import Logger
 
 
 def get_info_from_hook(resource, events):

@@ -1,7 +1,7 @@
 import copy
 
-from app.Utils import register_sub_types
-from app.event.Event import Event
+from app.utils import register_sub_types
+from app.event.event import Event
 from app.schema import thing
 
 """

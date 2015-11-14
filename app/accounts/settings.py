@@ -1,7 +1,7 @@
 import pymongo
 
-from app.Validation import ALLOWED_WRITE_ROLES
-from .User import Role
+from app.validation import ALLOWED_WRITE_ROLES
+from .user import Role
 
 account = {
     'email': {

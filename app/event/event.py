@@ -1,4 +1,4 @@
-from app.Utils import get_resource_name
+from app.utils import get_resource_name
 
 
 class Event:

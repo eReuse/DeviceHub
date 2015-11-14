@@ -3,7 +3,7 @@ from pprint import pprint
 from bson import ObjectId
 from eve.methods.post import post_internal
 
-from app.Utils import get_resource_name
+from app.utils import get_resource_name
 from app.exceptions import InnerRequestError
 
 

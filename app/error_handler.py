@@ -4,8 +4,6 @@ from app.app import app
 from app.exceptions import StandardError
 from app.utils import get_header_link
 
-__author__ = 'busta'
-
 
 @app.errorhandler(StandardError)
 def handle_standard_error(error: StandardError) -> Response:

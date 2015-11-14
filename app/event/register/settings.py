@@ -13,7 +13,8 @@ register.update({
                 'field': '_id',
                 'embeddable': True
             }
-        }
+        },
+        'readonly': True
     }
 })
 

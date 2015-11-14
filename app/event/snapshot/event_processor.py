@@ -51,9 +51,6 @@ class EventProcessor:
         for event_name, common_reference_dict in self.events.items():
             for reference, unique in common_reference_dict.items():
                 device = self.references[reference]
-                # new_events.append(self._execute('/devices/' + str(device['_id']) + '/events/' + event_name,
-                #                               {'components': [str(x['_id']) for x in
-                #                                                unique]}))  # 'device': device['_id']
                 new_events.append(self._execute(event_name, {
                     '@type': event_name.title(),
                     'device': device['_id'],
@@ -75,12 +72,11 @@ class EventProcessor:
 
     # noinspection PyProtectedMember
     @staticmethod
-    def _execute(url, payload):
-        # response = app.test_client().post(url, data=json.dumps(payload), content_type='application/json')
-        response = post_internal(url, payload)
+    def _execute(resource: str, payload: dict):
+        response = post_internal(resource, payload)
         if response[3] != 201:  # statusCode
             raise InnerRequestError(response._status_code, str(response[0]))
-        pprint('Executed POST in ' + url + ' for _id ' + str(response[0]['_id']))
+        pprint('Executed POST in ' + resource + ' for _id ' + str(response[0]['_id']))
         return response[0]  # Actual data
 
     @staticmethod

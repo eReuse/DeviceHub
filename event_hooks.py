@@ -11,8 +11,9 @@ def event_hooks(app):
     app.on_fetched_item += project_item
     app.on_fetched_resource += project_resource
 
-    from app.event.snapshot.event_hooks import on_insert_snapshot
+    from app.event.snapshot.event_hooks import on_insert_snapshot, save_request
     app.on_insert_snapshot += on_insert_snapshot
+    app.on_pre_POST_snapshot += save_request
 
     from app.event.event_hooks import get_place
     app.on_insert += get_place

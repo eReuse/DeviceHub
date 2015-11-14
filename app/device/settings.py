@@ -40,7 +40,8 @@ device.update({
     },
     'hid': {
         'type': 'string',
-        'regex': HID_REGEX
+        'regex': HID_REGEX,
+        'unique': True
     },
     'isUidSecured': {
         'type': 'boolean'
@@ -54,7 +55,8 @@ device.update({
                 'embeddable': True,
                 'field': '_id'
             }
-        }
+        },
+        'default': []
     }
 })
 

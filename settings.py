@@ -32,4 +32,8 @@ IF_MATCH = False  # We do not need concurrency control for PUT (if true, we need
 
 from app.accounts.user import Role
 
-ALLOWED_ROLES = list(Role.ROLES)
+#ALLOWED_ROLES = list(Role.ROLES)
+ALLOWED_WRITE_ROLES = [Role.AMATEUR]
+ALLOWED_ITEM_WRITE_ROLES = [Role.AMATEUR]
+ALLOWED_READ_ROLES = [Role.BASIC]
+ALLOWED_ITEM_READ_ROLES = [Role.BASIC]

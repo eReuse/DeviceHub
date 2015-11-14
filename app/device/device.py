@@ -5,7 +5,7 @@ from bson import objectid, ObjectId
 from flask import json
 
 from app.app import app
-from app.exceptions import InnerRequestError
+from app.exceptions import InnerRequestError, StandardError
 from .exceptions import HidError
 from .settings import HID_REGEX
 
@@ -22,7 +22,7 @@ class Device:
         return device['hid']
 
     @staticmethod
-    def get_device_by_identifiers(device: dict) -> dict:
+    def get_device_by_hid(device: dict) -> dict:
         """  query = {}
         if 'hid' in device:
             query.update({'hid': device['hid']})
@@ -37,24 +37,30 @@ class Device:
                                                                                        request.headers.environ[
                                                                                            'HTTP_AUTHORIZATION']})
         data = json.loads(response.data)
-        if response._status_code != 200:  # statusCode
+        if response._status_code == 404:
+            raise DeviceNotFound()
+        elif response._status_code != 200:  # statusCode
             raise InnerRequestError(response._status_code, data['_error']['message'])
-        data['_id'] = ObjectId(data['_id'])
-        return data
+        else:
+            data['_id'] = ObjectId(data['_id'])
+            return data
 
     @staticmethod
     def get_parent(_id: objectid) -> dict or None:
-        return app.data.driver.db['devices'].find_one({'components': {'$in': [_id]}})
+        parent = app.data.driver.db['devices'].find_one({'components': {'$in': [_id]}})
+        if parent is None:
+            raise DeviceNotFound()
 
     @staticmethod
-    def seem_equal(x: dict, y: dict) -> bool:
+    def seem_equal_by_identifiers(x: dict, y: dict) -> bool:
         if id(x) == id(y):
             return True
         elif x['hid'] and y['hid'] and x['hid'] == y['hid']:
             return True
         elif 'pid' in x and 'pid' in y and x['pid'] == y['pid']:
             return True
-            #  todo improve
+        return False
+        #  todo improve
 
     @staticmethod
     def difference(list_to_remove_devices_from, checking_list):
@@ -70,7 +76,7 @@ class Device:
         for x in list_to_remove_devices_from:
             found = False
             for y in checking_list:
-                if Device.seem_equal(x, y):
+                if Device.seem_equal_by_identifiers(x, y):
                     found = True
             if not found:
                 difference.append(x)
@@ -79,3 +85,7 @@ class Device:
     @staticmethod
     def get_device_by_id(_id: ObjectId) -> dict:
         return app.data.driver.db['devices'].find_one({'_id': _id})
+
+
+class DeviceNotFound(StandardError):
+    status_code = 401

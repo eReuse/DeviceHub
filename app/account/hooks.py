@@ -1,6 +1,6 @@
 import random
 import string
-from app.accounts.user import User
+from app.account.user import User
 
 from app.app import app
 

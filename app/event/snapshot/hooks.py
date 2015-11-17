@@ -1,4 +1,4 @@
-from werkzeug.local import LocalProxy
+from flask import request
 from .snapshot import Snapshot
 
 
@@ -12,8 +12,10 @@ def on_insert_snapshot(items):
         item['unsecured'] = snapshot.unsecured
 
 
-def save_request(request: LocalProxy):
+def save_request(items):
     """
-    Saves the original request in a string in the 'request' field in json for debugging purposes
+    Saves the original request in a string in the 'request' field in json for debugging purposes.
+
+    Warning: This method does not support bulk inserts.
     """
-    request.json['request'] = request.data.decode()
+    items[0]['request'] = request.data.decode()

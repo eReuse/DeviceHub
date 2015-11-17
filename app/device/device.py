@@ -50,17 +50,22 @@ class Device:
         parent = app.data.driver.db['devices'].find_one({'components': {'$in': [_id]}})
         if parent is None:
             raise DeviceNotFound()
+        else:
+            return parent
 
     @staticmethod
-    def seem_equal_by_identifiers(x: dict, y: dict) -> bool:
+    def seem_equal(x: dict, y: dict) -> bool:
         if id(x) == id(y):
             return True
-        elif x['hid'] and y['hid'] and x['hid'] == y['hid']:
+        elif 'hid' in x and 'hid' in y and x['hid'] == y['hid']:
             return True
         elif 'pid' in x and 'pid' in y and x['pid'] == y['pid']:
             return True
+        elif 'hid' not in x and 'hid' not in y and 'pid' not in x and 'pid' not in y and \
+                'model' in x and 'model' in y and x['model'] == y['model']:
+            return True
         return False
-        #  todo improve
+        #  todo improve. What happens for non-hid and non-pid devices?
 
     @staticmethod
     def difference(list_to_remove_devices_from, checking_list):
@@ -76,7 +81,7 @@ class Device:
         for x in list_to_remove_devices_from:
             found = False
             for y in checking_list:
-                if Device.seem_equal_by_identifiers(x, y):
+                if Device.seem_equal(x, y):
                     found = True
             if not found:
                 difference.append(x)

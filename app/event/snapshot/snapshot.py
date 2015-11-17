@@ -37,10 +37,11 @@ class Snapshot:
                 else:
                     try:
                         component = self._get_similar_component(component)
-                    except DeviceNotFound:
-                        self._add_warning(self.device, 'NotFoundSimilarDevice')
-                    else:
-                        self.unsecured.append(component)
+                    except DeviceNotFound as e:
+                        self._add_warning(self.device, 'NotFoundSimilarDevice' + ' ' + e.message)
+                        self.events.add_insert(component)
+                        self.events.add_register(component, self.device)
+                self.unsecured.append(component)
             else:
                 self.get_events(component, self.device)
         self._remove_nonexistent_components()
@@ -71,11 +72,11 @@ class Snapshot:
             device['components'] = existing_device['components']
             if new_parent is not None:
                 try:
-                    old_parent = Device.get_parent(ObjectId(existing_device['_id']))
-                except DeviceNotFound:
-                    pass  # The device is new :-)
+                    old_parent = Device.get_parent(existing_device['_id'])
+                except DeviceNotFound:  # The component exists but had no parent device, until now
+                    self.events.add_add(existing_device, new_parent)
                 else:
-                    if not Device.seem_equal_by_identifiers(old_parent, new_parent):
+                    if not Device.seem_equal(old_parent, new_parent):
                         self.events.add_remove(existing_device, old_parent)
                         self.events.add_add(existing_device, new_parent)
 
@@ -93,16 +94,18 @@ class Snapshot:
         self.warnings.append({'@type': device['@type'], 'type': type})
 
     def _get_similar_component(self, component: dict) -> dict:
-        if '_id' not in self.device:
-            raise DeviceNotFound()
-        snapshots = app.data.driver.db['events'].find({'@type': 'Snapshot', 'device': self.device['_id']})
-        query = {'_id': {'$in': [snapshot['unsecured'] for snapshot in snapshots]}, '@type': component['@type'],
-                 'model': component['model']}
-        device = app.data.driver.db['devices'].find_one(query)
-        if device is None:
-            raise DeviceNotFound()
+        try:
+            snapshots = app.data.driver.db['events'].find({'@type': 'Snapshot', 'device': self.device['_id']})
+            query = {'_id': {'$in': [snapshot['unsecured'] for snapshot in snapshots]}, '@type': component['@type'],
+                     'model': component['model']}
+        except KeyError:  # if _id or
+            raise DeviceNotFound('ParentNo_idOrComponentNoModel')
         else:
-            return device
+            device = app.data.driver.db['devices'].find_one(query)
+            if device is None:
+                raise DeviceNotFound()
+            else:
+                return device
 
 
 

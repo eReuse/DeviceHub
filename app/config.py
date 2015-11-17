@@ -29,4 +29,4 @@ CSRF_ENABLED = True
 # Application settings
 APP_SYSTEM_ERROR_SUBJECT_LINE = APP_NAME + " system error"
 
-from app.accounts.login.settings import login
+from app.account.login.settings import login

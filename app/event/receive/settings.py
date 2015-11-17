@@ -29,7 +29,7 @@ receive.update({
         'type': 'string',
         'required': True,
         'allowed': ['FinalUser', 'CollectionPoint', 'RecyclingPoint']
-    }
+    },
 })
 receive['@type'][OR] = ['receiver', 'receiverEmail']
 # Receiver OR ReceiverEmail. We need to hook this in a required field so it is always executed

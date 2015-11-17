@@ -1,5 +1,5 @@
 import copy
-from app.accounts.user import Role
+from app.account.user import Role
 
 from app.event.settings import event_with_one_device, event_sub_settings_one_device
 from app.device.computer.settings import computer

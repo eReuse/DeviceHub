@@ -4,7 +4,7 @@ from app.event.settings import event_with_one_device, event_sub_settings_one_dev
 
 register = copy.deepcopy(event_with_one_device)
 register.update({
-    'components': {
+    'components': {  # We register the device AND its components, so this is writable
         'type': 'list',
         'schema': {
             'type': 'objectid',
@@ -13,8 +13,7 @@ register.update({
                 'field': '_id',
                 'embeddable': True
             }
-        },
-        'readonly': True
+        }
     }
 })
 

@@ -21,7 +21,7 @@ class Snapshot:
         :return:
         """
         try:
-            Device.compute_hid(self.device)  # Then we try to generate the hid
+            Device.normalize_and_compute_hid(self.device)  # Then we try to generate the hid
         except HidError as e:
             if 'pid' in self.device:
                 self._add_warning(self.device, 'CannotGenerateHIDUsedPid')
@@ -30,7 +30,7 @@ class Snapshot:
         self.get_events(self.device, None)  # We get the events that will be need to be performed
         for component in self.components:
             try:
-                Device.compute_hid(component)
+                Device.normalize_and_compute_hid(component)
             except HidError:
                 if 'pid' in self.device:
                     self._add_warning(self.device, 'CannotGenerateHIDUsedPid')

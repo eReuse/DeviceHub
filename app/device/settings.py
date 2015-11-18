@@ -1,6 +1,6 @@
 import copy
 
-from app.utils import register_sub_types
+from app.utils import register_sub_types, normalize
 from app.schema import thing
 
 HID_REGEX = '[\w]+-[\w]+'
@@ -19,7 +19,8 @@ product = dict(thing, **{
                  'type': 'float'
                  },
     'manufacturer': {
-        'type': 'string'
+        'type': 'string',
+        'coerce': normalize,
     },
     'productId': {
         'type': 'string'

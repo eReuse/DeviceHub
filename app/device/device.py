@@ -1,20 +1,22 @@
 import re
 
+import inflection
 from bson import objectid, ObjectId
 
 from flask import json
 
 from app.app import app
 from app.exceptions import InnerRequestError, StandardError
+from app.utils import normalize
 from .exceptions import HidError
 from .settings import HID_REGEX
 
 
 class Device:
     @staticmethod
-    def compute_hid(device: dict) -> int:
+    def normalize_and_compute_hid(device: dict) -> int:
         try:
-            device['hid'] = device['manufacturer'] + '-' + device['serialNumber']
+            device['hid'] = normalize(device['manufacturer']) + '-' + normalize(device['serialNumber'])
         except KeyError as e:
             raise HidError('Device value ' + str(e) + ' does not exist.')
         if not re.compile(HID_REGEX).match(device['hid']):
@@ -23,15 +25,6 @@ class Device:
 
     @staticmethod
     def get_device_by_hid(device: dict) -> dict:
-        """  query = {}
-        if 'hid' in device:
-            query.update({'hid': device['hid']})
-        if 'pid' in device:
-            query.update({'pid': device['pid']})
-        if len(query) > 1:
-            query = {'$or': query}
-        return app.data.driver.db['devices'].find_one(query)
-        """
         from flask import request
         response = app.test_client().get('devices/' + device['hid'], environ_base={'HTTP_AUTHORIZATION':
                                                                                        request.headers.environ[

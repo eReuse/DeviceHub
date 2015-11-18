@@ -78,3 +78,6 @@ def set_jsonld_link(resource: str, request: LocalProxy, payload: Response):
 def get_header_link(resource_type: str) -> ():
     return 'Link', '<http://www.ereuse.org/onthology/' + resource_type + '.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
 
+
+def normalize(string):
+    return inflection.parameterize(string, '_')

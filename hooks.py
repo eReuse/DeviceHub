@@ -21,7 +21,8 @@ def event_hooks(app):
     from app.event.add.hooks import add_components
     app.on_inserted_add += add_components
 
-    from app.event.register.hooks import set_components
+    from app.event.register.hooks import set_components, post_devices
+    app.on_insert_register += post_devices
     app.on_inserted_register += set_components
 
     from app.event.remove.hooks import remove_components

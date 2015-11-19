@@ -54,18 +54,19 @@ event.update({
 })
 event_settings = {
     'resource_methods': ['GET'],
-    'schema': None,  # We update the schema in DOMAIN
+    'schema': event,  # We update the schema in DOMAIN
     'embedded_fields': ['device', 'place', 'devices', 'places', 'components'],
     'datasource': {
         'source': 'events',
         'default_sort': [('_created', -1)]
     },
-    'url': 'events'
+    'url': 'events',
 }
 event_sub_settings = {
     'item_methods': [],
     'datasource': event_settings['datasource'],
-    'url': event_settings['url'] + '/'
+    'url': event_settings['url'] + '/',
+    'extra_response_fields': ['@type']
 }
 
 event_with_one_device = copy.deepcopy(event)

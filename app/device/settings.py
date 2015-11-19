@@ -29,7 +29,8 @@ product = dict(thing, **{
 
 individualProduct = dict(product, **{
     'serialNumber': {
-        'type': 'string'
+        'type': 'string',
+        'coerce': normalize,
     }
 })
 
@@ -41,8 +42,7 @@ device.update({
     },
     'hid': {
         'type': 'string',
-        'regex': HID_REGEX,
-        'unique': True
+        'regex': HID_REGEX  # unique breaks other resources
     },
     'isUidSecured': {
         'type': 'boolean'
@@ -63,7 +63,8 @@ device.update({
 
 device_settings = {
     'resource_methods': ['GET'],
-    'schema': None,
+    'item_methods': ['GET'],
+    'schema': device,
     'additional_lookup': {
         'field': 'hid',
         'url': 'regex("' + HID_REGEX + '")'
@@ -74,12 +75,13 @@ device_settings = {
 
 device_sub_settings = {
     'resource_methods': ['POST'],
-    'item_methods': [],
+    'item_methods': ['DELETE'],
     'url': device_settings['url'] + '/',
     'datasource': {
         'source': 'devices'
     },
-    'embedded_fields': device_settings['embedded_fields']
+    'embedded_fields': device_settings['embedded_fields'],
+    'extra_response_fields': ['@type']
 }
 
 

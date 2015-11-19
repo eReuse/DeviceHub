@@ -40,8 +40,9 @@ def register_sub_types(domain: dict, parent_type: str, types_to_register=()) -> 
         domain.update({get_resource_name(type_c): getattr(settings, type_u + '_settings')})
         merged_schema.update(getattr(settings, type_u + '_settings')['schema'])
     x = copy.deepcopy(merged_schema)  # We copy it so we avoid others to work with references
-    x['@type']['allowed'] = [parent_type]
+    x['@type']['allowed'] = types_to_register
     return x
+
 
 def difference(new_list: list, old_list: list) -> list:
     """

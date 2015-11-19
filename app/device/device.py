@@ -10,13 +10,18 @@ from app.exceptions import InnerRequestError, StandardError
 from app.utils import normalize
 from .exceptions import HidError
 from .settings import HID_REGEX
+from flask import request
 
 
 class Device:
     @staticmethod
     def normalize_and_compute_hid(device: dict) -> int:
+        if 'manufacturer' in device:
+            device['manufacturer'] = normalize(device['manufacturer'])
+        if 'serialNumber' in device:
+            device['serialNumber'] = normalize(device['serialNumber'])
         try:
-            device['hid'] = normalize(device['manufacturer']) + '-' + normalize(device['serialNumber'])
+            device['hid'] = device['manufacturer'] + '-' + device['serialNumber']
         except KeyError as e:
             raise HidError('Device value ' + str(e) + ' does not exist.')
         if not re.compile(HID_REGEX).match(device['hid']):
@@ -24,11 +29,10 @@ class Device:
         return device['hid']
 
     @staticmethod
-    def get_device_by_hid(device: dict) -> dict:
-        from flask import request
-        response = app.test_client().get('devices/' + device['hid'], environ_base={'HTTP_AUTHORIZATION':
-                                                                                       request.headers.environ[
-                                                                                           'HTTP_AUTHORIZATION']})
+    def get_device_by_hid(hid: str) -> dict:
+        response = app.test_client().get('devices/' + hid, environ_base={'HTTP_AUTHORIZATION':
+                                                                             request.headers.environ[
+                                                                                 'HTTP_AUTHORIZATION']})
         data = json.loads(response.data)
         if response._status_code == 404:
             raise DeviceNotFound()
@@ -37,6 +41,21 @@ class Device:
         else:
             data['_id'] = ObjectId(data['_id'])
             return data
+
+    @staticmethod
+    def get_device_by_pid(pid: str) -> dict:
+        response = app.test_client().get('devices?where={"pid":"' + pid + '"}', environ_base={'HTTP_AUTHORIZATION':
+                                                                                                  request.headers.environ[
+                                                                                                      'HTTP_AUTHORIZATION']})
+        data = json.loads(response.data)
+        if response._status_code == 404:
+            raise DeviceNotFound()
+        elif response._status_code != 200:
+            raise InnerRequestError(response._status_code, data['_error']['message'])
+        try:
+            return data[0]
+        except KeyError:
+            raise DeviceNotFound()
 
     @staticmethod
     def get_parent(_id: objectid) -> dict or None:
@@ -55,7 +74,7 @@ class Device:
         elif 'pid' in x and 'pid' in y and x['pid'] == y['pid']:
             return True
         elif 'hid' not in x and 'hid' not in y and 'pid' not in x and 'pid' not in y and \
-                'model' in x and 'model' in y and x['model'] == y['model']:
+                        'model' in x and 'model' in y and x['model'] == y['model']:
             return True
         return False
         #  todo improve. What happens for non-hid and non-pid devices?

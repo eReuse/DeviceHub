@@ -1,8 +1,10 @@
 from bson import ObjectId
+from eve.methods.delete import deleteitem_internal
 from app.app import app
 
 from app.device.device import Device, DeviceNotFound
 from app.device.exceptions import HidError
+from app.utils import get_resource_name
 from .event_processor import EventProcessor
 from app.exceptions import InnerRequestError
 
@@ -21,37 +23,49 @@ class Snapshot:
         :return:
         """
         try:
-            Device.normalize_and_compute_hid(self.device)  # Then we try to generate the hid
-        except HidError as e:
-            if 'pid' in self.device:
+            try:
+                Device.normalize_and_compute_hid(self.device)  # Then we try to generate the hid
+                self._get_device_by_hid_and_update_device(self.device)
+            except HidError:
+                self._get_device_by_pid_and_update_device(self.device['pid'])  # if not found will throw error
                 self._add_warning(self.device, 'CannotGenerateHIDUsedPid')
-            else:
-                raise e
-        self.get_events(self.device, None)  # We get the events that will be need to be performed
+        except (DeviceNotFound, KeyError):
+            self.events.add_register_parent(self.device)
         for component in self.components:
             try:
-                Device.normalize_and_compute_hid(component)
-            except HidError:
-                if 'pid' in self.device:
-                    self._add_warning(self.device, 'CannotGenerateHIDUsedPid')
-                else:
+                try:
+                    Device.normalize_and_compute_hid(component)
+                    self._get_device_by_hid_and_update_device(component)
+                except HidError:
+                    self.unsecured.append(component)
                     try:
-                        component = self._get_similar_component(component)
-                    except DeviceNotFound as e:
-                        self._add_warning(self.device, 'NotFoundSimilarDevice' + ' ' + e.message)
-                        self.events.add_insert(component)
-                        self.events.add_register(component, self.device)
-                self.unsecured.append(component)
+                        self._get_device_by_pid_and_update_device(component['pid'])
+                        self._add_warning(component, 'CannotGenerateHIDUsedPid')
+                    except (DeviceNotFound, KeyError):
+                        component['_id'] = self._get_similar_component_id(component)
+            except DeviceNotFound:
+                self.events.add_register_component(component)
             else:
-                self.get_events(component, self.device)
+                self.get_add_remove(component, self.device)
         self._remove_nonexistent_components()
-        self.events.check_viability()
 
+    # noinspection PyBroadException
     def process(self) -> list:
-        executed_events = self.events.process()
-        return executed_events
+            return self.events.process()
 
-    def get_events(self, device: dict, new_parent: dict = None):
+    @staticmethod
+    def _get_device_by_hid_and_update_device(device: dict):
+        existing_device = Device.get_device_by_hid(device['hid'])
+        device['_id'] = existing_device['_id']
+        device['components'] = existing_device['components']
+
+    @staticmethod
+    def _get_device_by_pid_and_update_device(device: dict):
+        existing_device = Device.get_device_by_pid(device['pid'])
+        device['_id'] = existing_device['_id']
+        device['components'] = existing_device['components']
+
+    def get_add_remove(self, device: dict, new_parent: dict):
         """
         Get the changes (events) that will need to be triggered for the given device.
         Changes will we saved in the same device in the reserved key '_change'.
@@ -61,24 +75,13 @@ class Snapshot:
         :param new_parent:
         """
         try:
-            existing_device = Device.get_device_by_hid(device)
-        except DeviceNotFound:
-            self.events.add_insert(device)
-            if new_parent is not None:  # todo: register parent with no children
-                # We register all the children with the parent at the same time
-                self.events.add_register(device, new_parent)
+            old_parent = Device.get_parent(device['_id'])
+        except DeviceNotFound:  # The component exists but had no parent device, until now
+            self.events.add_add(device, new_parent)
         else:
-            device['_id'] = existing_device['_id']
-            device['components'] = existing_device['components']
-            if new_parent is not None:
-                try:
-                    old_parent = Device.get_parent(existing_device['_id'])
-                except DeviceNotFound:  # The component exists but had no parent device, until now
-                    self.events.add_add(existing_device, new_parent)
-                else:
-                    if not Device.seem_equal(old_parent, new_parent):
-                        self.events.add_remove(existing_device, old_parent)
-                        self.events.add_add(existing_device, new_parent)
+            if not Device.seem_equal(old_parent, new_parent):
+                self.events.add_remove(device, old_parent)
+                self.events.add_add(device, new_parent)
 
     def _remove_nonexistent_components(self):
         """
@@ -93,10 +96,13 @@ class Snapshot:
     def _add_warning(self, device: dict, type: str):
         self.warnings.append({'@type': device['@type'], 'type': type})
 
-    def _get_similar_component(self, component: dict) -> dict:
+    def _get_similar_component_id(self, component: dict) -> dict:
         try:
-            snapshots = app.data.driver.db['events'].find({'@type': 'Snapshot', 'device': self.device['_id']})
-            query = {'_id': {'$in': [snapshot['unsecured'] for snapshot in snapshots]}, '@type': component['@type'],
+            snapshots = list(app.data.driver.db['events'].find({'@type': 'Snapshot', 'device': self.device['_id']}))
+            unsecured = []
+            for snapshot in snapshots:
+                unsecured += snapshot['unsecured']
+            query = {'_id': {'$in': unsecured}, '@type': component['@type'],
                      'model': component['model']}
         except KeyError:  # if _id or
             raise DeviceNotFound('ParentNo_idOrComponentNoModel')
@@ -105,8 +111,14 @@ class Snapshot:
             if device is None:
                 raise DeviceNotFound()
             else:
-                return device
+                return device['_id']
+
+    def delete_events(self, events: list):
+        """
+        Deletes the events and inserts (the latter deleting the device). The deletion is done in reverse order.
 
 
+        """
 
-
+        # for event in events:
+        #    deleteitem_internal(get_resource_name(event['@type']), event)

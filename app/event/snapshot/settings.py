@@ -1,5 +1,6 @@
 import copy
 from app.account.user import Role
+from app.device.component.settings import component
 
 from app.event.settings import event_with_one_device, event_sub_settings_one_device
 from app.device.computer.settings import computer
@@ -14,16 +15,6 @@ snapshot.update({
     },
     'version': {
         'type': 'float',
-    },
-    'device': {
-        'type': 'dict',
-        'schema': computer
-    },
-    'components': {
-        'type': 'list',
-        'schema': {
-            'type': 'dict',
-        }
     },
     'events': {  # Snapshot generates this automatically
         'type': 'list',
@@ -53,6 +44,19 @@ snapshot.update({
         },
         'default': [],
         'readonly': True
+    },
+    'device': {
+        'type': 'dict',
+        'schema': computer,
+        'required': True
+    },
+    'components': {
+        'type': 'list',
+        'schema': {
+            'type': 'dict',
+            'schema': component
+        },
+        'default': []
     }
 })
 

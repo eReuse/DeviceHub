@@ -11,7 +11,11 @@ ram_module.update({
     'size': {  # In Megabytes
                'type': 'float',
                'min': 1
-               }
+    },
+    'speed': {
+        'type': 'integer',
+        'min': 1
+    }
 })
 
 ram_module_settings = copy.deepcopy(component_sub_settings)

@@ -5,13 +5,17 @@ from .component import Component
 from app.utils import register_sub_types
 
 component = copy.deepcopy(device)
+component.update({
+    'interface': {
+        'type': 'string'
+    }
+})
 component_sub_settings = copy.deepcopy(device_sub_settings)
 
 component_settings = {
     'resource_methods': device_settings['resource_methods'],
     'additional_lookup': device_settings['additional_lookup'],
     'schema': component,
-    'allow_unknown': True,
     'datasource': {
         'source': 'devices',
         'filter': {'@type': {'$in': Component.get_types_of_components()}}

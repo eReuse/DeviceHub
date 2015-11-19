@@ -4,6 +4,8 @@
 
 # Please note that MONGO_HOST and MONGO_PORT could very well be left
 # out as they already default to a bare bones local 'mongod' instance.
+import copy
+
 MONGO_DBNAME = 'DeviceHub'
 
 from app.device.settings import device_settings, register_parent_devices
@@ -19,10 +21,15 @@ DOMAIN = {
     'accounts': account_settings,
     'places': place_settings
 }
-DOMAIN['events']['schema'] = register_events(DOMAIN)
+DOMAIN['events']['schema'].update(register_events(DOMAIN))
+DOMAIN['component']['schema'].update(register_components(DOMAIN))
+
 full_device_schema = register_parent_devices(DOMAIN)
-full_device_schema.update(register_components(DOMAIN))
-DOMAIN['devices']['schema'] = full_device_schema
+full_component_copy = copy.deepcopy(DOMAIN['component']['schema'])
+full_component_copy['@type']['allowed'] += full_device_schema['@type']['allowed']
+full_device_schema.update(full_component_copy)
+DOMAIN['devices']['schema'].update(full_device_schema)
+
 MONGO_QUERY_BLACKLIST = ['$where']
 BULK_ENABLED = False
 

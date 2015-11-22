@@ -1,6 +1,6 @@
 import copy
 
-from app.utils import register_sub_types, normalize
+from app.utils import register_sub_types
 from app.schema import thing
 
 HID_REGEX = '[\w]+-[\w]+'
@@ -20,7 +20,6 @@ product = dict(thing, **{
                  },
     'manufacturer': {
         'type': 'string',
-        'coerce': normalize,
     },
     'productId': {
         'type': 'string'
@@ -29,8 +28,7 @@ product = dict(thing, **{
 
 individualProduct = dict(product, **{
     'serialNumber': {
-        'type': 'string',
-        'coerce': normalize,
+        'type': 'string'
     }
 })
 
@@ -41,11 +39,17 @@ device.update({
         'unique': True
     },
     'hid': {
+        'type': 'hid',
+        # 'regex': HID_REGEX, They are executed by type hid
+        # 'unique': True
+    },
+    'pid': {
         'type': 'string',
-        'regex': HID_REGEX  # unique breaks other resources
+        'unique': True
     },
     'isUidSecured': {
-        'type': 'boolean'
+        'type': 'boolean',
+        'default': True
     },
     'components': {
         'type': 'list',
@@ -62,7 +66,7 @@ device.update({
 })
 
 device_settings = {
-    'resource_methods': ['GET'],
+    'resource_methods': ['GET', 'POST'],
     'item_methods': ['GET'],
     'schema': device,
     'additional_lookup': {
@@ -70,7 +74,8 @@ device_settings = {
         'url': 'regex("' + HID_REGEX + '")'
     },
     'embedded_fields': ['components'],
-    'url': 'devices'
+    'url': 'devices',
+    'etag_ignore_fields': ['hid', '_id', 'components', 'isUidSecured', '_created', '_updated', '_etag', 'speed', 'busClock']
 }
 
 device_sub_settings = {
@@ -81,7 +86,8 @@ device_sub_settings = {
         'source': 'devices'
     },
     'embedded_fields': device_settings['embedded_fields'],
-    'extra_response_fields': ['@type']
+    'extra_response_fields': ['@type', 'hid', 'pid'],
+    'etag_ignore_fields': device_settings['etag_ignore_fields'] + ['parent']
 }
 
 

@@ -1,7 +1,7 @@
 import random
 import string
-from app.account.user import User
 
+from app.account.user import User
 from app.app import app
 
 
@@ -21,6 +21,7 @@ def block_users(documents: dict):
 def generate_token() -> str:
     return (''.join(random.choice(string.ascii_uppercase)
                     for x in range(10)))
+
 
 def set_byUser(resource_name: str, items: list):
     from app.app import app

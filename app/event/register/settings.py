@@ -1,23 +1,17 @@
 import copy
 
-from app.device.component.settings import component
 from app.device.settings import device
 from app.event.settings import event_with_one_device, event_sub_settings_one_device
 
 register = copy.deepcopy(event_with_one_device)
 register.update({
     'device': {
-        'type': 'dict',
+        'type': ['dict', 'objectid'],
         'schema': device  # anyof causes a bug where resource is not set
     },
     'components': {
-        'type': 'list',
-        'schema': {
-            'type': 'dict',
-            'schema': component
-        },
-        'default': []
-    },
+        'type': ['objectid', 'list'],
+    }
 })
 
 register_settings = copy.deepcopy(event_sub_settings_one_device)

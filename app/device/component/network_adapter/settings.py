@@ -7,7 +7,7 @@ network_adapter_settings = copy.deepcopy(component_sub_settings)
 
 network_adapter.update({
     'speed': {
-        'type': 'integer'  # Speed in MB
+        'type': 'float'  # Speed in MB
     }
 })
 

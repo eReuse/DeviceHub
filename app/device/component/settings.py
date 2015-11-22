@@ -8,6 +8,9 @@ component = copy.deepcopy(device)
 component.update({
     'interface': {
         'type': 'string'
+    },
+    'parent': {
+        'type': 'objectid'
     }
 })
 component_sub_settings = copy.deepcopy(device_sub_settings)
@@ -20,7 +23,7 @@ component_settings = {
         'source': 'devices',
         'filter': {'@type': {'$in': Component.get_types_of_components()}}
     },
-    'url': device_settings['url'] + '/components/<regex("[a-f0-9]{24}"):component>'
+    'url': device_settings['url'] + '/components/<regex("[a-f0-9]{24}"):component>',
 }
 component_sub_settings.update({
     'datasource': component_settings['datasource']

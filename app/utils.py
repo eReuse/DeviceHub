@@ -82,3 +82,5 @@ def get_header_link(resource_type: str) -> ():
 
 def normalize(string):
     return inflection.parameterize(string, '_')
+
+

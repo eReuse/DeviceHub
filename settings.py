@@ -5,6 +5,7 @@
 # Please note that MONGO_HOST and MONGO_PORT could very well be left
 # out as they already default to a bare bones local 'mongod' instance.
 import copy
+import os
 
 MONGO_DBNAME = 'DeviceHub'
 
@@ -37,7 +38,7 @@ X_DOMAINS = '*'
 X_HEADERS = ['Content-Type', 'Authorization']
 X_EXPOSE_HEADERS = ['Authorization']
 IF_MATCH = False  # We do not need concurrency control for PUT (if true, we need to prive an etag (include it in x-headers!))
-
+XML = False
 
 from app.account.user import Role
 
@@ -47,3 +48,13 @@ ALLOWED_WRITE_ROLES = [Role.AMATEUR]
 ALLOWED_ITEM_WRITE_ROLES = [Role.AMATEUR]
 ALLOWED_READ_ROLES = [Role.BASIC]
 ALLOWED_ITEM_READ_ROLES = [Role.BASIC]
+__author__ = 'Xavier'
+APP_NAME = "DeviceHub"
+ENCODING = "utf-8"  # used just in some scenarios where default Flask doesn't happen (default is utf-8)
+_SERVER_NAME = "https://devicehub.ereue.org"  # Name used not by flask or python-eve but for sending it to other servers (can be false :-D)
+GRD_DOMAIN = 'https://sandbox.ereuse.org/'
+DEBUG = True
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+THREADS_PER_PAGE = 2
+CSRF_ENABLED = True
+APP_SYSTEM_ERROR_SUBJECT_LINE = APP_NAME + " system error"

@@ -42,7 +42,6 @@ class GRDLogger:
             else:
                 raise e
 
-
     def register(self, event: dict):
         """
         Sends a Register event to GRD.

@@ -14,7 +14,7 @@ processor.update({
                 'type': 'float'
                 },
     'busClock': {
-        'type': 'float',
+        'type': 'integer',
     },
     'address': {  # In bytes
                   'type': 'integer',

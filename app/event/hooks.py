@@ -1,6 +1,3 @@
-from bson import ObjectId
-from flask import request
-
 from app.app import app
 from app.exceptions import CoordinatesAndPlaceDoNotMatch
 from app.exceptions import NoPlaceForGivenCoordinates

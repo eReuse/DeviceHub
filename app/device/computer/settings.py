@@ -9,7 +9,7 @@ computer.update({
         'allowed': ['Desktop', 'Laptop', 'Netbook', 'Server', 'Microtower']
     },
     'totalMemory': {  # In Gigabytes
-                      'type': 'float'
+                      'type': 'integer'
                       }
 })
 

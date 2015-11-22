@@ -7,6 +7,9 @@ def event_hooks(app):
     from app.utils import set_jsonld_link
     app.on_post_GET += set_jsonld_link
 
+    from app.device.hooks import generate_etag
+    app.on_insert += generate_etag
+
     from app.security.hooks import project_item, project_resource
     app.on_fetched_item += project_item
     app.on_fetched_resource += project_resource
@@ -21,15 +24,13 @@ def event_hooks(app):
     from app.event.add.hooks import add_components
     app.on_inserted_add += add_components
 
-    from app.event.register.hooks import set_components, post_devices
+    from app.event.register.hooks import post_devices
     app.on_insert_register += post_devices
-    app.on_inserted_register += set_components
 
     from app.event.remove.hooks import remove_components
     app.on_inserted_remove += remove_components
 
-    from app.event.logger.settings import get_info_from_hook
-    app.on_inserted += get_info_from_hook
+    #app.on_inserted += get_info_from_hook
 
     from app.account.hooks import add_token, block_users
     app.on_insert_accounts += add_token

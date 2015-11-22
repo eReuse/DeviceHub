@@ -6,10 +6,10 @@ graphic_card = copy.deepcopy(component)
 graphic_card_settings = copy.deepcopy(component_sub_settings)
 
 graphic_card.update({
-    'memory': {  # Speed in MB
-                 'type': 'float',
-                 'min': 1,
-                 }
+    'memory': {
+        'type': 'float',  # Speed in MB
+        'min': 1,
+    }
 })
 
 graphic_card_settings.update({

@@ -1,5 +1,13 @@
-class StandardError(Exception):
-    status_code = 500
+class BasicError(Exception):
+    def __init__(self, body: dict or str, status_code: int = 500):
+        self.body = body
+        self.status_code = status_code
+
+    def to_dict(self):
+        return self.body
+
+
+class StandardError(BasicError):
     message = None
 
     def __init__(self, message=""):
@@ -17,14 +25,29 @@ class StandardError(Exception):
         }
 
 
-class InnerRequestError(StandardError):
+class SchemaError(StandardError):
+    status_code = 422
+
+    def __init__(self, field, message):
+        self.field = field
+        self.message = message
+
+    def to_dict(self):
+        return {
+            '_issues': {
+                self.field: self.message
+            }
+        }
+
+
+class InnerRequestError(BasicError):
     """
     Encapsulates errors produced by internal requests (GET, POST...).
     """
 
-    def __init__(self, status_code, message):
-        self.status_code = status_code
-        super().__init__(message)
+    def __init__(self, status_code, info: dict = None):
+        self.info = info
+        super().__init__(info, status_code)
 
 
 class WrongCredentials(StandardError):
@@ -50,6 +73,3 @@ class CoordinatesAndPlaceDoNotMatch(StandardError):
     """
     status_code = 400
     message = 'Place and coordinates do not match'
-
-
-

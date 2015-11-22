@@ -32,7 +32,7 @@ event.update({
     },
     'geo': {
         'type': 'point',
-        #'anyof': [{'required': True}, {'dependencies': ['place']}]  # me OR places
+        # 'anyof': [{'required': True}, {'dependencies': ['place']}]  # me OR places
     },
     'byUser': {
         'type': 'objectid',

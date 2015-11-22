@@ -1,7 +1,7 @@
 import copy
+
 from app.account.user import Role
 from app.device.component.settings import component
-
 from app.event.settings import event_with_one_device, event_sub_settings_one_device
 from app.device.computer.settings import computer
 
@@ -16,8 +16,8 @@ snapshot.update({
     'version': {
         'type': 'float',
     },
-    'events': {  # Snapshot generates this automatically
-        'type': 'list',
+    'events': {
+        'type': 'list',  # Snapshot generates this automatically
         'schema': {
             'type': 'objectid',
             'data_relation': {
@@ -28,18 +28,30 @@ snapshot.update({
         },
         'readonly': True
     },
-    'request': {  # The request sent, saved in case of debugging
-        'type': 'string',
+    'request': {
+        'type': 'string',  # The request sent, saved in case of debugging
         'readonly': True
     },
-    'unsecured': {  # When we match an existing non-hid device, we state it here
-        'type': 'list',
+    'unsecured': {
+        'type': 'list',  # When we match an existing non-hid device, we state it here
         'schema': {
-            'type':  'objectid',
-            'data_relation': {
-                'resource': 'devices',
-                'field': '_id',
-                'embeddable': True
+            'type': 'dict',
+            'schema': {
+                '_id': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'devices',
+                        'field': '_id',
+                        'embeddable': True
+                    }
+                },
+                '@type': {
+                    'type': 'string'
+                },
+                'type': {
+                    'type': 'string',
+                    'allowed': ('model', 'pid')
+                }
             }
         },
         'default': [],
@@ -65,6 +77,7 @@ snapshot_settings.update({
     'resource_methods': ['POST'],
     'schema': snapshot,
     'url': 'snapshot',
-    'get_projection_blacklist': {Role.ADMIN: ('request',)}  # Just superusers
+    'get_projection_blacklist': {Role.ADMIN: ('request',)},  # Just superusers
+    'extra_response_fields': snapshot_settings['extra_response_fields'] + ['events']
 })
 snapshot_settings['datasource']['filter'] = {'@type': {'$eq': 'Snapshot'}}

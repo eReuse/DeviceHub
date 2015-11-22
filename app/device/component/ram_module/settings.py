@@ -4,16 +4,16 @@ from app.device.component.settings import component, component_sub_settings
 
 ram_module = copy.deepcopy(component)
 ram_module.update({
-    'clock': {  # In Mhz
-                'type': 'float',
-                'min': 1
-                },
-    'size': {  # In Megabytes
-               'type': 'float',
-               'min': 1
+    'clock': {
+        'type': 'integer',  # In Mhz
+        'min': 1
+    },
+    'size': {
+        'type': 'integer',  # In Megabytes
+        'min': 1
     },
     'speed': {
-        'type': 'integer',
+        'type': 'float',
         'min': 1
     }
 })

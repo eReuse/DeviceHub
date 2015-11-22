@@ -68,11 +68,11 @@ account_settings = {
     },
 
     'get_projection_blacklist': {  # whitelist has more preference than blacklist
-        '*': ('password',),  # No one can see password
-        Role.EMPLOYEE: ('active',)  # Regular users cannot see if someone is active or not
-    },
+                                   '*': ('password',),  # No one can see password
+                                   Role.EMPLOYEE: ('active',)  # Regular users cannot see if someone is active or not
+                                   },
     'get_projection_whitelist': {
         'author': ('password', 'active')  # Except the own author
     },
-    'allowed_item_write_roles': [Role.AMATEUR]  #Amateur can write it's account
+    'allowed_item_write_roles': [Role.AMATEUR]  # Amateur can write it's account
 }

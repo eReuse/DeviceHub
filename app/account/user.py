@@ -1,4 +1,5 @@
 from werkzeug.http import parse_authorization_header
+
 from app.exceptions import WrongCredentials
 
 

@@ -18,11 +18,13 @@ class DeviceHubValidator(Validator):
         if not User.actual['role'] in roles:
             self._error(field, "You do not have permission to write field " + field + ".")
 
-    def _validate_dh_or(self, list_of_names, field, value):
-        for name in list_of_names:
-            if name in self.document:
-                return
-        self._error(list_of_names[0], "You need to set one of these: " + str(list_of_names))
+    def _validate_dh_or(self, options, field, value):
+        role, list_of_names = options
+        if User.actual['role'] == role:
+            for name in list_of_names:
+                if name in self.document:
+                    return
+            self._error(list_of_names[0], "You need to set one of these: " + str(list_of_names))
 
     def _is_value_unique(self, unique, field, value, query):
         """

@@ -3,33 +3,6 @@ from bson import ObjectId
 from app.utils import difference
 from app.app import app
 
-"""
-def add_children(items: list):
-    for item in items:
-        if 'parent' in item:
-            app.data.driver.db['places'].update(
-                {'_id': item['parent']},
-                {'$push': {'children': item['_id']}}
-            )
-
-
-def remove_children(item: dict):
-    if 'parent' in item:
-        app.data.driver.db['places'].update(
-            {'_id': item['parent']},
-            {'$pull': {'children': item['_id']}}
-        )
-
-
-           response = app.test_client().get('places/' + str(item['_id']), environ_base=request.headers.environ)
-            place = json.loads(response.data.decode(app.config['ENCODING']))
-            place['children'].append(item['parent'])
-            response = app.test_client().patch('places/' + str(item['_id']), payload={'children': place['children']},
-                                    environ_base=request.headers.environ)
-            pass
-
-"""
-
 
 def set_place_in_devices(items: list):
     for item in items:

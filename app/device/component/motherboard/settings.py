@@ -6,6 +6,26 @@ motherboard = copy.deepcopy(component)
 motherboard.update({
     'totalSlots': {
         'type': 'integer'
+    },
+    'usedSlots': {
+        'type': 'integer'
+    },
+    'connectors': {
+        'type': 'dict',
+        'schema': {
+            'usb': {
+                'type': 'integer'
+            },
+            'firewire': {
+                'type': 'integer'
+            },
+            'serial': {
+                'type': 'integer'
+            },
+            'pcmcia': {
+                'type': 'integer'
+            }
+        }
     }
 }
 )

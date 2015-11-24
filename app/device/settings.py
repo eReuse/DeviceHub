@@ -9,15 +9,15 @@ product = dict(thing, **{
     'model': {
         'type': 'string'
     },
-    'weight': {  # In kilograms
-                 'type': 'float',
-                 },
-    'width': {  # In meters
-                'type': 'float'
-                },
-    'height': {  # In meters
-                 'type': 'float'
-                 },
+    'weight': {
+        'type': 'float',  # In kilograms
+    },
+    'width': {
+        'type': 'float'  # In meters
+    },
+    'height': {
+        'type': 'float'  # In meters
+    },
     'manufacturer': {
         'type': 'string',
     },
@@ -75,7 +75,8 @@ device_settings = {
     },
     'embedded_fields': ['components'],
     'url': 'devices',
-    'etag_ignore_fields': ['hid', '_id', 'components', 'isUidSecured', '_created', '_updated', '_etag', 'speed', 'busClock']
+    'etag_ignore_fields': ['hid', '_id', 'components', 'isUidSecured', '_created', '_updated', '_etag', 'speed',
+                           'busClock']
 }
 
 device_sub_settings = {

@@ -23,7 +23,8 @@ receive.update({
     },
     'acceptedConditions': {
         'type': 'boolean',
-        'required': True
+        'required': True,
+        'allowed': [True]
     },
     'type': {
         'type': 'string',
@@ -31,7 +32,7 @@ receive.update({
         'allowed': ['FinalUser', 'CollectionPoint', 'RecyclingPoint']
     },
 })
-receive['@type'][OR] = ['receiver', 'receiverEmail']
+receive['@type'][OR] = 'employee', ('receiver', 'receiverEmail')
 # Receiver OR ReceiverEmail. We need to hook this in a required field so it is always executed
 # And @type is an always required field so we can happily hook on it
 

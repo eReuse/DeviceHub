@@ -21,5 +21,5 @@ def login():
             str.encode(account['token'] + ':'))  # Framework needs ':' at the end before send it to client
         account['_id'] = str(account['_id'])
         return jsonify(account)
-    except:
+    except (KeyError, TypeError):
         raise WrongCredentials('There is not an user with the matching username/password')

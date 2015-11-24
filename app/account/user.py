@@ -1,5 +1,5 @@
 from werkzeug.http import parse_authorization_header
-
+from flask import g
 from app.exceptions import WrongCredentials
 
 
@@ -9,25 +9,24 @@ class ClassProperty(property):
 
 
 class User:
-    _actual = None
 
     # noinspection PyNestedDecorators
     @ClassProperty
     @classmethod
     def actual(cls) -> dict:
-        if cls._actual is None:
+        if not hasattr(g, '_actual_user'):
             from flask import request
             try:
                 x = request.headers.environ['HTTP_AUTHORIZATION']
                 token = parse_authorization_header(x)['username']
                 from app.app import app
-                cls._actual = app.data.driver.db['accounts'].find_one({'token': token})
-                cls._actual['role'] = Role(cls._actual['role'])
+                g._actual_user = app.data.driver.db['accounts'].find_one({'token': token})
+                g._actual_user['role'] = Role(g._actual_user['role'])
             except KeyError:
                 raise UserIsAnonymous("You need to be logged in.")
             except TypeError:
                 raise NoUserForGivenToken()
-        return cls._actual
+        return g._actual_user
 
 
 class Role:

@@ -1,9 +1,22 @@
 from random import choice
+import unittest
 
 from tests import TestStandard
 
 
 class TestSnapshot(TestStandard):
+    DUMMY_DEVICES = (
+        '1_1_Register_one_device_with_components.json',
+        '1 - 2 - Register second device with components of first.json',
+        '1 - 3 - Register 1-1 but removing motherboard moving processor from 1-2 to 1-1.json',
+        '1 - 4 - Register 1-1 but removing processor (which ended again in 1-1) and adding graphicCard.json',
+        '2 -1 Same as 1 - 1 processor without hid.json'
+    )
+    REAL_DEVICES = (
+        'vostro.json', 'vaio.json', 'xps13.json', 'mounted.json'
+    )
+    RESOURCES_PATH = 'test_events/test_snapshot/resources/'
+
     def assertSimilarDevice(self, inputDevice: dict, createdDevice: dict):
         """
         Checks that the createdDevice is the same as the input one, removing computed values as hid... It uses etag.
@@ -51,22 +64,6 @@ class TestSnapshot(TestStandard):
             events.append(event)
         return events
 
-    def add_remove(self, input_snapshot):
-        from app.utils import get_resource_name
-        component = choice(input_snapshot['components'])
-        found = False
-        while not found:
-            ignore_fields = self.app.config['DOMAIN'][get_resource_name(component['@type'])]['etag_ignore_fields']
-            key = choice(list(component.keys()))
-            found = key not in ignore_fields
-        if type(component[key]) is int or type(component[key]) is float:
-                component[key] += 10
-        elif type(component[key]) is str:
-            import uuid
-            component[key] = uuid.uuid4().hex[:6].upper()
-        events = self.post_snapshot_get_full_events(input_snapshot, 3)
-        a = 2
-
     def creation(self, input_snapshot: dict):
         events = self.post_snapshot_get_full_events(input_snapshot, 1)
         self.assertLen(events, 1)
@@ -79,8 +76,74 @@ class TestSnapshot(TestStandard):
         self.assert201(status_code)
         self.assertLen(snapshot['events'], 0)
 
-    def test_snapshot(self):
-        input_snapshot = self.get_json_from_file('test_events/test_snapshot/test_real_device.json')
-        self.creation(input_snapshot)
-        #self.add_remove(input_snapshot)
+    def add_remove(self, input_snapshot):
+        from app.utils import get_resource_name
+        component = choice(input_snapshot['components'])
+        found = False
+        while not found:
+            ignore_fields = self.app.config['DOMAIN'][get_resource_name(component['@type'])]['etag_ignore_fields']
+            key = choice(list(component.keys()))
+            found = key not in ignore_fields
+        if type(component[key]) is int or type(component[key]) is float:
+            component[key] += 10
+        elif type(component[key]) is str:
+            import uuid
+            component[key] = uuid.uuid4().hex[:6].upper()
+        events = self.post_snapshot_get_full_events(input_snapshot, 3)
+        a = 2
 
+    def test_snapshot_register_easy_1(self):
+        """
+        Easy test with dummy devices that generates HID, etc. Just registering new devices, no add/remove.
+        :return:
+        """
+        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.DUMMY_DEVICES[0]))
+
+    def test_snapshot_register_easy_2(self):
+        """
+        Easy test with dummy devices that generates HID, etc. Just registering new devices, no add/remove.
+        :return:
+        """
+        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.DUMMY_DEVICES[1]))
+
+    def test_snapshot_register_easy_3(self):
+        """
+        Easy test with dummy devices that generates HID, etc. Just registering new devices, no add/remove.
+        :return:
+        """
+        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.DUMMY_DEVICES[2]))
+
+    def test_snapshot_register_easy_4(self):
+        """
+        Easy test with dummy devices that generates HID, etc. Just registering new devices, no add/remove.
+        :return:
+        """
+        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.DUMMY_DEVICES[3]))
+
+    def test_snapshot_register_vostro(self):
+        """
+        Same as `test_snapshot_register_easy` however with real devices (fake serials), with all the risks that takes.
+        :return:
+        """
+        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.REAL_DEVICES[0]))
+
+    def test_snapshot_register_vaio(self):
+        """
+        Same as `test_snapshot_register_easy` however with real devices (fake serials), with all the risks that takes.
+        :return:
+        """
+        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.REAL_DEVICES[1]))
+
+    def test_snapshot_register_dellxps(self):
+        """
+        Same as `test_snapshot_register_easy` however with real devices (fake serials), with all the risks that takes.
+        :return:
+        """
+        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.REAL_DEVICES[2]))
+
+    def test_snapshot_register_mounted(self):
+        """
+        Same as `test_snapshot_register_easy` however with real devices (fake serials), with all the risks that takes.
+        :return:
+        """
+        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.REAL_DEVICES[3]))

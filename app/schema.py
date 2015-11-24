@@ -14,5 +14,8 @@ thing = dict(rdfs, **{
     },
     'sameAs': {
         'type': 'string'
+    },
+    'description': {
+        'type': 'string'
     }
 })

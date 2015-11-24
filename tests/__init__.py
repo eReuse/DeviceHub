@@ -1,13 +1,16 @@
 import json
+import os
+from eve.methods.common import parse
 
 from eve.tests import TestMinimal
 from flask.ext.pymongo import MongoClient
+from app.utils import get_resource_name
 
+import importlib
 
 class TestBase(TestMinimal):
     def setUp(self, settings_file=None, url_converters=None):
         from app.app import app
-
         app.config['MONGO_DBNAME'] = 'DeviceHubTest'
         self.MONGO_DBNAME = app.config['MONGO_DBNAME']
         self.MONGO_HOST = app.config['MONGO_HOST']
@@ -26,8 +29,8 @@ class TestBase(TestMinimal):
 
     def setupDB(self):
         self.connection = MongoClient(self.MONGO_HOST, self.MONGO_PORT)
-        self.db = self.connection[self.MONGO_DBNAME]
         self.connection.drop_database(self.MONGO_DBNAME)
+        self.db = self.connection[self.MONGO_DBNAME]
         self.create_dummy_user()
 
     def create_dummy_user(self):
@@ -66,8 +69,16 @@ class TestBase(TestMinimal):
 
 class TestStandard(TestBase):
     def get_json_from_file(self, filename: str) -> dict:
-        with open(filename) as data_file:
-            return json.load(data_file)
+        this_directory = os.path.dirname(os.path.realpath(__file__))
+        with open(os.path.abspath(os.path.join(this_directory, filename))) as data_file:
+            value = json.load(data_file)
+        with self.app.app_context():
+            event = parse(value, get_resource_name(value['@type']))
+            if 'components' in event:
+                for device in event['components'] + [event['device']]:
+                    device.update(parse(device, get_resource_name(device['@type'])))
+            return event
+
 
     def isType(self,type:str,item:dict):
         return item['@type'] == type

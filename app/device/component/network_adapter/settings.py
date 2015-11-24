@@ -11,6 +11,8 @@ network_adapter.update({
     }
 })
 
+network_adapter['serialNumber']['regex'] = '^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$'
+
 network_adapter_settings.update({
     'schema': network_adapter,
     'url': component_sub_settings['url'] + 'network-adapter'

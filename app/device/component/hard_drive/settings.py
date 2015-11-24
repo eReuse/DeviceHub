@@ -6,7 +6,7 @@ hard_drive = copy.deepcopy(component)
 hard_drive_settings = copy.deepcopy(component_sub_settings)
 
 hard_drive.update({
-    'integererface': {
+    'interface': {
         'type': 'string',
     },
     'size': {

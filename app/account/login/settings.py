@@ -4,7 +4,7 @@ from flask import request, jsonify
 
 from app.app import app
 from app.exceptions import WrongCredentials
-from .access_control import crossdomain
+from app.flask_decorators import crossdomain
 
 
 @app.route('/login', methods=['POST', 'OPTIONS'])

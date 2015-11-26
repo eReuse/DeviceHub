@@ -23,7 +23,7 @@ class GRDLogger:
         :param event_id: String version of the ObjectId of an event.
         """
         response = app.test_client().get('events/' + event_id, environ_base={'HTTP_AUTHORIZATION': 'Basic ' + token})
-        event = json.loads(response.data.decode(app.config['ENCODING']))
+        event = json.loads(response.data.decode())
         try:
             if event['@type'] == 'Register':
                 self.register(event)

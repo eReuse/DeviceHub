@@ -69,6 +69,9 @@ snapshot.update({
             'schema': component
         },
         'default': []
+    },
+    'debug': {
+        'type': 'dict'
     }
 })
 

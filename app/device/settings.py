@@ -38,6 +38,10 @@ device.update({
         'type': 'string',
         'unique': True
     },
+    'icon': {
+        'type': 'string',
+        'readonly': True
+    },
     'hid': {
         'type': 'hid',
         # 'regex': HID_REGEX, They are executed by type hid

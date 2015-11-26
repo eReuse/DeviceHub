@@ -16,9 +16,9 @@ It is divided in:
 
 event = copy.deepcopy(thing)
 event.update({
-    'date': {  # User specified date when the event was triggered
-               'type': 'datetime',
-               },
+    'date': {
+        'type': 'datetime',  # User specified date when the event was triggered
+    },
     'secured': {
         'type': 'boolean',
         'default': False

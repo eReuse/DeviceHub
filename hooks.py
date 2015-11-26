@@ -7,8 +7,10 @@ def event_hooks(app):
     from app.utils import set_jsonld_link
     app.on_post_GET += set_jsonld_link
 
-    from app.device.hooks import generate_etag
+    from app.device.hooks import generate_etag, get_icon, get_icon_resource
     app.on_insert += generate_etag
+    app.on_fetched_item += get_icon
+    app.on_fetched_resource += get_icon_resource
 
     from app.security.hooks import project_item, project_resource
     app.on_fetched_item += project_item

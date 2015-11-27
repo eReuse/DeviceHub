@@ -1,6 +1,6 @@
+from flask import g
 from app.device.device import Device
 from app.device.exceptions import DeviceNotFound, NoDevicesToProcess
-from app.exceptions import InnerRequestError
 from app.rest import execute_post
 from .event_processor import EventProcessor
 
@@ -11,12 +11,15 @@ class Snapshot:
         self.device = device
         self.components = components
         self.unsecured = []
+        self.test_hard_drives = g.snapshot_test_hard_drives = []
 
     def execute(self):
         event_log = []
+        self.get_test_hard_drive(self.components)
         self.register(event_log)
         for component in self.components:
             self.get_add_remove(component, self.device)
+        self.test_hard_drive(event_log)
         self._remove_nonexistent_components()
         return event_log + self.events.process()
 
@@ -65,3 +68,17 @@ class Snapshot:
                 self._append_unsecured(device, 'model')
             elif 'pid' in device:
                 self._append_unsecured(device, 'pid')
+
+    def get_test_hard_drive(self, components):
+        i = 0
+        for component in components:
+            if 'test' in component:
+                self.test_hard_drives.append((i, component['test']))
+                del component['test']
+            i += 1
+
+    def test_hard_drive(self, event_log):
+        for i, test in self.test_hard_drives:
+            test['device'] = self.components[i]['_id']
+            event_log.append(execute_post('test-hard-drive', test))
+            test.update(event_log[-1])

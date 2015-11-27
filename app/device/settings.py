@@ -36,16 +36,15 @@ device = copy.deepcopy(individualProduct)
 device.update({
     '_id': {
         'type': 'string',
-        'unique': True
+        'unique': True,
+        'readonly': True
     },
     'icon': {
         'type': 'string',
         'readonly': True
     },
     'hid': {
-        'type': 'hid',
-        # 'regex': HID_REGEX, They are executed by type hid
-        # 'unique': True
+        'type': 'hid'
     },
     'pid': {
         'type': 'string',
@@ -58,7 +57,7 @@ device.update({
     'components': {
         'type': 'list',
         'schema': {
-            'type': 'objectid',
+            'type': 'string',
             'data_relation': {
                 'resource': 'devices',
                 'embeddable': True,
@@ -77,6 +76,7 @@ device_settings = {
         'field': 'hid',
         'url': 'regex("' + HID_REGEX + '")'
     },
+    'item_url': 'regex("[\w]+")',
     'embedded_fields': ['components'],
     'url': 'devices',
     'etag_ignore_fields': ['hid', '_id', 'components', 'isUidSecured', '_created', '_updated', '_etag', 'speed',
@@ -90,6 +90,7 @@ device_sub_settings = {
     'datasource': {
         'source': 'devices'
     },
+    'item_url': device_settings['item_url'],
     'embedded_fields': device_settings['embedded_fields'],
     'extra_response_fields': ['@type', 'hid', 'pid'],
     'etag_ignore_fields': device_settings['etag_ignore_fields'] + ['parent']
@@ -97,4 +98,4 @@ device_sub_settings = {
 
 
 def register_parent_devices(domain: dict):
-    return register_sub_types(domain, 'app.device', ('Computer',))
+    return register_sub_types(domain, 'app.device', ('Peripheral', 'Monitor', 'Mobile', 'Computer'))

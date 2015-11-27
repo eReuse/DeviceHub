@@ -10,7 +10,7 @@ component.update({
         'type': 'string'
     },
     'parent': {
-        'type': 'objectid'
+        'type': 'string'
     }
 })
 component_sub_settings = copy.deepcopy(device_sub_settings)

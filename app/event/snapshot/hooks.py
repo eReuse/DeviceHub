@@ -1,5 +1,5 @@
-from flask import request
-
+from flask import request, g
+from app.app import app
 from .snapshot import Snapshot
 
 
@@ -19,3 +19,8 @@ def save_request(items):
     Warning: This method does not support bulk inserts.
     """
     items[0]['request'] = request.data.decode()
+
+
+def materialize_test_hard_drives(snapshots: list):
+    for i, test_hard_drives in g.snapshot_test_hard_drives:
+        app.data.driver.db.devices.update({'_id': test_hard_drives['device']}, {'$push': {'tests': test_hard_drives['_id']}})

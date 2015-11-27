@@ -1,6 +1,11 @@
 import copy
 
 from app.device.component.settings import component, component_sub_settings
+from app.event.test_hard_drive.settings import test_hard_drive
+
+
+def gen_list(x) -> list:
+    return [x]
 
 hard_drive = copy.deepcopy(component)
 hard_drive_settings = copy.deepcopy(component_sub_settings)
@@ -81,33 +86,27 @@ hard_drive.update({
     'sectors': {
         'type': 'integer'
     },
+    'test': {
+        'type': ['dict'],
+        'schema': copy.deepcopy(test_hard_drive),
+    },
     'tests': {
         'type': 'list',
         'schema': {
-            'type': 'dict',
-            'schema': {
-                'type': {
-                    'type': 'string',
-                    'allowed': ['Short offline', 'Extended offline'],
-                    'required': True
-                },
-                'status': {
-                    'type': 'string',
-                    'required': True
-                },
-                'lifetime': {
-                    'type': 'integer',
-                    'required': True
-                },
-                'firstError': {
-                    'type': 'integer',
-                    'required': True
-                }
+            'type': 'objectid',
+            'data_relation': {
+                'resource': 'events',
+                'field': '_id',
+                'embeddable': True
             }
-        }
+        },
+        'readonly': True
     }
 })
+hard_drive['test']['schema']['device']['required'] = False
 hard_drive_settings.update({
     'schema': hard_drive,
-    'url': component_sub_settings['url'] + 'hard-drive'
+    'url': component_sub_settings['url'] + 'hard-drive',
+    'etag_ignore_fields': hard_drive_settings['etag_ignore_fields'] + ['tests', 'erasures', 'test']
 })
+

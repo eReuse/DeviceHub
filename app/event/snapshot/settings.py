@@ -38,7 +38,7 @@ snapshot.update({
             'type': 'dict',
             'schema': {
                 '_id': {
-                    'type': 'objectid',
+                    'type': 'string',
                     'data_relation': {
                         'resource': 'devices',
                         'field': '_id',
@@ -81,6 +81,6 @@ snapshot_settings.update({
     'schema': snapshot,
     'url': 'snapshot',
     'get_projection_blacklist': {Role.ADMIN: ('request',)},  # Just superusers
-    'extra_response_fields': snapshot_settings['extra_response_fields'] + ['events']
+    'extra_response_fields': snapshot_settings['extra_response_fields'] + ['events', 'test_hard_drives']
 })
 snapshot_settings['datasource']['filter'] = {'@type': {'$eq': 'Snapshot'}}

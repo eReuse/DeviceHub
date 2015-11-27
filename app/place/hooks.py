@@ -26,9 +26,9 @@ def unset_place_in_devices(item):
         _device_unset_place(device_id)
 
 
-def _device_set_place(device_id: ObjectId, place_id: ObjectId):
+def _device_set_place(device_id: str, place_id: str):
     app.data.driver.db['devices'].update_one({'_id': device_id}, {'$set': {'place': place_id}})
 
 
-def _device_unset_place(device_id: ObjectId):
+def _device_unset_place(device_id: str):
     app.data.driver.db['devices'].update_one({'_id': device_id}, {'$unset': {'place': ''}})

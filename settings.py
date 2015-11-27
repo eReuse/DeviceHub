@@ -8,6 +8,7 @@ MONGO_DBNAME = APP_NAME = 'DeviceHub'
 USE_DOCS = False  # Specify if generate api documentation in /docs
 DEBUG = True
 X_DOMAINS = '*'
+USE_PID = False
 
 # Other python-eve and flask settings, no need to change them
 X_HEADERS = ['Content-Type', 'Authorization']

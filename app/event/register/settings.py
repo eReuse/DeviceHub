@@ -6,11 +6,15 @@ from app.event.settings import event_with_one_device, event_sub_settings_one_dev
 register = copy.deepcopy(event_with_one_device)
 register.update({
     'device': {
-        'type': ['dict', 'objectid'],
+        'type': ['dict', 'string'],
         'schema': device  # anyof causes a bug where resource is not set
     },
     'components': {
-        'type': ['objectid', 'list'],
+        'type': ['string', 'list'],
+    },
+    'force': {
+        'type': ['boolean']  # Creates a device even if it does not have pid or hid, doesn't affect components
+        # An automatic way of generating pid must be set (ex: PID_AS_AUTOINCREMENT)
     }
 })
 

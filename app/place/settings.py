@@ -14,7 +14,7 @@ place.update({
     'devices': {
         'type': 'list',
         'schema': {
-            'type': 'objectid',
+            'type': 'string',
             'data_relation': {
                 'resource': 'devices',
                 'field': '_id',

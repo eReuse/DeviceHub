@@ -11,21 +11,18 @@ from app.rest import execute_get
 
 class Device:
     @staticmethod
-    def get(identifier: str or ObjectId) -> dict:
+    def get(identifier: str or int) -> dict:
         """
         Gets a single device.
         :param identifier: hid or _id
         :return:
         """
-        if isinstance(identifier, ObjectId):
-            identifier = str(identifier)
         try:
-            device = execute_get('devices/' + identifier)
+            device = execute_get('devices/' + str(identifier))
         except InnerRequestError as e:
             if e.status_code == 404:
                 raise DeviceNotFound()
         else:
-            device['_id'] = ObjectId(device['_id'])
             return device
 
     @staticmethod
@@ -37,14 +34,13 @@ class Device:
         """
         try:
             device = execute_get('devices?where={"pid":"' + pid + '"}')[0]
-            device['_id'] = ObjectId(device['_id'])
         except KeyError:
             raise DeviceNotFound()
         else:
             return device
 
     @staticmethod
-    def get_parent(_id: objectid) -> dict or None:
+    def get_parent(_id: str) -> dict or None:
         parent = app.data.driver.db['devices'].find_one({'components': {'$in': [_id]}})
         if parent is None:
             raise DeviceNotFound()
@@ -52,7 +48,7 @@ class Device:
             return parent
 
     @staticmethod
-    def get_similar_component(component: dict, parent_id: ObjectId) -> dict:
+    def get_similar_component(component: dict, parent_id: str) -> dict:
         # We the unsecured _id of the devices of all parent_id snapshots
         snapshots = list(app.data.driver.db['events'].find({'@type': 'Snapshot', 'device': parent_id}))
         devices_id = set()
@@ -100,7 +96,7 @@ class Device:
 
     @staticmethod
     def get_types():
-        return Component.get_types_of_components() + ('Computer',)
+        return Component.get_types_of_components() + ('Peripheral', 'Monitor', 'Mobile', 'Computer')
 
     @staticmethod
     def resource_types():

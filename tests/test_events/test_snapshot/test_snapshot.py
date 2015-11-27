@@ -64,9 +64,9 @@ class TestSnapshot(TestStandard):
             events.append(event)
         return events
 
-    def creation(self, input_snapshot: dict):
-        events = self.post_snapshot_get_full_events(input_snapshot, 1)
-        self.assertLen(events, 1)
+    def creation(self, input_snapshot: dict, num_of_events: int = 1):
+        events = self.post_snapshot_get_full_events(input_snapshot, num_of_events)
+        self.assertLen(events, num_of_events)
         register = events[0]
         self.assertType('Register', register)
         self.assertSimilarDevice(input_snapshot['device'], register['device'])
@@ -74,7 +74,7 @@ class TestSnapshot(TestStandard):
         # We do a snapshot again. We should receive a new snapshot without any event on it.
         snapshot, status_code = self.post('snapshot', input_snapshot)
         self.assert201(status_code)
-        self.assertLen(snapshot['events'], 0)
+        self.assertLen(snapshot['events'], num_of_events - 1)
 
     def add_remove(self, input_snapshot):
         from app.utils import get_resource_name
@@ -125,7 +125,7 @@ class TestSnapshot(TestStandard):
         Same as `test_snapshot_register_easy` however with real devices (fake serials), with all the risks that takes.
         :return:
         """
-        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.REAL_DEVICES[0]))
+        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.REAL_DEVICES[0]), 2)
 
     def test_snapshot_register_vaio(self):
         """

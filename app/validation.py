@@ -60,12 +60,20 @@ class DeviceHubValidator(Validator):
             self.document['hid'] = normalize(self.document['manufacturer']) + '-' + normalize(self.document['serialNumber'])
         except KeyError:
             del self.document['hid']
-            if 'pid' not in self.document and 'parent' in self.document:  # if pid exists
-                try:
-                    component = Device.get_similar_component(self.document, ObjectId(self.document['parent']))
-                    self._error('model', json_util.dumps({'NotUnique': component}))
-                except (KeyError, DeviceNotFound):
-                    self.document['isUidSecured'] = False
+            self.document['isUidSecured'] = False
+            if 'pid' not in self.document:  # We do not validate here the unique constraint
+                if 'parent' in self.document:
+                    try:
+                        component = Device.get_similar_component(self.document, self.document['parent'])
+                        self._error('model', json_util.dumps({'NotUnique': component}))
+                    except (KeyError, DeviceNotFound):
+                        pass
+                elif app.config['USE_PID']:
+                    self._error('pid', 'NeedPid')  # Is a parent device without hid nor pid, throw error
         else:
             self._validate_regex(HID_REGEX, field, self.document['hid'])
             self._validate_unique(True, field, self.document['hid'])
+
+    def _validate_data_relation(self, data_relation, field, value):
+        if not isinstance(value, dict):  # todo more broad way?
+            super(DeviceHubValidator, self)._validate_data_relation(data_relation, field, value)

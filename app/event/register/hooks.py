@@ -28,17 +28,18 @@ def post_devices(registers: list):
         caller_device = register['device']  # Keep the reference from where register['device'] points to
         _execute_register(caller_device, log)
         register['device'] = caller_device['_id']  # Change the reference of register['device'], but not caller_device
-        caller_components = register['components']
-        register['components'] = []
-        for component in caller_components:
-            component['parent'] = caller_device['_id']
-            _execute_register(component, log)
-            if 'new' in component:
-                register['components'].append(component['_id'])
-        if not register['components'] and 'new' not in caller_device:
-            _abort(log)  # If we have not POST neither any component and any device there is no reason for register to exist
-        if 'new' in caller_device:
-            set_components(register)
+        if 'components' in register:
+            caller_components = register['components']
+            register['components'] = []
+            for component in caller_components:
+                component['parent'] = caller_device['_id']
+                _execute_register(component, log)
+                if 'new' in component:
+                    register['components'].append(component['_id'])
+            if not register['components'] and 'new' not in caller_device:
+                _abort(log)  # If we have not POST neither any component and any device there is no reason for register to exist
+            if 'new' in caller_device:
+                set_components(register)
 
 
 def _execute_register(device: dict, log: list):
@@ -64,7 +65,10 @@ def _get_existing_device(e):
     device = None
     for field in 'hid', 'pid', 'model':  # unique fields
         if field in e.body['_issues']:
-            device = json_util.loads(e.body['_issues'][field])['NotUnique']
+            try:
+                device = json_util.loads(e.body['_issues'][field])['NotUnique']
+            except ValueError:  # it can be an unique field but the
+                raise DeviceNotFound()
     if not device:
         raise DeviceNotFound()
     return device

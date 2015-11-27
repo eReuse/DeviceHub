@@ -27,7 +27,7 @@ event.update({
         'type': 'boolean',
         'default': False
     },
-    'message': {
+    'comment': {
         'type': 'string'
     },
     'geo': {
@@ -72,7 +72,7 @@ event_sub_settings = {
 event_with_one_device = copy.deepcopy(event)
 event_with_one_device.update({
     'device': {
-        'type': 'objectid',
+        'type': 'string',
         'data_relation': {
             'resource': 'devices',
             'field': '_id',
@@ -91,7 +91,7 @@ event_with_devices.update({
     'devices': {
         'type': 'list',
         'schema': {
-            'type': 'objectid',
+            'type': 'string',
             'data_relation': {
                 'resource': 'devices',
                 'field': '_id',

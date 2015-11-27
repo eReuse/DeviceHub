@@ -15,9 +15,24 @@ def generate_etag(resource: str, items: list):
 def get_icon(resource: str, item: dict):
     if item['@type'] in Device.get_types():
         type = item['type'] if 'type' in item else item['@type']
-        item['icon'] = '//devices/icons/' + type + '.svg'
+        item['icon'] = 'devices/icons/' + type + '.svg'
 
 
 def get_icon_resource(resource: str, response: dict):
     for item in response['_items']:
         get_icon(resource, item)
+
+
+def autoincrement(resource: str, devices: list):
+    if resource in Device.resource_types():
+        for device in devices:
+            device['_id'] = str(get_next_sequence())  # todo find a way to use integer
+
+
+def get_next_sequence():
+    return app.data.driver.db.device_sequence.find_and_modify(
+        query={'_id': 1},
+        update={'$inc': {'seq': 1}},
+        new=True,
+        upsert=True
+    ).get('seq')

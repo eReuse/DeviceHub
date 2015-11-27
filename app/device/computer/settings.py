@@ -8,9 +8,9 @@ computer.update({
         'type': 'string',
         'allowed': ['Desktop', 'Laptop', 'Netbook', 'Server', 'Microtower']
     },
-    'totalMemory': {  # In Gigabytes
-                      'type': 'integer'
-                      }
+    'totalMemory': {
+        'type': 'integer'  # In Gigabytes
+    },
 })
 
 computer_settings = copy.deepcopy(device_sub_settings)

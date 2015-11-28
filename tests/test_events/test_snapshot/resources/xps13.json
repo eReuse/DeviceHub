@@ -1,5 +1,5 @@
 {
-    "@type": "Snapshot", 
+    "@type": "Snapshot",
     "components": [
         {
             "@type": "Processor", 
@@ -63,6 +63,7 @@
         "model": "XPS13 942",
         "serialNumber": "E3XCAS",
         "totalMemory": 8192, 
-        "type": "Desktop"
+        "type": "Desktop",
+        "labelId": "1a"
     }
 }

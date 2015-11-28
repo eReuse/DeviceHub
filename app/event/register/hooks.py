@@ -34,7 +34,7 @@ def post_devices(registers: list):
             for component in caller_components:
                 component['parent'] = caller_device['_id']
                 _execute_register(component, log)
-                if 'new' in component:
+                if 'new' in component:  # todo put new in g., don't use device
                     register['components'].append(component['_id'])
             if not register['components'] and 'new' not in caller_device:
                 _abort(log)  # If we have not POST neither any component and any device there is no reason for register to exist
@@ -56,7 +56,7 @@ def _execute_register(device: dict, log: list):
         log.append(db_device)
         new = True
     device.clear()
-    device.update(db_device)  # We do not assign so we preserve the reference
+    device.update(db_device)  # We do not assign so we preserve the reference todo db_device just have extra_post_fields, not all fields of device
     if new:
         device['new'] = new
 

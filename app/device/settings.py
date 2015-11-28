@@ -54,6 +54,9 @@ device.update({
         'type': 'boolean',
         'default': True
     },
+    'labelId': {
+        'type': 'string',
+    },
     'components': {
         'type': 'list',
         'schema': {
@@ -77,10 +80,10 @@ device_settings = {
         'url': 'regex("' + HID_REGEX + '")'
     },
     'item_url': 'regex("[\w]+")',
-    'embedded_fields': ['components'],
+    'embedded_fields': ['components', 'tests'],
     'url': 'devices',
     'etag_ignore_fields': ['hid', '_id', 'components', 'isUidSecured', '_created', '_updated', '_etag', 'speed',
-                           'busClock']
+                           'busClock', 'labelId']
 }
 
 device_sub_settings = {

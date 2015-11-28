@@ -1,6 +1,6 @@
 {
     "@type": "Snapshot", 
-    "comment": "This is a test with my computer.", 
+    "comment": "This is a test with my computer.",
     "components": [
         {
             "@type": "GraphicCard", 
@@ -103,7 +103,8 @@
         "manufacturer": "Dell Inc.", 
         "model": "Vostro 3300", 
         "serialNumber": "2SMAQF",
-        "type": "Laptop"
+        "type": "Laptop",
+        "labelId": "1a"
     }, 
     "label": "vostro3300"
 }

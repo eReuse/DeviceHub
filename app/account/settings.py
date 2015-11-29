@@ -11,7 +11,7 @@ account = {
     },
     'password': {
         'type': 'string',
-        'required': True,
+        #'required': True, todo active OR password required
         'minlength': 4
     },
     'role': {
@@ -27,10 +27,25 @@ account = {
     'name': {
         'type': 'string'
     },
+    'organization': {
+        'type': 'string'
+    },
+    '@type': {
+        'type': 'string',
+        'default': 'Account',
+        'allowed': ['Account']
+    },
     'active': {
         'type': 'boolean',
-        'default': False,
+        'default': True
+    },
+    'blocked': {
+        'type': 'boolean',
+        'default': True,
         ALLOWED_WRITE_ROLES: Role.MANAGERS
+    },
+    'isOrganization': {
+        'type': 'boolean',  # If is an organization,  name needs to be filled, too
     }
 }
 
@@ -75,4 +90,12 @@ account_settings = {
         'author': ('password', 'active')  # Except the own author
     },
     'allowed_item_write_roles': [Role.AMATEUR]  # Amateur can write it's account
+}
+
+
+unregistered_user = {
+    'email': account['email'],
+    'name': account['name'],
+    'organization': account['organization'],
+    'isOrganization': account['isOrganization']
 }

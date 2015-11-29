@@ -1,6 +1,5 @@
 from random import choice
 import unittest
-
 from tests import TestStandard
 
 
@@ -13,7 +12,7 @@ class TestSnapshot(TestStandard):
         '2 -1 Same as 1 - 1 processor without hid.json'
     )
     REAL_DEVICES = (
-        'vostro.json', 'vaio.json', 'xps13.json', 'mounted.json'
+        'vostro.json', 'vaio.json', 'xps13.json'
     )
     RESOURCES_PATH = 'test_events/test_snapshot/resources/'
 
@@ -125,7 +124,7 @@ class TestSnapshot(TestStandard):
         Same as `test_snapshot_register_easy` however with real devices (fake serials), with all the risks that takes.
         :return:
         """
-        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.REAL_DEVICES[0]), 2)
+        self.creation(self.get_json_from_file(self.RESOURCES_PATH + 'vostro.json'), 2)
 
     def test_snapshot_register_vaio(self):
         """
@@ -146,4 +145,11 @@ class TestSnapshot(TestStandard):
         Same as `test_snapshot_register_easy` however with real devices (fake serials), with all the risks that takes.
         :return:
         """
-        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.REAL_DEVICES[3]))
+        self.creation(self.get_json_from_file(self.RESOURCES_PATH + 'mounted.json'))
+
+    def test_snapshot_real_devices(self):
+        # todo the processor of mounted.json and xps13 generates the same hid, as S/N is 'To be filled...'
+        for path in self.REAL_DEVICES:
+            snapshot = self.get_json_from_file(self.RESOURCES_PATH + path)
+            num_events = 2 if 'label' in snapshot and snapshot['label'] == 'vostro3300' else 1
+            self.creation(snapshot, num_events)

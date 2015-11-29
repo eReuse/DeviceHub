@@ -1,8 +1,8 @@
 import random
 import string
-
 from app.account.user import User
 from app.app import app
+from app.rest import execute_post
 
 
 def add_token(documents: dict):
@@ -28,3 +28,25 @@ def set_byUser(resource_name: str, items: list):
     if 'byUser' in app.config['DOMAIN'][resource_name]['schema']:
         for item in items:
             item['byUser'] = User.actual['_id']
+
+
+def add_or_get_inactive_account(events: list):
+    # todo if register we need to make sure that user does not add the account again another time (usability?)
+    for event in events:
+        if event['@type'] == 'Receive':
+            _add_or_get_inactive_account_id(event, 'unregisteredReceiver', 'receiver')
+        elif event['@type'] == 'Register':
+            _add_or_get_inactive_account_id(event, 'unregisteredPossessor', 'possessor')
+            _add_or_get_inactive_account_id(event, 'unregisteredOldPossessor', 'oldPossessor')
+        elif event['@type'] == 'Allocate':
+            _add_or_get_inactive_account_id(event, 'unregisteredTo', 'to')
+
+
+def _add_or_get_inactive_account_id(event, field_name, recipient_field_name):
+    if field_name in event:
+        try:
+            _id = app.data.driver.db.accounts.find_one({'email': event[field_name]['email']})['_id']
+        except TypeError:  # No account
+            _id = execute_post('accounts', event[field_name])['_id']
+        event[recipient_field_name] = _id
+        del event[field_name]

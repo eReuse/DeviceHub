@@ -1,5 +1,6 @@
 import copy
 
+from app.account.settings import unregistered_user
 from app.validation import OR
 from app.event.settings import event_with_devices, event_sub_settings_multiple_devices
 
@@ -13,13 +14,9 @@ receive.update({
             'embeddable': True,
         },
     },
-    'receiverEmail': {
-        'type': 'string',
-        'dependencies': ['receiverName']
-    },
-    'receiverName': {
-        'type': 'string',
-        'dependencies': ['receiverEmail']
+    'unregisteredReceiver': {
+        'type': 'dict',
+        'schema': unregistered_user
     },
     'acceptedConditions': {
         'type': 'boolean',
@@ -31,8 +28,12 @@ receive.update({
         'required': True,
         'allowed': ['FinalUser', 'CollectionPoint', 'RecyclingPoint']
     },
+    'transferProperty': {
+        'type': 'boolean',
+        'default': False
+    }
 })
-receive['@type'][OR] = 'employee', ('receiver', 'receiverEmail')
+#receive['@type'][OR] = 'employee', ('receiver', 'unregisteredReceiver.name')
 # Receiver OR ReceiverEmail. We need to hook this in a required field so it is always executed
 # And @type is an always required field so we can happily hook on it
 

@@ -3,9 +3,11 @@ from flask.json import jsonify
 
 from app.app import app
 from app.exceptions import BasicError
+from app.flask_decorators import crossdomain
 from app.utils import get_header_link
 
 
+@crossdomain(origin='*', headers=['Content-Type', 'Authorization'])
 @app.errorhandler(BasicError)
 def handle_standard_error(error: BasicError) -> Response:
     response = jsonify(error.to_dict())

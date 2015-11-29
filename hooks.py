@@ -34,14 +34,20 @@ def event_hooks(app):
     from app.event.remove.hooks import remove_components
     app.on_inserted_remove += remove_components
 
+    from app.event.receive.hooks import transfer_property
+    app.on_insert_receive += transfer_property
+
     #app.on_inserted += get_info_from_hook
 
     from app.account.hooks import add_token, block_users
     app.on_insert_accounts += add_token
     app.on_insert_accounts += block_users  # Block users by default
 
-    from app.account.hooks import set_byUser
+    from app.account.hooks import set_byUser, add_or_get_inactive_account
     app.on_insert += set_byUser
+    app.on_insert_receive += add_or_get_inactive_account  # We need to execute after insert and insert_resource as it
+    app.on_insert_register += add_or_get_inactive_account  # deletes the 'unregistered...'
+    app.on_insert_allocate += add_or_get_inactive_account
 
     from app.place.hooks import set_place_in_devices, update_place_in_devices, unset_place_in_devices
     app.on_inserted_places += set_place_in_devices

@@ -54,9 +54,6 @@ device.update({
         'type': 'boolean',
         'default': True
     },
-    'labelId': {
-        'type': 'string',
-    },
     'components': {
         'type': 'list',
         'schema': {

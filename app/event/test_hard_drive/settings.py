@@ -18,7 +18,8 @@ test_hard_drive.update({
         'type': 'integer',
     },
     'firstError': {
-        'type': 'integer'
+        'type': 'integer',
+        'nullable': True
     },
     'snapshot': {
         'type': 'objectid',
@@ -27,6 +28,10 @@ test_hard_drive.update({
             'field': '_id',
             'embeddable': True
         }
+    },
+    'error': {
+        'type': 'boolean',
+        'required': True
     }
 })
 test_hard_drive_settings.update({

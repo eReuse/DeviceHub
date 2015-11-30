@@ -54,6 +54,9 @@ device.update({
         'type': 'boolean',
         'default': True
     },
+    'labelId': {
+        'type': 'string',  # Materialized label of the last snapshot
+    },
     'components': {
         'type': 'list',
         'schema': {

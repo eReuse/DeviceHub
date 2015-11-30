@@ -17,9 +17,10 @@
             "size": 476940.0234375, 
             "test": {
                 "lifetime": 43,
-                "status": "Completed without error", 
+                "status": "Completed without error",
                 "type": "Short offline",
-                "@type": "TestHardDrive"
+                "@type": "TestHardDrive",
+                "error": false
             }
         }, 
         {
@@ -103,8 +104,7 @@
         "manufacturer": "Dell Inc.", 
         "model": "Vostro 3300", 
         "serialNumber": "2SMAQF",
-        "type": "Laptop",
-        "labelId": "1a"
+        "type": "Laptop"
     }, 
-    "label": "vostro3300"
+    "label": "1a"
 }

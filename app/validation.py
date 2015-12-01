@@ -3,7 +3,6 @@ from eve.io.mongo import Validator
 from eve.utils import config
 from flask import current_app as app
 from bson import json_util
-
 from app.account.user import User
 from app.device.settings import HID_REGEX
 from app.utils import normalize
@@ -57,7 +56,9 @@ class DeviceHubValidator(Validator):
         from app.device.device import Device
         from app.device.exceptions import DeviceNotFound
         try:
-            self.document['hid'] = normalize(self.document['manufacturer']) + '-' + normalize(self.document['serialNumber'])
+            self.document['hid'] = normalize(self.document['manufacturer']) + \
+                                   '-' + normalize(self.document['serialNumber']) + \
+                                   '-' + normalize(self.document['model'])
         except KeyError:
             del self.document['hid']
             self.document['isUidSecured'] = False

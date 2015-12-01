@@ -151,5 +151,5 @@ class TestSnapshot(TestStandard):
         # todo the processor of mounted.json and xps13 generates the same hid, as S/N is 'To be filled...'
         for path in self.REAL_DEVICES:
             snapshot = self.get_json_from_file(self.RESOURCES_PATH + path)
-            num_events = 2 if 'label' in snapshot and snapshot['label'] == '1a' else 1
+            num_events = 2 if path in ('vostro.json',) else 1
             self.creation(snapshot, num_events)

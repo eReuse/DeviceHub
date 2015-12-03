@@ -12,6 +12,9 @@ eReuse ecosystem to guarantee traceability, and to provide inputs for the indica
 * To highly integrate with existing IT Asset Management Systems.
 * To be decentralized.
 
+DeviceHub is a server providing a RESTful API under JSON following the specifics of [Python-EVE](http://python-eve.org/features.html)
+and designed thought to be used by JSON-LD (although we need to improve support) and Schema.org naming.
+
 ## Requirements
 * Python (3.4)
 * Python-Eve

@@ -7,6 +7,7 @@ import os
 MONGO_DBNAME = APP_NAME = 'DeviceHub'
 USE_DOCS = False  # Specify if generate api documentation in /docs
 DEBUG = True
+LOG = False
 X_DOMAINS = '*'
 USE_PID = False
 

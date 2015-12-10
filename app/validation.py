@@ -4,7 +4,6 @@ from eve.utils import config
 from flask import current_app as app
 from bson import json_util
 from app.account.user import User
-from app.device.settings import HID_REGEX
 from app.utils import normalize
 
 ALLOWED_WRITE_ROLES = 'dh_allowed_write_roles'
@@ -78,3 +77,6 @@ class DeviceHubValidator(Validator):
     def _validate_data_relation(self, data_relation, field, value):
         if not isinstance(value, dict):  # todo more broad way?
             super(DeviceHubValidator, self)._validate_data_relation(data_relation, field, value)
+
+
+HID_REGEX = '[\w]+-[\w]+'

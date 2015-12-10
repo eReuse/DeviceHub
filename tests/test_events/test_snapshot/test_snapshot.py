@@ -1,5 +1,8 @@
+import os
+from pprint import pprint
 from random import choice
 import unittest
+from app.utils import nested_lookup
 from tests import TestStandard
 
 
@@ -64,6 +67,7 @@ class TestSnapshot(TestStandard):
         return events
 
     def creation(self, input_snapshot: dict, num_of_events: int = 1):
+        pprint("1st time snapshot:")
         events = self.post_snapshot_get_full_events(input_snapshot, num_of_events)
         self.assertLen(events, num_of_events)
         register = events[0]
@@ -71,6 +75,7 @@ class TestSnapshot(TestStandard):
         self.assertSimilarDevice(input_snapshot['device'], register['device'])
         self.assertSimilarDevices(input_snapshot['components'], register['components'])
         # We do a snapshot again. We should receive a new snapshot without any event on it.
+        pprint("2nd time snapshot:")
         snapshot, status_code = self.post('snapshot', input_snapshot)
         self.assert201(status_code)
         self.assertLen(snapshot['events'], num_of_events - 1)
@@ -90,6 +95,22 @@ class TestSnapshot(TestStandard):
             component[key] = uuid.uuid4().hex[:6].upper()
         events = self.post_snapshot_get_full_events(input_snapshot, 3)
         a = 2
+
+    def get_num_events(self, snapshot):
+        """
+        Get the num of events a snapshot is going to produce, by knowing how many tests are in there.
+
+        todo: compute add/Remove and other events, not just tests.
+        :param snapshot:
+        :return:
+        """
+        values = nested_lookup('test', snapshot)
+        return len(values) + 1  # 1 == register event itself
+
+    def test_snapshot(self):
+        self.test_snapshot_register_easy_1()
+        self.test_snapshot_real_devices()
+        self.test_snapshot_2015_12_09()
 
     def test_snapshot_register_easy_1(self):
         """
@@ -151,5 +172,20 @@ class TestSnapshot(TestStandard):
         # todo the processor of mounted.json and xps13 generates the same hid, as S/N is 'To be filled...'
         for path in self.REAL_DEVICES:
             snapshot = self.get_json_from_file(self.RESOURCES_PATH + path)
-            num_events = 2 if path in ('vostro.json',) else 1
+            num_events = self.get_num_events(snapshot)
             self.creation(snapshot, num_events)
+
+    def test_snapshot_2015_12_09(self):
+        del self.app.config['DOMAIN']['network-adapter']['schema']['serialNumber']['regex']
+        this_directory = os.path.dirname(os.path.realpath(__file__))
+        file_directory = os.path.join(this_directory, 'resources', '2015-12-09', 'working')
+        for filename in os.listdir(file_directory):
+            if 'json' in filename:
+                pprint(filename)
+                snapshot = self.get_json_from_file(filename, file_directory)
+                num_events = self.get_num_events(snapshot)
+                self.creation(snapshot, num_events)
+
+
+
+

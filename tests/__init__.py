@@ -68,9 +68,16 @@ class TestBase(TestMinimal):
 
 
 class TestStandard(TestBase):
-    def get_json_from_file(self, filename: str) -> dict:
-        this_directory = os.path.dirname(os.path.realpath(__file__))
-        with open(os.path.abspath(os.path.join(this_directory, filename))) as data_file:
+    def get_json_from_file(self, filename: str, directory: str=None) -> dict:
+        """
+
+        :type filename: str
+        :param directory: Optionall. Directory to get the file from. If nothing, it is taken from the actual directory.
+        :return:
+        """
+        if directory is None:
+            directory = os.path.dirname(os.path.realpath(__file__))
+        with open(os.path.abspath(os.path.join(directory, filename))) as data_file:
             value = json.load(data_file)
         with self.app.app_context():
             event = parse(value, get_resource_name(value['@type']))

@@ -1,0 +1,87 @@
+{
+  "comment": "",
+  "components": [
+    {
+      "manufacturer": "Advanced Micro Devices, Inc. [AMD/ATI]",
+      "model": "RC410 [Radeon Xpress 200/1100]",
+      "@type": "GraphicCard",
+      "memory": 128.0
+    },
+    {
+      "manufacturer": "Seagate",
+      "serialNumber": "43d9770a96943637172766705765e2272045141e75a739183be3f25b",
+      "test": {
+        "error": false,
+        "@type": "TestHardDrive"
+      },
+      "model": "ST3160316AS",
+      "size": 152627.8359375,
+      "interface": "ata",
+      "@type": "HardDrive"
+    },
+    {
+      "manufacturer": "AD00000000000000",
+      "serialNumber": "9bf4fbab9263835ecc57f51b3b8c7b2950d88d31bb1bd9a87c72e2a0",
+      "speed": 667.0,
+      "size": 512,
+      "interface": "DDR",
+      "@type": "RamModule"
+    },
+    {
+      "manufacturer": "AD00000000000000",
+      "serialNumber": "0dd8ea9eda4b599b5cf50fbac8b055f5c0697ddc49f472ef486162d1",
+      "speed": 667.0,
+      "size": 512,
+      "interface": "DDR",
+      "@type": "RamModule"
+    },
+    {
+      "manufacturer": "Dell Inc.",
+      "model": "0TY915",
+      "connectors": {
+        "usb": 6,
+        "serial": 0,
+        "firewire": 0,
+        "pcmcia": 0
+      },
+      "serialNumber": "a747a03dcbaf515d61b4b0b22c2231c3c594291679018e8e03ff00de",
+      "usedSlots": 2,
+      "totalSlots": 0,
+      "@type": "Motherboard"
+    },
+    {
+      "manufacturer": "Broadcom Corporation",
+      "model": "BCM4401-B0 100Base-TX",
+      "serialNumber": "0aaf0e7576b6409cf7ea1b4e8ca568f1318f31c589754cd094d797b6",
+      "@type": "NetworkAdapter",
+      "speed": 100
+    },
+    {
+      "manufacturer": "PBDS",
+      "model": "CDRWDVD DH-48C2S",
+      "description": "DVD reader",
+      "@type": "OpticalDrive"
+    },
+    {
+      "manufacturer": "Intel Corp.",
+      "model": "Intel(R) Core(TM)2 CPU 4300 @ 1.80GHz",
+      "numberOfCores": 2,
+      "serialNumber": "be2d4359a4e194e62c71edf4b2ea8d9c04a8be704285b8100af55263",
+      "@type": "Processor"
+    },
+    {
+      "manufacturer": "Advanced Micro Devices, Inc. [AMD/ATI]",
+      "model": "SBx00 Azalia (Intel HDA)",
+      "@type": "SoundCard"
+    }
+  ],
+  "@type": "Snapshot",
+  "label": "29",
+  "device": {
+    "manufacturer": "Dell Inc.",
+    "model": "OptiPlex 320",
+    "serialNumber": "31280784fcd1f1f1b04943ec8671c5fd203e33cc3136b13926755c0d",
+    "@type": "Computer",
+    "type": "Desktop"
+  }
+}

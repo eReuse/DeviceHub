@@ -1,0 +1,91 @@
+{
+  "@type": "Snapshot",
+  "comment": "",
+  "device": {
+    "@type": "Computer",
+    "type": "Desktop",
+    "manufacturer": "Dell Inc.",
+    "model": "OptiPlex 320",
+    "serialNumber": "1effab59fa49d8be04761cdd4b04ba8d69154b299167cb37f8e48459"
+  },
+  "label": "4",
+  "components": [
+    {
+      "@type": "GraphicCard",
+      "memory": 128.0,
+      "manufacturer": "Advanced Micro Devices, Inc. [AMD/ATI]",
+      "model": "RC410 [Radeon Xpress 200/1100]"
+    },
+    {
+      "@type": "HardDrive",
+      "test": {
+        "@type": "TestHardDrive",
+        "firstError": null,
+        "status": "Completed without error",
+        "lifetime": 0,
+        "error": false,
+        "type": "Short offline"
+      },
+      "manufacturer": "Western Digital",
+      "interface": "ata",
+      "serialNumber": "8a4e9df0d6864aed11439c48b25da5634e8ac86f648f3f005fb2c95e",
+      "model": "WDC WD800JD-75MS",
+      "size": 76293.9453125
+    },
+    {
+      "@type": "RamModule",
+      "speed": 667.0,
+      "manufacturer": "AD00000000000000",
+      "size": 512,
+      "interface": "DDR",
+      "serialNumber": "148836379266ffcfaff9d740579606334d805a70d2918e222c5e7ca8"
+    },
+    {
+      "@type": "RamModule",
+      "speed": 667.0,
+      "manufacturer": "AD00000000000000",
+      "size": 512,
+      "interface": "DDR",
+      "serialNumber": "05806e318d1d3abcb4ba0604a43427a495789ce7f0e213281627b76c"
+    },
+    {
+      "@type": "Motherboard",
+      "usedSlots": 2,
+      "totalSlots": 0,
+      "manufacturer": "Dell Inc.",
+      "connectors": {
+        "usb": 6,
+        "firewire": 0,
+        "pcmcia": 0,
+        "serial": 0
+      },
+      "model": "0CU395",
+      "serialNumber": "a8c04923cb8205dbb833054543d9ccbfc116fba20aafeda60e52f0ab"
+    },
+    {
+      "@type": "NetworkAdapter",
+      "speed": 100,
+      "manufacturer": "Broadcom Corporation",
+      "model": "BCM4401-B0 100Base-TX",
+      "serialNumber": "83e3960ebffb606fa31cdf2d5f466dee71c351576144c0cbcddc40c7"
+    },
+    {
+      "@type": "OpticalDrive",
+      "manufacturer": "TSSTcorp",
+      "description": "DVD reader",
+      "model": "CDRWDVD TS-H493B"
+    },
+    {
+      "@type": "Processor",
+      "manufacturer": "Intel Corp.",
+      "numberOfCores": 2,
+      "model": "Intel(R) Core(TM)2 CPU 4300 @ 1.80GHz",
+      "serialNumber": "be2d4359a4e194e62c71edf4b2ea8d9c04a8be704285b8100af55263"
+    },
+    {
+      "@type": "SoundCard",
+      "manufacturer": "Advanced Micro Devices, Inc. [AMD/ATI]",
+      "model": "SBx00 Azalia (Intel HDA)"
+    }
+  ]
+}

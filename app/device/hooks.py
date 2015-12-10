@@ -29,6 +29,7 @@ def autoincrement(resource: str, devices: list):
             device['_id'] = str(get_next_sequence())  # todo find a way to use integer
 
 
+#@rePostUsingLabelInterceptor
 def get_next_sequence():
     return app.data.driver.db.device_sequence.find_and_modify(
         query={'_id': 1},

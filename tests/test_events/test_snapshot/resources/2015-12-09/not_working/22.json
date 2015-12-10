@@ -1,0 +1,83 @@
+{
+  "comment": "",
+  "components": [
+    {
+      "manufacturer": "Advanced Micro Devices, Inc. [AMD/ATI]",
+      "model": "RC410 [Radeon Xpress 200/1100]",
+      "@type": "GraphicCard",
+      "memory": 128.0
+    },
+    {
+      "manufacturer": "Seagate",
+      "serialNumber": "eb3a61042763170fef98508c0de4c7411cdd6ab05475721f070f0fc6",
+      "test": {
+        "type": "Short captive",
+        "error": true,
+        "lifetime": 11812,
+        "status": "Completed without error",
+        "@type": "TestHardDrive",
+        "firstError": null
+      },
+      "model": "ST3500820AS",
+      "size": 476940.0234375,
+      "interface": "ata",
+      "@type": "HardDrive"
+    },
+    {
+      "manufacturer": "AD00000000000000",
+      "serialNumber": "dcfd61bfe744a0a989e0c54622645cc2a26fef213bb7adacdd7c8529",
+      "speed": 533.0,
+      "size": 1024,
+      "interface": "DDR",
+      "@type": "RamModule"
+    },
+    {
+      "manufacturer": "Dell Inc.",
+      "model": "0CU395",
+      "connectors": {
+        "usb": 6,
+        "serial": 0,
+        "firewire": 0,
+        "pcmcia": 0
+      },
+      "serialNumber": "6f257c6d25e9f9fc14b4a10e1f5438f4bb1a118557e23a67126da65a",
+      "usedSlots": 1,
+      "totalSlots": 0,
+      "@type": "Motherboard"
+    },
+    {
+      "manufacturer": "Broadcom Corporation",
+      "model": "BCM4401-B0 100Base-TX",
+      "serialNumber": "ba5f638bc993424daf7c797690982ed2b2262bf9d602eb868e28cd25",
+      "@type": "NetworkAdapter",
+      "speed": 100
+    },
+    {
+      "manufacturer": "HL-DT-ST",
+      "model": "DVD-ROM GDRH10N",
+      "description": "DVD reader",
+      "@type": "OpticalDrive"
+    },
+    {
+      "manufacturer": "Intel Corp.",
+      "model": "Intel(R) Celeron(R) D CPU 3.06GHz",
+      "numberOfCores": 1,
+      "serialNumber": "6f4477fc38b9def9e60ec0bdaf2a93f307637d0bada28e99cd2f3791",
+      "@type": "Processor"
+    },
+    {
+      "manufacturer": "Advanced Micro Devices, Inc. [AMD/ATI]",
+      "model": "SBx00 Azalia (Intel HDA)",
+      "@type": "SoundCard"
+    }
+  ],
+  "@type": "Snapshot",
+  "label": "22",
+  "device": {
+    "manufacturer": "Dell Inc.",
+    "model": "OptiPlex 320",
+    "serialNumber": "03f82e4ed7245f99eb1342e96f3a50d09bbabc3366d06b2d03edd657",
+    "@type": "Computer",
+    "type": "Desktop"
+  }
+}

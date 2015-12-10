@@ -10,16 +10,16 @@ processor.update({
         'type': 'integer',
         'min': 1,
     },
-    'speed': {  # In Ghz
-                'type': 'float'
-                },
+    'speed': {
+        'type': 'float'  # In Ghz
+    },
     'busClock': {
         'type': 'integer',
     },
-    'address': {  # In bytes
-                  'type': 'integer',
-                  'allowed': [8, 16, 32, 64, 128, 256]
-                  },
+    'address': {
+        'type': 'integer',  # In bytes
+        'allowed': [8, 16, 32, 64, 128, 256]
+    },
 })
 processor_settings.update({
     'schema': processor,

@@ -1,9 +1,9 @@
 import copy
 
+from app.account.user import Role
 from app.utils import register_sub_types
 from app.schema import thing
-
-HID_REGEX = '[\w]+-[\w]+'
+from app.validation import ALLOWED_WRITE_ROLES, HID_REGEX
 
 product = dict(thing, **{
     'model': {
@@ -37,7 +37,7 @@ device.update({
     '_id': {
         'type': 'string',
         'unique': True,
-        'readonly': True
+        ALLOWED_WRITE_ROLES: Role.SUPERUSER  # For recovery purposes
     },
     'icon': {
         'type': 'string',

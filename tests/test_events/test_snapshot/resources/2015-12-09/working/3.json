@@ -1,0 +1,83 @@
+{
+  "@type": "Snapshot",
+  "comment": "",
+  "device": {
+    "@type": "Computer",
+    "type": "Desktop",
+    "manufacturer": "Hewlett-Packard",
+    "model": "HP Compaq dc5700 Microtower",
+    "serialNumber": "8df7ddd7f7a394fcfcaff15527705cfe03c3749cb532249871e2ec62"
+  },
+  "label": "3",
+  "components": [
+    {
+      "@type": "GraphicCard",
+      "memory": 256.0,
+      "manufacturer": "NVIDIA Corporation",
+      "model": "NV44A [GeForce 6200]"
+    },
+    {
+      "@type": "HardDrive",
+      "test": {
+        "@type": "TestHardDrive",
+        "firstError": null,
+        "status": "Aborted by host",
+        "lifetime": 0,
+        "error": false,
+        "type": "Extended offline"
+      },
+      "manufacturer": "Hitachi",
+      "interface": "ata",
+      "serialNumber": "0b392d34fbeadae9e854d42c34b83ffaebbf4045b5da5dc4833c143f",
+      "model": "Hitachi HDP72502",
+      "size": 238475.1796875
+    },
+    {
+      "@type": "RamModule",
+      "speed": 800.0,
+      "manufacturer": "JEDEC ID:2C 00 00 00 00 00 00 00",
+      "size": 2048,
+      "interface": "DDR2",
+      "serialNumber": "eb053a6c71331a5b73e69f1c724a5f7709c2e739864721903852068f"
+    },
+    {
+      "@type": "Motherboard",
+      "usedSlots": 1,
+      "totalSlots": 0,
+      "manufacturer": "Hewlett-Packard",
+      "connectors": {
+        "usb": 6,
+        "firewire": 0,
+        "pcmcia": 0,
+        "serial": 0
+      },
+      "model": "0A60h",
+      "serialNumber": "8df7ddd7f7a394fcfcaff15527705cfe03c3749cb532249871e2ec62"
+    },
+    {
+      "@type": "NetworkAdapter",
+      "speed": 1000,
+      "manufacturer": "Intel Corporation",
+      "model": "82541PI Gigabit Ethernet Controller",
+      "serialNumber": "b551c085702a658dabc052a28f9d63fac5832f875cc1abf07222c1ac"
+    },
+    {
+      "@type": "OpticalDrive",
+      "manufacturer": "HL-DT-ST",
+      "description": "DVD reader",
+      "model": "DVD-ROM GDRH10N"
+    },
+    {
+      "@type": "Processor",
+      "manufacturer": "Intel Corp.",
+      "numberOfCores": 2,
+      "model": "Intel(R) Core(TM)2 CPU 6320 @ 1.86GHz",
+      "serialNumber": "40146a8b0f6f3a8dc31e39ab2191db6d19a518d9aef406f1af88b5f4"
+    },
+    {
+      "@type": "SoundCard",
+      "manufacturer": "Intel Corporation",
+      "model": "82801H (ICH8 Family) HD Audio Controller"
+    }
+  ]
+}

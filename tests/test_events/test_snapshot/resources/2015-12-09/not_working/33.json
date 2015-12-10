@@ -1,0 +1,89 @@
+{
+  "comment": "",
+  "components": [
+    {
+      "manufacturer": "Intel Corporation",
+      "model": "82G33/G31 Express Integrated Graphics Controller",
+      "@type": "GraphicCard",
+      "memory": 256.0
+    },
+    {
+      "manufacturer": "Western Digital",
+      "serialNumber": "bf943a5cf4fecaeb1e7b4ef9d7483ebea16913c33df18f7eee5767cb",
+      "test": {
+        "type": "Short offline",
+        "error": false,
+        "lifetime": 0,
+        "status": "Completed without error",
+        "@type": "TestHardDrive",
+        "firstError": null
+      },
+      "model": "WDC WD800ADFS-75",
+      "size": 76293.9453125,
+      "interface": "ata",
+      "@type": "HardDrive"
+    },
+    {
+      "manufacturer": "CE00000000000000",
+      "serialNumber": "da339ce91a06605fef2a6e872c37145d496969e9c57d12bf68493902",
+      "speed": 667.0,
+      "size": 512,
+      "interface": "DDR2",
+      "@type": "RamModule"
+    },
+    {
+      "manufacturer": "CE00000000000000",
+      "serialNumber": "3166ce964d5f4ee0aed69f08a7bea5a607a618b01542da938166ef3e",
+      "speed": 667.0,
+      "size": 512,
+      "interface": "DDR2",
+      "@type": "RamModule"
+    },
+    {
+      "manufacturer": "Dell Inc.",
+      "model": "0KP561",
+      "connectors": {
+        "usb": 5,
+        "serial": 0,
+        "firewire": 0,
+        "pcmcia": 0
+      },
+      "serialNumber": "a799d8a84a0bc47f371b4e3197850d8ec7f4a78dd59f515fd9b1c0b4",
+      "usedSlots": 2,
+      "totalSlots": 0,
+      "@type": "Motherboard"
+    },
+    {
+      "manufacturer": "Broadcom Corporation",
+      "model": "NetLink BCM5787 Gigabit Ethernet PCI Express",
+      "serialNumber": "6124c65dde90885ef6a54f267e5b4430a9a5b9aeb4b8f7c7ad6f2868",
+      "@type": "NetworkAdapter",
+      "speed": 1000
+    },
+    {
+      "description": "DVD writer",
+      "@type": "OpticalDrive"
+    },
+    {
+      "manufacturer": "Intel Corp.",
+      "model": "Intel(R) Core(TM)2 Duo CPU E4400 @ 2.00GHz",
+      "numberOfCores": 2,
+      "serialNumber": "0e08dac958fa35574b297e2f59e1280efa3c0c4402429107c1de8999",
+      "@type": "Processor"
+    },
+    {
+      "manufacturer": "Intel Corporation",
+      "model": "NM10/ICH7 Family High Definition Audio Controller",
+      "@type": "SoundCard"
+    }
+  ],
+  "@type": "Snapshot",
+  "label": "33",
+  "device": {
+    "manufacturer": "Dell Inc.",
+    "model": "OptiPlex 330",
+    "serialNumber": "9007622ccae5a367a61355121310a429cb12d79c37b95df24a9f0aab",
+    "@type": "Computer",
+    "type": "Desktop"
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "@type": "Snapshot",
+  "comment": "",
+  "device": {
+    "@type": "Computer",
+    "type": "Desktop",
+    "manufacturer": "Hewlett-Packard",
+    "model": "HP Compaq dc5700 Microtower",
+    "serialNumber": "bba7b98ec96b28b186291e16a2db931fcbc8de313b4ddabec5827f4b"
+  },
+  "label": "8",
+  "components": [
+    {
+      "@type": "GraphicCard",
+      "memory": 256.0,
+      "manufacturer": "Intel Corporation",
+      "model": "82Q963/Q965 Integrated Graphics Controller"
+    },
+    {
+      "@type": "HardDrive",
+      "test": {
+        "@type": "TestHardDrive",
+        "firstError": null,
+        "status": "Interrupted (host reset)",
+        "lifetime": 1,
+        "error": false,
+        "type": "Extended offline"
+      },
+      "manufacturer": "Seagate",
+      "interface": "ata",
+      "serialNumber": "16f340fc441f4e94b515748f4c4c3201b51c98edf88607c9f36c58db",
+      "model": "ST3250820AS",
+      "size": 238475.1796875
+    },
+    {
+      "@type": "RamModule",
+      "speed": 667.0,
+      "manufacturer": "JEDEC ID:7F 7F 7F 7F 7F 51 00 00",
+      "size": 1024,
+      "interface": "DDR2",
+      "serialNumber": "52a809bb701c87e8f295b78cf33374377b0d63098c97d2a9b17d4d4b"
+    },
+    {
+      "@type": "RamModule",
+      "speed": 667.0,
+      "manufacturer": "JEDEC ID:7F 7F 7F 7F 7F 51 00 00",
+      "size": 1024,
+      "interface": "DDR2",
+      "serialNumber": "17adfe4bcf1df7edb4b77abdf8ead8d201974a575014098c33526341"
+    },
+    {
+      "@type": "Motherboard",
+      "usedSlots": 2,
+      "totalSlots": 0,
+      "manufacturer": "Hewlett-Packard",
+      "connectors": {
+        "usb": 6,
+        "firewire": 0,
+        "pcmcia": 0,
+        "serial": 0
+      },
+      "model": "0A60h",
+      "serialNumber": "bba7b98ec96b28b186291e16a2db931fcbc8de313b4ddabec5827f4b"
+    },
+    {
+      "@type": "NetworkAdapter",
+      "speed": 1000,
+      "manufacturer": "Broadcom Corporation",
+      "model": "NetXtreme BCM5755 Gigabit Ethernet PCI Express",
+      "serialNumber": "39c8eec79db0fedb12f272158a2554b1b2428faf5404a6eba7a26479"
+    },
+    {
+      "@type": "NetworkAdapter",
+      "speed": 1000,
+      "manufacturer": "Intel Corporation",
+      "model": "82541PI Gigabit Ethernet Controller",
+      "serialNumber": "6c941b81bfc62d8039e77c24cb501716ac9968652cd30ead9005244d"
+    },
+    {
+      "@type": "OpticalDrive",
+      "manufacturer": "HL-DT-ST",
+      "description": "DVD reader",
+      "model": "DVD-ROM GDRH10N"
+    },
+    {
+      "@type": "Processor",
+      "manufacturer": "Intel Corp.",
+      "numberOfCores": 2,
+      "model": "Intel(R) Core(TM)2 CPU 6320 @ 1.86GHz",
+      "serialNumber": "40146a8b0f6f3a8dc31e39ab2191db6d19a518d9aef406f1af88b5f4"
+    },
+    {
+      "@type": "SoundCard",
+      "manufacturer": "Intel Corporation",
+      "model": "82801H (ICH8 Family) HD Audio Controller"
+    }
+  ]
+}

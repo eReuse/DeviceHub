@@ -1,0 +1,96 @@
+{
+  "@type": "Snapshot",
+  "comment": "",
+  "device": {
+    "@type": "Computer",
+    "type": "Desktop",
+    "manufacturer": "Hewlett-Packard",
+    "model": "HP Compaq dc5800 Microtower",
+    "serialNumber": "fe4ec51a415c1bee3cc545af30021fb96b5ff8ea9011a7cf22afb5b0"
+  },
+  "label": "10",
+  "components": [
+    {
+      "@type": "GraphicCard",
+      "memory": 256.0,
+      "manufacturer": "Intel Corporation",
+      "model": "82Q33 Express Integrated Graphics Controller"
+    },
+    {
+      "@type": "HardDrive",
+      "test": {
+        "@type": "TestHardDrive",
+        "firstError": null,
+        "status": "Aborted by host",
+        "lifetime": 0,
+        "error": true,
+        "type": "Extended offline"
+      },
+      "manufacturer": "Hitachi",
+      "interface": "ata",
+      "serialNumber": "14e03f992f19f420a3ceadd3ca6ec9f89a0c00f7f54d2d6a3d0ba41c",
+      "model": "Hitachi HDP72502",
+      "size": 238475.1796875
+    },
+    {
+      "@type": "RamModule",
+      "speed": 667.0,
+      "manufacturer": "JEDEC ID:7F 7F 7F 7F 7F 51 00 00",
+      "size": 1024,
+      "interface": "DDR2",
+      "serialNumber": "5e1ab68539f74bed002fb478dd51e634f5ccff578100c0b4b97da2bc"
+    },
+    {
+      "@type": "RamModule",
+      "speed": 800.0,
+      "manufacturer": "JEDEC ID:AD 00 00 00 00 00 00 00",
+      "size": 1024,
+      "interface": "DDR2",
+      "serialNumber": "204fc7195279dff3289716819308aebcb8839a86ffefd4572303c3d3"
+    },
+    {
+      "@type": "Motherboard",
+      "usedSlots": 2,
+      "totalSlots": 0,
+      "manufacturer": "Hewlett-Packard",
+      "connectors": {
+        "usb": 8,
+        "firewire": 0,
+        "pcmcia": 0,
+        "serial": 0
+      },
+      "model": "2820h",
+      "serialNumber": "fe4ec51a415c1bee3cc545af30021fb96b5ff8ea9011a7cf22afb5b0"
+    },
+    {
+      "@type": "NetworkAdapter",
+      "speed": 1000,
+      "manufacturer": "Intel Corporation",
+      "model": "82566DM-2 Gigabit Network Connection",
+      "serialNumber": "f947b92218f32fbfc8dcc12a6cb0a47b36f7682dd8b7594b5528e641"
+    },
+    {
+      "@type": "NetworkAdapter",
+      "speed": 1000,
+      "manufacturer": "Intel Corporation",
+      "model": "82572EI Gigabit Ethernet Controller (Copper)",
+      "serialNumber": "4057207329f30a67cb90276f09a426be3fe49ce8c1b9ed35ea96ebce"
+    },
+    {
+      "@type": "OpticalDrive",
+      "description": "DVD reader"
+    },
+    {
+      "@type": "Processor",
+      "manufacturer": "Intel Corp.",
+      "numberOfCores": 2,
+      "model": "Intel(R) Core(TM)2 Duo CPU E8400 @ 3.00GHz",
+      "serialNumber": "de6d4a9c600a5824ad38f9fad1e08e3a3ced16c72ccb27bf7e6d4089"
+    },
+    {
+      "@type": "SoundCard",
+      "manufacturer": "Intel Corporation",
+      "model": "82801I (ICH9 Family) HD Audio Controller"
+    }
+  ]
+}

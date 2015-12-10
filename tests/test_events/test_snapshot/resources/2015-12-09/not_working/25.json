@@ -1,0 +1,85 @@
+{
+  "comment": "",
+  "components": [
+    {
+      "manufacturer": "NVIDIA Corporation",
+      "model": "NV44A [GeForce 6200]",
+      "@type": "GraphicCard",
+      "memory": 256.0
+    },
+    {
+      "manufacturer": "Hitachi",
+      "serialNumber": "0874364b327b0f765af9041e22840fb372d1f363b556c62eb8a05b7a",
+      "test": {
+        "error": false,
+        "@type": "TestHardDrive"
+      },
+      "model": "Hitachi HDS72168",
+      "size": 78533.4375,
+      "interface": "ata",
+      "@type": "HardDrive"
+    },
+    {
+      "manufacturer": "JEDEC ID:2C 00 00 00 00 00 00 00",
+      "serialNumber": "24fedcad23ed05e73e2cacfb58cc66c7906c823cda98aa48729da452",
+      "speed": 800.0,
+      "size": 1024,
+      "interface": "DDR2",
+      "@type": "RamModule"
+    },
+    {
+      "manufacturer": "JEDEC ID:2C 00 00 00 00 00 00 00",
+      "serialNumber": "fe50d56c7aefada0a64933a5b0772b230927494bba10d0b2442e900c",
+      "speed": 800.0,
+      "size": 1024,
+      "interface": "DDR2",
+      "@type": "RamModule"
+    },
+    {
+      "manufacturer": "Hewlett-Packard",
+      "model": "2820h",
+      "connectors": {
+        "usb": 8,
+        "serial": 0,
+        "firewire": 0,
+        "pcmcia": 0
+      },
+      "serialNumber": "94630cec9188dd2f600489b2888d19918ae078a99b8d773c693d6ba0",
+      "usedSlots": 2,
+      "totalSlots": 0,
+      "@type": "Motherboard"
+    },
+    {
+      "manufacturer": "Intel Corporation",
+      "model": "82572EI Gigabit Ethernet Controller (Copper)",
+      "serialNumber": "4a8c8e69e6b541554cbaa927369e949a27fcd5ffdbf165d99c6a1505",
+      "@type": "NetworkAdapter",
+      "speed": 1000
+    },
+    {
+      "description": "DVD reader",
+      "@type": "OpticalDrive"
+    },
+    {
+      "manufacturer": "Intel Corp.",
+      "model": "Intel(R) Core(TM)2 Duo CPU E8400 @ 3.00GHz",
+      "numberOfCores": 2,
+      "serialNumber": "de6d4a9c600a5824ad38f9fad1e08e3a3ced16c72ccb27bf7e6d4089",
+      "@type": "Processor"
+    },
+    {
+      "manufacturer": "Intel Corporation",
+      "model": "82801I (ICH9 Family) HD Audio Controller",
+      "@type": "SoundCard"
+    }
+  ],
+  "@type": "Snapshot",
+  "label": "25",
+  "device": {
+    "manufacturer": "Hewlett-Packard",
+    "model": "HP Compaq dc5800 Microtower",
+    "serialNumber": "94630cec9188dd2f600489b2888d19918ae078a99b8d773c693d6ba0",
+    "@type": "Computer",
+    "type": "Desktop"
+  }
+}

@@ -1,4 +1,5 @@
 import copy
+import pymongo
 
 from app.schema import thing
 
@@ -46,7 +47,10 @@ place_settings = {
     'datasource': {
         'default_sort': [('_created', -1)]
     },
-    'url': 'places'
+    'url': 'places',
+    'mongo_indexes': {
+        'geo': [('components', pymongo.GEO2D)],
+    },
 }
 
 """  'children': {  # inner places

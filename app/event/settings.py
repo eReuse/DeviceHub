@@ -1,4 +1,5 @@
 import copy
+import pymongo
 
 from app.utils import register_sub_types
 from app.event.event import Event
@@ -59,6 +60,11 @@ event_settings = {
     'datasource': {
         'source': 'events',
         'default_sort': [('_created', -1)]
+    },
+    'mongo_indexes': {
+        '@type': [('@type', pymongo.DESCENDING)],
+        'device': [('device', pymongo.HASHED)],
+        'components': [('components', pymongo.DESCENDING)],
     },
     'url': 'events',
 }

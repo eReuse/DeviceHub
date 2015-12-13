@@ -8,6 +8,7 @@ from app.utils import normalize
 
 ALLOWED_WRITE_ROLES = 'dh_allowed_write_roles'
 DEFAULT_AUTHOR = 'dh_default_author'
+IF_VALUE_REQUIRE = 'dh_if_value_require'
 OR = 'dh_or'
 
 
@@ -23,6 +24,12 @@ class DeviceHubValidator(Validator):
                 if name in self.document:
                     return
             self._error(list_of_names[0], "You need to set one of these: " + str(list_of_names))
+
+    def _validate_dh_if_value_require(self, condition: tuple, field: str, value):
+        desired_value, fields = condition
+        if value == desired_value:
+            if not all(other_field in self.document.keys() for other_field in fields):
+                self._error(field, "When {} is {}, you need to send: {}".format(field, desired_value, fields))
 
     def _is_value_unique(self, unique, field, value, query):
         """
@@ -61,15 +68,13 @@ class DeviceHubValidator(Validator):
         except KeyError:
             del self.document['hid']
             self.document['isUidSecured'] = False
-            if 'pid' not in self.document:  # We do not validate here the unique constraint
+            if ('pid', '_id') not in self.document:  # We do not validate here the unique constraint of pid and _id
                 if 'parent' in self.document:
                     try:
                         component = Device.get_similar_component(self.document, self.document['parent'])
                         self._error('model', json_util.dumps({'NotUnique': component}))
                     except (KeyError, DeviceNotFound):
                         pass
-                elif app.config['USE_PID']:
-                    self._error('pid', 'NeedPid')  # Is a parent device without hid nor pid, throw error
         else:
             self._validate_regex(HID_REGEX, field, self.document['hid'])
             self._validate_unique(True, field, self.document['hid'])

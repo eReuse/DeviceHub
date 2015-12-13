@@ -1,4 +1,5 @@
 import copy
+import pymongo
 
 from app.account.user import Role
 from app.utils import register_sub_types
@@ -82,6 +83,11 @@ device_settings = {
     'item_url': 'regex("[\w]+")',
     'embedded_fields': ['components', 'tests'],
     'url': 'devices',
+    'mongo_indexes': {
+        '@type': [('@type', pymongo.DESCENDING)],
+        '@type and subtype': [('@type', pymongo.DESCENDING), ('type', pymongo.DESCENDING)],
+        '@type and _created': [('@type', pymongo.DESCENDING), ('_created', pymongo.DESCENDING)]
+    },
     'etag_ignore_fields': ['hid', '_id', 'components', 'isUidSecured', '_created', '_updated', '_etag', 'speed',
                            'busClock', 'labelId']
 }

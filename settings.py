@@ -9,7 +9,6 @@ USE_DOCS = False  # Specify if generate api documentation in /docs
 DEBUG = True
 LOG = False
 X_DOMAINS = '*'
-USE_PID = False
 
 # Other python-eve and flask settings, no need to change them
 X_HEADERS = ['Content-Type', 'Authorization']
@@ -23,6 +22,9 @@ BULK_ENABLED = False  # Some events cannot work with it todo fix
 CSRF_ENABLED = True
 IF_MATCH = False  # We do not need concurrency control for PUT (if true, we need to provide an etag (include it in x-headers!))
 XML = False  # Will probably cause bugs
+CACHE_CONTROL = 'no-cache'  # https://www.mnot.net/cache_docs/
+PAGINATION_DEFAULT = 50
+PAGINATION_LIMIT = 100
 
 # Role settings
 from app.account.user import Role

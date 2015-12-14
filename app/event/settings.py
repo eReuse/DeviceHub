@@ -67,12 +67,14 @@ event_settings = {
         'components': [('components', pymongo.DESCENDING)],
     },
     'url': 'events',
+    'cache_control': 'max-age=15, must-revalidate'
 }
 event_sub_settings = {
     'item_methods': [],
     'datasource': event_settings['datasource'],
     'url': event_settings['url'] + '/',
-    'extra_response_fields': ['@type']
+    'extra_response_fields': ['@type'],
+    'cache_control': event_settings['cache_control']
 }
 
 event_with_one_device = copy.deepcopy(event)

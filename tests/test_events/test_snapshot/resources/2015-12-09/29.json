@@ -1,0 +1,87 @@
+{
+  "device": {
+    "model": "OptiPlex 320",
+    "manufacturer": "Dell Inc.",
+    "serialNumber": "31280784fcd1f1f1b04943ec8671c5fd203e33cc3136b13926755c0d",
+    "@type": "Computer",
+    "type": "Desktop"
+  },
+  "label": "29",
+  "components": [
+    {
+      "model": "RC410 [Radeon Xpress 200/1100]",
+      "manufacturer": "Advanced Micro Devices, Inc. [AMD/ATI]",
+      "@type": "GraphicCard",
+      "memory": 128.0
+    },
+    {
+      "model": "ST3160316AS",
+      "interface": "ata",
+      "size": 152627.8359375,
+      "manufacturer": "Seagate",
+      "serialNumber": "43d9770a96943637172766705765e2272045141e75a739183be3f25b",
+      "test": {
+        "error": true,
+        "status": "CommandError",
+        "@type": "TestHardDrive"
+      },
+      "@type": "HardDrive"
+    },
+    {
+      "interface": "DDR",
+      "size": 512,
+      "manufacturer": "AD00000000000000",
+      "speed": 667.0,
+      "serialNumber": "9bf4fbab9263835ecc57f51b3b8c7b2950d88d31bb1bd9a87c72e2a0",
+      "@type": "RamModule"
+    },
+    {
+      "interface": "DDR",
+      "size": 512,
+      "manufacturer": "AD00000000000000",
+      "speed": 667.0,
+      "serialNumber": "0dd8ea9eda4b599b5cf50fbac8b055f5c0697ddc49f472ef486162d1",
+      "@type": "RamModule"
+    },
+    {
+      "model": "0TY915",
+      "manufacturer": "Dell Inc.",
+      "totalSlots": 0,
+      "@type": "Motherboard",
+      "serialNumber": "a747a03dcbaf515d61b4b0b22c2231c3c594291679018e8e03ff00de",
+      "connectors": {
+        "serial": 0,
+        "pcmcia": 0,
+        "firewire": 0,
+        "usb": 6
+      },
+      "usedSlots": 2
+    },
+    {
+      "model": "BCM4401-B0 100Base-TX",
+      "manufacturer": "Broadcom Corporation",
+      "speed": 100,
+      "@type": "NetworkAdapter",
+      "serialNumber": "0aaf0e7576b6409cf7ea1b4e8ca568f1318f31c589754cd094d797b6"
+    },
+    {
+      "model": "CDRWDVD DH-48C2S",
+      "manufacturer": "PBDS",
+      "@type": "OpticalDrive",
+      "description": "DVD reader"
+    },
+    {
+      "model": "Intel(R) Core(TM)2 CPU 4300 @ 1.80GHz",
+      "manufacturer": "Intel Corp.",
+      "numberOfCores": 2,
+      "@type": "Processor"
+    },
+    {
+      "model": "SBx00 Azalia (Intel HDA)",
+      "manufacturer": "Advanced Micro Devices, Inc. [AMD/ATI]",
+      "@type": "SoundCard"
+    }
+  ],
+  "@type": "Snapshot",
+  "comment": ""
+}

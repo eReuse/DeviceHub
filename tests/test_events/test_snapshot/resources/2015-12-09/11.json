@@ -1,0 +1,85 @@
+{
+  "device": {
+    "model": "HP Compaq dc5800 Microtower",
+    "manufacturer": "Hewlett-Packard",
+    "serialNumber": "7a3cee586256881bfd09aa23538684bd72c1a994a07bf3b544cba1d3",
+    "@type": "Computer",
+    "type": "Desktop"
+  },
+  "label": "11",
+  "components": [
+    {
+      "model": "NV44A [GeForce 6200]",
+      "manufacturer": "NVIDIA Corporation",
+      "@type": "GraphicCard",
+      "memory": 256.0
+    },
+    {
+      "model": "ST3250312AS",
+      "interface": "ata",
+      "size": 238475.1796875,
+      "manufacturer": "Seagate",
+      "serialNumber": "103ae4092901caf67552434bb04c5b0e056e477f46ce861965bd453d",
+      "test": {
+        "error": true,
+        "status": "CommandError",
+        "@type": "TestHardDrive"
+      },
+      "@type": "HardDrive"
+    },
+    {
+      "interface": "DDR2",
+      "size": 1024,
+      "manufacturer": "JEDEC ID:2C 00 00 00 00 00 00 00",
+      "speed": 800.0,
+      "serialNumber": "24e7878e84018272fb65099815d586b97b8159bd05770d70f634426e",
+      "@type": "RamModule"
+    },
+    {
+      "interface": "DDR2",
+      "size": 1024,
+      "manufacturer": "JEDEC ID:2C 00 00 00 00 00 00 00",
+      "speed": 800.0,
+      "serialNumber": "c4b840004d86c2ca6bf0a3a933b8262037da3542d00c46361e5ba59a",
+      "@type": "RamModule"
+    },
+    {
+      "model": "2820h",
+      "manufacturer": "Hewlett-Packard",
+      "totalSlots": 0,
+      "@type": "Motherboard",
+      "serialNumber": "7a3cee586256881bfd09aa23538684bd72c1a994a07bf3b544cba1d3",
+      "connectors": {
+        "serial": 0,
+        "pcmcia": 0,
+        "firewire": 0,
+        "usb": 8
+      },
+      "usedSlots": 2
+    },
+    {
+      "model": "82572EI Gigabit Ethernet Controller (Copper)",
+      "manufacturer": "Intel Corporation",
+      "speed": 1000,
+      "@type": "NetworkAdapter",
+      "serialNumber": "2b97fe373e86d12ac4a0e5e7b66fd37a6acc77ec12864cee6cf93cef"
+    },
+    {
+      "@type": "OpticalDrive",
+      "description": "DVD reader"
+    },
+    {
+      "model": "Intel(R) Core(TM)2 Duo CPU E8400 @ 3.00GHz",
+      "manufacturer": "Intel Corp.",
+      "numberOfCores": 2,
+      "@type": "Processor"
+    },
+    {
+      "model": "82801I (ICH9 Family) HD Audio Controller",
+      "manufacturer": "Intel Corporation",
+      "@type": "SoundCard"
+    }
+  ],
+  "@type": "Snapshot",
+  "comment": ""
+}

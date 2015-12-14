@@ -1,0 +1,96 @@
+{
+  "device": {
+    "model": "OptiPlex 330",
+    "manufacturer": "Dell Inc.",
+    "serialNumber": "d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f",
+    "@type": "Computer",
+    "type": "Desktop"
+  },
+  "label": "62",
+  "components": [
+    {
+      "model": "82G33/G31 Express Integrated Graphics Controller",
+      "manufacturer": "Intel Corporation",
+      "@type": "GraphicCard",
+      "memory": 256.0
+    },
+    {
+      "model": "WDC WD2500AAKX-0",
+      "interface": "ata",
+      "size": 238475.1796875,
+      "manufacturer": "Western Digital",
+      "serialNumber": "5394d67ae3a9d0b4356932c9928dfed3397b84141448958551b14090",
+      "test": {
+        "status": "Completed: read failure",
+        "error": true,
+        "lifetime": 1121,
+        "firstError": 18448359,
+        "@type": "TestHardDrive",
+        "type": "Short offline"
+      },
+      "@type": "HardDrive"
+    },
+    {
+      "interface": "DDR2",
+      "size": 1024,
+      "manufacturer": "4000000000000000",
+      "speed": 800.0,
+      "serialNumber": "c6810fc958c32fe011b7422888656671161b9c54ed5d7453a03784eb",
+      "@type": "RamModule"
+    },
+    {
+      "interface": "DDR2",
+      "size": 1024,
+      "manufacturer": "4000000000000000",
+      "speed": 800.0,
+      "serialNumber": "7a2109b63fa9e90cb5e50f6070fb618b66defa210b50787a6f0a134f",
+      "@type": "RamModule"
+    },
+    {
+      "model": "0KP561",
+      "manufacturer": "Dell Inc.",
+      "totalSlots": 0,
+      "@type": "Motherboard",
+      "serialNumber": "4142d3cb9f1cc86c45390064e3f297c3b594204241391b49846be6d3",
+      "connectors": {
+        "serial": 0,
+        "pcmcia": 0,
+        "firewire": 0,
+        "usb": 5
+      },
+      "usedSlots": 2
+    },
+    {
+      "model": "NetLink BCM5787 Gigabit Ethernet PCI Express",
+      "manufacturer": "Broadcom Corporation",
+      "speed": 1000,
+      "@type": "NetworkAdapter",
+      "serialNumber": "da0cd1319d68811ab91d001cec71a5b32d9a1684a206cab541552737"
+    },
+    {
+      "model": "CDRWDVD TS-H493B",
+      "manufacturer": "TSSTcorp",
+      "@type": "OpticalDrive",
+      "description": "DVD reader"
+    },
+    {
+      "model": "DVD RW AD-7203S",
+      "manufacturer": "Optiarc",
+      "@type": "OpticalDrive",
+      "description": "DVD-RAM writer"
+    },
+    {
+      "model": "Intel(R) Pentium(R) Dual CPU E2180 @ 2.00GHz",
+      "manufacturer": "Intel Corp.",
+      "numberOfCores": 2,
+      "@type": "Processor"
+    },
+    {
+      "model": "NM10/ICH7 Family High Definition Audio Controller",
+      "manufacturer": "Intel Corporation",
+      "@type": "SoundCard"
+    }
+  ],
+  "@type": "Snapshot",
+  "comment": ""
+}

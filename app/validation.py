@@ -84,4 +84,4 @@ class DeviceHubValidator(Validator):
             super(DeviceHubValidator, self)._validate_data_relation(data_relation, field, value)
 
 
-HID_REGEX = '[\w]+-[\w]+'
+HID_REGEX = '[\w]+-[\w]+-[\w]+'

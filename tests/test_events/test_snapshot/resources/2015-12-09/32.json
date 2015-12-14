@@ -1,0 +1,98 @@
+{
+  "device": {
+    "model": "HP EliteBook 8530p",
+    "manufacturer": "Hewlett-Packard",
+    "serialNumber": "e3a3de7b62fa6d19cd161124a9d221b2ac9eb73b72e0fe682ef1fa33",
+    "@type": "Computer",
+    "type": "Laptop"
+  },
+  "label": "32",
+  "components": [
+    {
+      "model": "RV635/M86 [Mobility Radeon HD 3650]",
+      "manufacturer": "Advanced Micro Devices, Inc. [AMD/ATI]",
+      "@type": "GraphicCard",
+      "memory": 256.0
+    },
+    {
+      "model": "FUJITSU MHZ2250B",
+      "interface": "ata",
+      "size": 238475.1796875,
+      "manufacturer": "Fujitsu",
+      "serialNumber": "fa5551792cf7d70ef8a82d35fe43c247c5aea6402774c3af8887fafc",
+      "test": {
+        "error": true,
+        "status": "CommandError",
+        "@type": "TestHardDrive"
+      },
+      "@type": "HardDrive"
+    },
+    {
+      "interface": "DDR2",
+      "size": 1024,
+      "manufacturer": "Samsung",
+      "speed": 800.0,
+      "serialNumber": "6be8e810f73a7930c2a858dfd85ddc6590889acfd2d965259c609004",
+      "@type": "RamModule"
+    },
+    {
+      "interface": "DDR2",
+      "size": 2048,
+      "manufacturer": "Samsung",
+      "speed": 800.0,
+      "serialNumber": "bccb2a6b8a594371856f28dc13e8dfce41a64dd1f67016676ce4650e",
+      "@type": "RamModule"
+    },
+    {
+      "model": "30E7",
+      "manufacturer": "Hewlett-Packard",
+      "totalSlots": 2,
+      "@type": "Motherboard",
+      "serialNumber": "dfc45b4e41992215b37a6bd32da7926e2413166806a0f9cbd31b2d12",
+      "connectors": {
+        "serial": 0,
+        "pcmcia": 0,
+        "firewire": 0,
+        "usb": 8
+      },
+      "usedSlots": 2
+    },
+    {
+      "model": "82567LM Gigabit Network Connection",
+      "manufacturer": "Intel Corporation",
+      "speed": 1000,
+      "@type": "NetworkAdapter",
+      "serialNumber": "bb663dc73319ee0b21372b1e269803bc813453970903fd4e136c237d"
+    },
+    {
+      "model": "Ultimate N WiFi Link 5300",
+      "manufacturer": "Intel Corporation",
+      "@type": "NetworkAdapter",
+      "serialNumber": "0572d71b859eba52ca77d5a26c9bcf38906a40124b30e85e5b6bbea3"
+    },
+    {
+      "model": "DVD RW AD-7581S",
+      "manufacturer": "Optiarc",
+      "@type": "OpticalDrive",
+      "description": "DVD-RAM writer"
+    },
+    {
+      "model": "Intel(R) Core(TM)2 Duo CPU P8600 @ 2.40GHz",
+      "manufacturer": "Intel Corp.",
+      "numberOfCores": 2,
+      "@type": "Processor"
+    },
+    {
+      "model": "RV635 HDMI Audio [Radeon HD 3600 Series]",
+      "manufacturer": "Advanced Micro Devices, Inc. [AMD/ATI]",
+      "@type": "SoundCard"
+    },
+    {
+      "model": "82801I (ICH9 Family) HD Audio Controller",
+      "manufacturer": "Intel Corporation",
+      "@type": "SoundCard"
+    }
+  ],
+  "@type": "Snapshot",
+  "comment": ""
+}

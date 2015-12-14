@@ -1,0 +1,91 @@
+{
+  "@type": "Snapshot",
+  "comment": "",
+  "device": {
+    "@type": "Computer",
+    "type": "Desktop",
+    "manufacturer": "Hewlett-Packard",
+    "model": "HP Compaq dc5800 Microtower",
+    "serialNumber": "6d45914c2f7a603b83f67fe9b3892ca0d7114ee16327c068a341cf58"
+  },
+  "label": "20",
+  "components": [
+    {
+      "@type": "GraphicCard",
+      "memory": 256.0,
+      "manufacturer": "Intel Corporation",
+      "model": "82Q33 Express Integrated Graphics Controller"
+    },
+    {
+      "@type": "HardDrive",
+      "test": {
+        "@type": "TestHardDrive",
+        "firstError": null,
+        "status": "Aborted by host",
+        "lifetime": 0,
+        "error": false,
+        "type": "Extended offline"
+      },
+      "manufacturer": "Seagate",
+      "interface": "ata",
+      "serialNumber": "ff9cc0e7196a52681a82f250a704e0cb28b349171b75ad7c12f63d98",
+      "model": "ST3500620AS",
+      "size": 476940.0234375
+    },
+    {
+      "@type": "RamModule",
+      "speed": 800.0,
+      "manufacturer": "JEDEC ID:2C 00 00 00 00 00 00 00",
+      "size": 2048,
+      "interface": "DDR2",
+      "serialNumber": "612f6366a4eb74a707dad7c59aa1c19df0f5f891e2f342943e7a68f3"
+    },
+    {
+      "@type": "RamModule",
+      "speed": 800.0,
+      "manufacturer": "JEDEC ID:2C 00 00 00 00 00 00 00",
+      "size": 2048,
+      "interface": "DDR2",
+      "serialNumber": "986000fc3dcddd956aeba5423a285f99199dfb25a68fa084d374e678"
+    },
+    {
+      "@type": "Motherboard",
+      "usedSlots": 2,
+      "totalSlots": 0,
+      "manufacturer": "Hewlett-Packard",
+      "connectors": {
+        "usb": 8,
+        "firewire": 0,
+        "pcmcia": 0,
+        "serial": 0
+      },
+      "model": "2820h",
+      "serialNumber": "6d45914c2f7a603b83f67fe9b3892ca0d7114ee16327c068a341cf58"
+    },
+    {
+      "@type": "NetworkAdapter",
+      "speed": 1000,
+      "manufacturer": "Intel Corporation",
+      "model": "82574L Gigabit Network Connection",
+      "serialNumber": "081facf2cd824914a91cb6d7197b3ba698748617cc8eb3cf1c9dfc2b"
+    },
+    {
+      "@type": "OpticalDrive",
+      "manufacturer": "TSSTcorp",
+      "description": "DVD reader",
+      "model": "DVD-ROM TS-H353B"
+    },
+    {
+      "@type": "Processor",
+      "manufacturer": "Intel Corp.",
+      "numberOfCores": 2,
+      "model": "Intel(R) Core(TM)2 Duo CPU E8500 @ 3.16GHz"
+
+    },
+    {
+      "@type": "SoundCard",
+      "manufacturer": "Intel Corporation",
+      "model": "82801I (ICH9 Family) HD Audio Controller"
+    }
+  ]
+}

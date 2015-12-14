@@ -182,7 +182,7 @@ class TestSnapshot(TestStandard):
     def test_snapshot_2015_12_09(self):
         del self.app.config['DOMAIN']['network-adapter']['schema']['serialNumber']['regex']
         this_directory = os.path.dirname(os.path.realpath(__file__))
-        file_directory = os.path.join(this_directory, 'resources', '2015-12-09', 'working')
+        file_directory = os.path.join(this_directory, 'resources', '2015-12-09')
         for filename in os.listdir(file_directory):
             if 'json' in filename:
                 pprint(filename)

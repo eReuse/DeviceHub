@@ -1,0 +1,88 @@
+{
+  "device": {
+    "model": "OptiPlex 330",
+    "manufacturer": "Dell Inc.",
+    "serialNumber": "9007622ccae5a367a61355121310a429cb12d79c37b95df24a9f0aab",
+    "@type": "Computer",
+    "type": "Desktop"
+  },
+  "label": "33",
+  "components": [
+    {
+      "model": "82G33/G31 Express Integrated Graphics Controller",
+      "manufacturer": "Intel Corporation",
+      "@type": "GraphicCard",
+      "memory": 256.0
+    },
+    {
+      "model": "WDC WD800ADFS-75",
+      "interface": "ata",
+      "size": 76293.9453125,
+      "manufacturer": "Western Digital",
+      "serialNumber": "bf943a5cf4fecaeb1e7b4ef9d7483ebea16913c33df18f7eee5767cb",
+      "test": {
+        "status": "Completed without error",
+        "error": false,
+        "lifetime": 0,
+        "firstError": null,
+        "@type": "TestHardDrive",
+        "type": "Short offline"
+      },
+      "@type": "HardDrive"
+    },
+    {
+      "interface": "DDR2",
+      "size": 512,
+      "manufacturer": "CE00000000000000",
+      "speed": 667.0,
+      "serialNumber": "da339ce91a06605fef2a6e872c37145d496969e9c57d12bf68493902",
+      "@type": "RamModule"
+    },
+    {
+      "interface": "DDR2",
+      "size": 512,
+      "manufacturer": "CE00000000000000",
+      "speed": 667.0,
+      "serialNumber": "3166ce964d5f4ee0aed69f08a7bea5a607a618b01542da938166ef3e",
+      "@type": "RamModule"
+    },
+    {
+      "model": "0KP561",
+      "manufacturer": "Dell Inc.",
+      "totalSlots": 0,
+      "@type": "Motherboard",
+      "serialNumber": "a799d8a84a0bc47f371b4e3197850d8ec7f4a78dd59f515fd9b1c0b4",
+      "connectors": {
+        "serial": 0,
+        "pcmcia": 0,
+        "firewire": 0,
+        "usb": 5
+      },
+      "usedSlots": 2
+    },
+    {
+      "model": "NetLink BCM5787 Gigabit Ethernet PCI Express",
+      "manufacturer": "Broadcom Corporation",
+      "speed": 1000,
+      "@type": "NetworkAdapter",
+      "serialNumber": "6124c65dde90885ef6a54f267e5b4430a9a5b9aeb4b8f7c7ad6f2868"
+    },
+    {
+      "@type": "OpticalDrive",
+      "description": "DVD writer"
+    },
+    {
+      "model": "Intel(R) Core(TM)2 Duo CPU E4400 @ 2.00GHz",
+      "manufacturer": "Intel Corp.",
+      "numberOfCores": 2,
+      "@type": "Processor"
+    },
+    {
+      "model": "NM10/ICH7 Family High Definition Audio Controller",
+      "manufacturer": "Intel Corporation",
+      "@type": "SoundCard"
+    }
+  ],
+  "@type": "Snapshot",
+  "comment": ""
+}

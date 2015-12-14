@@ -6,9 +6,8 @@ from app.exceptions import BasicError
 from app.flask_decorators import crossdomain
 from app.utils import get_header_link
 
-
-@crossdomain(origin='*', headers=['Content-Type', 'Authorization'])
 @app.errorhandler(BasicError)
+@crossdomain(origin='*', headers=['Content-Type', 'Authorization'])
 def handle_standard_error(error: BasicError) -> Response:
     response = jsonify(error.to_dict())
     header_name, header_value = get_header_link(type(error).__name__)

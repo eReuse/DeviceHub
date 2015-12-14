@@ -1,0 +1,90 @@
+{
+  "device": {
+    "model": "OptiPlex 330",
+    "manufacturer": "Dell Inc.",
+    "serialNumber": "0c108277ce5295559abdb6765080d1fde6238dc6e7c49ac15661c2af",
+    "@type": "Computer",
+    "type": "Desktop"
+  },
+  "label": "47",
+  "components": [
+    {
+      "model": "82G33/G31 Express Integrated Graphics Controller",
+      "manufacturer": "Intel Corporation",
+      "@type": "GraphicCard",
+      "memory": 256.0
+    },
+    {
+      "model": "ST380815AS",
+      "interface": "ata",
+      "size": 76293.9453125,
+      "manufacturer": "Seagate",
+      "serialNumber": "00f394e2f899bca19d7e62b3d091ffa07e144f0c397a617d67c318c8",
+      "test": {
+        "status": "Completed without error",
+        "error": false,
+        "lifetime": 0,
+        "firstError": null,
+        "@type": "TestHardDrive",
+        "type": "Short offline"
+      },
+      "@type": "HardDrive"
+    },
+    {
+      "interface": "DDR2",
+      "size": 512,
+      "manufacturer": "AD00000000000000",
+      "speed": 667.0,
+      "serialNumber": "8626dfe9e92fcf6507706d449c1bb4ca5f26786a1fc2a3723a171fec",
+      "@type": "RamModule"
+    },
+    {
+      "interface": "DDR2",
+      "size": 512,
+      "manufacturer": "AD00000000000000",
+      "speed": 667.0,
+      "serialNumber": "fea3aea7966e47c220ee7f122cdde7b6713086e95a851e2aae415c43",
+      "@type": "RamModule"
+    },
+    {
+      "model": "0KP561",
+      "manufacturer": "Dell Inc.",
+      "totalSlots": 0,
+      "@type": "Motherboard",
+      "serialNumber": "ad34ec465d3c77df98cb8cbc035deeff21e167904b92fa86cb476044",
+      "connectors": {
+        "serial": 0,
+        "pcmcia": 0,
+        "firewire": 0,
+        "usb": 5
+      },
+      "usedSlots": 2
+    },
+    {
+      "model": "NetLink BCM5787 Gigabit Ethernet PCI Express",
+      "manufacturer": "Broadcom Corporation",
+      "speed": 1000,
+      "@type": "NetworkAdapter",
+      "serialNumber": "dd95199a1e5e61f0c86415cd1b299f39678fc64259068b336bc67332"
+    },
+    {
+      "model": "DVD+-RW TS-H653B",
+      "manufacturer": "TSSTcorp",
+      "@type": "OpticalDrive",
+      "description": "DVD writer"
+    },
+    {
+      "model": "Intel(R) Core(TM)2 Duo CPU E4400 @ 2.00GHz",
+      "manufacturer": "Intel Corp.",
+      "numberOfCores": 2,
+      "@type": "Processor"
+    },
+    {
+      "model": "NM10/ICH7 Family High Definition Audio Controller",
+      "manufacturer": "Intel Corporation",
+      "@type": "SoundCard"
+    }
+  ],
+  "@type": "Snapshot",
+  "comment": ""
+}

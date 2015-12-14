@@ -1,0 +1,90 @@
+{
+  "device": {
+    "model": "OptiPlex 330",
+    "manufacturer": "Dell Inc.",
+    "serialNumber": "792637ed2fd7fc33be4b4646030b8e4b8d9b84eea50f510baf6ff5b5",
+    "@type": "Computer",
+    "type": "Desktop"
+  },
+  "label": "24",
+  "components": [
+    {
+      "model": "82G33/G31 Express Integrated Graphics Controller",
+      "manufacturer": "Intel Corporation",
+      "@type": "GraphicCard",
+      "memory": 256.0
+    },
+    {
+      "model": "WDC WD800JD-75MS",
+      "interface": "ata",
+      "size": 76293.9453125,
+      "manufacturer": "Western Digital",
+      "serialNumber": "1aeae33dd0d1e69c0f55195c96c2297802adcb33dabe177fb7f88b83",
+      "test": {
+        "status": "Completed without error",
+        "error": true,
+        "lifetime": 20280,
+        "firstError": null,
+        "@type": "TestHardDrive",
+        "type": "Short offline"
+      },
+      "@type": "HardDrive"
+    },
+    {
+      "interface": "DDR2",
+      "size": 1024,
+      "manufacturer": "AD00000000000000",
+      "speed": 800.0,
+      "serialNumber": "c144e79186a05a154e2eb4f10f765e08d8f5f5098b4979a8fd3a0334",
+      "@type": "RamModule"
+    },
+    {
+      "interface": "DDR2",
+      "size": 1024,
+      "manufacturer": "AD00000000000000",
+      "speed": 800.0,
+      "serialNumber": "5cbc84fd76021e33403722a7ad7e8c8ded66f3859fb2b0be3d6ad561",
+      "@type": "RamModule"
+    },
+    {
+      "model": "0KP561",
+      "manufacturer": "Dell Inc.",
+      "totalSlots": 0,
+      "@type": "Motherboard",
+      "serialNumber": "cae3fbd9fca5bd0c25746b3fbb589640d9b8371f4d8b2df066b20808",
+      "connectors": {
+        "serial": 0,
+        "pcmcia": 0,
+        "firewire": 0,
+        "usb": 5
+      },
+      "usedSlots": 2
+    },
+    {
+      "model": "NetLink BCM5787 Gigabit Ethernet PCI Express",
+      "manufacturer": "Broadcom Corporation",
+      "speed": 1000,
+      "@type": "NetworkAdapter",
+      "serialNumber": "4dcc5c8f359083577afafe2201bb3cf630a13730ec1df21f1e9d2952"
+    },
+    {
+      "model": "CDRWDVD TS-H493B",
+      "manufacturer": "TSSTcorp",
+      "@type": "OpticalDrive",
+      "description": "DVD reader"
+    },
+    {
+      "model": "Intel(R) Core(TM)2 Duo CPU E4500 @ 2.20GHz",
+      "manufacturer": "Intel Corp.",
+      "numberOfCores": 2,
+      "@type": "Processor"
+    },
+    {
+      "model": "NM10/ICH7 Family High Definition Audio Controller",
+      "manufacturer": "Intel Corporation",
+      "@type": "SoundCard"
+    }
+  ],
+  "@type": "Snapshot",
+  "comment": ""
+}

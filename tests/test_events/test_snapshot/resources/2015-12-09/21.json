@@ -1,0 +1,105 @@
+{
+  "@type": "Snapshot",
+  "comment": "",
+  "device": {
+    "@type": "Computer",
+    "type": "Desktop",
+    "manufacturer": "Hewlett-Packard",
+    "model": "HP Compaq dc5800 Microtower",
+    "serialNumber": "0a5083ac632458a55758a886005dac3020ecf3ad46c11f661a9acf80"
+  },
+  "label": "21",
+  "components": [
+    {
+      "@type": "GraphicCard",
+      "memory": 256.0,
+      "manufacturer": "Intel Corporation",
+      "model": "82Q33 Express Integrated Graphics Controller"
+    },
+    {
+      "@type": "HardDrive",
+      "test": {
+        "@type": "TestHardDrive",
+        "firstError": null,
+        "status": "Aborted by host",
+        "lifetime": 176,
+        "error": false,
+        "type": "Short offline"
+      },
+      "manufacturer": "Hitachi",
+      "interface": "ata",
+      "serialNumber": "e16c9975261a7147a69900da046f7d12907f85fdb8de09f5c7ac6211",
+      "model": "Hitachi HDP72502",
+      "size": 238475.1796875
+    },
+    {
+      "@type": "RamModule",
+      "speed": 667.0,
+      "manufacturer": "JEDEC ID:7F 7F 7F 7F 7F 51 00 00",
+      "size": 1024,
+      "interface": "DDR2",
+      "serialNumber": "49650e6d00fa72f7910fa50898d9c6d4dae99f0d1690c5789ba36cda"
+    },
+    {
+      "@type": "RamModule",
+      "speed": 667.0,
+      "manufacturer": "JEDEC ID:7F 7F 7F 7F 7F 51 00 00",
+      "size": 1024,
+      "interface": "DDR2",
+      "serialNumber": "f991808e4ecf536a4758248bd038629df391e3b3b3019159da14e279"
+    },
+    {
+      "@type": "RamModule",
+      "speed": 800.0,
+      "manufacturer": "JEDEC ID:AD 00 00 00 00 00 00 00",
+      "size": 1024,
+      "interface": "DDR2",
+      "serialNumber": "268696ee13cb23e1f66f02099a2d4fe7810e5ba05b92171877abc78b"
+    },
+    {
+      "@type": "RamModule",
+      "speed": 800.0,
+      "manufacturer": "JEDEC ID:AD 00 00 00 00 00 00 00",
+      "size": 1024,
+      "interface": "DDR2",
+      "serialNumber": "7b1e88df65f99923eaa191aabdb06cd7a71e0c71327479223cb10506"
+    },
+    {
+      "@type": "Motherboard",
+      "usedSlots": 4,
+      "totalSlots": 0,
+      "manufacturer": "Hewlett-Packard",
+      "connectors": {
+        "usb": 8,
+        "firewire": 0,
+        "pcmcia": 0,
+        "serial": 0
+      },
+      "model": "2820h",
+      "serialNumber": "0a5083ac632458a55758a886005dac3020ecf3ad46c11f661a9acf80"
+    },
+    {
+      "@type": "NetworkAdapter",
+      "speed": 1000,
+      "manufacturer": "Intel Corporation",
+      "model": "82572EI Gigabit Ethernet Controller (Copper)",
+      "serialNumber": "518eae60b0f5f16343b83e14fc8b32c389e8e57425edf7d8f6742e52"
+    },
+    {
+      "@type": "OpticalDrive",
+      "description": "DVD reader"
+    },
+    {
+      "@type": "Processor",
+      "manufacturer": "Intel Corp.",
+      "numberOfCores": 2,
+      "model": "Intel(R) Core(TM)2 Duo CPU E8400 @ 3.00GHz"
+
+    },
+    {
+      "@type": "SoundCard",
+      "manufacturer": "Intel Corporation",
+      "model": "82801I (ICH9 Family) HD Audio Controller"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "device": {
+    "model": "OptiPlex 360",
+    "manufacturer": "Dell Inc.",
+    "serialNumber": "a8d09a022cbe728fd401d3b3e55aaca10814634191d9d58135adf6ec",
+    "@type": "Computer",
+    "type": "Desktop"
+  },
+  "label": "38",
+  "components": [
+    {
+      "model": "82G33/G31 Express Integrated Graphics Controller",
+      "manufacturer": "Intel Corporation",
+      "@type": "GraphicCard",
+      "memory": 256.0
+    },
+    {
+      "model": "82G33/G31 Express Integrated Graphics Controller",
+      "manufacturer": "Intel Corporation",
+      "@type": "GraphicCard",
+      "memory": 1
+    },
+    {
+      "model": "ST3250318AS",
+      "interface": "ata",
+      "size": 238418.5791015625,
+      "manufacturer": "Seagate",
+      "serialNumber": "5c8db0d5e848759863d7331ef073503c7b17afa454a6b90909518c38",
+      "test": {
+        "status": "Completed without error",
+        "error": false,
+        "lifetime": 0,
+        "firstError": null,
+        "@type": "TestHardDrive",
+        "type": "Short offline"
+      },
+      "@type": "HardDrive"
+    },
+    {
+      "interface": "DDR2",
+      "size": 512,
+      "manufacturer": "4000000000000000",
+      "speed": 667.0,
+      "serialNumber": "3834e0fa2b5d5468ba10eac2fbedf50859735540da522a88c778a244",
+      "@type": "RamModule"
+    },
+    {
+      "interface": "DDR2",
+      "size": 512,
+      "manufacturer": "4000000000000000",
+      "speed": 667.0,
+      "serialNumber": "d49467eb1a0f6c813707e9c20a5dec3e06d846a5322595db40904609",
+      "@type": "RamModule"
+    },
+    {
+      "model": "0T656F",
+      "manufacturer": "Dell Inc.",
+      "totalSlots": 0,
+      "@type": "Motherboard",
+      "serialNumber": "d5f84db3d7c5c815c9309a8f2f60a441f27fa0c21baa26e7dddd34bb",
+      "connectors": {
+        "serial": 0,
+        "pcmcia": 0,
+        "firewire": 0,
+        "usb": 5
+      },
+      "usedSlots": 2
+    },
+    {
+      "model": "NetLink BCM5784M Gigabit Ethernet PCIe",
+      "manufacturer": "Broadcom Corporation",
+      "speed": 1000,
+      "@type": "NetworkAdapter",
+      "serialNumber": "43952bf1d1d81a9118de1f123fa3df276264209911e60abd746ddc88"
+    },
+    {
+      "model": "DVD+-RW AD-7200S",
+      "manufacturer": "Optiarc",
+      "@type": "OpticalDrive",
+      "description": "DVD-RAM writer"
+    },
+    {
+      "model": "Pentium(R) Dual-Core CPU E5200 @ 2.50GHz",
+      "manufacturer": "Intel Corp.",
+      "numberOfCores": 2,
+      "@type": "Processor"
+    },
+    {
+      "model": "NM10/ICH7 Family High Definition Audio Controller",
+      "manufacturer": "Intel Corporation",
+      "@type": "SoundCard"
+    }
+  ],
+  "@type": "Snapshot",
+  "comment": ""
+}

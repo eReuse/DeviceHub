@@ -1,0 +1,81 @@
+{
+  "device": {
+    "model": "OptiPlex 320",
+    "manufacturer": "Dell Inc.",
+    "serialNumber": "92dc2d6cd73a11a2bdbf8c7b317bb835e13bc0f537f1e33419955a07",
+    "@type": "Computer",
+    "type": "Desktop"
+  },
+  "label": "23",
+  "components": [
+    {
+      "model": "RC410 [Radeon Xpress 200/1100]",
+      "manufacturer": "Advanced Micro Devices, Inc. [AMD/ATI]",
+      "@type": "GraphicCard",
+      "memory": 128.0
+    },
+    {
+      "model": "Hitachi HDS72168",
+      "interface": "ata",
+      "size": 78533.4375,
+      "manufacturer": "Hitachi",
+      "serialNumber": "3a06e3b1d74c12847117711ae2736e41f9217690bebbcff3c775b159",
+      "test": {
+        "error": true,
+        "status": "CommandError",
+        "@type": "TestHardDrive"
+      },
+      "@type": "HardDrive"
+    },
+    {
+      "interface": "DDR",
+      "size": 512,
+      "manufacturer": "7F7F7F7F7F510000",
+      "speed": 533.0,
+      "serialNumber": "99bafe19b10e5b4de1fda4aebbc8e16e1fe4128c815bd01bdf2aadf6",
+      "@type": "RamModule"
+    },
+    {
+      "interface": "DDR",
+      "size": 512,
+      "manufacturer": "7F7F7F7F7F510000",
+      "speed": 533.0,
+      "serialNumber": "768b8ec0c09d847a14c22758cf12ec6314bdc8c3e42221edb9fb8f1e",
+      "@type": "RamModule"
+    },
+    {
+      "model": "0MH651",
+      "manufacturer": "Dell Inc.",
+      "totalSlots": 0,
+      "@type": "Motherboard",
+      "serialNumber": "8b6987f1a4438fe6e8b266e610494091ef7606d9b05fcee06cd2ff28",
+      "connectors": {
+        "serial": 0,
+        "pcmcia": 0,
+        "firewire": 0,
+        "usb": 6
+      },
+      "usedSlots": 2
+    },
+    {
+      "model": "BCM4401-B0 100Base-TX",
+      "manufacturer": "Broadcom Corporation",
+      "speed": 100,
+      "@type": "NetworkAdapter",
+      "serialNumber": "ee2c8c63d0dc8e912d31ee53c6cc9ad4c91e07b082df0c5f3cd71b87"
+    },
+    {
+      "model": "Intel(R) Celeron(R) CPU 3.06GHz",
+      "manufacturer": "Intel Corp.",
+      "numberOfCores": 1,
+      "@type": "Processor"
+    },
+    {
+      "model": "SBx00 Azalia (Intel HDA)",
+      "manufacturer": "Advanced Micro Devices, Inc. [AMD/ATI]",
+      "@type": "SoundCard"
+    }
+  ],
+  "@type": "Snapshot",
+  "comment": "marlen lo peta"
+}

@@ -51,6 +51,7 @@ place_settings = {
     'mongo_indexes': {
         'geo': [('components', pymongo.GEO2D)],
     },
+    'cache_control': 'max-age=15, must-revalidate'
 }
 
 """  'children': {  # inner places

@@ -1,0 +1,91 @@
+{
+  "@type": "Snapshot",
+  "comment": "",
+  "device": {
+    "@type": "Computer",
+    "type": "Desktop",
+    "manufacturer": "Dell Inc.",
+    "model": "OptiPlex 320",
+    "serialNumber": "2453f71e4774e3ad0f8d3c160fc264879e5594b1b1fa10587b130199"
+  },
+  "label": "28",
+  "components": [
+    {
+      "@type": "GraphicCard",
+      "memory": 128.0,
+      "manufacturer": "Advanced Micro Devices, Inc. [AMD/ATI]",
+      "model": "RC410 [Radeon Xpress 200/1100]"
+    },
+    {
+      "@type": "HardDrive",
+      "test": {
+        "@type": "TestHardDrive",
+        "firstError": null,
+        "status": "Completed without error",
+        "lifetime": 0,
+        "error": false,
+        "type": "Short offline"
+      },
+      "manufacturer": "Seagate",
+      "interface": "ata",
+      "serialNumber": "f65674cc108bf190ab7e5ec6479a7ebbd45c7ab63729bc78053ab3cf",
+      "model": "ST380815AS",
+      "size": 76319.0859375
+    },
+    {
+      "@type": "RamModule",
+      "speed": 533.0,
+      "manufacturer": "4000000000000000",
+      "size": 512,
+      "interface": "DDR",
+      "serialNumber": "f12600ecdb2e688ceb44fb1fad2003abaf6f777a286eec964f6e4262"
+    },
+    {
+      "@type": "RamModule",
+      "speed": 533.0,
+      "manufacturer": "4000000000000000",
+      "size": 512,
+      "interface": "DDR",
+      "serialNumber": "5c01f381bbd3069beb4456f0c95a7f63223a35d9113e6e2d85e74240"
+    },
+    {
+      "@type": "Motherboard",
+      "usedSlots": 2,
+      "totalSlots": 0,
+      "manufacturer": "Dell Inc.",
+      "connectors": {
+        "usb": 6,
+        "firewire": 0,
+        "pcmcia": 0,
+        "serial": 0
+      },
+      "model": "0UP453",
+      "serialNumber": "05f402fc79efaaf589085ff2fe7f39a59ab006bde8438b8ea3dca295"
+    },
+    {
+      "@type": "NetworkAdapter",
+      "speed": 100,
+      "manufacturer": "Broadcom Corporation",
+      "model": "BCM4401-B0 100Base-TX",
+      "serialNumber": "3d6fcc7052326770620a89c094d366636146c8b850ed4ef2db6782f7"
+    },
+    {
+      "@type": "OpticalDrive",
+      "manufacturer": "SONY",
+      "description": "DVD reader",
+      "model": "CDRWDVD CRX310EE"
+    },
+    {
+      "@type": "Processor",
+      "manufacturer": "Intel Corp.",
+      "numberOfCores": 1,
+      "model": "Intel(R) Celeron(R) D CPU 3.06GHz"
+
+    },
+    {
+      "@type": "SoundCard",
+      "manufacturer": "Advanced Micro Devices, Inc. [AMD/ATI]",
+      "model": "SBx00 Azalia (Intel HDA)"
+    }
+  ]
+}

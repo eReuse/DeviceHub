@@ -1,0 +1,102 @@
+{
+  "device": {
+    "model": "OptiPlex GX520",
+    "manufacturer": "Dell Inc.",
+    "serialNumber": "dadb381f5f614c550e72307e97d289b1bdb9c6bf8e8ae050120bba20",
+    "@type": "Computer",
+    "type": "Desktop"
+  },
+  "label": "31",
+  "components": [
+    {
+      "model": "82945G/GZ Integrated Graphics Controller",
+      "manufacturer": "Intel Corporation",
+      "@type": "GraphicCard",
+      "memory": 256.0
+    },
+    {
+      "model": "82945G/GZ Integrated Graphics Controller",
+      "manufacturer": "Intel Corporation",
+      "@type": "GraphicCard",
+      "memory": 1
+    },
+    {
+      "model": "ST380815AS",
+      "interface": "ata",
+      "size": 76319.0859375,
+      "manufacturer": "Seagate",
+      "serialNumber": "69bb60d40f23519b673387e2582b0d4d7c1cd302ca5779a00416614b",
+      "test": {
+        "status": "Completed without error",
+        "error": false,
+        "lifetime": 0,
+        "firstError": null,
+        "@type": "TestHardDrive",
+        "type": "Short offline"
+      },
+      "@type": "HardDrive"
+    },
+    {
+      "interface": "DDR",
+      "size": 512,
+      "manufacturer": "7F98000000000000",
+      "speed": 533.0,
+      "serialNumber": "d708f3379fe71664bb7989970920ff6032c2b042b550208b6cf452ba",
+      "@type": "RamModule"
+    },
+    {
+      "interface": "DDR",
+      "size": 512,
+      "manufacturer": "FFFFFFFFFFFFFFFF",
+      "speed": 533.0,
+      "serialNumber": "a67cc7dc2009a6d69d4c16785e8f628368840fd272231f7ef970d4ba",
+      "@type": "RamModule"
+    },
+    {
+      "model": "0RJ291",
+      "manufacturer": "Dell Inc.",
+      "totalSlots": 0,
+      "@type": "Motherboard",
+      "serialNumber": "7cee7a321194a395c1c1213eb3907d8db9bb04e31ba52f21d9521723",
+      "connectors": {
+        "serial": 0,
+        "pcmcia": 0,
+        "firewire": 0,
+        "usb": 5
+      },
+      "usedSlots": 2
+    },
+    {
+      "model": "NetXtreme BCM5751 Gigabit Ethernet PCI Express",
+      "manufacturer": "Broadcom Corporation",
+      "speed": 1000,
+      "@type": "NetworkAdapter",
+      "serialNumber": "a6519a4cf13322ae13b5d85e684f46f543cd957023bc64ef1cac490a"
+    },
+    {
+      "model": "DVD-RAM GSA-H55N",
+      "manufacturer": "HL-DT-ST",
+      "@type": "OpticalDrive",
+      "description": "DVD-RAM writer"
+    },
+    {
+      "model": "CDRWDVD CRX310EE",
+      "manufacturer": "SONY",
+      "@type": "OpticalDrive",
+      "description": "DVD reader"
+    },
+    {
+      "model": "Intel(R) Pentium(R) D CPU 2.80GHz",
+      "manufacturer": "Intel Corp.",
+      "numberOfCores": 2,
+      "@type": "Processor"
+    },
+    {
+      "model": "82801G (ICH7 Family) AC'97 Audio Controller",
+      "manufacturer": "Intel Corporation",
+      "@type": "SoundCard"
+    }
+  ],
+  "@type": "Snapshot",
+  "comment": ""
+}

@@ -89,7 +89,8 @@ device_settings = {
         '@type and _created': [('@type', pymongo.DESCENDING), ('_created', pymongo.DESCENDING)]
     },
     'etag_ignore_fields': ['hid', '_id', 'components', 'isUidSecured', '_created', '_updated', '_etag', 'speed',
-                           'busClock', 'labelId']
+                           'busClock', 'labelId'],
+    'cache_control': 'max-age=1, must-revalidate'
 }
 
 device_sub_settings = {
@@ -102,7 +103,8 @@ device_sub_settings = {
     'item_url': device_settings['item_url'],
     'embedded_fields': device_settings['embedded_fields'],
     'extra_response_fields': ['@type', 'hid', 'pid'],
-    'etag_ignore_fields': device_settings['etag_ignore_fields'] + ['parent']
+    'etag_ignore_fields': device_settings['etag_ignore_fields'] + ['parent'],
+    'cache_control': device_settings['cache_control']
 }
 
 

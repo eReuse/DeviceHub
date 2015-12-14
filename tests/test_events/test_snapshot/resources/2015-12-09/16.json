@@ -1,0 +1,90 @@
+{
+  "@type": "Snapshot",
+  "comment": "",
+  "device": {
+    "@type": "Computer",
+    "type": "Desktop",
+    "manufacturer": "Hewlett-Packard",
+    "model": "HP Compaq dc5800 Microtower",
+    "serialNumber": "029cbe74d87bf62651bf089fb11c3a2ff95a6a21d79af9e7f5133ac1"
+  },
+  "label": "16",
+  "components": [
+    {
+      "@type": "GraphicCard",
+      "memory": 256.0,
+      "manufacturer": "Advanced Micro Devices, Inc. [AMD/ATI]",
+      "model": "RV620 LE [Radeon HD 3450]"
+    },
+    {
+      "@type": "HardDrive",
+      "test": {
+        "@type": "TestHardDrive",
+        "firstError": null,
+        "status": "Aborted by host",
+        "lifetime": 3380,
+        "error": true,
+        "type": "Extended offline"
+      },
+      "manufacturer": "Seagate",
+      "interface": "ata",
+      "serialNumber": "0977b548a8679096d9fa3703228509654646891f3af75a5ede997763",
+      "model": "ST3500620AS",
+      "size": 476940.0234375
+    },
+    {
+      "@type": "RamModule",
+      "speed": 800.0,
+      "manufacturer": "JEDEC ID:2C 00 00 00 00 00 00 00",
+      "size": 1024,
+      "interface": "DDR2",
+      "serialNumber": "151c454f86ee05a164d231216461e2fd520c8f77de809949f3210d71"
+    },
+    {
+      "@type": "Motherboard",
+      "usedSlots": 1,
+      "totalSlots": 0,
+      "manufacturer": "Hewlett-Packard",
+      "connectors": {
+        "usb": 8,
+        "firewire": 0,
+        "pcmcia": 0,
+        "serial": 0
+      },
+      "model": "2820h",
+      "serialNumber": "029cbe74d87bf62651bf089fb11c3a2ff95a6a21d79af9e7f5133ac1"
+    },
+    {
+      "@type": "NetworkAdapter",
+      "speed": 1000,
+      "manufacturer": "Intel Corporation",
+      "model": "82566DM-2 Gigabit Network Connection",
+      "serialNumber": "c038c4d8a64b459ea56fcc371d160ebe04e5c9aa420d07988577bb67"
+    },
+    {
+      "@type": "NetworkAdapter",
+      "speed": 1000,
+      "manufacturer": "Intel Corporation",
+      "model": "82574L Gigabit Network Connection",
+      "serialNumber": "eae69cc4c10b76101de6b3114aa110287c5b11ae6123275dd3f96295"
+    },
+    {
+      "@type": "OpticalDrive",
+      "manufacturer": "TSSTcorp",
+      "description": "DVD reader",
+      "model": "DVD-ROM TS-H353B"
+    },
+    {
+      "@type": "Processor",
+      "manufacturer": "Intel Corp.",
+      "numberOfCores": 2,
+      "model": "Intel(R) Core(TM)2 Duo CPU E8500 @ 3.16GHz"
+
+    },
+    {
+      "@type": "SoundCard",
+      "manufacturer": "Advanced Micro Devices, Inc. [AMD/ATI]",
+      "model": "RV620 HDMI Audio [Radeon HD 3400 Series]"
+    }
+  ]
+}

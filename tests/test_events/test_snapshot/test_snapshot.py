@@ -79,10 +79,10 @@ class TestSnapshot(TestStandard):
         self.assertSimilarDevice(input_snapshot['device'], register['device'])
         self.assertSimilarDevices(input_snapshot['components'], register['components'])
         # We do a snapshot again. We should receive a new snapshot without any event on it.
-       # pprint("2nd time snapshot:") todo remove comments when we can register the same device more than once
-       # snapshot, status_code = self.post('snapshot', input_snapshot)
-       # self.assert201(status_code)
-       # self.assertLen(snapshot['events'], num_of_events - 1)
+        pprint("2nd time snapshot:")
+        snapshot, status_code = self.post('snapshot', input_snapshot)
+        self.assert201(status_code)
+        self.assertLen(snapshot['events'], num_of_events - 1)
 
     def add_remove(self, input_snapshot):
         from app.utils import get_resource_name
@@ -115,6 +115,12 @@ class TestSnapshot(TestStandard):
         self.test_snapshot_register_easy_1()
         self.test_snapshot_real_devices()
         self.test_snapshot_2015_12_09()
+
+    def test_add_remove(self):
+        self.test_snapshot_register_easy_1()
+        self.test_snapshot_register_easy_2()
+        self.test_snapshot_register_easy_3()
+        self.test_snapshot_register_easy_4()
 
     def test_snapshot_register_easy_1(self):
         """
@@ -180,7 +186,7 @@ class TestSnapshot(TestStandard):
             self.creation(snapshot, num_events)
 
     def test_snapshot_2015_12_09(self):
-        del self.app.config['DOMAIN']['network-adapter']['schema']['serialNumber']['regex']
+        #del self.app.config['DOMAIN']['network-adapter']['schema']['serialNumber']['regex']
         this_directory = os.path.dirname(os.path.realpath(__file__))
         file_directory = os.path.join(this_directory, 'resources', '2015-12-09')
         for filename in os.listdir(file_directory):
@@ -189,7 +195,4 @@ class TestSnapshot(TestStandard):
                 snapshot = self.get_json_from_file(filename, file_directory)
                 num_events = self.get_num_events(snapshot)
                 self.creation(snapshot, num_events)
-
-
-
 

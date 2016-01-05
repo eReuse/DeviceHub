@@ -26,7 +26,7 @@ def post_devices(registers: list):
     log = []
     for register in registers:
         caller_device = register['device']  # Keep the reference from where register['device'] points to
-        _execute_register(caller_device, log, True)
+        _execute_register(caller_device, log)
         register['device'] = caller_device['_id']  # Change the reference of register['device'], but not caller_device
         if 'components' in register:
             caller_components = register['components']
@@ -37,19 +37,24 @@ def post_devices(registers: list):
                 if 'new' in component:  # todo put new in g., don't use device
                     register['components'].append(component['_id'])
             if not register['components'] and 'new' not in caller_device:
-                _abort(
-                    log)  # If we have not POST neither any component and any device there is no reason for register to exist
+                _abort(log)  # If we have not POST neither any component and any device there is no reason for register to exist
             if 'new' in caller_device:
                 set_components(register)
 
 
 def _execute_register(device: dict, log: list, force_new=False):
+    """
+
+    :param device:
+    :param log:
+    :param force_new: Raises exception if the device is not new. Debugging parameter.
+    """
     device['hid'] = 'dummy'
     try:
         db_device = execute_post(get_resource_name(device['@type']), device)
     except InnerRequestError as e:
         if force_new:
-            raise e #todo remove force_new stuff to let existing devices to get more than one snapshot, use Add/Remoe...
+            raise e
         new = False
         try:
             db_device = _get_existing_device(e)
@@ -59,19 +64,18 @@ def _execute_register(device: dict, log: list, force_new=False):
         log.append(db_device)
         new = True
     device.clear()
-    device.update(
-        db_device)  # We do not assign so we preserve the reference todo db_device just have extra_post_fields, not all fields of device
+    device.update(db_device)  # We do not assign so we preserve the reference todo db_device just have extra_post_fields, not all fields of device
     if new:
         device['new'] = new
 
 
 def _get_existing_device(e):
     device = None
-    for field in 'hid', 'pid', 'model':  # unique fields
+    for field in 'hid', '_id', 'model':  # unique fields
         if field in e.body['_issues']:
             try:
                 device = json_util.loads(e.body['_issues'][field])['NotUnique']
-            except ValueError:  # it can be an unique field but the
+            except (ValueError, KeyError):  # it can be an unique field but the
                 raise DeviceNotFound()
     if not device:
         raise DeviceNotFound()

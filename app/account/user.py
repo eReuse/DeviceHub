@@ -56,6 +56,9 @@ class Role:
     def is_manager(self):
         return self.role in self.MANAGERS
 
+    def has_role(self, roles: set):
+        return self.role in roles
+
     def __lt__(self, other):
         if isinstance(other, Role):
             return self.ROLES.index(self.role) < self.ROLES.index(other.role)

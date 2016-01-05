@@ -14,8 +14,8 @@ OR = 'dh_or'
 
 class DeviceHubValidator(Validator):
     def _validate_dh_allowed_write_roles(self, roles, field, value):
-        if not User.actual['role'] in roles:
-            self._error(field, "You do not have permission to write field " + field + ".")
+        if not User.actual['role'].has_role(roles):
+            self._error(field, json_util.dumps({'ForbiddenToWrite': self.document}))
 
     def _validate_dh_or(self, options, field, value):
         role, list_of_names = options
@@ -59,6 +59,14 @@ class DeviceHubValidator(Validator):
                 self._error(field, json_util.dumps({'NotUnique': device}))
 
     def _validate_type_hid(self, field, value):
+        """
+        General validation for inserting devices (the name of the function is forced by Cerberus, not a good one).
+
+        - Tries to create hid and validates it.
+        - If hid cannot be created:
+            - If it has a parent, ensures that the device is unique.
+            - If it has not a parent, validates that the device has an user provided _id.
+        """
         from app.device.device import Device
         from app.device.exceptions import DeviceNotFound
         try:
@@ -68,13 +76,19 @@ class DeviceHubValidator(Validator):
         except KeyError:
             del self.document['hid']
             self.document['isUidSecured'] = False
-            if ('pid', '_id') not in self.document:  # We do not validate here the unique constraint of pid and _id
+            if '_id' not in self.document:  # We do not validate here the unique constraint of _id
                 if 'parent' in self.document:
                     try:
                         component = Device.get_similar_component(self.document, self.document['parent'])
                         self._error('model', json_util.dumps({'NotUnique': component}))
                     except (KeyError, DeviceNotFound):
                         pass
+                else:
+                    # If device has no parent and no hid, user needs to: or provide _id or forcing creating it
+                    if 'forceCreation' not in self.document or not self.document['forceCreation']:
+                        self._error('_id', json_util.dumps({'NeedsId': self.document}))
+                    # else: user forces us to create the device, it will be assigned an _id
+            # else: user provided _id. We accept this, however is unsecured.
         else:
             self._validate_regex(HID_REGEX, field, self.document['hid'])
             self._validate_unique(True, field, self.document['hid'])
@@ -83,5 +97,11 @@ class DeviceHubValidator(Validator):
         if not isinstance(value, dict):  # todo more broad way?
             super(DeviceHubValidator, self)._validate_data_relation(data_relation, field, value)
 
+    def _validate_device_id(self, validate, field, value):
+        # if autoincrement:
+        if validate and self.resource == 'computer':
+            self._validate_unique(True, field, value)
+            if len(self._errors) == 0:
+                  self._error(field, json_util.dumps({'CannotCreateId': self.document}))
 
 HID_REGEX = '[\w]+-[\w]+-[\w]+'

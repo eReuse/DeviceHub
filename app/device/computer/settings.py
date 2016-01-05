@@ -11,10 +11,15 @@ computer.update({
     'totalMemory': {
         'type': 'integer'  # In Gigabytes
     },
+    'forceCreation': {
+        'type': 'boolean',
+        'default': False
+    }
 })
 
 computer_settings = copy.deepcopy(device_sub_settings)
 computer_settings.update({
     'schema': computer,
-    'url': device_sub_settings['url'] + 'computer'
+    'url': device_sub_settings['url'] + 'computer',
+    'etag_ignore_fields': computer_settings['etag_ignore_fields'] + ['forceCreation']
 })

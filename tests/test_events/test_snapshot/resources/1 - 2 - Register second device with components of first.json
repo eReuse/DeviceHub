@@ -3,7 +3,8 @@
     "manufacturer": "p2m",
     "serialNumber": "p2s",
     "@type": "Computer",
-    "type": "Microtower"
+    "type": "Microtower",
+    "model": "model2"
   },
   "secured": false,
   "@type": "Snapshot",
@@ -16,6 +17,7 @@
     {
       "manufacturer": "p1c2m",
       "serialNumber": "p1c2s",
+      "model": "processor1",
       "speed":1.23,
       "numberOfCores": 2,
       "busClock": 1.9,

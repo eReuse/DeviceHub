@@ -26,7 +26,7 @@ def get_icon_resource(resource: str, response: dict):
 def autoincrement(resource: str, devices: list):
     if resource in Device.resource_types():
         for device in devices:
-            device['_id'] = str(get_next_sequence())  # todo find a way to use integer
+            device['_id'] = str(get_next_sequence())  # string makes this compatible with other systems that use custom id
 
 
 #@rePostUsingLabelInterceptor

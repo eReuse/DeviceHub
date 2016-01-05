@@ -38,7 +38,8 @@ device.update({
     '_id': {
         'type': 'string',
         'unique': True,
-        ALLOWED_WRITE_ROLES: Role.SUPERUSER  # For recovery purposes
+        'device_id': True
+        # ALLOWED_WRITE_ROLES: Role.SUPERUSER  # For recovery purposes
     },
     'icon': {
         'type': 'string',

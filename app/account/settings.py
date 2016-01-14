@@ -2,6 +2,7 @@ import pymongo
 
 from app.validation import ALLOWED_WRITE_ROLES
 from .user import Role
+from settings import DATABASES
 
 account = {
     'email': {
@@ -46,6 +47,16 @@ account = {
     },
     'isOrganization': {
         'type': 'boolean',  # If is an organization,  name needs to be filled, too
+    },
+    'databases': {
+        'type': 'set',
+        'required': True,
+        'allowed': list(DATABASES),
+        ALLOWED_WRITE_ROLES: Role.MANAGERS
+    },
+    'defaultDatabase': {
+        'type': 'string',  # If this is not set, the first databased in 'databases' it should be used
+        ALLOWED_WRITE_ROLES: Role.MANAGERS
     }
 }
 
@@ -71,7 +82,7 @@ account_settings = {
     'cache_expires': 0,
 
     # Allow 'token' to be returned with POST responses
-    'extra_response_fields': ['token', 'email', 'role', 'active', 'name'],
+    'extra_response_fields': ['token', 'email', 'role', 'active', 'name', 'databases'],
 
     # Finally, let's add the schema definition for this endpoint.
     'schema': account,

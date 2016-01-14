@@ -40,6 +40,11 @@ class SchemaError(StandardError):
         }
 
 
+class UnauthorizedToUseDatabase(StandardError):
+    status_code = 401
+    message = 'User has no access to this database.'
+
+
 class InnerRequestError(BasicError):
     """
     Encapsulates errors produced by internal requests (GET, POST...).

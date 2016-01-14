@@ -1,13 +1,14 @@
 import os
 
-from eve import Eve
+#from eve import Eve
+from .devicehub import Devicehub
 
 from app.security.authentication import RolesAuth
 from app.validation import DeviceHubValidator
 
 this_directory = os.path.dirname(os.path.realpath(__file__))
-settings_file = os.path.abspath(os.path.join(this_directory, '..', 'settings.py'))
-app = Eve(auth=RolesAuth, validator=DeviceHubValidator, settings=settings_file, static_url_path='/static')
+settings_file = os.path.abspath(os.path.join(this_directory, '.', 'settings.py'))
+app = Devicehub(auth=RolesAuth, validator=DeviceHubValidator, settings=settings_file, static_url_path='/static')
 
 from hooks import event_hooks
 

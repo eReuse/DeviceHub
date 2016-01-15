@@ -17,10 +17,11 @@ def event_hooks(app):
     app.on_fetched_item += project_item
     app.on_fetched_resource += project_resource
 
-    from app.event.snapshot.hooks import on_insert_snapshot, save_request, materialize_test_hard_drives
+    from app.event.snapshot.hooks import on_insert_snapshot, save_request, materialize_test_hard_drives, materialize_erase_basic
     app.on_insert_snapshot += on_insert_snapshot
     app.on_insert_snapshot += save_request
     app.on_inserted_snapshot += materialize_test_hard_drives
+    app.on_inserted_snapshot += materialize_erase_basic
 
     from app.event.hooks import get_place
     app.on_insert += get_place

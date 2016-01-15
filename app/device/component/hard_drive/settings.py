@@ -2,10 +2,7 @@ import copy
 
 from app.device.component.settings import component, component_sub_settings
 from app.event.test_hard_drive.settings import test_hard_drive
-
-
-def gen_list(x) -> list:
-    return [x]
+from app.event.erase_basic.settings import erase_basic
 
 hard_drive = copy.deepcopy(component)
 hard_drive_settings = copy.deepcopy(component_sub_settings)
@@ -17,65 +14,21 @@ hard_drive.update({
     'size': {
         'type': 'float'  # In Megabytes
     },
+    'erasure': {
+        'type': 'dict',
+        'schema': copy.deepcopy(erase_basic)
+    },
     'erasures': {
         'type': 'list',
         'schema': {
-            'type': 'dict',
-            'schema': {
-                'erasureId': {'type': 'string', 'required': True},
-                'timestamp': {'type': 'string', 'required': True},
-                'cleanedSectors': {'type': 'string', 'required': True},
-                'failedSectors': {'type': 'string', 'required': True},
-                'totalSectors': {'type': 'string', 'required': True},
-                'state': {'type': 'string', 'required': True},
-                'elapsedTime': {'type': 'string', 'required': True},
-                'startTime': {'type': 'string', 'required': True},
-                'endTime': {'type': 'string', 'required': True},
-                'erasureStandardName': {'type': 'string', 'required': True},
-                'overwritingRounds': {'type': 'string', 'required': True},
-                'firmwareRounds': {'type': 'string', 'required': True},
-                'totalErasureRounds': {'type': 'string', 'required': True},
-                'remappedSectors': {'type': 'string', 'required': True},
-                'remappedSectorsAfterErasure': {'type': 'string', 'required': True},
-                'health': {'type': 'string', 'required': True},
-                'steps': {
-                    'type': 'list',
-                    'required': True,
-                    'schema': {
-                        'type': 'dict',
-                        'schema': {
-                            'number': {'type': 'string'},
-                            'type': {'type': 'string'},
-                            'pattern': {'type': 'string'},
-                            'errors': {'type': 'string'},
-                            'state': {'type': 'string'},
-                            'elapsedTime': {'type': 'string'},
-                            'startTime': {'type': 'string'},
-                            'endTime': {'type': 'string'},
-                            'processed': {
-                                'type': 'dict',
-                                'schema': {
-                                    'type': {'type': 'string'},
-                                    'nSectors': {'type': 'string'}
-                                }
-                            },
-                            'regions': {
-                                'type': 'list',
-                                'schema': {
-                                    'type': 'dict',
-                                    'schema': {
-                                        'type': {'type': 'string'},
-                                        'capacity': {'type': 'string'},
-                                        'sectors': {'type': 'string'},
-                                        'status': {'type': 'string'}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
+            'type': 'objectid',
+            'data_relation': {
+                'resource': 'events',
+                'field': '_id',
+                'embeddable': True
             }
-        }
+        },
+        'readonly': True
     },
     'firmwareRevision': {
         'type': 'string'
@@ -87,7 +40,7 @@ hard_drive.update({
         'type': 'integer'
     },
     'test': {
-        'type': ['dict'],
+        'type': 'dict',
         'schema': copy.deepcopy(test_hard_drive),
     },
     'tests': {
@@ -104,9 +57,14 @@ hard_drive.update({
     }
 })
 hard_drive['test']['schema']['device']['required'] = False
+hard_drive['erasure']['schema']['device']['required'] = False
+del hard_drive['erasure']['schema']['incidence']['default']
+del hard_drive['erasure']['schema']['secured']['default']
+del hard_drive['test']['schema']['incidence']['default']
+del hard_drive['test']['schema']['secured']['default']
 hard_drive_settings.update({
     'schema': hard_drive,
     'url': component_sub_settings['url'] + 'hard-drive',
-    'etag_ignore_fields': hard_drive_settings['etag_ignore_fields'] + ['tests', 'erasures', 'test']
+    'etag_ignore_fields': hard_drive_settings['etag_ignore_fields'] + ['tests', 'erasures', 'test', 'erasure']
 })
 

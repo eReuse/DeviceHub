@@ -32,6 +32,7 @@ XML = False  # Will probably cause bugs
 CACHE_CONTROL = 'no-cache'  # https://www.mnot.net/cache_docs/
 PAGINATION_DEFAULT = 50
 PAGINATION_LIMIT = 100
+DATE_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
 
 # Role settings
 from app.account.user import Role

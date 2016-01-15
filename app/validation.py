@@ -1,4 +1,5 @@
 from bson import ObjectId
+from cerberus import errors
 from eve.io.mongo import Validator
 from eve.utils import config
 from flask import current_app as app
@@ -103,5 +104,10 @@ class DeviceHubValidator(Validator):
             self._validate_unique(True, field, value)
             if len(self._errors) == 0:
                   self._error(field, json_util.dumps({'CannotCreateId': self.document}))
+
+    def _validate_type_natural(self, field, value):
+        self._validate_type_integer(field, value)
+        if value < 0:
+            self._error(field, errors.ERROR_BAD_TYPE.format("natural (positive integer)"))
 
 HID_REGEX = '[\w]+-[\w]+-[\w]+'

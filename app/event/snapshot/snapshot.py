@@ -12,14 +12,16 @@ class Snapshot:
         self.components = components
         self.unsecured = []
         self.test_hard_drives = g.snapshot_test_hard_drives = []
+        self.basic_erasures = g.snapshot_basic_erasures = []
 
     def execute(self):
         event_log = []
-        self.get_test_hard_drive(self.components)
+        self.get_tests_and_erasures(self.components)
         self.register(event_log)
         for component in self.components:
             self.get_add_remove(component, self.device)
-        self.test_hard_drive(event_log)
+        self.exec_hard_drive_events(event_log, self.test_hard_drives, 'test-hard-drive')
+        self.exec_hard_drive_events(event_log, self.basic_erasures, 'erase-basic')
         self._remove_nonexistent_components()
         return event_log + self.events.process()
 
@@ -69,16 +71,19 @@ class Snapshot:
             elif 'pid' in device:
                 self._append_unsecured(device, 'pid')
 
-    def get_test_hard_drive(self, components):
+    def get_tests_and_erasures(self, components):
         i = 0
         for component in components:
             if 'test' in component:
                 self.test_hard_drives.append((i, component['test']))
                 del component['test']
+            if 'erasure' in component:
+                self.basic_erasures.append((i, component['erasure']))
+                del component['erasure']
             i += 1
 
-    def test_hard_drive(self, event_log):
-        for i, test in self.test_hard_drives:
-            test['device'] = self.components[i]['_id']
-            event_log.append(execute_post('test-hard-drive', test))
-            test.update(event_log[-1])
+    def exec_hard_drive_events(self, event_log, events, event_name):
+        for i, event in events:
+            event['device'] = self.components[i]['_id']
+            event_log.append(execute_post(event_name, event))
+            event.update(event_log[-1])

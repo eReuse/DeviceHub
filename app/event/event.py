@@ -4,7 +4,7 @@ from app.utils import get_resource_name
 class Event:
     @staticmethod
     def get_types() -> ():
-        return 'Add', 'Register', 'Snapshot', 'Remove', 'Receive', 'TestHardDrive', 'Allocate', 'Locate'  # Snapshot cannot be the last type
+        return 'Add', 'Register', 'Snapshot', 'Remove', 'Receive', 'TestHardDrive', 'Allocate', 'Locate', 'EraseBasic'  # Snapshot cannot be the last type
 
     @staticmethod
     def resource_types():

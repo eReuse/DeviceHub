@@ -26,4 +26,15 @@ def save_request(items):
 
 def materialize_test_hard_drives(snapshots: list):
     for i, test_hard_drives in g.snapshot_test_hard_drives:
-        app.data.driver.db.devices.update({'_id': test_hard_drives['device']}, {'$push': {'tests': test_hard_drives['_id']}})
+        _materialize_event_in_device(test_hard_drives, 'tests')
+
+
+def materialize_erase_basic(snapshots: list):
+    for i, erase_basic in g.snapshot_basic_erasures:
+        _materialize_event_in_device(erase_basic, 'erasures')
+
+
+def _materialize_event_in_device(event, field_name):
+    app.data.driver.db.devices.update({'_id': event['device']}, {'$push': {field_name: event['_id']}})
+
+

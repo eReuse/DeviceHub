@@ -2,9 +2,8 @@ import copy
 
 from app.account.user import Role
 from app.device.component.settings import component
-from app.event.register.settings import register_account_schema
-from app.event.settings import event_with_one_device, event_sub_settings_one_device
 from app.device.computer.settings import computer
+from app.event.settings import event_with_one_device, event_sub_settings_one_device
 
 snapshot = copy.deepcopy(event_with_one_device)
 snapshot.update({

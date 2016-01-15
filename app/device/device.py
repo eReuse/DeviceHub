@@ -1,5 +1,6 @@
 from bson import objectid, ObjectId
 from eve.utils import document_etag
+from flask import g
 
 from app.app import app
 from app.device.component.component import Component
@@ -18,7 +19,7 @@ class Device:
         :return:
         """
         try:
-            device = execute_get('devices/' + str(identifier))
+            device = execute_get(app.auth.get_requested_database_for_uri() + 'devices/' + str(identifier))
         except InnerRequestError as e:
             if e.status_code == 404:
                 raise DeviceNotFound()
@@ -33,7 +34,7 @@ class Device:
         :return:
         """
         try:
-            device = execute_get('devices?where={"pid":"' + pid + '"}')[0]
+            device = execute_get(app.auth.get_requested_database_for_uri() + 'devices?where={"pid":"' + pid + '"}')[0]
         except KeyError:
             raise DeviceNotFound()
         else:

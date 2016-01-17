@@ -4,6 +4,8 @@ from eve.methods.common import parse
 
 from eve.tests import TestMinimal
 from flask.ext.pymongo import MongoClient
+from passlib.handlers.sha2_crypt import sha256_crypt
+
 from app.utils import get_resource_name
 
 import importlib
@@ -11,7 +13,10 @@ import importlib
 class TestBase(TestMinimal):
     def setUp(self, settings_file=None, url_converters=None):
         from app.app import app
-        app.config['MONGO_DBNAME'] = 'DeviceHubTest'
+        # app.config['MONGO_DBNAME'] = 'DeviceHubTest'
+        # app.config['DATABASES'] = ['dht1', 'dht2']
+        # app.config['DHT1_DBNAME'] = 'dht_1'
+        # app.config['DHT2_DBNAME'] = 'dht_2'
         self.MONGO_DBNAME = app.config['MONGO_DBNAME']
         self.MONGO_HOST = app.config['MONGO_HOST']
         self.MONGO_PORT = app.config['MONGO_PORT']
@@ -35,8 +40,22 @@ class TestBase(TestMinimal):
 
     def create_dummy_user(self):
         self.db.accounts.insert(
-            {'email': "a@a.a", 'password': "1234", 'role': 'superuser', 'token': 'NOFATDNNUB'}
+            {
+                'email': "a@a.a",
+                'password': sha256_crypt.encrypt('1234'),
+                'role': 'superuser',
+                'token': 'NOFATDNNUB',
+                'databases': self.app.config['DATABASES'],
+                'defaultDatabase': self.app.config['DATABASES'][0]
+            }
         )
+
+    def dropDB(self):
+        self.connection = MongoClient(self.MONGO_HOST, self.MONGO_PORT)
+        self.connection.drop_database('dh_db1')
+        self.connection.drop_database('dh_db2')
+        self.connection.drop_database('dh__accounts')
+        self.connection.close()
 
     def get(self, resource, query='', item=None):
         if resource in self.domain:
@@ -45,23 +64,23 @@ class TestBase(TestMinimal):
             request = '/%s/%s%s' % (resource, item, query)
         else:
             request = '/%s%s' % (resource, query)
-        r = self.test_client.get(request, environ_base={'HTTP_AUTHORIZATION': 'Basic ' + self.token})
+        r = self.test_client.get(self.app.config['DATABASES'][0] + request, environ_base={'HTTP_AUTHORIZATION': 'Basic ' + self.token})
         return self.parse_response(r)
 
     def post(self, url, data, headers=None, content_type='application/json'):
         if headers is None:
             headers = []
-        return super(TestBase, self).post(url, data, headers + [self.auth_header], content_type)
+        return super(TestBase, self).post(self.app.config['DATABASES'][0] + '/' + url, data, headers + [self.auth_header], content_type)
 
     def patch(self, url, data, headers=None):
         if headers is None:
             headers = []
-        return super(TestBase, self).patch(url, data, headers + [self.auth_header])
+        return super(TestBase, self).patch(self.app.config['DATABASES'][0] + '/' + url, data, headers + [self.auth_header])
 
     def delete(self, url, headers=None):
         if headers is None:
             headers = []
-        return super(TestBase, self).delete(url, headers + [self.auth_header])
+        return super(TestBase, self).delete(self.app.config['DATABASES'][0] + '/' + url, headers + [self.auth_header])
 
     def _login(self) -> str:
         return super(TestBase, self).post('/login', {"email": "a@a.a", "password": "1234"})[0]['token']

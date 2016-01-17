@@ -12,7 +12,8 @@ setup(
                 'offer a way for donors and receivers to efficiently manage the reuse process ensuring final recycling.',
     install_requires=[
         'inflection',
-        'eve=0.6.0'  # Which has a bug, for now... todo try 0.6.2 when stable
+        'eve=0.6.0',  # Which has a bug, for now... todo try 0.6.2 when stable
+        'passlib'
     ],
     include_package_data=True,
     long_description="""

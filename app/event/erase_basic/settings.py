@@ -21,7 +21,7 @@ erase_basic.update({
     },
     'state': {
         'type': 'string',
-        'allowed': ['success', 'fail'],
+        'allowed': ['Success', 'fail'],
     },
     'cleanWithZeros': {
         'type': 'boolean'

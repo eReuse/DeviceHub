@@ -1,6 +1,7 @@
 import base64
 
 from flask import request, jsonify
+from passlib.handlers.sha2_crypt import sha256_crypt
 
 from app.app import app
 from app.exceptions import WrongCredentials
@@ -16,10 +17,12 @@ def login():
     """
     try:
         account = app.data.driver.db['accounts'].find_one(
-            {'email': request.json['email'], 'password': request.json['password']})
+            {'email': request.json['email']})
+        if not sha256_crypt.verify(request.json['password'], account['password']):
+            raise WrongCredentials()
         account['token'] = base64.b64encode(
             str.encode(account['token'] + ':'))  # Framework needs ':' at the end before send it to client
         account['_id'] = str(account['_id'])
         return jsonify(account)
     except (KeyError, TypeError):
-        raise WrongCredentials('There is not an user with the matching username/password')
+        raise WrongCredentials()

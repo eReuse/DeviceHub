@@ -40,9 +40,10 @@ def event_hooks(app):
 
     #app.on_inserted += get_info_from_hook
 
-    from app.account.hooks import add_token, block_users
+    from app.account.hooks import add_token, block_users, hash_password
     app.on_insert_accounts += add_token
     app.on_insert_accounts += block_users  # Block users by default
+    app.on_insert_accounts += hash_password
 
     from app.account.hooks import set_byUser, add_or_get_inactive_account
     app.on_insert += set_byUser

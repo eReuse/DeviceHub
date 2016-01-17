@@ -1,9 +1,15 @@
 import random
 import string
+
+from passlib.handlers.sha2_crypt import sha256_crypt
+
 from app.account.user import User
 from app.app import app
 from app.rest import execute_post
 
+def hash_password(accounts: dict):
+    for account in accounts:
+        account['password'] = sha256_crypt.encrypt(account['password'])
 
 def add_token(documents: dict):
     for document in documents:

@@ -60,6 +60,7 @@ class WrongCredentials(StandardError):
     Error when login and user/pass do not match.
     """
     status_code = 401
+    message = 'There is not an user with the matching username/password'
 
 
 class NoPlaceForGivenCoordinates(StandardError):

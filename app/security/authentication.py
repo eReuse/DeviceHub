@@ -30,7 +30,7 @@ class RolesAuth(TokenAuth):
         if requested_database in User.actual['databases']:
             g.auth_requested_database = requested_database
             self.set_mongo_prefix(requested_database.replace("-", "").upper())
-        else:
+        elif requested_database != 'schema':
             raise UnauthorizedToUseDatabase()
 
     @staticmethod

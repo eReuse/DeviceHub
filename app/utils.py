@@ -66,7 +66,7 @@ def set_jsonld_link(resource: str, request: LocalProxy, payload: Response):
     """
     Sets JSON Header link referring to @type
     """
-    if payload._status_code == 200:
+    if payload._status_code == 200 and resource is not None:
         data = json.loads(payload.data.decode(payload.charset))
         resource_type = resource
         try:

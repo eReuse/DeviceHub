@@ -1,4 +1,3 @@
-from bson import ObjectId
 from cerberus import errors
 from eve.io.mongo import Validator
 from eve.utils import config
@@ -6,25 +5,33 @@ from flask import current_app as app
 from bson import json_util
 from app.account.user import User
 from app.utils import normalize
+from distutils import version
+import validators
+from validators.utils import ValidationFailure
 
 ALLOWED_WRITE_ROLES = 'dh_allowed_write_roles'
 DEFAULT_AUTHOR = 'dh_default_author'
 IF_VALUE_REQUIRE = 'dh_if_value_require'
-OR = 'dh_or'
 
 
 class DeviceHubValidator(Validator):
+    special_rules = Validator.special_rules + ('or',)
+
+    def _validate(self, document, schema=None, update=False, context=None):
+        super(DeviceHubValidator, self)._validate(document, schema, update, context)
+        self._validate_or(self._current)
+        return len(self._errors) == 0
+
     def _validate_dh_allowed_write_roles(self, roles, field, value):
         if not User.actual['role'].has_role(roles):
             self._error(field, json_util.dumps({'ForbiddenToWrite': self.document}))
 
-    def _validate_dh_or(self, options, field, value):
-        role, list_of_names = options
-        if User.actual['role'] == role:
-            for name in list_of_names:
-                if name in self.document:
-                    return
-            self._error(list_of_names[0], "You need to set one of these: " + str(list_of_names))
+    def _validate_or(self, document):
+        for field_name, definition in self.schema.items():
+            if 'or' in definition:
+                field_names = set([field_name] + definition['or'])
+                if field_names.isdisjoint(document.keys()):
+                    self._error('You need at least one of the following: {}'.format(field_names))
 
     def _validate_dh_if_value_require(self, condition: tuple, field: str, value):
         desired_value, fields = condition
@@ -108,6 +115,34 @@ class DeviceHubValidator(Validator):
     def _validate_type_natural(self, field, value):
         self._validate_type_integer(field, value)
         if value < 0:
-            self._error(field, errors.ERROR_BAD_TYPE.format("natural (positive integer)"))
+            self._error(field, errors.ERROR_BAD_TYPE.format('natural (positive integer)'))
+
+    def _validate_type_url(self, field, value):
+        try:
+            validators.url.url(value)
+        except ValidationFailure:
+            self._error(field, errors.ERROR_BAD_TYPE.format('email'))
+
+    def _validate_type_email(self, field, value):
+        try:
+            validators.email(value)
+        except ValidationFailure:
+            self._error(field, errors.ERROR_BAD_TYPE.format('email'))
+
+    def _validate_type_version(self, field, value):
+        try:
+            version.StrictVersion(value)
+        except ValueError:
+            self._error(field, '{} is not a valid python strict version.'.format(value))
+
+    def _validate_sink(self, nothing, field, value):
+        pass
+
+    def _validate_description(self, nothing, field, value):
+        pass
+
+    def _validate_excludes(self, other_field: list, field: str, value):
+        if other_field in self.document:
+            self._error(field, 'Cannot be with {} field'.format(other_field))
 
 HID_REGEX = '[\w]+-[\w]+-[\w]+'

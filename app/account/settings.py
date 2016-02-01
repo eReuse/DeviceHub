@@ -6,14 +6,16 @@ from settings import DATABASES
 
 account = {
     'email': {
-        'type': 'string',
+        'type': 'email',
         'required': True,
-        'unique': True
+        'unique': True,
+        'sink': 5
     },
     'password': {
         'type': 'string',
         #'required': True, todo active OR password required
-        'minlength': 4
+        'minlength': 4,
+        'sink': 4
     },
     'role': {
         'type': 'string',
@@ -26,37 +28,45 @@ account = {
         'readonly': True
     },
     'name': {
-        'type': 'string'
+        'type': 'string',
+        'sink': 3
     },
     'organization': {
-        'type': 'string'
+        'type': 'string',
+        'sink': 1
     },
     '@type': {
         'type': 'string',
         'default': 'Account',
-        'allowed': ['Account']
+        'allowed': ['Account'],
+        'sink': 0
     },
     'active': {
         'type': 'boolean',
-        'default': True
+        'default': True,
+        'sink': -1
     },
     'blocked': {
         'type': 'boolean',
         'default': True,
+        'sink': -2,
         ALLOWED_WRITE_ROLES: Role.MANAGERS
     },
     'isOrganization': {
         'type': 'boolean',  # If is an organization,  name needs to be filled, too
+        'sink': 2
     },
     'databases': {
         'type': 'set',
         'required': True,
         'allowed': list(DATABASES),
-        ALLOWED_WRITE_ROLES: Role.MANAGERS
+        ALLOWED_WRITE_ROLES: Role.MANAGERS,
+        'sink': -4
     },
     'defaultDatabase': {
         'type': 'string',  # If this is not set, the first databased in 'databases' it should be used
-        ALLOWED_WRITE_ROLES: Role.MANAGERS
+        ALLOWED_WRITE_ROLES: Role.MANAGERS,
+        'sink': -5
     }
 }
 

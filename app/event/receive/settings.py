@@ -1,7 +1,6 @@
 import copy
 
 from app.account.settings import unregistered_user
-from app.validation import OR
 from app.event.settings import event_with_devices, event_sub_settings_multiple_devices
 
 receive = copy.deepcopy(event_with_devices)
@@ -13,10 +12,14 @@ receive.update({
             'field': '_id',
             'embeddable': True,
         },
+        'excludes': 'unregisteredReceiver',
+        'or': ['unregisteredReceiver'],
+        'sink': 2
     },
     'unregisteredReceiver': {
         'type': 'dict',
-        'schema': unregistered_user
+        'schema': unregistered_user,
+        'sink': 2
     },
     'acceptedConditions': {
         'type': 'boolean',

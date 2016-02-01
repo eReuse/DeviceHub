@@ -12,6 +12,8 @@ allocate.update({
             'field': '_id',
             'embeddable': True,
         },
+        'excludes': 'unregisteredTo',
+        'or': ['unregisteredTo']
     },
     'unregisteredTo': {
         'type': 'dict',

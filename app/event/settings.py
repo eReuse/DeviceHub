@@ -19,20 +19,29 @@ event = copy.deepcopy(thing)
 event.update({
     'date': {
         'type': 'datetime',  # User specified date when the event was triggered
+        'sink': -2,
+        'description': 'When this happened. Leave blank if it is happening now'
     },
     'secured': {
         'type': 'boolean',
-        'default': False
+        'default': False,
+        'sink': -3
     },
     'incidence': {
         'type': 'boolean',
-        'default': False
+        'default': False,
+        'sink': -3,
+        'description': 'Check if something went wrong, you can add details in a comment'
     },
     'comment': {
-        'type': 'string'
+        'type': 'string',
+        'sink': -4,
+        'description': 'Short comment for fast and easy reading'
     },
     'geo': {
         'type': 'point',
+        'sink': -5,
+        'description': 'Where did it happened'
         # 'anyof': [{'required': True}, {'dependencies': ['place']}]  # me OR places
     },
     'byUser': {
@@ -42,7 +51,8 @@ event.update({
             'field': '_id',
             'embeddable': True
         },
-        'readonly': True
+        'readonly': True,
+        'sink': 2
     },
     'place': {
         'type': 'objectid',
@@ -50,7 +60,9 @@ event.update({
             'resource': 'places',
             'field': '_id',
             'embeddable': True
-        }
+        },
+        'sink': 0,
+        'description': 'Where did it happened'
     }
 })
 event_settings = {

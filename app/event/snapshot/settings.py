@@ -14,7 +14,7 @@ snapshot.update({
         'type': 'boolean'
     },
     'version': {
-        'type': 'float',
+        'type': 'version',
     },
     'events': {
         'type': 'list',  # Snapshot generates this automatically

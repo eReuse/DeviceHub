@@ -1,6 +1,8 @@
 rdfs = {
     'label': {
         'type': 'string',
+        'sink': 5,
+        'description': 'A short, descriptive title'
     },
     '@type': {
         'type': 'string',
@@ -10,12 +12,16 @@ rdfs = {
 
 thing = dict(rdfs, **{
     'url': {
-        'type': 'string'
+        'type': 'url',
+        'readonly': True
     },
     'sameAs': {
-        'type': 'string'
+        'type': 'url'
     },
     'description': {
-        'type': 'string'
+        'type': 'string',
+        'maxlength': 500,
+        'sink': -4,
+        'description': 'Full long description'
     }
 })

@@ -6,7 +6,9 @@ from app.schema import thing
 place = copy.deepcopy(thing)
 place.update({
     'geo': {
-        'type': 'polygon'
+        'type': 'polygon',
+        'sink': -5,
+        'description': 'Set the area of the place'
     },
     'type': {
         'type': 'string',
@@ -23,9 +25,6 @@ place.update({
             }
         },
         'default': []
-    },
-    'description': {
-        'type': 'string'
     },
     'byUser': {
         'type': 'objectid',
@@ -50,8 +49,7 @@ place_settings = {
     'url': 'places',
     'mongo_indexes': {
         'geo': [('components', pymongo.GEO2D)],
-    },
-    'cache_control': 'max-age=15, must-revalidate'
+    }
 }
 
 """  'children': {  # inner places

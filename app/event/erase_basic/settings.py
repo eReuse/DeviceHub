@@ -1,30 +1,33 @@
 import copy
 
 from app.event.settings import event_with_one_device, event_sub_settings_one_device
-from app.validation import IF_VALUE_REQUIRE
+from .step_settings import step
 
 erase_basic = copy.deepcopy(event_with_one_device)
 erase_basic_settings = copy.deepcopy(event_sub_settings_one_device)
 erase_basic.update({
-    'secureAleatorySteps': {
+    'secureRandomSteps': {
         'type': 'natural',
         'required': True
     },
-    'elapsedTime': {
-        'type': 'datetime',
-    },
-    'endTime': {
+    'endingTime': {
         'type': 'datetime'
     },
-    'startTime': {
+    'startingTime': {
         'type': 'datetime'
     },
-    'state': {
-        'type': 'string',
-        'allowed': ['Succeed', 'Fail'],
+    'success': {
+        'type': 'boolean',
     },
     'cleanWithZeros': {
         'type': 'boolean'
+    },
+    'steps': {
+        'type': 'list',  # OrderedSet
+        'schema': {
+            'type': 'dict',
+            'schema': step
+        }
     }
 })
 erase_basic_settings.update({

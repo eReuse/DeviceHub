@@ -13,7 +13,8 @@ setup(
     install_requires=[
         'inflection',
         'eve',  # Which has a bug, for now... todo try 0.6.2 when stable
-        'passlib'
+        'passlib',
+        'validators'
     ],
     include_package_data=True,
     long_description="""

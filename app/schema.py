@@ -1,3 +1,18 @@
+"""
+We mimic https://schema.org/unitCode, in concrete
+the UN/CEFACT Common Code.
+"""
+class UnitCodes:
+    mbyte = '4L'
+    mbps = 'E20'
+    mhz = 'MHZ'
+    gbyte = 'E34'
+    ghz = 'A86'
+    bit = 'A99'
+    kgm = 'KGM'
+    m = 'MTR'
+
+
 rdfs = {
     'label': {
         'type': 'string',

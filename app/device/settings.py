@@ -1,23 +1,27 @@
 import copy
 import pymongo
 
-from app.account.user import Role
+from app.schema import UnitCodes
 from app.utils import register_sub_types
 from app.schema import thing
 from app.validation import ALLOWED_WRITE_ROLES, HID_REGEX
+
 
 product = dict(thing, **{
     'model': {
         'type': 'string'
     },
     'weight': {
-        'type': 'float',  # In kilograms
+        'type': 'float',
+        'unitCode': UnitCodes.kgm
     },
     'width': {
-        'type': 'float'  # In meters
+        'type': 'float',
+        'unitCode': UnitCodes.m
     },
     'height': {
-        'type': 'float'  # In meters
+        'type': 'float',
+        'unitCode': UnitCodes.m
     },
     'manufacturer': {
         'type': 'string',

@@ -8,9 +8,6 @@ computer.update({
         'type': 'string',
         'allowed': ['Desktop', 'Laptop', 'Netbook', 'Server', 'Microtower']
     },
-    'totalMemory': {
-        'type': 'integer'  # In Gigabytes
-    },
     'forceCreation': {
         'type': 'boolean',
         'default': False

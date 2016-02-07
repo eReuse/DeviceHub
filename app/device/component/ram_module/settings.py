@@ -1,19 +1,18 @@
 import copy
 
 from app.device.component.settings import component, component_sub_settings
+from app.schema import UnitCodes
 
 ram_module = copy.deepcopy(component)
 ram_module.update({
-    'clock': {
-        'type': 'integer',  # In Mhz
-        'min': 1
-    },
     'size': {
-        'type': 'integer',  # In Megabytes
+        'type': 'integer',
+        'unitCode': UnitCodes.mbyte,
         'min': 1
     },
     'speed': {
         'type': 'float',
+        'unitCode': UnitCodes.mhz,
         'min': 1
     }
 })

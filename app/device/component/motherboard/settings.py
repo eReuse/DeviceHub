@@ -14,16 +14,16 @@ motherboard.update({
         'type': 'dict',
         'schema': {
             'usb': {
-                'type': 'integer'
+                'type': 'natural'
             },
             'firewire': {
-                'type': 'integer'
+                'type': 'natural'
             },
             'serial': {
-                'type': 'integer'
+                'type': 'natural'
             },
             'pcmcia': {
-                'type': 'integer'
+                'type': 'natural'
             }
         }
     },

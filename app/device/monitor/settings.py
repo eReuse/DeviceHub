@@ -7,6 +7,9 @@ monitor.update({
     'type': {
         'type': 'string',
         'allowed': ['TFT', 'LCD']
+    },
+    'inches': {
+        'type': 'natural'
     }
 })
 

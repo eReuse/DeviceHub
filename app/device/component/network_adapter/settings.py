@@ -1,5 +1,6 @@
 import copy
 
+from app.schema import UnitCodes
 from app.device.component.settings import component, component_sub_settings
 
 network_adapter = copy.deepcopy(component)
@@ -7,7 +8,8 @@ network_adapter_settings = copy.deepcopy(component_sub_settings)
 
 network_adapter.update({
     'speed': {
-        'type': 'float'  # Speed in MB
+        'type': 'float',
+        'unitCode': UnitCodes.mbps
     }
 })
 

@@ -6,13 +6,26 @@ import os
 APP_NAME = 'DeviceHub'
 USE_DOCS = False  # Specify if generate api documentation in /docs
 DEBUG = True
-LOG = False
+LOG = True
 X_DOMAINS = '*'
+LOGGER = True  # Logger module, which is different from just writing to logs
+GRD = True  # GRD is part of logger, so in order for using GRD you need Logger
+GRD_DEBUG = True  # GRD module won't send actual data to GRD, rather just log it
 
 # Databases
 DATABASES = 'db1', 'db2'  # name showed in the url. As eve, the 'mongoDB prefix'
 DB1_DBNAME = 'dh_db1'  # The value is the name used in mongoDB for the database.
 DB2_DBNAME = 'dh_db2'
+
+# Logger settings
+LOGGER_ACCOUNT = {
+    'email': 'logger@ereuse.org',
+    'password': '43fa22kaxl0',
+}
+GRD_ACCOUNT = {
+    'email': 'ereuse',
+    'password': 'ereuse@grd'
+}
 
 # Name of the central DB used only to store accounts
 MONGO_DBNAME = 'dh__accounts'

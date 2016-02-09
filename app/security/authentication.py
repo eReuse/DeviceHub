@@ -1,6 +1,6 @@
 from eve.auth import TokenAuth
 
-from app.account.user import User
+from app.account.user import User, Role
 from flask import request, g
 from app.exceptions import UnauthorizedToUseDatabase
 
@@ -26,8 +26,8 @@ class RolesAuth(TokenAuth):
         return has_perm
 
     def _set_database(self):
-        requested_database = request.path.split('/')[1]
-        if requested_database in User.actual['databases']:
+        requested_database = User.get_requested_database()
+        if requested_database in User.actual['databases'] or User.actual['role'] == Role.SUPERUSER:
             g.auth_requested_database = requested_database
             self.set_mongo_prefix(requested_database.replace("-", "").upper())
         elif requested_database != 'schema':

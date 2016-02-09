@@ -17,7 +17,7 @@ receive.update({
         'sink': 2
     },
     'unregisteredReceiver': {
-        'type': 'dict',
+        'typett': 'dict',
         'schema': unregistered_user,
         'sink': 2
     },

@@ -38,7 +38,9 @@ def event_hooks(app):
     from app.event.receive.hooks import transfer_property
     app.on_insert_receive += transfer_property
 
-    #app.on_inserted += get_info_from_hook
+    if app.config.get('LOGGER', True):
+        from app.event.logger.settings import get_info_from_hook
+        app.on_inserted += get_info_from_hook
 
     from app.account.hooks import add_token, block_users, hash_password
     app.on_insert_accounts += add_token

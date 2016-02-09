@@ -1,10 +1,14 @@
 from multiprocessing import Process, Queue
 import json
+import logging
 
 from eve.methods.post import post_internal
+from pymongo.errors import DuplicateKeyError
 
+from app.account.user import Role
 from app.app import app
 from app.event.logger.grd_logger import GRDLogger
+from flask import current_app, g
 
 
 class Logger:
@@ -17,24 +21,32 @@ class Logger:
     token = None
 
     @classmethod
-    def log_event(cls, event_id: str):
+    def log_event(cls, event_id: str, requested_database: str):
         """
         Logs an event.
         """
-        if not cls.thread:
+        if not cls.thread or not cls.thread.is_alive():
             cls._init()
-        cls.queue.put(event_id)
+        cls.queue.put((event_id, requested_database))
 
     @classmethod
     def _init(cls):
         """
         Prepares stuff, just needs to be executed at the beginning, once.
         """
-        account_to_register = {'email': 'logger', 'password': '43fa22kaxlñ0', 'role': 'employee'}
-        account_to_login = dict(account_to_register)
-        post_internal('accounts', account_to_register, True)  # If user already existed, do nothing.
-        response = app.test_client().post('login', data=json.dumps(account_to_login), content_type='application/json')
-        js = json.loads(response.data.decode(app.config['ENCODING']))
+        account = current_app.config['LOGGER_ACCOUNT']
+        account.update({'role': Role.SUPERUSER})
+        actual_mongo_prefix = g.mongo_prefix  # todo why can't I use current_app.get_mongo_prefix()?
+        del g.mongo_prefix
+        result = app.data.driver.db.accounts.find_one({'email': account['email']})
+        if result is None:
+            try:
+                post_internal('accounts', dict(account), True)  # If we validate, RolesAuth._set_database will change our db
+            except DuplicateKeyError:
+                pass
+        g.mongo_prefix = actual_mongo_prefix
+        response = app.test_client().post('login', data=json.dumps(account), content_type='application/json')
+        js = json.loads(response.data.decode())
         cls.token = js['token']
         cls.thread = Process(target=_loop, args=(cls.queue, cls.token))
         cls.thread.daemon = True
@@ -50,6 +62,11 @@ def _loop(queue: Queue, token: str):
     :param queue:
     :return:
     """
+    logging.basicConfig(filename="logs/GRDLogger.log", level=logging.INFO)  # Another process, another logger
     while True:
-        event_id = queue.get(True)  # We block ourselves waiting for something in the queue
-        GRDLogger(event_id, token)
+        event_id, requested_database = queue.get(True)  # We block ourselves waiting for something in the queue
+        if current_app.config.get('GRD', True):
+            try:
+                GRDLogger(event_id, token, current_app.config.get('GRD_DEBUG', False), requested_database, logging)
+            except Exception as e:
+                logging.error(str(e))

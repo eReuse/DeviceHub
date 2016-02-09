@@ -1,6 +1,7 @@
 from werkzeug.http import parse_authorization_header
 from flask import g
 from app.exceptions import WrongCredentials
+from flask import request
 
 
 class ClassProperty(property):
@@ -9,6 +10,9 @@ class ClassProperty(property):
 
 
 class User:
+    @staticmethod
+    def get_requested_database():
+        return request.path.split('/')[1]
 
     # noinspection PyNestedDecorators
     @ClassProperty
@@ -43,8 +47,8 @@ class Role:
     BASIC = 'basic'  # Most basic user. Cannot do anything (except its account). Useful for external people.
     AMATEUR = 'amateur'  # Can create devices, however can just see and edit the ones it created. Events are restricted.
     EMPLOYEE = 'employee'  # Technicians. Full spectre of operations. Can interact with devices of others.
-    ADMIN = 'admin'  # worker role + manage other users (except superusers). No location restrictions. Can see analytics
-    SUPERUSER = 'superuser'  # admin + they don't appear as public users, and they can manage other superusers.
+    ADMIN = 'admin'  # worker role + manage other users (except superusers). No location restrictions. Can see analytics.
+    SUPERUSER = 'superuser'  # admin + they don't appear as public users, and they can manage other superusers. See all databases.
     ROLES = BASIC, AMATEUR, EMPLOYEE, ADMIN, SUPERUSER  # In grading order (BASIC < AMATEUR)
     MANAGERS = ADMIN, SUPERUSER
 

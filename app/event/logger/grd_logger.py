@@ -7,40 +7,42 @@ import requests
 from requests import HTTPError
 from requests.auth import AuthBase
 
+from flask import current_app
+
 from app.app import app
 
 
 class GRDLogger:
     """
         Given an Id, it sends it to GRD.
+
+        Warning: This methods works outside of Flask's application context, in another thread.
     """
 
-    DEBUG = False
-
-    def __init__(self, event_id: str, token: str):
+    def __init__(self, event_id: str, token: str, debug: bool, requested_database: str, logging: logging.Logger):
         """
         Sends the vent that event_id represents to GRD.
         :param event_id: String version of the ObjectId of an event.
         """
-        response = app.test_client().get('events/' + event_id, environ_base={'HTTP_AUTHORIZATION': 'Basic ' + token})
+        self.DEBUG = debug
+        self.logging = logging
+        self.requested_database = requested_database
+        response = app.test_client().get(
+            '{}/events/{}'.format(requested_database, event_id),
+            environ_base={'HTTP_AUTHORIZATION': 'Basic ' + token}
+        )
         event = json.loads(response.data.decode())
-        try:
-            if event['@type'] == 'Register':
-                self.register(event)
+        if event['@type'] == 'Register':
+            self.register(event)
+        else:
+            if 'devices' in event:  # We send the same event as many times as devices has
+                e = copy.deepcopy(event)
+                del e['devices']
+                for device in event['devices']:
+                    e['device'] = device
+                    self.generic(e)
             else:
-                if 'devices' in event:  # We send the same event as many times as devices has
-                    e = copy.deepcopy(event)
-                    del e['devices']
-                    for device in event['devices']:
-                        e['device'] = device
-                        self.generic(e)
-                else:
-                    self.generic(event)
-        except KeyError as e:
-            if e.args[0] == 'hid':
-                pass  # We do not send to GRD devices without hid
-            else:
-                raise e
+                self.generic(event)
 
     def register(self, event: dict):
         """
@@ -50,9 +52,17 @@ class GRDLogger:
         """
         url = 'api/devices/register/'
         data = dict(self.sanitize_generic_event(event), **{
-            'device': self.sanitize_device(event['device']),
-            'components': [self.sanitize_device(component) for component in event['components']]
+            'device': self.sanitize_device(event['device']),  # We stop all the process if no hid
+            'components': []
         })
+        for component in event['components']:
+            try:
+                data['components'].add(self.sanitize_device(component))
+            except KeyError as e:
+                if e.args[0] == 'hid':
+                    pass  # We do not send one component without hid, but we do not stop the process
+                else:
+                    raise e
         self._post(data, url)
 
     def generic(self, event: dict):
@@ -61,14 +71,11 @@ class GRDLogger:
         :param event:
         :return:
         """
-        data = dict(self.sanitize_generic_event(event), **{
-            'device': event['device']['hid']
-        })
-        url = 'api/devices/' + data['device'] + '/' + event['@type'].lower()  # We replaced full device per hid
+        data = dict(self.sanitize_generic_event(event))
+        url = 'api/devices/{}/{}'.format(data['device'], event['@type'].lower()) # We replaced full device per hid
         self._post(data, url)
 
-    @classmethod
-    def sanitize_device(cls, device: dict) -> dict:
+    def sanitize_device(self, device: dict) -> dict:
         """
         Removes any data that is not interested for GRD, and transforms other to the format GRD wants it.
         :param device:
@@ -77,35 +84,33 @@ class GRDLogger:
         return {
             'hid': device['hid'],
             'id': str(device['_id']),
+            'pid': str(device['pid']),
             'type': device['@type'],
-            'url': app.config['ENCODING'] + 'devices/' + str(device['_id'])
+            'url': '{}/devices/{}'.format(self.requested_database, device['_id'])
         }
 
-    @classmethod
-    def sanitize_generic_event(cls, event: dict) -> dict:
+    def sanitize_generic_event(self, event: dict) -> dict:
         """
         As @see sanitize_device, but with an event.
         :param event:
         :return:
         """
         return {
-            'url': app.config['ENCODING'] + 'events/' + str(event['_id']),
+            'url': '{}/events/{}'.format(self.requested_database, event['_id']),
             'date': str(event['_created']),
-            'byUser': '1',  # todo we will need to transform the uid to an url
+            'byUser': 'accounts/{}'.format(event['_id'])  # There is no requested_database for the url of the account
         }
 
-    @classmethod
-    def _post(cls, event: dict, url: str):
+    def _post(self, event: dict, url: str):
         """
         Sends an event, performing the post method.
         :param event:
         :param url:
         :return:
         """
-        if cls.DEBUG:
-            cls._post_debug(event, url)
+        if self.DEBUG:
+            self._post_debug(event, url)
         else:
-            logging.basicConfig(filename="logs/GRDLogger.log", level=logging.INFO)  # Another process, another logger
             r = requests.post(app.config['GRD_DOMAIN'] + url, json=event, auth=GRDAuth())
             try:
                 r.raise_for_status()
@@ -113,10 +118,10 @@ class GRDLogger:
                 text = ''
                 if r.status_code != 500:
                     text = str(r.json())
-                logging.error("Error: event " + json.dumps(event) + ": " + str(
-                    r.status_code) + ' from url ' + url + '\n' + text)
+                self.logging.error('Error: event {}: {} from url {} \n {}'.format(json.dumps(event), r.status_code,
+                                                                                  url, text))
             else:
-                logging.debug("GRDLogger: Succeed POST event " + json.dumps(event) + ' from url ' + url)
+                self.logging.debug("GRDLogger: Succeed POST event " + json.dumps(event) + ' from url ' + url)
 
     @staticmethod
     def _post_debug(event: dict, url: str):
@@ -145,7 +150,7 @@ class GRDAuth(AuthBase):
 
     @staticmethod
     def login():
-        json = {"username": "ereuse", "password": "ereuse@grd"}
-        r = requests.post(app.config['GRD_DOMAIN'] + 'api-token-auth/', json=json)
+        account = current_app.config['GRD_ACCOUNT']
+        r = requests.post(app.config['GRD_DOMAIN'] + 'api-token-auth/', json=account)
         data = r.json()
         return data['token']

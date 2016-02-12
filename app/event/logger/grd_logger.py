@@ -10,6 +10,9 @@ from requests.auth import AuthBase
 from flask import current_app
 
 from app.app import app
+from app.utils import get_resource_name
+
+NONEXISTENT_EVENTS_IN_GRD = 'snapshot', 'test-hard-drive', 'erase-basic'
 
 
 class GRDLogger:
@@ -32,10 +35,10 @@ class GRDLogger:
             environ_base={'HTTP_AUTHORIZATION': 'Basic ' + token}
         )
         event = json.loads(response.data.decode())
-        if event['@type'] == 'Register':
-            self.register(event)
+        if 'components' in event:
+            self.register(event)  # It is the only event submitting a full device object
         else:
-            if 'devices' in event:  # We send the same event as many times as devices has
+            if 'devices' in event:
                 e = copy.deepcopy(event)
                 del e['devices']
                 for device in event['devices']:
@@ -51,18 +54,10 @@ class GRDLogger:
         :return:
         """
         url = 'api/devices/register/'
-        data = dict(self.sanitize_generic_event(event), **{
-            'device': self.sanitize_device(event['device']),  # We stop all the process if no hid
-            'components': []
-        })
+        data = dict(self.sanitize_generic_event(event), **{'components': []})
+        data['device'] = self.get_full_device(event['device'])
         for component in event['components']:
-            try:
-                data['components'].add(self.sanitize_device(component))
-            except KeyError as e:
-                if e.args[0] == 'hid':
-                    pass  # We do not send one component without hid, but we do not stop the process
-                else:
-                    raise e
+            data['components'].add(self.get_full_device(component))
         self._post(data, url)
 
     def generic(self, event: dict):
@@ -72,22 +67,31 @@ class GRDLogger:
         :return:
         """
         data = dict(self.sanitize_generic_event(event))
-        url = 'api/devices/{}/{}'.format(data['device'], event['@type'].lower()) # We replaced full device per hid
+        #url = 'api/devices/{}/{}'.format(, get_resource_name(event['@type']))
+        url = 'dummy'
         self._post(data, url)
 
-    def sanitize_device(self, device: dict) -> dict:
+    def get_full_device(self, device: dict) -> dict:
         """
-        Removes any data that is not interested for GRD, and transforms other to the format GRD wants it.
+        Gets a device for the GRD. This is, the device object with only the interesting fields for GRD, or an URL
+        that acts like a reference.
         :param device:
-        :return: returns a device dictionary with the needed data.
+        :return: returns a device dictionary with the needed data, or an URL.
         """
-        return {
-            'hid': device['hid'],
+        grd_device = {
             'id': str(device['_id']),
             'pid': str(device['pid']),
             'type': device['@type'],
-            'url': '{}/devices/{}'.format(self.requested_database, device['_id'])
+            'url': self.get_resource_url(device['_id'], 'devices')
         }
+        try:
+            grd_device['hid'] = device['hid']
+        except KeyError as e:
+            if e.args[0] == 'hid':
+                return grd_device['url']
+            else:
+                raise e
+        return grd_device
 
     def sanitize_generic_event(self, event: dict) -> dict:
         """
@@ -95,11 +99,15 @@ class GRDLogger:
         :param event:
         :return:
         """
-        return {
-            'url': '{}/events/{}'.format(self.requested_database, event['_id']),
-            'date': str(event['_created']),
-            'byUser': 'accounts/{}'.format(event['_id'])  # There is no requested_database for the url of the account
+        grd_event = {
+            'url': self.get_resource_url(event['_id'], 'accounts'),
+            'date': event['_created'],
+            'byUser': 'accounts/{}'.format(event['byUser']),  # There is no requested_database for the url of the account
+            'device': self.get_hid_or_url(event['device'])
         }
+        if 'components' in event:
+            grd_event['components'] = [self.get_hid_or_url(component) for component in event['components']]
+        return grd_event
 
     def _post(self, event: dict, url: str):
         """
@@ -132,6 +140,12 @@ class GRDLogger:
         :return:
         """
         pprint("GRDLogger, fake post: event " + json.dumps(event) + ", to url " + url)
+
+    def get_resource_url(self, identifier, resource):
+        return '{}/{}/{}'.format(self.requested_database, resource, identifier)
+
+    def get_hid_or_url(self, device):
+        return device.get('hid', self.get_resource_url(device['_id'], 'devices'))
 
 
 class GRDAuth(AuthBase):

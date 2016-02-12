@@ -55,8 +55,7 @@ class Logger:
 
 def _loop(queue: Queue, token: str):
     """
-    Technically part of Logger, but outside of it for the system need. This method is in the child thread containing
-    the threads.
+    Technically part of Logger, but outside of it for the system need. This method is in the child thread.
 
     It's a loop: It blocks waiting for events to log. When there is an event, it invokes the loggers. Starts again.
     :param queue:

@@ -1,7 +1,8 @@
 from werkzeug.http import parse_authorization_header
 from flask import g
-from app.exceptions import WrongCredentials
+from app.exceptions import WrongCredentials, BasicError
 from flask import request
+from flask import current_app
 
 
 class ClassProperty(property):
@@ -12,7 +13,11 @@ class ClassProperty(property):
 class User:
     @staticmethod
     def get_requested_database():
-        return request.path.split('/')[1]
+        requested_database = request.path.split('/')[1]
+        if requested_database not in current_app.config['DATABASES']:
+            raise NotADatabase({'requested_path': requested_database})
+        else:
+            return requested_database
 
     # noinspection PyNestedDecorators
     @ClassProperty
@@ -103,3 +108,7 @@ class UserIsAnonymous(WrongCredentials):
 
 class NoUserForGivenToken(WrongCredentials):
     pass
+
+
+class NotADatabase(BasicError):
+    status_code = 400

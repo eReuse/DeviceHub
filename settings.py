@@ -27,8 +27,15 @@ GRD_ACCOUNT = {
     'password': 'ereuse@grd'
 }
 
-# Name of the central DB used only to store accounts
+# Name of the central DB used only to store 'RESOURCES_USING_DEFAULT_DATABASE'
 MONGO_DBNAME = 'dh__accounts'
+
+# From now on you do not need to change anything
+# Accounts are the only resource using the default (see above) database
+RESOURCES_USING_DEFAULT_DATABASE = 'accounts', 'schema'
+
+# Schema special resource does not use a database at all
+RESOURCES_NOT_USING_CUSTOM_DATABASES = RESOURCES_USING_DEFAULT_DATABASE + ('schema',)
 
 # Other python-eve and flask settings, no need to change them
 X_HEADERS = ['Content-Type', 'Authorization']

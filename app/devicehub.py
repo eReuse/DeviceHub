@@ -2,10 +2,8 @@ from eve import Eve
 
 
 class Devicehub(Eve):
-    resources_without_different_db = 'accounts',
-
     def _add_resource_url_rules(self, resource, settings):
-        if resource in self.resources_without_different_db:
+        if resource in self.config['RESOURCES_USING_DEFAULT_DATABASE']:
             super(Devicehub, self)._add_resource_url_rules(resource, settings)
         else:
             real_url_prefix = self.config['URL_PREFIX']

@@ -1,7 +1,10 @@
 class BasicError(Exception):
+    status_code = None
+
     def __init__(self, body: dict or str, status_code: int = 500):
         self.body = body
-        self.status_code = status_code
+        if self.status_code is None:
+            self.status_code = status_code
 
     def to_dict(self):
         return self.body

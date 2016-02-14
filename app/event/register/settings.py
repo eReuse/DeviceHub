@@ -1,7 +1,7 @@
 import copy
 from app.account.settings import unregistered_user
 from app.device.settings import device
-from app.event.settings import event_with_one_device, event_sub_settings_one_device
+from app.event.settings import event_with_one_device, event_sub_settings_one_device, place
 
 register = copy.deepcopy(event_with_one_device)
 register.update({
@@ -17,6 +17,7 @@ register.update({
         # An automatic way of generating pid must be set (ex: PID_AS_AUTOINCREMENT)
     },
 })
+register.update(copy.deepcopy(place))
 
 register_account_schema = {
     'possessor': {

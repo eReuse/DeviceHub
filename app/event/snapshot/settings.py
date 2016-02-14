@@ -3,7 +3,7 @@ import copy
 from app.account.user import Role
 from app.device.component.settings import component
 from app.device.computer.settings import computer
-from app.event.settings import event_with_one_device, event_sub_settings_one_device
+from app.event.settings import event_with_one_device, event_sub_settings_one_device, place
 
 snapshot = copy.deepcopy(event_with_one_device)
 snapshot.update({
@@ -74,7 +74,7 @@ snapshot.update({
         'type': 'dict'
     }
 })
-
+snapshot.update(copy.deepcopy(place))
 # snapshot.update(register_account_schema) todo do the ability to do it when device it gets registered
 
 snapshot_settings = copy.deepcopy(event_sub_settings_one_device)

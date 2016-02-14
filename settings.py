@@ -32,7 +32,7 @@ MONGO_DBNAME = 'dh__accounts'
 
 # From now on you do not need to change anything
 # Accounts are the only resource using the default (see above) database
-RESOURCES_USING_DEFAULT_DATABASE = 'accounts', 'schema'
+RESOURCES_USING_DEFAULT_DATABASE = 'accounts',
 
 # Schema special resource does not use a database at all
 RESOURCES_NOT_USING_CUSTOM_DATABASES = RESOURCES_USING_DEFAULT_DATABASE + ('schema',)
@@ -54,6 +54,7 @@ PAGINATION_DEFAULT = 30
 PAGINATION_LIMIT = 100
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
 SCHEMA_ENDPOINT = 'schema'
+EXTRA_RESPONSE_FIELDS = ['@type', 'label']
 
 # Role settings
 from app.account.user import Role

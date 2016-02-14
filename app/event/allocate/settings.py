@@ -13,11 +13,13 @@ allocate.update({
             'embeddable': True,
         },
         'excludes': 'unregisteredTo',
-        'or': ['unregisteredTo']
+        'or': ['unregisteredTo'],
+        'sink': 2
     },
     'unregisteredTo': {
         'type': 'dict',
-        'schema': unregistered_user
+        'schema': unregistered_user,
+        'sink': 2
     }
 })
 # Receiver OR ReceiverEmail. We need to hook this in a required field so it is always executed

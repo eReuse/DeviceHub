@@ -80,7 +80,7 @@ account_settings = {
         'url': 'regex("[\w]+")',
         'field': 'email',
     },
-    'public_methods': ['POST'],  # Everyone can create an account, which will be blocked (not active)
+    #'public_methods': ['POST'],  # Everyone can create an account, which will be blocked (not active)
 
     'datasource': {
         'projection': {'token': 0}  # We exclude from showing tokens to everyone

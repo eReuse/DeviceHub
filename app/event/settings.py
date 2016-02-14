@@ -4,6 +4,7 @@ import pymongo
 from app.utils import register_sub_types
 from app.event.event import Event
 from app.schema import thing
+from settings import EXTRA_RESPONSE_FIELDS
 
 """
 Event Settings file.
@@ -54,6 +55,8 @@ event.update({
         'readonly': True,
         'sink': 2
     },
+})
+place = {
     'place': {
         'type': 'objectid',
         'data_relation': {
@@ -64,7 +67,7 @@ event.update({
         'sink': 0,
         'description': 'Where did it happened'
     }
-})
+}
 event_settings = {
     'resource_methods': ['GET'],
     'schema': event,  # We update the schema in DOMAIN
@@ -85,7 +88,7 @@ event_sub_settings = {
     'item_methods': [],
     'datasource': event_settings['datasource'],
     'url': event_settings['url'] + '/',
-    'extra_response_fields': ['@type'],
+    'extra_response_fields': EXTRA_RESPONSE_FIELDS,
     'cache_control': event_settings['cache_control']
 }
 

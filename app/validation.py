@@ -31,7 +31,7 @@ class DeviceHubValidator(Validator):
             if 'or' in definition:
                 field_names = set([field_name] + definition['or'])
                 if field_names.isdisjoint(document.keys()):
-                    self._error('You need at least one of the following: {}'.format(field_names))
+                    self._error(next(iter(field_names)), 'You need at least one of the following: {}'.format(field_names))
 
     def _validate_dh_if_value_require(self, condition: tuple, field: str, value):
         desired_value, fields = condition

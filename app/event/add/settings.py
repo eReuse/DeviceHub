@@ -1,22 +1,10 @@
 import copy
 
-from app.event.settings import event_with_one_device, event_sub_settings_one_device
+from app.event.settings import event_with_one_device, event_sub_settings_one_device, components
 
 add = copy.deepcopy(event_with_one_device)
 add_settings = copy.deepcopy(event_sub_settings_one_device)
-add.update({
-    'components': {
-        'type': 'list',
-        'schema': {
-            'type': 'string',
-            'data_relation': {
-                'resource': 'devices',
-                'field': '_id',
-                'embeddable': True
-            }
-        }
-    }
-})
+add.update(copy.deepcopy(components))
 add_settings.update({
     'schema': add,
     'url': event_sub_settings_one_device['url'] + 'add'

@@ -1,7 +1,7 @@
 import copy
 
 from app.account.settings import unregistered_user
-from app.event.settings import event_with_devices, event_sub_settings_multiple_devices, place
+from app.event.settings import event_with_devices, event_sub_settings_multiple_devices, place, components
 
 receive = copy.deepcopy(event_with_devices)
 receive.update({
@@ -37,6 +37,8 @@ receive.update({
     }
 })
 receive.update(copy.deepcopy(place))
+receive.update(copy.deepcopy(components))
+receive['components']['readonly'] = True
 #receive['@type'][OR] = 'employee', ('receiver', 'unregisteredReceiver.name')
 # Receiver OR ReceiverEmail. We need to hook this in a required field so it is always executed
 # And @type is an always required field so we can happily hook on it

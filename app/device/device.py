@@ -104,12 +104,23 @@ class Device:
         return (get_resource_name(event) for event in Device.get_types())
 
     @staticmethod
-    def get_components(devices_id: list):
+    def get_devices_with_components(devices_id: list) -> list:
+        """
+        Gets a list of devices with their components, not more values.
+        :param devices_id:
+        :return:
+        """
         return list(app.data.driver.db['devices'].find({'_id': {'$in': devices_id}}, {'components': True}))
 
-    def get_components_in_set(devices_id: list):
+    @staticmethod
+    def get_components_in_set(devices_id: list) -> set:
+        """
+        For a given list of devices, gets one set containing the union of all of their components
+        :param devices_id:
+        :return:
+        """
         components = set()
-        for device in Device.get_components(list(devices_id)):
+        for device in Device.get_devices_with_components(list(devices_id)):
             if 'components' in device:
                 components |= set(device['components'])
         return components

@@ -1,7 +1,9 @@
 from app.app import app
+from app.device.device import Device
 from app.exceptions import CoordinatesAndPlaceDoNotMatch
 from app.exceptions import NoPlaceForGivenCoordinates
 from .event import Event
+from flask import current_app
 
 
 def get_place(resource_name: str, events: list):
@@ -30,3 +32,26 @@ def get_place(resource_name: str, events: list):
                             raise CoordinatesAndPlaceDoNotMatch()
                     else:
                         event['place'] = place['_id']  # geo 1 place found in DB
+
+
+def materialize_components(resource_name: str, events: list):
+    """
+    Materializes the field 'components' of selected events (not all of them) with the union of all the affected
+    components, when the event is performed to computers
+    :param resource_name:
+    :param events:
+    :return:
+    """
+    if resource_name in Event.resource_types():
+        for event in events:
+            sub_schema = current_app.config['DOMAIN'][resource_name]['schema']
+            if 'components' in sub_schema and sub_schema['components'].get('readonly', False):
+                event['components'] = list(Device.get_components_in_set(event['devices']))
+
+
+def materialize_parent(resource_name: str, events: list):
+    if resource_name in Event.resource_types():
+        for event in events:
+            sub_schema = current_app.config['DOMAIN'][resource_name]['schema']
+            if 'parent' in sub_schema:
+                event['parent'] = Device.get_parent(event['device'])

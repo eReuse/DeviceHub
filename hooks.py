@@ -23,8 +23,9 @@ def event_hooks(app):
     app.on_inserted_snapshot += materialize_test_hard_drives
     app.on_inserted_snapshot += materialize_erase_basic
 
-    from app.event.hooks import get_place
+    from app.event.hooks import get_place, materialize_components
     app.on_insert += get_place
+    app.on_insert += materialize_components
 
     from app.event.add.hooks import add_components
     app.on_inserted_add += add_components

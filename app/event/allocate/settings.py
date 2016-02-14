@@ -1,7 +1,7 @@
 import copy
 
 from app.account.settings import unregistered_user
-from app.event.settings import event_with_devices, event_sub_settings_multiple_devices
+from app.event.settings import event_with_devices, event_sub_settings_multiple_devices, components
 
 allocate = copy.deepcopy(event_with_devices)
 allocate.update({
@@ -22,6 +22,9 @@ allocate.update({
         'sink': 2
     }
 })
+allocate.update(copy.deepcopy(components))
+allocate['components']['readonly'] = True
+
 # Receiver OR ReceiverEmail. We need to hook this in a required field so it is always executed
 # And @type is an always required field so we can happily hook on it
 

@@ -68,6 +68,38 @@ place = {
         'description': 'Where did it happened'
     }
 }
+
+# Materialized fields
+
+# For add/remove, the user supplies this info. For allocate/locate/receive, this info is
+# a readonly materialization of the the components of all the computers affected, to get an easier relationship
+# between component - event when the event is performed to a parent
+components = {
+    'components': {
+        'type': 'list',
+        'schema': {
+            'type': 'string',
+            'data_relation': {
+                'resource': 'devices',
+                'field': '_id',
+                'embeddable': True
+            }
+        },
+        'description': 'Components affected by the event.'
+    }
+}
+parent = {
+    'parent': {
+        'type': 'string',
+        'data_relation': {
+            'resource': 'devices',
+            'field': '_id',
+            'embeddable': True
+        },
+        'description': 'The event triggered in this computer.'
+    }
+}
+
 event_settings = {
     'resource_methods': ['GET'],
     'schema': event,  # We update the schema in DOMAIN

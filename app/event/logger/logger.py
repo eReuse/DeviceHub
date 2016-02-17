@@ -1,13 +1,12 @@
 from multiprocessing import Process, Queue
 import json
-import logging
 
 from eve.methods.post import post_internal
 from pymongo.errors import DuplicateKeyError
 
 from app.account.user import Role
 from app.app import app
-from app.event.logger.grd_logger import GRDLogger
+from .grd_logger.grd_logger import GRDLogger
 from flask import current_app, g
 
 
@@ -61,11 +60,10 @@ def _loop(queue: Queue, token: str):
     :param queue:
     :return:
     """
-    logging.basicConfig(filename="logs/GRDLogger.log", level=logging.INFO)  # Another process, another logger
     while True:
         event_id, requested_database = queue.get(True)  # We block ourselves waiting for something in the queue
         if current_app.config.get('GRD', True):
             try:
-                GRDLogger(event_id, token, current_app.config.get('GRD_DEBUG', False), requested_database, logging)
+                GRDLogger(event_id, token, requested_database)
             except Exception as e:
-                logging.error(str(e))
+                app.logger.error(e)

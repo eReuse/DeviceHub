@@ -8,9 +8,11 @@ USE_DOCS = False  # Specify if generate api documentation in /docs
 DEBUG = True
 LOG = True
 X_DOMAINS = '*'
+BASE_PATH_SHOWN_TO_GRD = 'https://devicehub.ereuse.org/'  # Once you send the first device to GRD, always maintain this. Just affects at GRD.
 LOGGER = True  # Logger module, which is different from just writing to logs
 GRD = True  # GRD is part of logger, so in order for using GRD you need Logger
 GRD_DEBUG = True  # GRD module won't send actual data to GRD, rather just log it
+URL_PREFIX = ''
 
 # Databases
 DATABASES = 'db1', 'db2'  # name showed in the url. As eve, the 'mongoDB prefix'
@@ -63,3 +65,6 @@ ALLOWED_WRITE_ROLES = [Role.AMATEUR]
 ALLOWED_ITEM_WRITE_ROLES = [Role.AMATEUR]
 ALLOWED_READ_ROLES = [Role.BASIC]
 ALLOWED_ITEM_READ_ROLES = [Role.BASIC]
+
+# GRD Settings, do not need to change them
+EVENTS_IN_GRD = 'deallocate', 'migrate', 'allocate', 'receive', 'remove', 'add', 'register', 'locate', 'usage-proof', 'recycle'

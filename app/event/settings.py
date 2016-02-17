@@ -103,7 +103,7 @@ parent = {
 event_settings = {
     'resource_methods': ['GET'],
     'schema': event,  # We update the schema in DOMAIN
-    'embedded_fields': ['device', 'place', 'devices', 'places', 'components'],
+    'embedded_fields': ['device', 'devices', 'components'],
     'datasource': {
         'source': 'events',
         'default_sort': [('_created', -1)]

@@ -50,7 +50,7 @@ def event_hooks(app):
     app.on_inserted_deallocate += materialize_actual_owners_remove
 
     if app.config.get('LOGGER', True):
-        from app.event.logger.settings import get_info_from_hook
+        from app.event.logger.hooks import get_info_from_hook
         app.on_inserted += get_info_from_hook
 
     from app.account.hooks import add_token, hash_password, set_default_database_if_empty

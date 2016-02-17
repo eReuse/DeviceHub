@@ -44,12 +44,14 @@ account = {
     'active': {
         'type': 'boolean',
         'default': True,
-        'sink': -1
+        'sink': -1,
+        'description': 'Activate the account so you can start using it.'  # Accounts created through an event are inactive
     },
     'blocked': {
         'type': 'boolean',
         'default': True,
         'sink': -2,
+        'description': 'As a manager, you need to specifically accept the user by unblocking it\'s account.',
         ALLOWED_WRITE_ROLES: Role.MANAGERS
     },
     'isOrganization': {
@@ -57,14 +59,14 @@ account = {
         'sink': 2
     },
     'databases': {
-        'type': 'set',
+        'type': 'list',
         'required': True,
         'allowed': list(DATABASES),
         ALLOWED_WRITE_ROLES: Role.MANAGERS,
         'sink': -4
     },
     'defaultDatabase': {
-        'type': 'string',  # If this is not set, the first databased in 'databases' it should be used
+        'type': 'string',  # todo If this is not set, the first databased in 'databases' it should be used
         ALLOWED_WRITE_ROLES: Role.MANAGERS,
         'sink': -5
     }

@@ -20,6 +20,12 @@ allocate.update({
         'type': 'dict',
         'schema': unregistered_user,
         'sink': 2
+    },
+    'undefinedDate': {
+        'type': 'boolean',
+        'default': False,
+        'excludes': 'date',
+        'description': 'Check this to say: "This owner possessed the device for an undetermined amount of time".'
     }
 })
 allocate.update(copy.deepcopy(components))

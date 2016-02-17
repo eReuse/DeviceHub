@@ -31,9 +31,10 @@ receive.update({
         'required': True,
         'allowed': ['FinalUser', 'CollectionPoint', 'RecyclingPoint']
     },
-    'transferProperty': {
+    'automaticallyAllocate': {
         'type': 'boolean',
-        'default': False
+        'default': False,
+        'description': 'Allocates to the user'
     }
 })
 receive.update(copy.deepcopy(place))

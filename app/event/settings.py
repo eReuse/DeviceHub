@@ -1,7 +1,7 @@
 import copy
 import pymongo
 
-from app.utils import register_sub_types
+from app.utils import register_sub_types, register_sub_type, get_resource_name
 from app.event.event import Event
 from app.schema import thing
 from settings import EXTRA_RESPONSE_FIELDS
@@ -114,7 +114,7 @@ event_settings = {
         'components': [('components', pymongo.DESCENDING)],
     },
     'url': 'events',
-    'cache_control': 'max-age=15, must-revalidate'
+    'cache_control': 'max-age=15, must-revalidate',
 }
 event_sub_settings = {
     'item_methods': [],
@@ -170,4 +170,17 @@ def register_events(domain: dict):
     :param domain: Full domain dict
     :return:
     """
-    return register_sub_types(domain, 'app.event', Event.get_types())
+    event_merged_schema = register_sub_types(domain, 'app.event', Event.get_special_types())
+    for generic_type in Event.get_generic_types():
+        settings = copy.deepcopy(event_sub_settings_multiple_devices)
+        settings['schema'] = copy.deepcopy(event_with_devices)
+        settings['url'] += get_resource_name(generic_type)
+        settings['datasource']['filter'] = {'@type': {'$eq': generic_type}}
+        register_sub_type(
+            settings,
+            domain,
+            event_merged_schema,
+            generic_type
+        )
+    return copy.deepcopy(event_merged_schema)
+

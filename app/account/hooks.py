@@ -7,21 +7,17 @@ from app.account.user import User
 from app.app import app
 from app.rest import execute_post
 
-def hash_password(accounts: dict):
+def hash_password(accounts: list):
     for account in accounts:
-        account['password'] = sha256_crypt.encrypt(account['password'])
+        if account['active']:
+            account['password'] = sha256_crypt.encrypt(account['password'])
 
-def add_token(documents: dict):
+def add_token(documents: list):
     for document in documents:
         token = generate_token()
         while app.data.driver.db['accounts'].find_one({'token': token}) is not None:
             token = generate_token()
         document["token"] = token
-
-
-def block_users(documents: dict):
-    for document in documents:
-        document['active'] = False
 
 
 def generate_token() -> str:
@@ -34,6 +30,12 @@ def set_byUser(resource_name: str, items: list):
     if 'byUser' in app.config['DOMAIN'][resource_name]['schema']:
         for item in items:
             item['byUser'] = User.actual['_id']
+
+
+def set_default_database_if_empty(accounts: list):
+    for account in accounts:
+        if 'defaultDatabase' not in account:
+            account['defaultDatabase'] = account['databases'][0]
 
 
 def add_or_get_inactive_account(events: list):
@@ -51,8 +53,15 @@ def add_or_get_inactive_account(events: list):
 def _add_or_get_inactive_account_id(event, field_name, recipient_field_name):
     if field_name in event:
         try:
-            _id = app.data.driver.db.accounts.find_one({'email': event[field_name]['email']})['_id']
+            _id = app.data.driver.db.accounts.find_one(
+                {
+                    'email': event[field_name]['email'],
+                    'databases': {'$in': User.actual['databases']}  # We look for just accounts that share our database
+                }
+            )['_id']
         except TypeError:  # No account
+            event[field_name]['databases'] = User.actual['databases']
+            event[field_name]['active'] = False
             _id = execute_post('accounts', event[field_name])['_id']
         event[recipient_field_name] = _id
         del event[field_name]

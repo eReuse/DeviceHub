@@ -23,9 +23,12 @@ def event_hooks(app):
     app.on_inserted_snapshot += materialize_test_hard_drives
     app.on_inserted_snapshot += materialize_erase_basic
 
-    from app.event.hooks import get_place, materialize_components
+    from app.event.hooks import get_place, materialize_components, materialize_parent, set_place
     app.on_insert += get_place
+    app.on_insert += set_place
     app.on_insert += materialize_components
+    app.on_insert += materialize_parent
+
 
     from app.event.add.hooks import add_components
     app.on_inserted_add += add_components
@@ -39,14 +42,21 @@ def event_hooks(app):
     from app.event.receive.hooks import transfer_property
     app.on_insert_receive += transfer_property
 
+    from app.event.allocate.hooks import materialize_actual_owners_add, avoid_repeating_allocations
+    app.on_insert_allocate += avoid_repeating_allocations
+    app.on_inserted_allocate += materialize_actual_owners_add
+
+    from app.event.deallocate.hooks import materialize_actual_owners_remove
+    app.on_inserted_deallocate += materialize_actual_owners_remove
+
     if app.config.get('LOGGER', True):
         from app.event.logger.settings import get_info_from_hook
         app.on_inserted += get_info_from_hook
 
-    from app.account.hooks import add_token, block_users, hash_password
+    from app.account.hooks import add_token, hash_password, set_default_database_if_empty
     app.on_insert_accounts += add_token
-    app.on_insert_accounts += block_users  # Block users by default
     app.on_insert_accounts += hash_password
+    app.on_insert_accounts += set_default_database_if_empty
 
     from app.account.hooks import set_byUser, add_or_get_inactive_account
     app.on_insert += set_byUser

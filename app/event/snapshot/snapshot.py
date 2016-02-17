@@ -62,7 +62,20 @@ class Snapshot:
 
     def register(self, event_log: list):
         try:
-            event_log.append(execute_post('register', {'@type': 'Register', 'device': self.device, 'components': self.components}))
+            register = {
+                '@type': 'Register',
+                'device': self.device,
+                'components': self.components
+            }
+            if self.owner:
+                register['owner'] = self.owner
+            if self.old_owner:
+                register['oldOwner'] = self.old_owner
+            if self.un_owner:
+                register['unregisteredOwner'] = self.un_owner
+            if self.un_old_owner:
+                register['unregisteredOldOwner'] = self.un_old_owner
+            event_log.append(execute_post('register', register))
         except NoDevicesToProcess:  # As it is a custom exception we throw, it keeps being an exception through post_internal
             pass
         for device in [self.device] + self.components:

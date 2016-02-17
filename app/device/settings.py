@@ -28,7 +28,7 @@ product = dict(thing, **{
     },
     'productId': {
         'type': 'string'
-    },
+    }
 })
 
 individualProduct = dict(product, **{
@@ -74,6 +74,28 @@ device.update({
             }
         },
         'default': []
+    },
+    'place': {
+        'type': 'objectid',
+        'data_relation': {
+            'resource': 'places',
+            'embeddable': True,
+            'field': '_id'
+        },
+        'readonly': True  # Materialized
+    },
+    'owners': {
+        'type': 'list',
+        'schema': {
+            'type': 'objectid',
+            'data_relation': {
+                'resource': 'accounts',
+                'embeddable': True,
+                'field': '_id'
+            }
+        },
+        'default': [],
+        'readonly': True  # Materialized
     }
 })
 

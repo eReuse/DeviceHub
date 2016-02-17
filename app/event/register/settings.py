@@ -19,34 +19,7 @@ register.update({
 })
 register.update(copy.deepcopy(place))
 
-register_account_schema = {
-    'possessor': {
-        'type': 'objectid',  # The byUser can be an employee that registers the device on behalf of it's legal possessor
-        'data_relation': {
-            'resource': 'accounts',
-            'field': '_id',
-            'embeddable': True,
-        },
-    },
-    'oldPossessor': {
-        'type': 'objectid',  # An old possessor which transferred the property to 'possessor' prior to registering
-        'data_relation': {
-            'resource': 'accounts',
-            'field': '_id',
-            'embeddable': True,
-        },
-    },
-    'unregisteredPossessor': {
-        'type': 'dict',  # In case the possessor is unregistered
-        'schema': unregistered_user
-    },
-    'unregisteredOldPossessor': {
-        'type': 'dict',
-        'schema': unregistered_user
-    }
-}
 
-register.update(register_account_schema)
 register_settings = copy.deepcopy(event_sub_settings_one_device)
 register_settings.update({
     'resource_methods': ['POST'],

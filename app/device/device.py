@@ -124,3 +124,20 @@ class Device:
             if 'components' in device:
                 components |= set(device['components'])
         return components
+
+    @staticmethod
+    def set_properties_internal(ids: str or list, properties: dict):
+        Device.update(ids, {'$set': properties})
+
+    @staticmethod
+    def update(ids: str or list, operation: dict):
+        """
+        Sets the properties of a device using directly the database layer. The method just updates the keys in
+        properties. Properties can use mongodb parameters.
+        :param device_id:
+        :param properties:
+        :return:
+        """
+        devices_id = [ids] if type(ids) is str else ids
+        for device_id in devices_id:
+            app.data.driver.db['devices'].update_one({'_id': device_id}, operation)

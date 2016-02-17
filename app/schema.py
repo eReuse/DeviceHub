@@ -21,7 +21,8 @@ rdfs = {
     },
     '@type': {
         'type': 'string',
-        'required': True
+        'required': True,
+        'allowed': []
     }
 }
 

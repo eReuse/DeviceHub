@@ -32,16 +32,30 @@ def register_sub_types(domain: dict, parent_type: str, types_to_register=()) -> 
     :param types_to_register:
     :return: A newly deeped copied schema
     """
-    merged_schema = {}
+    merged_schema = {'@type': {'allowed': []}}
     for type_c in types_to_register:
         type_u = inflection.underscore(type_c)
         settings = import_module('.' + type_u + '.settings', parent_type)
-        getattr(settings, type_u + '_settings')['schema']['@type']['allowed'] = [type_c]
-        domain.update({get_resource_name(type_c): getattr(settings, type_u + '_settings')})
-        merged_schema.update(getattr(settings, type_u + '_settings')['schema'])
-    x = copy.deepcopy(merged_schema)  # We copy it so we avoid others to work with references
-    x['@type']['allowed'] = types_to_register
-    return x
+        type_definition = getattr(settings, type_u + '_settings')
+        register_sub_type(type_definition, domain, merged_schema, type_c)
+    return copy.deepcopy(merged_schema)  # We copy it so we avoid others to work with references
+
+
+def register_sub_type(type_settings: dict, domain: dict, merged_schema: dict, type_c: str):
+    """
+    Register one sub type, take a look at 'register_sub_types' to get more info
+    :param type_settings: The resource settings dictionary
+    :param domain: Eve's site domain dictionary
+    :param merged_schema: The result dictionary of inserting all the schemas, normally used for the generic event
+    Merged schema needs to have '@type' and inside it 'allowed', being a list
+    :param type_c: PascalCase type name
+    """
+    type_settings['schema']['@type']['allowed'] = [type_c]
+    domain.update({get_resource_name(type_c): type_settings})
+    new_type_settings_schema = copy.deepcopy(type_settings['schema'])
+    del new_type_settings_schema['@type']  # We do not want to override 'allowed' in @type with the sub_type
+    merged_schema.update(new_type_settings_schema)
+    merged_schema['@type']['allowed'].append(type_c)
 
 
 def difference(new_list: list, old_list: list) -> list:

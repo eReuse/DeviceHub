@@ -13,6 +13,8 @@ ALLOWED_WRITE_ROLES = 'dh_allowed_write_roles'
 DEFAULT_AUTHOR = 'dh_default_author'
 IF_VALUE_REQUIRE = 'dh_if_value_require'
 
+HID_REGEX = '[\w]+-[\w]+-[\w]+'
+
 
 class DeviceHubValidator(Validator):
     special_rules = Validator.special_rules + ('or',)
@@ -148,4 +150,4 @@ class DeviceHubValidator(Validator):
         if other_field in self.document:
             self._error(field, 'Cannot be with {} field'.format(other_field))
 
-HID_REGEX = '[\w]+-[\w]+-[\w]+'
+

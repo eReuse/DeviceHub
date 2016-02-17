@@ -1,6 +1,7 @@
 import json
 from pprint import pprint
 
+from eve.methods.patch import patch_internal
 from eve.methods.post import post_internal
 from flask import request
 
@@ -23,3 +24,11 @@ def execute_get(url: str):
         raise InnerRequestError(response._status_code, data)
     else:
         return data
+
+
+def execute_patch(resource: str, payload: dict, identifier):
+    payload['_id'] = str(identifier)
+    response = patch_internal(resource, payload, False, False, **{'_id': str(identifier)})
+    if response[3] != 200:  # statusCode
+        raise InnerRequestError(response[3], response[0])
+    return response[0]

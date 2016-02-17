@@ -3,8 +3,16 @@ from app.utils import get_resource_name
 
 class Event:
     @staticmethod
-    def get_types() -> ():
-        return 'Add', 'Register', 'Snapshot', 'Remove', 'Receive', 'TestHardDrive', 'Allocate', 'Locate', 'EraseBasic'  # Snapshot cannot be the last type
+    def get_types() -> set:
+        return Event.get_special_types() | Event.get_generic_types()
+
+    @staticmethod
+    def get_generic_types() -> set:
+         return {'Ready', 'Repair', 'ToPrepare', 'ToRepair', 'ToRecycle', 'Recycle'}
+
+    @staticmethod
+    def get_special_types() -> set:
+        return {'Add', 'Register', 'Snapshot', 'Remove', 'Receive', 'TestHardDrive', 'Allocate', 'Locate', 'Deallocate', 'EraseBasic'}  # Snapshot cannot be the last type
 
     @staticmethod
     def resource_types():

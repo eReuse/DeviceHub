@@ -2,6 +2,7 @@ from bson import json_util
 from eve.methods.delete import deleteitem_internal
 
 from app.app import app
+from app.device.device import Device
 from app.device.exceptions import DeviceNotFound, NoDevicesToProcess
 from app.exceptions import InnerRequestError
 from app.utils import get_resource_name
@@ -96,3 +97,18 @@ def _abort(log, e: Exception = NoDevicesToProcess()):
     for device in reversed(log):
         deleteitem_internal(get_resource_name(device['@type']), device)
     raise e
+
+"""
+def materialize_actual_owners_set(registers: list):
+    Initializes the ownership materialized list of a device with the ownership set in the Register.
+
+    This needs to be executed after 'add_or_get_inactive_account'.
+    :param events:
+    :return:
+    for event in registers:
+        if 'owner' in event:
+            properties = {'owner': event['owner']}
+            Device.set_properties_internal(event['owner'], properties)
+            for component in event.get('components', []):
+                Device.set_properties_internal(component, properties)
+"""

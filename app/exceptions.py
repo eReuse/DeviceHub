@@ -31,9 +31,11 @@ class StandardError(BasicError):
 class SchemaError(StandardError):
     status_code = 422
 
-    def __init__(self, field, message):
-        self.field = field
-        self.message = message
+    def __init__(self, field=None, message=None):
+        if field:
+            self.field = field
+        if message:
+            self.message = message
 
     def to_dict(self):
         return {

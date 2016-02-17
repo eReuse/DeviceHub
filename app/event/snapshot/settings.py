@@ -75,7 +75,6 @@ snapshot.update({
     }
 })
 snapshot.update(copy.deepcopy(place))
-# snapshot.update(register_account_schema) todo do the ability to do it when device it gets registered
 
 snapshot_settings = copy.deepcopy(event_sub_settings_one_device)
 snapshot_settings.update({

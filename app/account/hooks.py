@@ -3,7 +3,7 @@ import string
 
 from passlib.handlers.sha2_crypt import sha256_crypt
 
-from app.account.user import User
+from app.account.user import User, Role
 from app.app import app
 from app.rest import execute_post
 
@@ -34,7 +34,7 @@ def set_byUser(resource_name: str, items: list):
 
 def set_default_database_if_empty(accounts: list):
     for account in accounts:
-        if 'defaultDatabase' not in account:
+        if 'defaultDatabase' not in account and account['role'] != Role.SUPERUSER:
             account['defaultDatabase'] = account['databases'][0]
 
 

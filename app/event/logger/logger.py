@@ -1,11 +1,13 @@
 from multiprocessing import Process, Queue
 import json
 
+import sys
 from eve.methods.post import post_internal
 from pymongo.errors import DuplicateKeyError
 
 from app.account.user import Role
 from app.app import app
+from app.utils import get_last_exception_info
 from .grd_logger.grd_logger import GRDLogger
 from flask import current_app, g
 
@@ -66,4 +68,8 @@ def _loop(queue: Queue, token: str):
             try:
                 GRDLogger(event_id, token, requested_database)
             except Exception as e:
-                app.logger.error(e)
+                app.logger.error(get_last_exception_info())
+
+
+
+

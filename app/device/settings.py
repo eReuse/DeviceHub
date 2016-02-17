@@ -94,7 +94,6 @@ device.update({
                 'field': '_id'
             }
         },
-        'default': [],
         'readonly': True  # Materialized
     }
 })

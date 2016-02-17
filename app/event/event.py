@@ -8,7 +8,7 @@ class Event:
 
     @staticmethod
     def get_generic_types() -> set:
-         return {'Ready', 'Repair', 'ToPrepare', 'ToRepair', 'ToRecycle', 'Recycle'}
+        return {'Ready', 'Repair', 'ToPrepare', 'ToRepair', 'ToRecycle', 'Recycle'}
 
     @staticmethod
     def get_special_types() -> set:
@@ -16,4 +16,4 @@ class Event:
 
     @staticmethod
     def resource_types():
-        return [get_resource_name(event) for event in Event.get_types()]
+        return {get_resource_name(event) for event in Event.get_types()}

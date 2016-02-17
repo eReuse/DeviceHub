@@ -1,6 +1,5 @@
 import os
 
-#from eve import Eve
 from .devicehub import Devicehub
 
 from app.security.authentication import RolesAuth

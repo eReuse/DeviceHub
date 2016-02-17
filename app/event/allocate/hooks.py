@@ -18,7 +18,6 @@ def avoid_repeating_allocations(allocates: list):
     :param allocates:
     :return:
     """
-    # todo try!
     for allocate in allocates:
         devices_with_repeating_owners = list(app.data.driver.db['devices'].find(
             {

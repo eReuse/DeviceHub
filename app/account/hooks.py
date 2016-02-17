@@ -43,9 +43,6 @@ def add_or_get_inactive_account(events: list):
     for event in events:
         if event['@type'] == 'Receive':
             _add_or_get_inactive_account_id(event, 'unregisteredReceiver', 'receiver')
-        elif event['@type'] == 'Register':
-            _add_or_get_inactive_account_id(event, 'unregisteredPossessor', 'possessor')
-            _add_or_get_inactive_account_id(event, 'unregisteredOldPossessor', 'oldPossessor')
         elif event['@type'] == 'Allocate':
             _add_or_get_inactive_account_id(event, 'unregisteredTo', 'to')
 

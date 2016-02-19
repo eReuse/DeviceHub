@@ -107,7 +107,6 @@ device_settings = {
         'url': 'regex("' + HID_REGEX + '")'
     },
     'item_url': 'regex("[\w]+")',
-    'embedded_fields': ['components', 'tests'],
     'url': 'devices',
     'mongo_indexes': {
         '@type': [('@type', pymongo.DESCENDING)],
@@ -127,7 +126,6 @@ device_sub_settings = {
         'source': 'devices'
     },
     'item_url': device_settings['item_url'],
-    'embedded_fields': device_settings['embedded_fields'],
     'extra_response_fields': ['@type', 'hid', 'pid'],
     'etag_ignore_fields': device_settings['etag_ignore_fields'] + ['parent'],
     'cache_control': device_settings['cache_control']

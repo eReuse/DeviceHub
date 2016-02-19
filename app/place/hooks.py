@@ -12,25 +12,29 @@ def set_place_in_devices(items: list):
                 _device_set_place(device_id, item['_id'])
 
 
-def update_place_in_devices(updated_place: dict, original_place: dict):
-    if 'devices' in updated_place:  # PATCH do not need to send us devices. For POST, the default is [].
-        original = set(original_place['devices'])
-        updated = set(updated_place['devices'])
+def update_place_in_devices_if_places(updated_place: dict, original_place: dict):
+    if 'devices' in updated_place:  # For patch, if no value, it means it is not being updated
+        update_place_in_devices(updated_place, original_place)
 
-        devices_to_remove_id = original - updated
-        children_to_remove_id = Device.get_components_in_set(devices_to_remove_id)
-        devices_to_remove_id |= children_to_remove_id
 
-        devices_to_add_id = updated - original
-        children_to_add_id = Device.get_components_in_set(devices_to_add_id)
-        devices_to_add_id |= children_to_add_id
-        total_devices_in_place = updated - devices_to_remove_id | devices_to_add_id
+def update_place_in_devices(replaced_place: dict, original_place: dict):
+    original = set(original_place['devices'])
+    updated = set(replaced_place['devices'])
 
-        for device_id in devices_to_remove_id:
-            _device_unset_place(device_id)
-        for device_id in devices_to_add_id:
-            _device_set_place(device_id, updated_place['_id'])
-        app.data.driver.db['devices'].update_one({'_id': updated_place['_id']}, {'$set': {'devices': list(total_devices_in_place)}})
+    devices_to_remove_id = original - updated
+    children_to_remove_id = Device.get_components_in_set(devices_to_remove_id)
+    devices_to_remove_id |= children_to_remove_id
+
+    devices_to_add_id = updated - original
+    children_to_add_id = Device.get_components_in_set(devices_to_add_id)
+    devices_to_add_id |= children_to_add_id
+    total_devices_in_place = updated - devices_to_remove_id | devices_to_add_id
+
+    for device_id in devices_to_remove_id:
+        _device_unset_place(device_id)
+    for device_id in devices_to_add_id:
+        _device_set_place(device_id, replaced_place['_id'])
+    app.data.driver.db['devices'].update_one({'_id': replaced_place['_id']}, {'$set': {'devices': list(total_devices_in_place)}})
 
 
 def unset_place_in_devices(item):

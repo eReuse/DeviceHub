@@ -148,6 +148,22 @@ class DeviceHubValidator(Validator):
 
     def _validate_excludes(self, other_field: list, field: str, value):
         if other_field in self.document:
-            self._error(field, 'Cannot be with {} field'.format(other_field))
+            self._error(field, 'Cannot be with {} field.'.format(other_field))
 
+    def _validate_unique_values(self, boolean, field, value):
+        if boolean:
+            if len(value) != len(set(value)):
+                self._error(field, 'There cannot be repetitions')
 
+    def _validate_modifiable(self, boolean, field, value):
+        """
+        Validates that a value is not modified: once the value has ben set, it cannot be changed.
+        :param boolean:
+        :param field:
+        :param value:
+        :return:
+        """
+        if not boolean:
+            if hasattr(self, '_original_document') and self._original_document is not None \
+                    and field in self._original_document and value != self._original_document[field]:
+                self._error(field, 'You cannot modify this value.')

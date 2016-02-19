@@ -8,7 +8,8 @@ place.update({
     'geo': {
         'type': 'polygon',
         'sink': -5,
-        'description': 'Set the area of the place'
+        'description': 'Set the area of the place. Be careful! Once set, you cannot update the area.',
+        'modifiable': False
     },
     'type': {
         'type': 'string',
@@ -24,7 +25,8 @@ place.update({
                 'embeddable': True
             }
         },
-        'default': []
+        'default': [],
+        'unique_values': True
     },
     'byUser': {
         'type': 'objectid',
@@ -37,12 +39,12 @@ place.update({
     }
 })
 place['label']['required'] = True
+place['@type']['allowed'] = ['Place']
 
 place_settings = {
     'resource_methods': ['GET', 'POST'],
-    'item_methods': ['GET', 'PATCH', 'DELETE'],
+    'item_methods': ['GET', 'PATCH', 'DELETE', 'PUT'],
     'schema': place,
-    'embedded_fields': ['devices', 'parent', 'byUser'],
     'datasource': {
         'default_sort': [('_created', -1)]
     },

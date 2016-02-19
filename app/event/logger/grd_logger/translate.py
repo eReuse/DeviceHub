@@ -59,19 +59,13 @@ class Translate:
         :return: returns a device dictionary with the needed data, or an URL.
         """
         grd_device = {
-            'id': str(device['_id']),
             '@type': device['@type'],
             'url': Translate.get_resource_url(device['_id'], 'devices'),
         }
         if 'pid' in device:
             grd_device['pid'] = device['pid']
-        try:
+        if 'hid' in device:
             grd_device['hid'] = device['hid']
-        except KeyError as e:
-            if e.args[0] == 'hid':
-                return grd_device['url']
-            else:
-                raise e
         return grd_device
 
     @staticmethod
@@ -94,8 +88,8 @@ class Translate:
     def parse_url(url):
         if URL_PREFIX:
             url = '{}/{}'.format(URL_PREFIX, url)
-        url = app.config['BASE_PATH_SHOWN_TO_GRD'] + url
-        return url.replace('/', '!')
+        return app.config['BASE_PATH_SHOWN_TO_GRD'] + url
+
 
 
 GENERIC_EVENT = {
@@ -143,3 +137,4 @@ TRANSLATION = {
     'Recycle': dict(),
     'Migrate': dict()
 }
+

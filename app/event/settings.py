@@ -103,7 +103,6 @@ parent = {
 event_settings = {
     'resource_methods': ['GET'],
     'schema': event,  # We update the schema in DOMAIN
-    'embedded_fields': ['device', 'devices', 'components'],
     'datasource': {
         'source': 'events',
         'default_sort': [('_created', -1)]
@@ -137,9 +136,6 @@ event_with_one_device.update({
     }
 })
 event_sub_settings_one_device = copy.deepcopy(event_sub_settings)
-event_sub_settings_one_device.update({
-    'embedded_fields': ['device']
-})
 
 event_with_devices = copy.deepcopy(event)
 event_with_devices.update({
@@ -159,8 +155,7 @@ event_with_devices.update({
 event_sub_settings_multiple_devices = copy.deepcopy(event_sub_settings)
 event_sub_settings_multiple_devices.update({
     'resource_methods': ['POST'],
-    'item_methods': ['PATCH', 'DELETE'],
-    'embedded_fields': ['devices']
+    'item_methods': ['PATCH', 'DELETE']
 })
 
 

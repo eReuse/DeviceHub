@@ -33,7 +33,6 @@ class GRDLogger:
         for translated_event in Translate.translate(event, requested_database):
             device_identifier = translated_event['device'].get('hid', self.parse_grd_url(translated_event['device']['url']))
             url = self.generate_url(device_identifier, translated_event['@type'])
-            del translated_event['device']
             self._post(translated_event, url)
 
     @staticmethod

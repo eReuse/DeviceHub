@@ -90,18 +90,20 @@ class Translate:
         return app.config['BASE_PATH_SHOWN_TO_GRD'] + url
 
 
-
+"""
+The properties used for all the events. Note that GRD does not need '@type' for the main resource
+"""
 GENERIC_EVENT = {
     'url': (Translate.url('events'), '_id'),
     'date': (Translate.identity,),
-    'byUser': (Translate.url('byUser'), 'accounts'),
+    'byUser': (Translate.url('accounts'),),
     'dhDate': (Translate.identity, '_created'),
     'errors': (Translate.identity, '_errors'),
     'secured': (Translate.identity,),
     'incidence': (Translate.identity,),
     'device': (Translate.get_hid_or_url,),
     'geo': (Translate.identity,),
-    '@type': (Translate.identity,),
+    '@type': (Translate.identity,)
 }
 
 TRANSLATION = {

@@ -1,13 +1,11 @@
-from bson import objectid, ObjectId
 from eve.utils import document_etag
-from flask import g
 
 from app.app import app
 from app.device.component.component import Component
 from app.device.exceptions import DeviceNotFound
 from app.exceptions import InnerRequestError
-from app.utils import get_resource_name
 from app.rest import execute_get
+from app.utils import get_resource_name
 
 
 class Device:

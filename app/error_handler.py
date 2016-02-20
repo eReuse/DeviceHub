@@ -6,6 +6,7 @@ from app.exceptions import BasicError
 from app.flask_decorators import crossdomain
 from app.utils import get_header_link
 
+
 @app.errorhandler(BasicError)
 @crossdomain(origin='*', headers=['Content-Type', 'Authorization'])
 def handle_standard_error(error: BasicError) -> Response:

@@ -1,4 +1,5 @@
 import copy
+
 import pymongo
 
 from app.schema import thing

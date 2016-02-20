@@ -5,11 +5,10 @@ import requests
 from requests import HTTPError
 from requests.auth import AuthBase
 
+from app.app import app
 from app.rest import execute_get
 from app.utils import get_resource_name
 from .translate import Translate
-
-from app.app import app
 
 
 class GRDLogger:

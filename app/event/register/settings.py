@@ -1,5 +1,5 @@
 import copy
-from app.account.settings import unregistered_user
+
 from app.device.settings import device
 from app.event.settings import event_with_one_device, event_sub_settings_one_device, place
 

@@ -1,15 +1,14 @@
-from multiprocessing import Process, Queue
 import json
+from multiprocessing import Process, Queue
 
-import sys
 from eve.methods.post import post_internal
+from flask import current_app, g
 from pymongo.errors import DuplicateKeyError
 
 from app.account.user import Role
 from app.app import app
 from app.utils import get_last_exception_info
 from .grd_logger.grd_logger import GRDLogger
-from flask import current_app, g
 
 
 class Logger:

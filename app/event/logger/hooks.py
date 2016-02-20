@@ -1,7 +1,8 @@
+from flask import current_app
+
 from app.event.event import Event
 from app.event.logger.logger import Logger
 from app.security.authentication import User
-from flask import current_app
 
 
 def get_info_from_hook(resource: str, events: list):

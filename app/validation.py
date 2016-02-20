@@ -1,13 +1,15 @@
+from distutils import version
+
+import validators
+from bson import json_util
 from cerberus import errors
 from eve.io.mongo import Validator
 from eve.utils import config
 from flask import current_app as app
-from bson import json_util
+from validators.utils import ValidationFailure
+
 from app.account.user import User
 from app.utils import normalize
-from distutils import version
-import validators
-from validators.utils import ValidationFailure
 
 ALLOWED_WRITE_ROLES = 'dh_allowed_write_roles'
 DEFAULT_AUTHOR = 'dh_default_author'

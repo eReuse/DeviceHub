@@ -1,7 +1,7 @@
 import copy
 
-from app.schema import UnitCodes
 from app.device.component.settings import component, component_sub_settings
+from app.schema import UnitCodes
 
 network_adapter = copy.deepcopy(component)
 network_adapter_settings = copy.deepcopy(component_sub_settings)

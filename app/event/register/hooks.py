@@ -2,11 +2,10 @@ from bson import json_util
 from eve.methods.delete import deleteitem_internal
 
 from app.app import app
-from app.device.device import Device
 from app.device.exceptions import DeviceNotFound, NoDevicesToProcess
 from app.exceptions import InnerRequestError
-from app.utils import get_resource_name
 from app.rest import execute_post
+from app.utils import get_resource_name
 
 
 def post_devices(registers: list):

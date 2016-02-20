@@ -1,6 +1,5 @@
 import copy
 
-from app.account.settings import unregistered_user
 from app.event.settings import event_with_devices, event_sub_settings_multiple_devices, components
 
 deallocate = copy.deepcopy(event_with_devices)

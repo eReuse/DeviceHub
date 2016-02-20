@@ -7,6 +7,7 @@ from app.account.user import User, Role
 from app.app import app
 from app.rest import execute_post
 
+
 def hash_password(accounts: list):
     for account in accounts:
         if account['active']:

@@ -1,10 +1,9 @@
 import os
 
-from .devicehub import Devicehub
-
+from app.data_layer import DataLayer
 from app.security.authentication import RolesAuth
 from app.validation import DeviceHubValidator
-from app.data_layer import DataLayer
+from .devicehub import Devicehub
 
 this_directory = os.path.dirname(os.path.realpath(__file__))
 settings_file = os.path.abspath(os.path.join(this_directory, '.', 'settings.py'))

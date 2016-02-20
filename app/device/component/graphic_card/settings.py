@@ -1,7 +1,6 @@
 import copy
 
 from app.device.component.settings import component, component_sub_settings
-
 from app.schema import UnitCodes
 
 graphic_card = copy.deepcopy(component)

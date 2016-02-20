@@ -1,4 +1,5 @@
 from flask import request, g
+
 from app.app import app
 from .snapshot import Snapshot
 

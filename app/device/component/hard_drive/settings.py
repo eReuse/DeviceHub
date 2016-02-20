@@ -1,8 +1,8 @@
 import copy
 
 from app.device.component.settings import component, component_sub_settings
-from app.event.test_hard_drive.settings import test_hard_drive
 from app.event.erase_basic.settings import erase_basic
+from app.event.test_hard_drive.settings import test_hard_drive
 from app.schema import UnitCodes
 
 hard_drive = copy.deepcopy(component)

@@ -1,11 +1,11 @@
 import copy
+
 import pymongo
 
 from app.schema import UnitCodes
-from app.utils import register_sub_types
 from app.schema import thing
-from app.validation import ALLOWED_WRITE_ROLES, HID_REGEX
-
+from app.utils import register_sub_types
+from app.validation import HID_REGEX
 
 product = dict(thing, **{
     'model': {

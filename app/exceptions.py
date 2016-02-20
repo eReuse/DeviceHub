@@ -24,6 +24,9 @@ class StandardError(BasicError):
                 'code': self.status_code,
                 '@type': type(self).__name__
             },
+            '_issues': {
+                type(self).__name__: self.message
+            },
             '_status': 'ERR'
         }
 

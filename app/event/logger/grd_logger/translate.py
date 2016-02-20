@@ -1,8 +1,7 @@
 import copy
 
-from settings import RESOURCES_NOT_USING_CUSTOM_DATABASES, URL_PREFIX
-
 from app.app import app
+from settings import RESOURCES_NOT_USING_CUSTOM_DATABASES, URL_PREFIX
 
 class Translate:
     requested_database = ''

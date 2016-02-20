@@ -1,9 +1,10 @@
 import copy
+
 import pymongo
 
-from app.utils import register_sub_types, register_sub_type, get_resource_name
 from app.event.event import Event
 from app.schema import thing
+from app.utils import register_sub_types, register_sub_type, get_resource_name
 from settings import EXTRA_RESPONSE_FIELDS
 
 """

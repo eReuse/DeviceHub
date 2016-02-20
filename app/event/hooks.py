@@ -1,14 +1,12 @@
-from eve.methods.patch import patch_internal
+from flask import current_app
 
 from app.app import app
 from app.device.device import Device
 from app.exceptions import CoordinatesAndPlaceDoNotMatch
 from app.exceptions import NoPlaceForGivenCoordinates
-from app.place.hooks import _device_set_place
 from app.place.place import Place
 from app.rest import execute_patch
 from .event import Event
-from flask import current_app
 
 
 def get_place(resource_name: str, events: list):

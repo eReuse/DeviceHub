@@ -64,8 +64,9 @@ def event_hooks(app):
     app.on_insert_register += add_or_get_inactive_account  # deletes the 'unregistered...'
     app.on_insert_allocate += add_or_get_inactive_account
 
-    from app.place.hooks import set_place_in_devices, update_place_in_devices, unset_place_in_devices, update_place_in_devices_if_places
+    from app.place.hooks import set_place_in_devices, update_place_in_devices, unset_place_in_devices, update_place_in_devices_if_places, avoid_deleting_if_has_event
     app.on_inserted_places += set_place_in_devices
     app.on_updated_places += update_place_in_devices_if_places
-    app.on_deleted_places += unset_place_in_devices
+    app.on_delete_item_places += avoid_deleting_if_has_event
+    app.on_deleted_item_places += unset_place_in_devices
     app.on_replaced_places += update_place_in_devices

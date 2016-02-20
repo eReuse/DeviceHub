@@ -1,7 +1,7 @@
 from eve.auth import TokenAuth
+from flask import g, current_app
 
 from app.account.user import User, Role, NotADatabase
-from flask import g, current_app
 from app.exceptions import UnauthorizedToUseDatabase
 
 

@@ -1,8 +1,9 @@
-from werkzeug.http import parse_authorization_header
-from flask import g
-from app.exceptions import WrongCredentials, BasicError
-from flask import request
 from flask import current_app
+from flask import g
+from flask import request
+from werkzeug.http import parse_authorization_header
+
+from app.exceptions import WrongCredentials, BasicError
 
 
 class ClassProperty(property):

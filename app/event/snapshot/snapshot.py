@@ -1,4 +1,5 @@
 from flask import g
+
 from app.device.device import Device
 from app.device.exceptions import DeviceNotFound, NoDevicesToProcess
 from app.rest import execute_post

@@ -16,6 +16,7 @@
 # Application settings
 import copy
 
+# noinspection PyUnresolvedReferences
 from settings import *
 
 # Generation of the API (DOMAIN)

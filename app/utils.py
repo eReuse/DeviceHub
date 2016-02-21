@@ -5,6 +5,8 @@ import sys
 from importlib import import_module
 
 import inflection as inflection
+from bson import ObjectId
+from eve.tests.endpoints import UUIDEncoder
 from flask import Response
 from werkzeug.local import LocalProxy
 
@@ -135,3 +137,4 @@ def get_last_exception_info():
     linecache.checkcache(filename)
     line = linecache.getline(filename, lineno, f.f_globals)
     return 'EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj)
+

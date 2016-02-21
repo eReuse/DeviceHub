@@ -17,3 +17,7 @@ class DataLayer(Mongo):
             return 'MONGO'
         else:
             return super(DataLayer, self).current_mongo_prefix(resource)
+
+    def aggregate(self, resource, pipeline):
+        datasource, *_ = self.datasource(resource)
+        return self.pymongo(resource).db[datasource].aggregate(pipeline)

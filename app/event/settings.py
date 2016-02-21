@@ -56,6 +56,10 @@ event.update({
         'readonly': True,
         'sink': 2
     },
+    'byOrganization': {  # Materialization of the organization that, by the time of the event, the user worked in
+        'type': 'string',
+        'readonly': True
+    }
 })
 place = {
     'place': {

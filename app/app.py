@@ -1,5 +1,7 @@
 import os
 
+from eve.io.mongo import MongoJSONEncoder
+
 from app.data_layer import DataLayer
 from app.security.authentication import RolesAuth
 from app.validation import DeviceHubValidator
@@ -14,6 +16,7 @@ app = Devicehub(
     static_url_path='/static',
     data=DataLayer
 )
+app.json_encoder = MongoJSONEncoder
 
 from hooks import event_hooks
 
@@ -25,3 +28,5 @@ from app import error_handler
 from app.account.login.settings import login
 # noinspection PyUnresolvedReferences
 from app.static import send_device_icon
+# noinspection PyUnresolvedReferences
+from app.aggregation.settings import aggregate_view

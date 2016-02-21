@@ -1,3 +1,4 @@
+from app.account.user import User
 from app.app import app
 from app.device.device import Device
 from app.event.deallocate.deallocate import AlreadyAllocated
@@ -31,3 +32,10 @@ def avoid_repeating_allocations(allocates: list):
         allocate['devices'] = list(set(allocate['devices']) - set(ids))
         if len(allocate['devices']) == 0:
             raise AlreadyAllocated()
+
+
+def set_organization(allocates: list):
+    for allocate in allocates:
+        org = User.get(allocate['to'])['organization']
+        if org is not None:
+            allocate['toOrganization'] = org

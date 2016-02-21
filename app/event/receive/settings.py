@@ -35,6 +35,10 @@ receive.update({
         'type': 'boolean',
         'default': False,
         'description': 'Allocates to the user'
+    },
+    'receiverOrganization': {  # Materialization of the organization that, by the time of the receive, the user worked in
+        'type': 'string',
+        'readonly': True
     }
 })
 receive.update(copy.deepcopy(place))

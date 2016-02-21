@@ -39,15 +39,14 @@ def event_hooks(app):
     from app.event.remove.hooks import remove_components
     app.on_inserted_remove += remove_components
 
-    from app.event.receive.hooks import transfer_property
-    app.on_insert_receive += transfer_property
-
-    from app.event.allocate.hooks import materialize_actual_owners_add, avoid_repeating_allocations
+    from app.event.allocate.hooks import materialize_actual_owners_add, avoid_repeating_allocations, set_organization
     app.on_insert_allocate += avoid_repeating_allocations
     app.on_inserted_allocate += materialize_actual_owners_add
+    app.on_insert_allocate += set_organization
 
-    from app.event.deallocate.hooks import materialize_actual_owners_remove
+    from app.event.deallocate.hooks import materialize_actual_owners_remove, set_organization
     app.on_inserted_deallocate += materialize_actual_owners_remove
+    app.on_insert_deallocate += set_organization
 
     if app.config.get('LOGGER', True):
         from app.event.logger.hooks import get_info_from_hook
@@ -58,11 +57,16 @@ def event_hooks(app):
     app.on_insert_accounts += hash_password
     app.on_insert_accounts += set_default_database_if_empty
 
-    from app.account.hooks import set_byUser, add_or_get_inactive_account
+    from app.account.hooks import set_byUser, add_or_get_inactive_account, set_byOrganization
     app.on_insert += set_byUser
     app.on_insert_receive += add_or_get_inactive_account  # We need to execute after insert and insert_resource as it
     app.on_insert_register += add_or_get_inactive_account  # deletes the 'unregistered...'
     app.on_insert_allocate += add_or_get_inactive_account
+    app.on_insert += set_byOrganization
+
+    from app.event.receive.hooks import transfer_property, set_organization
+    app.on_insert_receive += transfer_property
+    app.on_insert_receive += set_organization
 
     from app.place.hooks import set_place_in_devices, update_place_in_devices, unset_place_in_devices, update_place_in_devices_if_places, avoid_deleting_if_has_event
     app.on_inserted_places += set_place_in_devices

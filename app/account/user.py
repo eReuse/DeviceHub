@@ -1,8 +1,10 @@
+from bson import ObjectId
 from flask import current_app
 from flask import g
 from flask import request
 from werkzeug.http import parse_authorization_header
 
+from flask import current_app
 from app.exceptions import WrongCredentials, BasicError
 
 
@@ -38,6 +40,9 @@ class User:
                 raise NoUserForGivenToken()
         return g._actual_user
 
+    @staticmethod
+    def get(account_id: ObjectId):
+        return current_app.data.find_one_raw('accounts', account_id)
 
 class Role:
     """

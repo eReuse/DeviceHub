@@ -33,6 +33,17 @@ def set_byUser(resource_name: str, items: list):
             item['byUser'] = User.actual['_id']
 
 
+def set_byOrganization(resource_name: str, items: list):
+    """
+    Sets the 'byOrganization' field, which is the materialization of the organization of byUser (the actual user).
+    This materialization shall no be updated when the user's organization changes.
+    """
+    for item in items:
+        if 'byOrganization' in app.config['DOMAIN'][resource_name]['schema']:
+            if 'organization' in User.actual:
+                item['byOrganization'] = User.actual['organization']
+
+
 def set_default_database_if_empty(accounts: list):
     for account in accounts:
         if 'defaultDatabase' not in account and account['role'] != Role.SUPERUSER:
@@ -51,7 +62,7 @@ def add_or_get_inactive_account(events: list):
 def _add_or_get_inactive_account_id(event, field_name, recipient_field_name):
     if field_name in event:
         try:
-            _id = app.data.driver.db.accounts.find_one(
+            _id = app.data.driver.db['accounts'].find_one(
                 {
                     'email': event[field_name]['email'],
                     'databases': {'$in': User.actual['databases']}  # We look for just accounts that share our database

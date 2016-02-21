@@ -12,6 +12,10 @@ deallocate.update({
             'embeddable': True,
         },
         'sink': 2
+    },
+    'fromOrganization': {  # Materialization of the organization that, by the time of the deallocation, the user worked in
+        'type': 'string',
+        'readonly': True
     }
 })
 deallocate.update(copy.deepcopy(components))

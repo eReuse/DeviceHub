@@ -26,6 +26,10 @@ allocate.update({
         'default': False,
         'excludes': 'date',
         'description': 'Check this to say: "This owner possessed the device for an undetermined amount of time".'
+    },
+    'toOrganization': {  # Materialization of the organization that, by the time of the allocation, the user worked in
+        'type': 'string',
+        'readonly': True
     }
 })
 allocate.update(copy.deepcopy(components))

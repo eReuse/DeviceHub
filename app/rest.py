@@ -13,7 +13,6 @@ def execute_post(resource: str, payload: dict):
     response = post_internal(resource, payload)
     if response[3] != 201:  # statusCode
         raise InnerRequestError(response[3], response[0])
-    pprint('Executed POST in ' + resource + ' for _id ' + str(response[0]['_id']))
     return response[0]  # Actual data
 
 

@@ -9,29 +9,11 @@ class Aggregation:
     def __init__(self, resouce_name):
         self.resource_name = resouce_name
 
-    def number_events(self, params: dict):
-        """
-        Counts the number of events performed of type event_type, grouped by horizontal_axis and optionally
-        with the series
-
-        :param horizontal_axis:
-        :param event_type:
-        :param series:
-        :return:
-        """
-        number_events = API['number_events']
-        for type, key in params.items():
-            if type == 'filter':
-                value = key['value']
-                key = key['key']
-            values = number_events[type][key]
-
-    def number_devices_events(self):
+    def number_devices_events(self, options):
         pipeline = [
             {
                 '$match': {
-                    '@type': 'Receive',
-                    'type': 'CollectionPoint',
+                    '@type': options['event'],
                     '_created': {'$gte': datetime.datetime(datetime.date.today().year, 1, 1)}
                 }
             },
@@ -42,7 +24,7 @@ class Aggregation:
                 '$group': {
                     '_id': {
                         'month': {'$month': '$_created'},
-                        'receiverOrganization': '$receiverOrganization'
+                        'subject': '$' + options['subject']
                     },
                     'arrayOfDevices': {'$push': '$devices'},
                 }
@@ -51,36 +33,36 @@ class Aggregation:
                 '$project': {
                     '_id': False,
                     'month': '$_id.month',
-                    'receiverOrganization': '$_id.receiverOrganization',
-                    'countPerOrganizationAndMonth': {'$size': '$arrayOfDevices'}
+                    'subject': '$_id.subject',
+                    'countPerSubjectAndMonth': {'$size': '$arrayOfDevices'}
                 }
             },
             {
                 '$sort': {
-                    'receiverOrganization': DESCENDING,
+                    'subject': DESCENDING,
                     'month': DESCENDING
                 }
             },
             {
                 '$group': {
                     '_id': {
-                        'receiverOrganization': '$receiverOrganization'
+                        'subject': '$subject'
                     },
-                    'devices': {'$push': '$countPerOrganizationAndMonth'},
+                    'devices': {'$push': '$countPerSubjectAndMonth'},
                     'months': {'$push': '$month'}
                 }
             },
             {
                 '$project': {
                     '_id': False,
-                    'receiverOrganization': '$_id.receiverOrganization',
+                    'subject': '$_id.subject',
                     'devices': True,
                     'months': True
                 }
             }
-
-
         ]
+        if 'receiverType' in options and options['event'] == 'Receive':
+            pipeline[0]['$match']['type'] = options['receiverType']
         res = {
             'labels': list(calendar.month_name)[1:],
             'series': [],
@@ -88,7 +70,7 @@ class Aggregation:
         }
         a = self.aggregate(pipeline)
         for org in a:
-            res['series'].append(org['receiverOrganization'])
+            res['series'].append('Others' if org['subject'] is None else org['subject'])
             res['data'].append([0] * len(res['labels']))
             i = 0
             for pos in org['months']:
@@ -96,36 +78,5 @@ class Aggregation:
                 i += 1
         return res
 
-
-
     def aggregate(self, pipeline):
         return current_app.data.aggregate(self.resource_name, pipeline)['result']
-
-    def mix_and_aggregate(self, group, match, project, sort):
-        pipeline = []
-        if match:
-            pipeline.append({'$match': match})
-        if group:
-            pipeline.append({'$group': group})
-        if sort:
-            pipeline.append({'$sort': sort})
-        if project:
-            pipeline.append({'$project': project})
-        return self.aggregate(pipeline)
-
-
-API = {
-    'number_events': {
-        'series': {
-            'organization': ('toOrganization', 'fromOrganization', 'byOrganization'),
-            'user': ('to', 'from', 'by'),
-            'place': ('place',)
-        },
-        'filter': {
-            '@type': ('@type',)
-        },
-        'xAxis': {
-            '_created': ('_created',)
-        }
-    }
-}

@@ -1,3 +1,4 @@
+from bson import ObjectId
 from eve.io.mongo import Mongo
 from flask import current_app
 
@@ -21,3 +22,14 @@ class DataLayer(Mongo):
     def aggregate(self, resource, pipeline):
         datasource, *_ = self.datasource(resource)
         return self.pymongo(resource).db[datasource].aggregate(pipeline)
+
+    def find_raw(self, resource, query):
+        datasource, *_ = self.datasource(resource)
+        return self.pymongo(resource).db[datasource].find(query)
+
+    def find_one_raw(self, resource, id_or_query: ObjectId or dict or str):
+        if type(id_or_query) is dict:
+            datasource, *_ = self.datasource(resource)
+            return self.pymongo(resource).db[datasource].find_one(id_or_query)
+        else:
+            return super(DataLayer, self).find_one_raw(resource, id_or_query)

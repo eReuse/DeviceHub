@@ -13,10 +13,11 @@ def hash_password(accounts: list):
         if account['active']:
             account['password'] = sha256_crypt.encrypt(account['password'])
 
+
 def add_token(documents: list):
     for document in documents:
         token = generate_token()
-        while app.data.driver.db['accounts'].find_one({'token': token}) is not None:
+        while app.data.find_one_raw('accounts', {'token': token}) is not None:
             token = generate_token()
         document["token"] = token
 
@@ -62,7 +63,7 @@ def add_or_get_inactive_account(events: list):
 def _add_or_get_inactive_account_id(event, field_name, recipient_field_name):
     if field_name in event:
         try:
-            _id = app.data.driver.db['accounts'].find_one(
+            _id = app.data.find_one_raw('accounts',
                 {
                     'email': event[field_name]['email'],
                     'databases': {'$in': User.actual['databases']}  # We look for just accounts that share our database

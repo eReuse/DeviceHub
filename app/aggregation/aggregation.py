@@ -1,4 +1,8 @@
+import calendar
+import datetime
+
 from flask import current_app
+from pymongo import DESCENDING
 
 
 class Aggregation:
@@ -28,37 +32,74 @@ class Aggregation:
                 '$match': {
                     '@type': 'Receive',
                     'type': 'CollectionPoint',
+                    '_created': {'$gte': datetime.datetime(datetime.date.today().year, 1, 1)}
                 }
+            },
+            {
+                '$unwind': '$devices'
             },
             {
                 '$group': {
                     '_id': {
                         'month': {'$month': '$_created'},
-                        'year': {'$year': "$_created"},
-                        'receiverOrganization': {'receiverOrganization'}
+                        'receiverOrganization': '$receiverOrganization'
                     },
-                    'devices': {'$push': '$devices'},
+                    'arrayOfDevices': {'$push': '$devices'},
                 }
             },
             {
                 '$project': {
-                    '@type': 1,
-                    'month': 1,
-                    'year': 1,
-                    'count': {'$size': 'devices'}
+                    '_id': False,
+                    'month': '$_id.month',
+                    'receiverOrganization': '$_id.receiverOrganization',
+                    'countPerOrganizationAndMonth': {'$size': '$arrayOfDevices'}
                 }
             },
             {
                 '$sort': {
-                    'year': 1,
-                    'month': 1
+                    'receiverOrganization': DESCENDING,
+                    'month': DESCENDING
+                }
+            },
+            {
+                '$group': {
+                    '_id': {
+                        'receiverOrganization': '$receiverOrganization'
+                    },
+                    'devices': {'$push': '$countPerOrganizationAndMonth'},
+                    'months': {'$push': '$month'}
+                }
+            },
+            {
+                '$project': {
+                    '_id': False,
+                    'receiverOrganization': '$_id.receiverOrganization',
+                    'devices': True,
+                    'months': True
                 }
             }
+
+
         ]
-        return self.aggregate(pipeline)
+        res = {
+            'labels': list(calendar.month_name)[1:],
+            'series': [],
+            'data': []
+        }
+        a = self.aggregate(pipeline)
+        for org in a:
+            res['series'].append(org['receiverOrganization'])
+            res['data'].append([0] * len(res['labels']))
+            i = 0
+            for pos in org['months']:
+                res['data'][-1][pos - 1] = org['devices'][i]
+                i += 1
+        return res
+
+
 
     def aggregate(self, pipeline):
-        return {'_items': current_app.data.aggregate(self.resource_name, pipeline)}
+        return current_app.data.aggregate(self.resource_name, pipeline)['result']
 
     def mix_and_aggregate(self, group, match, project, sort):
         pipeline = []

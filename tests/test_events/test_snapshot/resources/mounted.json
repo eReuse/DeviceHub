@@ -4,11 +4,9 @@
         {
             "@type": "Processor", 
             "address": "64", 
-            "busClock": 533, 
-            "manufacturer": "Intel Corp.", 
+            "manufacturer": "Intel Corp.",
             "model": "Intel(R) Core(TM) i5-2300 CPU @ 2.80GHz", 
             "numberOfCores": "2", 
-            "serialNumber": "To Be Filled By O.E.M.", 
             "speed": 2.394
         }, 
         {
@@ -91,10 +89,6 @@
     "device": {
         "@type": "Computer", 
         "label": "", 
-        "manufacturer": "System manufacturer", 
-        "model": "System Product Name", 
-        "serialNumber": "System Serial Number", 
-        "totalMemory": 8192, 
         "type": "Desktop"
     }
 }

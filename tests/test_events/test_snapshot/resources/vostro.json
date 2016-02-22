@@ -82,8 +82,7 @@
         {
             "@type": "Processor", 
             "address": 64, 
-            "busClock": 533, 
-            "manufacturer": "Intel Corp.", 
+            "manufacturer": "Intel Corp.",
             "model": "Intel(R) Core(TM) i5 CPU M 520 @ 2.40GHz", 
             "numberOfCores": 2, 
             "speed": 2.394

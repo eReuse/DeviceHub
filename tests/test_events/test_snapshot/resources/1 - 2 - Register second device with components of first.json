@@ -20,7 +20,6 @@
       "model": "processor1",
       "speed":1.23,
       "numberOfCores": 2,
-      "busClock": 1.9,
       "@type": "Processor"
     }
   ]

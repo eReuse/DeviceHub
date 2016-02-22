@@ -4,8 +4,7 @@
         {
             "@type": "Processor", 
             "address": "64", 
-            "busClock": 533, 
-            "manufacturer": "Intel Corp.", 
+            "manufacturer": "Intel Corp.",
             "model": "Intel(R) Core(TM) i5-3337U CPU @ 1.80GHz", 
             "numberOfCores": "2", 
             "speed": 2.394
@@ -65,7 +64,6 @@
         "manufacturer": "Sony Corporation", 
         "model": "SVD1123C5F",
         "serialNumber": "86SXQ-0000029",
-        "totalMemory": 8192, 
         "type": "Desktop"
     }
 }

@@ -1,5 +1,7 @@
 import json
 import os
+
+from bson import ObjectId
 from eve.methods.common import parse
 
 from eve.tests import TestMinimal
@@ -8,18 +10,23 @@ from passlib.handlers.sha2_crypt import sha256_crypt
 
 from app.utils import get_resource_name
 
-import importlib
 
 class TestBase(TestMinimal):
+    DEVICES = 'devices'
+    EVENTS = 'events'
+
     def setUp(self, settings_file=None, url_converters=None):
+        import settings
+        settings.MONGO_DBNAME = 'devicehubtest'
+        settings.DATABASES = 'dht1', 'dht2'
+        settings.DHT1_DBNAME = self.FIRST_DB = 'dth_1'
+        settings.DHT2_DBNAME = self.SECOND_DB = 'dht_2'
+
         from app.app import app
-        # app.config['MONGO_DBNAME'] = 'DeviceHubTest'
-        # app.config['DATABASES'] = ['dht1', 'dht2']
-        # app.config['DHT1_DBNAME'] = 'dht_1'
-        # app.config['DHT2_DBNAME'] = 'dht_2'
         self.MONGO_DBNAME = app.config['MONGO_DBNAME']
         self.MONGO_HOST = app.config['MONGO_HOST']
         self.MONGO_PORT = app.config['MONGO_PORT']
+        self.DATABASES = app.config['DATABASES']
         self.app = app
 
         self.connection = None
@@ -52,10 +59,13 @@ class TestBase(TestMinimal):
 
     def dropDB(self):
         self.connection = MongoClient(self.MONGO_HOST, self.MONGO_PORT)
-        self.connection.drop_database('dh_db1')
-        self.connection.drop_database('dh_db2')
-        self.connection.drop_database('dh__accounts')
+        self.connection.drop_database(self.FIRST_DB)
+        self.connection.drop_database(self.SECOND_DB)
+        self.connection.drop_database(self.MONGO_DBNAME)
         self.connection.close()
+
+    def full(self, resourceName: str, resource: dict or str or ObjectId) -> dict:
+        return resource if type(resource) is dict else self.get(resourceName, '', str(resource))[0]
 
     def get(self, resource, query='', item=None):
         if resource in self.domain:

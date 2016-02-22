@@ -1,7 +1,7 @@
 import os
 from pprint import pprint
 from random import choice
-import unittest
+
 from app.utils import nested_lookup
 from tests import TestStandard
 
@@ -19,7 +19,7 @@ class TestSnapshot(TestStandard):
     )
     RESOURCES_PATH = 'test_events/test_snapshot/resources/'
 
-    def assertSimilarDevice(self, inputDevice: dict, createdDevice: dict):
+    def assertSimilarDevice(self, inputDevice: dict or str, createdDevice: dict or str):
         """
         Checks that the createdDevice is the same as the input one, removing computed values as hid... It uses etag.
         :param inputDevice Input device needs all the float values to have, by default, ".0", or it won't work
@@ -27,7 +27,7 @@ class TestSnapshot(TestStandard):
         # todo make sure .0 doesn't crush in real program
         from app.device.device import Device
         with self.app.app_context():
-            self.assertTrue(Device.seem_equal(inputDevice, createdDevice))
+            self.assertTrue(Device.seem_equal(self.full(self.DEVICES, inputDevice), self.full(self.DEVICES, createdDevice)))
 
     def assertSimilarDevices(self, input_devices: list, created_devices: list, same_amount_of_devices=False):
         """
@@ -47,7 +47,7 @@ class TestSnapshot(TestStandard):
             i = 0
             while not found and i < len(input_devices):
                 with self.app.app_context():
-                    found = Device.seem_equal(input_devices[i], created_device)
+                    found = Device.seem_equal(self.full(self.DEVICES, input_devices[i]), self.full(self.DEVICES, created_device))
                 i += 1
             self.assertTrue(found)
 
@@ -57,6 +57,7 @@ class TestSnapshot(TestStandard):
             self.assert201(status_code)
         except AssertionError as e:
             pprint(input_snapshot)
+            e.message = snapshot
             raise e
         return snapshot
 
@@ -70,7 +71,7 @@ class TestSnapshot(TestStandard):
             events.append(event)
         return events
 
-    def creation(self, input_snapshot: dict, num_of_events: int = 1):
+    def creation(self, input_snapshot: dict, num_of_events: int = 1, do_second_time_snapshot=True):
         pprint("1st time snapshot:")
         events = self.post_snapshot_get_full_events(input_snapshot, num_of_events)
         self.assertLen(events, num_of_events)
@@ -79,10 +80,11 @@ class TestSnapshot(TestStandard):
         self.assertSimilarDevice(input_snapshot['device'], register['device'])
         self.assertSimilarDevices(input_snapshot['components'], register['components'])
         # We do a snapshot again. We should receive a new snapshot without any event on it.
-        pprint("2nd time snapshot:")
-        snapshot, status_code = self.post('snapshot', input_snapshot)
-        self.assert201(status_code)
-        self.assertLen(snapshot['events'], num_of_events - 1)
+        if do_second_time_snapshot:
+            pprint("2nd time snapshot:")
+            snapshot, status_code = self.post('snapshot', input_snapshot)
+            self.assert201(status_code)
+            self.assertLen(snapshot['events'], num_of_events - 1)
 
     def add_remove(self, input_snapshot):
         from app.utils import get_resource_name
@@ -171,12 +173,43 @@ class TestSnapshot(TestStandard):
         """
         self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.REAL_DEVICES[2]))
 
-    def test_snapshot_register_mounted(self):
+    def test_snapshot_no_hid(self):
         """
-        Same as `test_snapshot_register_easy` however with real devices (fake serials), with all the risks that takes.
+        Tries a snapshot which's device has no hid, neither some components.
+
+        The tests validates the process the process of inserting a device without hid.
         :return:
         """
-        self.creation(self.get_json_from_file(self.RESOURCES_PATH + 'mounted.json'))
+        snapshot = self.get_json_from_file(self.RESOURCES_PATH + 'mounted.json')
+        try:
+            # Let's try first a simple snapshot
+            self.post_snapshot(snapshot)
+        except AssertionError as e:
+            if e.args[0] == '422 != 201' and 'NeedsId' in e.message['_issues']['_id']:
+                # The system tells us that it could not register the device because the device (computer) has no hid
+                # We can tell the system that this device already exists, by specifying an '_id', or stating
+                # that this is new. We say it is new:
+                snapshot['device']['forceCreation'] = True
+                # And we repeat the process
+                self.creation(snapshot, self.get_num_events(snapshot), False)
+                # All ok. We remove the forceCreation and repeat the process
+                del snapshot['device']['forceCreation']
+                try:
+                    self.post_snapshot(snapshot)
+                except AssertionError as k:
+                    # The system asks again the same. This time we will say that the device is the first one
+                    # by specifying the '_id' to '1'
+                    if k.args[0] == '422 != 201' and 'NeedsId' in k.message['_issues']['_id']:
+                        snapshot['device']['_id'] = '1'
+                        # The system now is going to recognize the device and it's components,
+                        # thus causing no extra event, apart from the snapshot itself
+                        self.post_snapshot_get_full_events(snapshot, 0)
+                    else:
+                        raise e
+            else:
+                raise e
+        else:
+            self.assertTrue(False) # We shouldn't we here, let's raise something
 
     def test_snapshot_real_devices(self):
         # todo the processor of mounted.json and xps13 generates the same hid, as S/N is 'To be filled...'
@@ -195,4 +228,5 @@ class TestSnapshot(TestStandard):
                 snapshot = self.get_json_from_file(filename, file_directory)
                 num_events = self.get_num_events(snapshot)
                 self.creation(snapshot, num_events)
+
 

@@ -4,8 +4,7 @@
         {
             "@type": "Processor", 
             "address": "64", 
-            "busClock": 533, 
-            "manufacturer": "Intel Corp.", 
+            "manufacturer": "Intel Corp.",
             "model": "Intel(R) Core(TM) i7-4500U CPU @ 1.80GHz", 
             "numberOfCores": "2", 
             "serialNumber": "To Be Filled By O.E.M.", 
@@ -62,7 +61,6 @@
         "manufacturer": "Dell Inc.", 
         "model": "XPS13 942",
         "serialNumber": "E3XCAS",
-        "totalMemory": 8192, 
         "type": "Desktop"
     }
 }

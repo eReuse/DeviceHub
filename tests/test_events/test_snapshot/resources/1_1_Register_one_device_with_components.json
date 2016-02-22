@@ -20,7 +20,6 @@
       "serialNumber": "p1c2s",
       "speed":1.23,
       "numberOfCores": 2,
-      "busClock": 1.9,
       "@type": "Processor",
       "model": "processor1"
     },

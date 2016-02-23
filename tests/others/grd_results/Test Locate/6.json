@@ -1,0 +1,10 @@
+{
+  "secured": false,
+  "byUser": "https://devicehub.ereuse.org/accounts/56cc68de7a993d2e53be2981",
+  "device": "dell_inc-e3xcas-xps13_942",
+  "place": "https://devicehub.ereuse.org/dht1/places/56cc68df7a993d2e53be2982",
+  "incidence": false,
+  "@type": "Locate",
+  "dhDate": "2016-02-23T14:12:49",
+  "url": "https://devicehub.ereuse.org/dht1/events/56cc68e27a993d2e53be298b"
+}

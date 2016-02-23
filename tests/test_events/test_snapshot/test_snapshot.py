@@ -15,7 +15,7 @@ class TestSnapshot(TestStandard):
         '2 -1 Same as 1 - 1 processor without hid.json'
     )
     REAL_DEVICES = (
-        'vostro.json', 'vaio.json', 'xps13.json'
+        'vostro', 'vaio', 'xps13'
     )
     RESOURCES_PATH = 'test_events/test_snapshot/resources/'
 
@@ -52,14 +52,7 @@ class TestSnapshot(TestStandard):
             self.assertTrue(found)
 
     def post_snapshot(self, input_snapshot):
-        snapshot, status_code = self.post('snapshot', input_snapshot)
-        try:
-            self.assert201(status_code)
-        except AssertionError as e:
-            pprint(input_snapshot)
-            e.message = snapshot
-            raise e
-        return snapshot
+        return self.post_and_check('snapshot', input_snapshot)
 
     def post_snapshot_get_full_events(self, input_snapshot, number_of_events_to_assert):
         snapshot = self.post_snapshot(input_snapshot)
@@ -85,6 +78,7 @@ class TestSnapshot(TestStandard):
             snapshot, status_code = self.post('snapshot', input_snapshot)
             self.assert201(status_code)
             self.assertLen(snapshot['events'], num_of_events - 1)
+        return register['device']
 
     def add_remove(self, input_snapshot):
         from app.utils import get_resource_name
@@ -180,7 +174,7 @@ class TestSnapshot(TestStandard):
         The tests validates the process the process of inserting a device without hid.
         :return:
         """
-        snapshot = self.get_json_from_file(self.RESOURCES_PATH + 'mounted.json')
+        snapshot = self.get_fixture(self.SNAPSHOT, 'mounted')
         try:
             # Let's try first a simple snapshot
             self.post_snapshot(snapshot)
@@ -211,15 +205,14 @@ class TestSnapshot(TestStandard):
         else:
             self.assertTrue(False) # We shouldn't we here, let's raise something
 
-    def test_snapshot_real_devices(self):
+    def test_snapshot_real_devices(self) -> list:
         # todo the processor of mounted.json and xps13 generates the same hid, as S/N is 'To be filled...'
-        for path in self.REAL_DEVICES:
-            snapshot = self.get_json_from_file(self.RESOURCES_PATH + path)
+        for file_name in self.REAL_DEVICES:
+            snapshot = self.get_fixture(self.SNAPSHOT, file_name)
             num_events = self.get_num_events(snapshot)
             self.creation(snapshot, num_events)
 
     def test_snapshot_2015_12_09(self):
-        #del self.app.config['DOMAIN']['network-adapter']['schema']['serialNumber']['regex']
         this_directory = os.path.dirname(os.path.realpath(__file__))
         file_directory = os.path.join(this_directory, 'resources', '2015-12-09')
         for filename in os.listdir(file_directory):

@@ -1,1 +1,0 @@
-db.accounts.insert({email: "a@a.a", password: "1234", role: 'employee', token: 'NOFERWXW'});

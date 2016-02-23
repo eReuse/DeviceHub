@@ -1,7 +1,9 @@
 import json
 import os
+from pprint import pprint
 
 from bson import ObjectId
+from eve.io.mongo import MongoJSONEncoder
 from eve.methods.common import parse
 
 from eve.tests import TestMinimal
@@ -9,11 +11,13 @@ from flask.ext.pymongo import MongoClient
 from passlib.handlers.sha2_crypt import sha256_crypt
 
 from app.utils import get_resource_name
-
+import json
 
 class TestBase(TestMinimal):
     DEVICES = 'devices'
     EVENTS = 'events'
+    PLACES = 'places'
+    SNAPSHOT = 'snapshot'
 
     def setUp(self, settings_file=None, url_converters=None):
         import settings
@@ -53,7 +57,8 @@ class TestBase(TestMinimal):
                 'role': 'superuser',
                 'token': 'NOFATDNNUB',
                 'databases': self.app.config['DATABASES'],
-                'defaultDatabase': self.app.config['DATABASES'][0]
+                'defaultDatabase': self.app.config['DATABASES'][0],
+                '@type': 'Account'
             }
         )
 
@@ -67,6 +72,12 @@ class TestBase(TestMinimal):
     def full(self, resourceName: str, resource: dict or str or ObjectId) -> dict:
         return resource if type(resource) is dict else self.get(resourceName, '', str(resource))[0]
 
+    def select_database(self, url):
+        if 'accounts' in url:
+            return ''
+        else:
+            return self.app.config['DATABASES'][0]
+
     def get(self, resource, query='', item=None):
         if resource in self.domain:
             resource = self.domain[resource]['url']
@@ -74,23 +85,23 @@ class TestBase(TestMinimal):
             request = '/%s/%s%s' % (resource, item, query)
         else:
             request = '/%s%s' % (resource, query)
-        r = self.test_client.get(self.app.config['DATABASES'][0] + request, environ_base={'HTTP_AUTHORIZATION': 'Basic ' + self.token})
+        r = self.test_client.get(self.select_database(resource) + request, environ_base={'HTTP_AUTHORIZATION': 'Basic ' + self.token})
         return self.parse_response(r)
 
     def post(self, url, data, headers=None, content_type='application/json'):
         if headers is None:
             headers = []
-        return super(TestBase, self).post(self.app.config['DATABASES'][0] + '/' + url, data, headers + [self.auth_header], content_type)
+        return super(TestBase, self).post(self.select_database(url) + '/' + url, data, headers + [self.auth_header], content_type)
 
     def patch(self, url, data, headers=None):
         if headers is None:
             headers = []
-        return super(TestBase, self).patch(self.app.config['DATABASES'][0] + '/' + url, data, headers + [self.auth_header])
+        return super(TestBase, self).patch(self.select_database(url) + '/' + url, data, headers + [self.auth_header])
 
     def delete(self, url, headers=None):
         if headers is None:
             headers = []
-        return super(TestBase, self).delete(self.app.config['DATABASES'][0] + '/' + url, headers + [self.auth_header])
+        return super(TestBase, self).delete(self.select_database(url) + '/' + url, headers + [self.auth_header])
 
     def _login(self) -> str:
         return super(TestBase, self).post('/login', {"email": "a@a.a", "password": "1234"})[0]['token']
@@ -115,8 +126,7 @@ class TestStandard(TestBase):
                     device.update(parse(device, get_resource_name(device['@type'])))
             return event
 
-
-    def isType(self,type:str,item:dict):
+    def isType(self, type:str, item:dict):
         return item['@type'] == type
 
     def assertType(self, type: str, item: dict):
@@ -124,4 +134,31 @@ class TestStandard(TestBase):
 
     def assertLen(self, list: list, length: int):
         self.assertEqual(len(list), length)
+
+    def get_fixture(self, resource_name, file_name):
+        return self.get_json_from_file('fixtures/{}/{}.json'.format(resource_name, file_name))
+
+    def post_fixture(self, resouce_name, file_name):
+        return self.post_and_check(resouce_name, self.get_fixture(resouce_name, file_name))
+
+    def get_first(self, resource_name):
+        return self.get_n(resource_name, 0)
+
+    def get_n(self, resource_name, num):
+        resources = self.get(resource_name)
+        return resources[0]['_items'][num]
+
+    def get_list(self, resource_name: str, identifiers: list):
+        return [self.get(resource_name, '', identifier)[0] for identifier in identifiers]
+
+    def post_and_check(self, url, payload):
+        response, status_code = self.post(url, payload)
+        try:
+            self.assert201(status_code)
+        except AssertionError as e:
+            pprint(response)
+            pprint(payload)
+            e.message = response
+            raise e
+        return response
 

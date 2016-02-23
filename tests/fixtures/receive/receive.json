@@ -1,0 +1,8 @@
+{
+  "@type": "Receive",
+  "incidence": false,
+  "automaticallyAllocate": false,
+  "label": "Receive 1",
+  "type": "RecyclingPoint",
+  "acceptedConditions": true
+}

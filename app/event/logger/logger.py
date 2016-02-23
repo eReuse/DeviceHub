@@ -21,13 +21,13 @@ class Logger:
     token = None
 
     @classmethod
-    def log_event(cls, event_id: str, requested_database: str):
+    def log_event(cls, event_id: str, event_type: str, requested_database: str):
         """
         Logs an event.
         """
         if not cls.thread or not cls.thread.is_alive():
             cls._init()
-        cls.queue.put((event_id, requested_database))
+        cls.queue.put((event_id, event_type, requested_database))
 
     @classmethod
     def _init(cls):
@@ -62,12 +62,15 @@ def _loop(queue: Queue, token: str):
     :return:
     """
     while True:
-        event_id, requested_database = queue.get(True)  # We block ourselves waiting for something in the queue
+        event_id, event_type, requested_database = queue.get(True)  # We block ourselves waiting for something in the queue
         if current_app.config.get('GRD', True):
             try:
-                GRDLogger(event_id, token, requested_database)
+                GRDLogger(event_id, event_type, token, requested_database)
             except Exception as e:
-                app.logger.error(get_last_exception_info())
+                if not hasattr(e, 'ok'):
+                    app.logger.error(get_last_exception_info())
+                raise e
+
 
 
 

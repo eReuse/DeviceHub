@@ -22,6 +22,6 @@ def set_organization(receives: list):
     :return:
     """
     for receive in receives:
-        org = User.get(receive['receiver'])['organization']
+        org = User.get(receive['receiver']).get('organization')
         if org is not None:
             receive['receiverOrganization'] = org

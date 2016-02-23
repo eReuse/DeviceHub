@@ -21,6 +21,7 @@ def execute_get(url: str, token: str=None):
     response = app.test_client().get(url, environ_base={'HTTP_AUTHORIZATION': http_authorization})
     data = json.loads(response.data.decode())  # It is useless to use json_util
     if response._status_code != 200:
+        data['url'] = url
         raise InnerRequestError(response._status_code, data)
     else:
         return data

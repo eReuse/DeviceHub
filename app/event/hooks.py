@@ -79,4 +79,4 @@ def set_place(resource_name: str, events: list):
         for event in events:
             if 'place' in event:
                 place = Place.get(event['place'], {'devices'})
-                execute_patch('places', {'devices': place['devices'] + event['devices']}, event['place'])
+                execute_patch('places', {'devices': list(set(place['devices'] + event['devices']))}, event['place'])

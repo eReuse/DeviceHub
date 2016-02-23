@@ -4,6 +4,7 @@ from app.device.settings import device
 from app.event.settings import event_with_one_device, event_sub_settings_one_device, place
 
 register = copy.deepcopy(event_with_one_device)
+# todo 'device' and 'components' do not interact well with embedding (aka, sometimes work, sometimes not)
 register.update({
     'device': {
         'type': ['dict', 'string'],

@@ -1,24 +1,35 @@
 import copy
+from pprint import pprint
+from urllib.parse import quote_plus
 
 from app.app import app
+from app.rest import execute_get
+from app.utils import get_last_exception_info
 from settings import RESOURCES_NOT_USING_CUSTOM_DATABASES, URL_PREFIX
 
 class Translate:
     requested_database = ''
+    token = ''
 
     @staticmethod
-    def translate(event, requested_database):
-        Translate.requested_database = requested_database  # This value makes Translate not safe for use with parallelism
-        translated = []
-        if 'devices' in event and event['@type'] != 'Register':
-            e = copy.deepcopy(event)
-            del e['devices']
-            for device in event['devices']:
-                e['device'] = device
-                translated.append(Translate.translate_one(e))
-        else:
-            translated.append(Translate.translate_one(event))
-        return translated
+    def translate(event, requested_database, token):
+        try:
+            Translate.requested_database = requested_database  # This value makes Translate not safe for use with parallelism
+            Translate.token = token
+            translated = []
+            if 'devices' in event and event['@type'] != 'Register':
+                e = copy.deepcopy(event)
+                del e['devices']
+                for device in event['devices']:
+                    e['device'] = device
+                    translated.append((Translate.translate_one(e), copy.deepcopy(e)))
+            else:
+                translated.append((Translate.translate_one(event), event))
+            return translated
+        except Exception as e:
+            app.logger.error(get_last_exception_info())
+            e.ok = True
+            raise e
 
     @staticmethod
     def translate_one(event):
@@ -72,8 +83,19 @@ class Translate:
         return [Translate.get_hid_or_url(device) for device in devices]
 
     @staticmethod
-    def get_hid_or_url(device):
-        return device.get('hid', Translate.get_resource_url(device['_id'], 'devices'))
+    def get_hid_or_url(device: dict, parse_grd_url=False):
+        hid = device.get('hid')
+        if not hid:
+            url = Translate.get_resource_url(device['_id'], 'devices')
+            if parse_grd_url:
+                url = Translate.parse_grd_url(url)
+            return url
+        else:
+            return hid
+
+    @staticmethod
+    def parse_grd_url(url):
+        return quote_plus(url.replace('/', '!'))
 
     @staticmethod
     def get_resource_url(identifier, resource):
@@ -113,10 +135,10 @@ TRANSLATION = {
         'components': (Translate.get_full_components,)
     },
     'Deallocate': {
-        'to': (Translate.url('accounts'),)
+        'from': (Translate.url('accounts'),)
     },
     'Allocate': {
-        'from': (Translate.url('accounts'),)
+        'to': (Translate.url('accounts'),)
     },
     'UsageProof': {
         'softwareVersion': (Translate.identity,)

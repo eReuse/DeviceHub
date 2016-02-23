@@ -36,6 +36,6 @@ def avoid_repeating_allocations(allocates: list):
 
 def set_organization(allocates: list):
     for allocate in allocates:
-        org = User.get(allocate['to'])['organization']
+        org = User.get(allocate['to']).get('organization')
         if org is not None:
             allocate['toOrganization'] = org

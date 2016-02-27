@@ -63,11 +63,10 @@ class DeviceHubValidator(Validator):
             # (for eve) query injection to interfere with this validation. We
             # are still operating within eve's mongo namespace anyway.
 
-            datasource, _, _, _ = app.data.datasource(self.resource)
-            response = app.data.driver.db[datasource].find_one(query)
+            response = app.data.find_one_raw(self.resource, query)
             if response:
                 from app.device.device import Device
-                device = Device.get(response['_id'])
+                device = Device.get_one(response['_id'])
                 self._error(field, json_util.dumps({'NotUnique': device}))
 
     def _validate_type_hid(self, field, value):

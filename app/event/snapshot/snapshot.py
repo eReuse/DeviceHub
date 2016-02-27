@@ -55,7 +55,7 @@ class Snapshot:
         of device we still have the old components. We need to remove those that are not present in this new snapshot.
         """
         if 'components' in self.device:
-            full_old_components = [Device.get(component) for component in self.device['components']]
+            full_old_components = [Device.get_one(component) for component in self.device['components']]
             for component_to_remove in Device.difference(full_old_components, self.components):
                 self.events.append_remove(component_to_remove, self.device)
 

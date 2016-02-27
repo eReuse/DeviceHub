@@ -1,4 +1,5 @@
 from app.app import app
+from app.event.event import Event, EventNotFound
 from app.place.place import CannotDeleteIfHasEvent, Place
 
 
@@ -22,6 +23,10 @@ def unset_place_in_devices(place):
 
 
 def avoid_deleting_if_has_event(item):
-    event = app.data.driver.db['events'].find_one({'place': item['_id']}, {'_id': True})
-    if event is not None:
+    try:
+        Event.get_one({'place': item['_id']})
+    except EventNotFound:
+        pass
+    else:
         raise CannotDeleteIfHasEvent()
+

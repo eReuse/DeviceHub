@@ -25,7 +25,7 @@ class DataLayer(Mongo):
 
     def find_raw(self, resource, query):
         datasource, *_ = self.datasource(resource)
-        return self.pymongo(resource).db[datasource].find(query)
+        return list(self.pymongo(resource).db[datasource].find(query))
 
     def find_one_raw(self, resource, id_or_query: ObjectId or dict or str):
         if type(id_or_query) is dict:

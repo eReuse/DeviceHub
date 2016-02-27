@@ -20,14 +20,12 @@ def avoid_repeating_allocations(allocates: list):
     :return:
     """
     for allocate in allocates:
-        devices_with_repeating_owners = list(app.data.driver.db['devices'].find(
-            {
-                '$or': [
-                    {'_id': {'$in': [allocate['devices']]}},
-                    {'owners': {'$in': [allocate['to']]}}
-                ]
-            }
-        ))
+        devices_with_repeating_owners = Device.get_many({
+            '$or': [
+                {'_id': {'$in': [allocate['devices']]}},
+                {'owners': {'$in': [allocate['to']]}}
+            ]
+        })
         ids = [device['_id'] for device in devices_with_repeating_owners]
         allocate['devices'] = list(set(allocate['devices']) - set(ids))
         if len(allocate['devices']) == 0:

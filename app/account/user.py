@@ -32,7 +32,7 @@ class User:
                 x = request.headers.environ['HTTP_AUTHORIZATION']
                 token = parse_authorization_header(x)['username']
                 from app.app import app
-                g._actual_user = app.data.driver.db['accounts'].find_one({'token': token})
+                g._actual_user = User.get({'token': token})
                 g._actual_user['role'] = Role(g._actual_user['role'])
             except KeyError:
                 raise UserIsAnonymous("You need to be logged in.")

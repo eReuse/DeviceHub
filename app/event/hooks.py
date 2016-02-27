@@ -70,5 +70,5 @@ def set_place(resource_name: str, events: list):
     if resource_name in Event.resource_types():
         for event in events:
             if 'place' in event:
-                place = Place.get(event['place'], {'devices'})
+                place = Place.get(event['place'])
                 execute_patch('places', {'devices': list(set(place['devices'] + event['devices']))}, event['place'])

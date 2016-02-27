@@ -7,8 +7,8 @@ from app.exceptions import StandardError
 
 class Place:
     @staticmethod
-    def get(_id, projections):
-        return current_app.data.driver.db['places'].find_one({'_id': _id}, projections)
+    def get(id_or_query):
+        return current_app.data.find_one_raw('places', id_or_query)
 
     @staticmethod
     def get_with_coordinates(coordinates: list) -> dict:
@@ -57,7 +57,7 @@ class Place:
 
     @staticmethod
     def device_set_place(device_id: str, place_id: str):
-        device = Device.get(device_id)
+        device = Device.get_one(device_id)
         if 'place' in device:
             current_app.data.driver.db['places'].update_one({'_id': device['place']}, {'$pull': {'devices': device_id}})
         current_app.data.driver.db['devices'].update_one({'_id': device_id}, {'$set': {'place': place_id}})

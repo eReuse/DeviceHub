@@ -38,7 +38,7 @@ class Logger:
         account.update({'role': Role.SUPERUSER})
         actual_mongo_prefix = g.mongo_prefix  # todo why can't I use current_app.get_mongo_prefix()?
         del g.mongo_prefix
-        result = app.data.driver.db.accounts.find_one({'email': account['email']})
+        result = app.data.find_one_raw('accounts', {'email': account['email']})
         if result is None:
             try:
                 post_internal('accounts', dict(account), True)  # If we validate, RolesAuth._set_database will change our db

@@ -1,6 +1,7 @@
 import os
 
 from eve.io.mongo import MongoJSONEncoder
+from flask.ext.cache import Cache
 
 from app.data_layer import DataLayer
 from app.security.authentication import RolesAuth
@@ -17,6 +18,7 @@ app = Devicehub(
     data=DataLayer
 )
 app.json_encoder = MongoJSONEncoder
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 from hooks import event_hooks
 

@@ -3,13 +3,31 @@ import datetime
 
 from flask import current_app
 from pymongo import DESCENDING
+from werkzeug.datastructures import ImmutableList
+
+from app.app import cache
+from app.exceptions import StandardError
 
 
 class Aggregation:
+    """
+    The methods of the Aggregation class return aggregated data ready to be presented with Chart.js and similar.
+    """
+
+    # For how much time is the data cached?
+    CACHE_TIMEOUT = 3600
+
     def __init__(self, resouce_name):
         self.resource_name = resouce_name
 
-    def number_devices_events(self, options):
+    def devices_per_event_subject_month(self, options):
+        """
+        Returns the number of devices per event, subject and month.
+
+        Subject is the series of the graph, and
+        :param options:
+        :return:
+        """
         pipeline = [
             {
                 '$match': {
@@ -68,7 +86,7 @@ class Aggregation:
             'series': [],
             'data': []
         }
-        a = self.aggregate(pipeline)
+        a = self._aggregate(ImmutableList(pipeline))
         for org in a:
             res['series'].append('Others' if org['subject'] is None else org['subject'])
             res['data'].append([0] * len(res['labels']))
@@ -78,5 +96,10 @@ class Aggregation:
                 i += 1
         return res
 
-    def aggregate(self, pipeline):
+    @cache.memoize(timeout=CACHE_TIMEOUT)
+    def _aggregate(self, pipeline):
         return current_app.data.aggregate(self.resource_name, pipeline)['result']
+
+
+class AggregationError(StandardError):
+    status_code = 400

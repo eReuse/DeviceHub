@@ -5,8 +5,7 @@ from app.place.place import CannotDeleteIfHasEvent, Place
 def set_place_in_devices(items: list):
     for item in items:
         if 'devices' in item:
-            for device_id in item['devices']:
-                Place.device_set_place(device_id, item['_id'])
+            Place.update_devices(set(), set(item['devices']), item['_id'])
 
 
 def update_place_in_devices_if_places(updated_place: dict, original_place: dict):

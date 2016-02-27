@@ -49,6 +49,7 @@ place_settings = {
     'datasource': {
         'default_sort': [('_created', -1)]
     },
+    'extra_response_fields': ['devices'],
     'url': 'places',
     'mongo_indexes': {
         'geo': [('components', pymongo.GEO2D)],

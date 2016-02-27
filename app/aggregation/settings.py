@@ -1,5 +1,3 @@
-import json
-
 from eve.auth import requires_auth
 from flask import jsonify
 from flask import request

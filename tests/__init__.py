@@ -98,6 +98,11 @@ class TestBase(TestMinimal):
             headers = []
         return super(TestBase, self).patch(self.select_database(url) + '/' + url, data, headers + [self.auth_header])
 
+    def put(self, url, data, headers=None):
+        if headers is None:
+            headers = []
+        return super(TestBase, self).put(self.select_database(url) + '/' + url, data, headers + [self.auth_header])
+
     def delete(self, url, headers=None):
         if headers is None:
             headers = []
@@ -161,4 +166,29 @@ class TestStandard(TestBase):
             e.message = response
             raise e
         return response
+
+    def patch_and_check(self, url, payload):
+        response, status_code = self.patch(url, payload)
+        self.assert200(status_code)
+        return response
+
+    def put_and_check(self, url, payload):
+        response, status_code = self.put(url, payload)
+        self.assert200(status_code)
+        return response
+
+    def get_fixtures_computers(self) -> list:
+        """
+        Snapshots four computers in the database, and returns a list with their identifiers.
+
+        One computer has no HID, and it has been Snapshotted with the option 'force_creation' to True.
+        :return:
+        """
+        vaio = self.post_fixture(self.SNAPSHOT, 'vaio')
+        vostro = self.post_fixture(self.SNAPSHOT, 'vostro')
+        xps13 = self.post_fixture(self.SNAPSHOT, 'xps13')
+        mounted = self.get_fixture(self.SNAPSHOT, 'mounted')
+        mounted['device']['forceCreation'] = True
+        mounted = self.post_and_check(self.SNAPSHOT, mounted)
+        return [self.get(self.EVENTS, '', event['events'][0])[0]['device'] for event in [vaio, vostro, xps13, mounted]]
 

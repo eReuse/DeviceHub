@@ -45,9 +45,15 @@ class TestBase(TestMinimal):
 
     def setupDB(self):
         self.connection = MongoClient(self.MONGO_HOST, self.MONGO_PORT)
-        self.connection.drop_database(self.MONGO_DBNAME)
         self.db = self.connection[self.MONGO_DBNAME]
+        self.drop_databases()
         self.create_dummy_user()
+        # When executing many tests, it seems that the cache of pymongo has not been emptied
+        # And the existance of the cache is used to know if it has benn called init_app, which has not
+        # So we need to call init_app from here
+        self.app.data.init_app(self.app)
+        # We won't be able to close connection without this (we do not use media)
+        self.app.media = {}
 
     def create_dummy_user(self):
         self.db.accounts.insert(
@@ -62,11 +68,13 @@ class TestBase(TestMinimal):
             }
         )
 
-    def dropDB(self):
-        self.connection = MongoClient(self.MONGO_HOST, self.MONGO_PORT)
+    def drop_databases(self):
+        self.connection.drop_database(self.MONGO_DBNAME)
         self.connection.drop_database(self.FIRST_DB)
         self.connection.drop_database(self.SECOND_DB)
-        self.connection.drop_database(self.MONGO_DBNAME)
+
+    def dropDB(self):
+        self.drop_databases()
         self.connection.close()
 
     def full(self, resourceName: str, resource: dict or str or ObjectId) -> dict:
@@ -197,3 +205,22 @@ class TestStandard(TestBase):
         mounted = self.post_and_check(self.SNAPSHOT, mounted)
         return [self.get(self.EVENTS, '', event['events'][0])[0]['device'] for event in [vaio, vostro, xps13, mounted]]
 
+    def device_and_place_contain_each_other(self, device_id: str, place_id: str) -> list:
+        """
+        Checks that the materialization of device-place is correct. This is, the place has a reference to a device
+        and the device has a reference to a place. If the device has components, this checks the same for the components.
+        :param device_id:
+        :param place_id:
+        :return:
+        """
+        place, _ = self.get(self.PLACES, '', place_id)
+        self.assertIn('devices', place)
+        self.assertIn(device_id, place['devices'])
+        device, _ = self.get(self.DEVICES, '', device_id)
+        self.assertIn('place', device)
+        self.assertIn(place_id, device['place'])
+        if 'components' in device:
+            for component_id in device['components']:
+                component, _ = self.get(self.DEVICES, '', component_id)
+                self.assertIn('place', component)
+                self.assertIn(place_id, component['place'])

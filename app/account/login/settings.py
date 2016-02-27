@@ -3,6 +3,7 @@ import base64
 from flask import request, jsonify
 from passlib.handlers.sha2_crypt import sha256_crypt
 
+from app.account.user import User
 from app.app import app
 from app.exceptions import WrongCredentials
 from app.flask_decorators import crossdomain
@@ -16,8 +17,7 @@ def login():
     :return:
     """
     try:
-        account = app.data.driver.db['accounts'].find_one(
-            {'email': request.json['email']})
+        account = User.get({'email': request.json['email']})
         if not sha256_crypt.verify(request.json['password'], account['password']):
             raise WrongCredentials()
         account['token'] = base64.b64encode(

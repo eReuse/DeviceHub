@@ -1,4 +1,6 @@
-from app.app import app
+from functools import singledispatch
+
+from flask import current_app
 from app.device.device import Device
 from app.exceptions import StandardError
 
@@ -6,7 +8,28 @@ from app.exceptions import StandardError
 class Place:
     @staticmethod
     def get(_id, projections):
-        return app.data.driver.db['places'].find_one({'_id': _id}, projections)
+        return current_app.data.driver.db['places'].find_one({'_id': _id}, projections)
+
+    @staticmethod
+    def get_with_coordinates(coordinates: list) -> dict:
+        """
+        Gets a place that intersects the given Point coordinates.
+        :param coordinates: GEOJSON coordinates that represent a Point
+        :return: place
+        """
+        place = current_app.data.find_one_raw('places', {
+            'geo': {
+                '$geoIntersects': {
+                    '$geometry': {
+                        'type': 'Point',
+                        'coordinates': coordinates
+                    }
+                }
+            }
+        })
+        if not place:
+            raise NoPlaceForGivenCoordinates()
+        return place
 
     @staticmethod
     def update_devices(original: set, updated: set, replaced_place_id: str or None):
@@ -34,15 +57,33 @@ class Place:
 
     @staticmethod
     def device_set_place(device_id: str, place_id: str):
-        device = app.data.driver.db['devices'].find_one({'_id': device_id}, {'place': True})
+        device = Device.get(device_id)
         if 'place' in device:
-            app.data.driver.db['places'].update_one({'_id': device['place']}, {'$pull': {'devices': device_id}})
-        app.data.driver.db['devices'].update_one({'_id': device_id}, {'$set': {'place': place_id}})
+            current_app.data.driver.db['places'].update_one({'_id': device['place']}, {'$pull': {'devices': device_id}})
+        current_app.data.driver.db['devices'].update_one({'_id': device_id}, {'$set': {'place': place_id}})
 
     @staticmethod
     def device_unset_place(device_id: str):
-        app.data.driver.db['devices'].update_one({'_id': device_id}, {'$unset': {'place': ''}})
+        current_app.data.driver.db['devices'].update_one({'_id': device_id}, {'$unset': {'place': ''}})
 
 
 class CannotDeleteIfHasEvent(StandardError):
     message = "You cannot delete a place where you performed an event."
+
+
+class NoPlaceForGivenCoordinates(StandardError):
+    """
+    We throw this error if given coordinates do not match any existing place.
+    We just throw it in particular cases. Example: Receive and Location.
+    """
+    status_code = 400
+    message = 'There is no place in such coordinates'
+
+
+class CoordinatesAndPlaceDoNotMatch(StandardError):
+    """
+    Similar as NoPlaceForGivenCoordinates, this error is thrown when user supplies coordinates
+    and a place, and they differ.
+    """
+    status_code = 400
+    message = 'Place and coordinates do not match'

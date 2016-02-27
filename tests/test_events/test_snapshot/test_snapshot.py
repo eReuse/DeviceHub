@@ -107,60 +107,60 @@ class TestSnapshot(TestStandard):
         values = nested_lookup('test', snapshot)
         return len(values) + 1  # 1 == register event itself
 
-    def test_snapshot(self):
+    def _test_snapshot(self):
         self.test_snapshot_register_easy_1()
         self.test_snapshot_real_devices()
         self.test_snapshot_2015_12_09()
 
-    def test_add_remove(self):
+    def _test_add_remove(self):
         self.test_snapshot_register_easy_1()
         self.test_snapshot_register_easy_2()
         self.test_snapshot_register_easy_3()
         self.test_snapshot_register_easy_4()
 
-    def test_snapshot_register_easy_1(self):
+    def _test_snapshot_register_easy_1(self):
         """
         Easy test with dummy devices that generates HID, etc. Just registering new devices, no add/remove.
         :return:
         """
         self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.DUMMY_DEVICES[0]))
 
-    def test_snapshot_register_easy_2(self):
+    def _test_snapshot_register_easy_2(self):
         """
         Easy test with dummy devices that generates HID, etc. Just registering new devices, no add/remove.
         :return:
         """
         self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.DUMMY_DEVICES[1]))
 
-    def test_snapshot_register_easy_3(self):
+    def _test_snapshot_register_easy_3(self):
         """
         Easy test with dummy devices that generates HID, etc. Just registering new devices, no add/remove.
         :return:
         """
         self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.DUMMY_DEVICES[2]))
 
-    def test_snapshot_register_easy_4(self):
+    def _test_snapshot_register_easy_4(self):
         """
         Easy test with dummy devices that generates HID, etc. Just registering new devices, no add/remove.
         :return:
         """
         self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.DUMMY_DEVICES[3]))
 
-    def test_snapshot_register_vostro(self):
+    def _test_snapshot_register_vostro(self):
         """
         Same as `test_snapshot_register_easy` however with real devices (fake serials), with all the risks that takes.
         :return:
         """
         self.creation(self.get_json_from_file(self.RESOURCES_PATH + 'vostro.json'), 2)
 
-    def test_snapshot_register_vaio(self):
+    def _test_snapshot_register_vaio(self):
         """
         Same as `test_snapshot_register_easy` however with real devices (fake serials), with all the risks that takes.
         :return:
         """
         self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.REAL_DEVICES[1]))
 
-    def test_snapshot_register_dellxps(self):
+    def _test_snapshot_register_dellxps(self):
         """
         Same as `test_snapshot_register_easy` however with real devices (fake serials), with all the risks that takes.
         :return:

@@ -71,19 +71,3 @@ class WrongCredentials(StandardError):
     message = 'There is not an user with the matching username/password'
 
 
-class NoPlaceForGivenCoordinates(StandardError):
-    """
-    We throw this error if given coordinates do not match any existing place.
-    We just throw it in particular cases. Example: Receive and Location.
-    """
-    status_code = 400
-    message = 'There is no place in such coordinates'
-
-
-class CoordinatesAndPlaceDoNotMatch(StandardError):
-    """
-    Similar as NoPlaceForGivenCoordinates, this error is thrown when user supplies coordinates
-    and a place, and they differ.
-    """
-    status_code = 400
-    message = 'Place and coordinates do not match'

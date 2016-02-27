@@ -8,26 +8,6 @@ class TestPlace(TestStandard):
         super(TestPlace, self).setUp(settings_file, url_converters)
         self.place = self.get_fixture(self.PLACES, 'place')
 
-    def device_and_place_contain_each_other(self, device_id: str, place_id: str) -> list:
-        """
-        Checks that the materialization of device-place is correct. This is, the place has a reference to a device
-        and the device has a reference to a place. If the device has components, this checks the same for the components.
-        :param device_id:
-        :param place_id:
-        :return:
-        """
-        place, _ = self.get(self.PLACES, '', place_id)
-        self.assertIn('devices', place)
-        self.assertIn(device_id, place['devices'])
-        device, _ = self.get(self.DEVICES, '', device_id)
-        self.assertIn('place', device)
-        self.assertIn(place_id, device['place'])
-        if 'components' in device:
-            for component_id in device['components']:
-                component, _ = self.get(self.DEVICES, '', component_id)
-                self.assertIn('place', component)
-                self.assertIn(place_id, component['place'])
-
     def device_and_place_do_not_contain_each_other(self, device_id, place_id):
         """
         Exactly opposite of :func:`device_and_place_contain_each_other`

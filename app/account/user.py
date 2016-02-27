@@ -41,8 +41,8 @@ class User:
         return g._actual_user
 
     @staticmethod
-    def get(account_id: ObjectId):
-        return current_app.data.find_one_raw('accounts', account_id)
+    def get(account_id_or_query: ObjectId or dict):
+        return current_app.data.find_one_raw('accounts', account_id_or_query)
 
 class Role:
     """

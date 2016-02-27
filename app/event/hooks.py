@@ -1,31 +1,23 @@
 from flask import current_app
 
-from app.app import app
 from app.device.device import Device
-from app.exceptions import CoordinatesAndPlaceDoNotMatch
-from app.exceptions import NoPlaceForGivenCoordinates
-from app.place.place import Place
+from app.place.place import Place, NoPlaceForGivenCoordinates, CoordinatesAndPlaceDoNotMatch
 from app.rest import execute_patch
 from .event import Event
 
 
 def get_place(resource_name: str, events: list):
+    """
+
+    :param resource_name:
+    :param events:
+    :return:
+    """
     if resource_name in Event.resource_types():
         for event in events:
             if 'geo' in event:
                 try:
-                    place = app.data.driver.db['places'].find_one({
-                        'geo': {
-                            '$geoIntersects': {
-                                '$geometry': {
-                                    'type': 'Point',
-                                    'coordinates': event['geo']['coordinates']
-                                }
-                            }
-                        }
-                    })
-                    if not place:
-                        raise NoPlaceForGivenCoordinates()
+                    place = Place.get_with_coordinates(event['geo']['coordinates'])
                 except (KeyError, NoPlaceForGivenCoordinates) as e:
                     if resource_name == 'receive' or resource_name == 'locate':
                         raise e

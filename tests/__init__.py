@@ -177,6 +177,11 @@ class TestStandard(TestBase):
         self.assert200(status_code)
         return response
 
+    def delete_and_check(self, url):
+        response, status_code = self.delete(url)
+        self.assert200(status_code)
+        return response
+
     def get_fixtures_computers(self) -> list:
         """
         Snapshots four computers in the database, and returns a list with their identifiers.

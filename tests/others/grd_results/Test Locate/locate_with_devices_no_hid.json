@@ -1,0 +1,17 @@
+{
+  "dhDate": "2016-02-27T10:25:58",
+  "geo": {
+    "type": "Point",
+    "coordinates": [
+      17.3734,
+      78.4738
+    ]
+  },
+  "incidence": false,
+  "place": "https://devicehub.ereuse.org/dht1/places/56d179b67a993d200a90b6e8",
+  "device": "https://devicehub.ereuse.org/dht1/devices/35",
+  "secured": false,
+  "@type": "Locate",
+  "url": "https://devicehub.ereuse.org/dht1/events/56d179b77a993d200a90b6e9",
+  "byUser": "https://devicehub.ereuse.org/accounts/56d179b37a993d200a90b6dc"
+}

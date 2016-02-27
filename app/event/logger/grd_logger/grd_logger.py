@@ -49,12 +49,16 @@ class GRDLogger:
 
     @staticmethod
     def generate_url(device_identifier, event_type):
-        return app.config['GRD_DOMAIN'] + 'api/devices/{}/{}'.format(device_identifier, get_resource_name(event_type))
+        url = app.config['GRD_DOMAIN']
+        if event_type == 'Register':
+            url += 'api/register'
+        else:
+            url += 'api/devices/{}/{}'.format(device_identifier, get_resource_name(event_type))
+        return url
 
     @staticmethod
     def get_device(device_id, requested_database, token):
         return execute_get('{}/devices/{}'.format(requested_database, device_id), token)
-
 
     def _post(self, event: dict, url: str):
         """

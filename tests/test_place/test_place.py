@@ -3,9 +3,9 @@ import copy
 from tests import TestStandard
 
 
-class TestPlaces(TestStandard):
+class TestPlace(TestStandard):
     def setUp(self, settings_file=None, url_converters=None):
-        super(TestPlaces, self).setUp(settings_file, url_converters)
+        super(TestPlace, self).setUp(settings_file, url_converters)
         self.place = self.get_fixture(self.PLACES, 'place')
 
     def device_and_place_contain_each_other(self, device_id: str, place_id: str) -> list:

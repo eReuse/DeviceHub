@@ -1,4 +1,5 @@
-from flask import request, g
+from flask import request, g, Request
+from werkzeug.local import LocalProxy
 
 from app.app import app
 from .snapshot import Snapshot
@@ -37,3 +38,4 @@ def materialize_erase_basic(snapshots: list):
 
 def _materialize_event_in_device(event, field_name):
     app.data.driver.db.devices.update({'_id': event['device']}, {'$push': {field_name: event['_id']}})
+

@@ -15,7 +15,8 @@ setup(
         'eve',  # Which has a bug, for now... todo try 0.6.2 when stable
         'passlib',
         'validators',
-        'requests'
+        'requests',
+        'python-gnupg'  # To use gnupg, install gpg2
     ],
     include_package_data=True,
     long_description="""

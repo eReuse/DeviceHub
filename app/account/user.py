@@ -5,7 +5,7 @@ from flask import request
 from werkzeug.http import parse_authorization_header
 
 from flask import current_app
-from app.exceptions import WrongCredentials, BasicError
+from app.exceptions import WrongCredentials, BasicError, StandardError
 
 
 class ClassProperty(property):
@@ -43,6 +43,20 @@ class User:
     @staticmethod
     def get(account_id_or_query: ObjectId or dict):
         return current_app.data.find_one_raw('accounts', account_id_or_query)
+
+    @staticmethod
+    def import_key(key: str) -> str:
+        """
+        Imports the key for the user
+        :param key: GPG Public Key
+        :raises CannotImportKey:
+        :return: Fingerprint of the imported key
+        """
+        result = current_app.gpg.import_keys(key)
+        if result.count == 0:
+            raise CannotImportKey()
+        return result.fingerprint[0]
+
 
 class Role:
     """
@@ -118,3 +132,8 @@ class NoUserForGivenToken(WrongCredentials):
 
 class NotADatabase(BasicError):
     status_code = 400
+
+
+class CannotImportKey(StandardError):
+    status_code = 400
+    message = "We could not import the key. Make sure it is a valid GPG Public key."

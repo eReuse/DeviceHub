@@ -69,6 +69,14 @@ account = {
         'type': 'string',  # todo If this is not set, the first databased in 'databases' it should be used
         ALLOWED_WRITE_ROLES: Role.MANAGERS,
         'sink': -5
+    },
+    'fingerprints': {
+        'type': 'list',
+        'readonly': True,
+    },
+    'publicKey': {
+        'type': 'string',
+        'writeonly': True
     }
 }
 

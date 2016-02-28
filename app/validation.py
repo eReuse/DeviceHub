@@ -147,6 +147,12 @@ class DeviceHubValidator(Validator):
     def _validate_unitCode(self, nothing, field, value):
         pass
 
+    def _validate_writeonly(self, x, y, z):
+        """
+        Don't expect to GET this value.
+        """
+        pass
+
     def _validate_excludes(self, other_field: list, field: str, value):
         if other_field in self.document:
             self._error(field, 'Cannot be with {} field.'.format(other_field))

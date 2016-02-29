@@ -9,11 +9,10 @@ from tests import TestStandard
 
 class TestSnapshot(TestStandard):
     DUMMY_DEVICES = (
-        '1_1_Register_one_device_with_components.json',
-        '1 - 2 - Register second device with components of first.json',
-        '1 - 3 - Register 1-1 but removing motherboard moving processor from 1-2 to 1-1.json',
-        '1 - 4 - Register 1-1 but removing processor (which ended again in 1-1) and adding graphicCard.json',
-        '2 -1 Same as 1 - 1 processor without hid.json'
+        '1_1_Register_one_device_with_components',
+        '1 - 2 - Register second device with components of first',
+        '1 - 3 - Register 1-1 but removing motherboard moving processor from 1-2 to 1-1',
+        '1 - 4 - Register 1-1 but removing processor (which ended again in 1-1) and adding graphicCard'
     )
     REAL_DEVICES = (
         'vostro', 'vaio', 'xps13'
@@ -56,7 +55,7 @@ class TestSnapshot(TestStandard):
         return self.post_and_check('snapshot', input_snapshot)
 
     def post_snapshot_get_full_events(self, input_snapshot, number_of_events_to_assert):
-        snapshot = self.post_snapshot(input_snapshot)
+        snapshot = self.post_snapshot(copy.deepcopy(input_snapshot))
         self.assertEqual(len(snapshot['events']), number_of_events_to_assert)
         events = []
         for event_id in snapshot['events']:
@@ -67,7 +66,7 @@ class TestSnapshot(TestStandard):
 
     def creation(self, input_snapshot: dict, num_of_events: int = 1, do_second_time_snapshot=True) -> str:
         pprint("1st time snapshot:")
-        events = self.post_snapshot_get_full_events(copy.deepcopy(input_snapshot), num_of_events)
+        events = self.post_snapshot_get_full_events(input_snapshot, num_of_events)
         self.assertLen(events, num_of_events)
         register = events[0]
         self.assertType('Register', register)
@@ -113,39 +112,25 @@ class TestSnapshot(TestStandard):
         self.test_snapshot_real_devices()
         self.test_snapshot_2015_12_09()
 
-    def _test_add_remove(self):
-        self.test_snapshot_register_easy_1()
-        self.test_snapshot_register_easy_2()
-        self.test_snapshot_register_easy_3()
-        self.test_snapshot_register_easy_4()
+    def test_add_remove(self):
+        # todo create add/remove test with components and computers without hid
+        # todo Check that the type of events generated are the correct ones
+        FOLDER = 'add_remove'
+        snapshots = []
+        for dummy_device in self.DUMMY_DEVICES:
+            snapshots.append(self.get_fixture(FOLDER, dummy_device))
+        # We add the first device (2 times)
+        self.creation(snapshots[0], self.get_num_events(snapshots[0]))
+        # We register a new device, which has the processor of the first one
+        # We have created 3 events (apart from the snapshot itself): Register, 1 Add and 1 Remove
+        self.post_snapshot_get_full_events(snapshots[1], 3)
+        # We register the first device again, but removing motherboard and moving processor from the second device
+        # to the first. We have created 1 Add, 2 Remove (1. motherboard, 2. processor from second device)
+        self.post_snapshot_get_full_events(snapshots[2], 3)
+        # We register the first device but without the processor and adding a graphic card
+        # We have created 1 Remove, 1 Add
+        self.post_snapshot_get_full_events(snapshots[3], 2)
 
-    def _test_snapshot_register_easy_1(self):
-        """
-        Easy test with dummy devices that generates HID, etc. Just registering new devices, no add/remove.
-        :return:
-        """
-        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.DUMMY_DEVICES[0]))
-
-    def _test_snapshot_register_easy_2(self):
-        """
-        Easy test with dummy devices that generates HID, etc. Just registering new devices, no add/remove.
-        :return:
-        """
-        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.DUMMY_DEVICES[1]))
-
-    def _test_snapshot_register_easy_3(self):
-        """
-        Easy test with dummy devices that generates HID, etc. Just registering new devices, no add/remove.
-        :return:
-        """
-        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.DUMMY_DEVICES[2]))
-
-    def _test_snapshot_register_easy_4(self):
-        """
-        Easy test with dummy devices that generates HID, etc. Just registering new devices, no add/remove.
-        :return:
-        """
-        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.DUMMY_DEVICES[3]))
 
     def _test_snapshot_register_vostro(self):
         """

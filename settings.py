@@ -11,7 +11,7 @@ X_DOMAINS = '*'
 BASE_PATH_SHOWN_TO_GRD = 'https://devicehub.ereuse.org/'  # Once you send the first device to GRD, always maintain this. Just affects at GRD.
 LOGGER = True  # Logger module, which is different from just writing to logs
 GRD = True  # GRD is part of logger, so in order for using GRD you need Logger
-GRD_DEBUG = True  # GRD module won't send actual data to GRD, rather just log it
+GRD_DEBUG = False  # GRD module won't send actual data to GRD, rather just log it
 URL_PREFIX = ''
 
 # Databases
@@ -25,7 +25,7 @@ LOGGER_ACCOUNT = {
     'password': '43fa22kaxl0',
 }
 GRD_ACCOUNT = {
-    'email': 'ereuse',
+    'username': 'ereuse',
     'password': 'ereuse@grd'
 }
 

@@ -23,6 +23,21 @@ def get_icon_resource(resource: str, response: dict):
         get_icon(resource, item)
 
 
+def post_benchmark(resource: str, devices: list):
+    """
+    Sets the result of one benchmark into 'benchmarks' array.
+
+    Use this method only in POST.
+    :param resource:
+    :param devices:
+    """
+    if resource in Device.resource_types():
+        for device in devices:
+            if 'benchmark' in device:
+                device['benchmarks'] = [device['benchmark']]
+                del device['benchmark']
+
+
 def autoincrement(resource: str, devices: list):
     if resource in Device.resource_types():
         for device in devices:

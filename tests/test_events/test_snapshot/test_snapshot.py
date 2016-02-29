@@ -1,3 +1,4 @@
+import copy
 import os
 from pprint import pprint
 from random import choice
@@ -64,9 +65,9 @@ class TestSnapshot(TestStandard):
             events.append(event)
         return events
 
-    def creation(self, input_snapshot: dict, num_of_events: int = 1, do_second_time_snapshot=True):
+    def creation(self, input_snapshot: dict, num_of_events: int = 1, do_second_time_snapshot=True) -> str:
         pprint("1st time snapshot:")
-        events = self.post_snapshot_get_full_events(input_snapshot, num_of_events)
+        events = self.post_snapshot_get_full_events(copy.deepcopy(input_snapshot), num_of_events)
         self.assertLen(events, num_of_events)
         register = events[0]
         self.assertType('Register', register)
@@ -203,7 +204,7 @@ class TestSnapshot(TestStandard):
             else:
                 raise e
         else:
-            self.assertTrue(False) # We shouldn't we here, let's raise something
+            self.assertTrue(False)  # We shouldn't we here, let's raise something
 
     def test_snapshot_real_devices(self) -> list:
         # todo the processor of mounted.json and xps13 generates the same hid, as S/N is 'To be filled...'
@@ -221,5 +222,20 @@ class TestSnapshot(TestStandard):
                 snapshot = self.get_json_from_file(filename, file_directory)
                 num_events = self.get_num_events(snapshot)
                 self.creation(snapshot, num_events)
+
+    def test_benchmark(self):
+        snapshot = self.get_fixture(self.SNAPSHOT, 'device_benchmark')
+        device_id = self.creation(snapshot, self.get_num_events(snapshot))
+        full_device, _ = self.get(self.DEVICES, '?embedded={"components": 1}', device_id)
+        # Let's check that the benchmarks have been created correctly
+        for component in full_device['components']:
+            # benchmark is a writeonly value
+            self.assertNotIn('benchmark', component)
+            if component['@type'] in ('HardDrive', 'Processor'):
+                self.assertIn('benchmarks', component)
+                benchmark = next((c for c in snapshot['components'] if c['@type'] == component['@type']))['benchmark']
+                # self.creation makes 2 post, so we will have 2 benchmarks that are exactly the same
+                self.assertListEqual(component['benchmarks'], [benchmark, benchmark])
+
 
 

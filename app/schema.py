@@ -2,6 +2,9 @@
 We mimic https://schema.org/unitCode, in concrete
 the UN/CEFACT Common Code.
 """
+import copy
+
+
 class UnitCodes:
     mbyte = '4L'
     mbps = 'E20'

@@ -1,5 +1,6 @@
 import copy
 
+from app.device.benchmark_settings import benchmark_hard_drive
 from app.device.component.settings import component, component_sub_settings
 from app.event.erase_basic.settings import erase_basic
 from app.event.test_hard_drive.settings import test_hard_drive
@@ -54,6 +55,19 @@ hard_drive.update({
                 'field': '_id',
                 'embeddable': True
             }
+        },
+        'readonly': True
+    },
+    'benchmark': {
+        'type': 'dict',
+        'schema': copy.deepcopy(benchmark_hard_drive),
+        'writeonly': True
+    },
+    'benchmarks': {
+        'type': 'list',
+        'schema': {
+            'type': 'dict',
+            'schema': copy.deepcopy(benchmark_hard_drive)
         },
         'readonly': True
     }

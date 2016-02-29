@@ -7,18 +7,20 @@ def event_hooks(app):
     from app.utils import set_jsonld_link
     app.on_post_GET += set_jsonld_link
 
-    from app.device.hooks import generate_etag, get_icon, get_icon_resource, autoincrement
+    from app.device.hooks import generate_etag, get_icon, get_icon_resource, autoincrement, post_benchmark
     app.on_insert += generate_etag
     app.on_fetched_item += get_icon
     app.on_fetched_resource += get_icon_resource
     app.on_insert += autoincrement
+    app.on_insert += post_benchmark
 
     from app.security.hooks import project_item, project_resource
     app.on_fetched_item += project_item
     app.on_fetched_resource += project_resource
 
     from app.event.snapshot.hooks import on_insert_snapshot, save_request, materialize_test_hard_drives, \
-        materialize_erase_basic
+        materialize_erase_basic, set_secured
+    app.on_insert_snapshot += set_secured
     app.on_insert_snapshot += on_insert_snapshot
     app.on_insert_snapshot += save_request
     app.on_inserted_snapshot += materialize_test_hard_drives

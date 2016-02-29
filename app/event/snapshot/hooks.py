@@ -39,3 +39,12 @@ def materialize_erase_basic(snapshots: list):
 def _materialize_event_in_device(event, field_name):
     app.data.driver.db.devices.update({'_id': event['device']}, {'$push': {field_name: event['_id']}})
 
+
+def set_secured(snapshots: list):
+    """
+    Sets secured param in a snapshot if this was signed.
+    :param snapshots:
+    :return:
+    """
+    for snapshot in snapshots:
+        snapshot['secured'] = g.trusted_json

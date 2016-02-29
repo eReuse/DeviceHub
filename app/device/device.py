@@ -167,3 +167,15 @@ class Device:
         devices_id = [ids] if type(ids) is str else ids
         for device_id in devices_id:
             current_app.data.driver.db['devices'].update_one({'_id': device_id}, operation)
+
+    @staticmethod
+    def benchmark(component: dict):
+        """
+        Adds the result of a benchmark to a component.
+
+        Components needs to exist in the database.
+        :param component:
+        """
+        assert '_id' in component, 'Component needs to be created'
+        if 'benchmark' in component:
+            Device.update(component['_id'], {'$push': {'benchmarks': component['benchmark']}})

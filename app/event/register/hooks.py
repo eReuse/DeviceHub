@@ -2,6 +2,7 @@ from bson import json_util
 from eve.methods.delete import deleteitem_internal
 
 from app.app import app
+from app.device.device import Device
 from app.device.exceptions import DeviceNotFound, NoDevicesToProcess
 from app.exceptions import InnerRequestError
 from app.rest import execute_post
@@ -58,6 +59,9 @@ def _execute_register(device: dict, log: list, force_new=False):
         new = False
         try:
             db_device = _get_existing_device(e)
+            # We add a benchmark todo move to another place?
+            device['_id'] = db_device['_id']
+            Device.benchmark(device)
         except DeviceNotFound:
             _abort(log, e)
     else:

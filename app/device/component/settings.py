@@ -1,5 +1,6 @@
 import copy
 
+from app.device.benchmark_settings import Benchmark, union_of_benchmarks
 from app.device.settings import device, device_settings, device_sub_settings
 from app.utils import register_sub_types
 from .component import Component
@@ -33,4 +34,5 @@ component_sub_settings.update({
 def register_components(domain: dict):
     global_types = register_sub_types(domain, 'app.device.component', Component.get_types_of_components())
     global_types['size']['type'] = global_types['speed']['type'] = 'number'
+    global_types['benchmark']['schema'] = union_of_benchmarks
     return global_types

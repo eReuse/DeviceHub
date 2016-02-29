@@ -25,6 +25,7 @@ class TestBase(TestMinimal):
         settings.DATABASES = 'dht1', 'dht2'
         settings.DHT1_DBNAME = self.FIRST_DB = 'dth_1'
         settings.DHT2_DBNAME = self.SECOND_DB = 'dht_2'
+        settings.GRD_DEBUG = True  # We do not want to actually fulfill GRD
 
         from app.app import app
         self.MONGO_DBNAME = app.config['MONGO_DBNAME']

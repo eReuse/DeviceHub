@@ -18,6 +18,7 @@ class GRDLogger:
     """
         Given an Id, it sends it to GRD.
 
+
         Warning: This methods works outside of Flask's application context, in another thread.
     """
 
@@ -51,7 +52,7 @@ class GRDLogger:
     def generate_url(device_identifier, event_type):
         url = app.config['GRD_DOMAIN']
         if event_type == 'Register':
-            url += 'api/register'
+            url += 'api/devices/register/'
         else:
             url += 'api/devices/{}/{}'.format(device_identifier, get_resource_name(event_type))
         return url
@@ -75,7 +76,7 @@ class GRDLogger:
                 r.raise_for_status()
             except HTTPError or ConnectionError:
                 text = ''
-                if r.status_code != 500:
+                if 200 <= r.status_code < 300:
                     text = str(r.json())
                 app.logger.error('Error: event \n{}\n: {} from url {} \n {}'.format(json.dumps(event), r.status_code,
                                                                                     url, text))

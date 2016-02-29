@@ -1,9 +1,7 @@
 import copy
-from pprint import pprint
 from urllib.parse import quote_plus
 
 from app.app import app
-from app.rest import execute_get
 from app.utils import get_last_exception_info
 from settings import RESOURCES_NOT_USING_CUSTOM_DATABASES, URL_PREFIX
 

@@ -34,5 +34,6 @@ component_sub_settings.update({
 def register_components(domain: dict):
     global_types = register_sub_types(domain, 'app.device.component', Component.get_types_of_components())
     global_types['size']['type'] = global_types['speed']['type'] = 'number'
+    global_types['erasure']['schema']['@type']['allowed'] = 'EraseSectors', 'EraseBasic'
     global_types['benchmark']['schema'] = union_of_benchmarks
     return global_types

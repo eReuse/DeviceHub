@@ -25,9 +25,10 @@ class TestSnapshot(TestStandard):
         :param inputDevice Input device needs all the float values to have, by default, ".0", or it won't work
         """
         # todo make sure .0 doesn't crush in real program
+        parsed_device = self.parse_device(inputDevice)
         from app.device.device import Device
         with self.app.app_context():
-            self.assertTrue(Device.seem_equal(self.full(self.DEVICES, inputDevice), self.full(self.DEVICES, createdDevice)))
+            self.assertTrue(Device.seem_equal(self.full(self.DEVICES, parsed_device), self.full(self.DEVICES, createdDevice)))
 
     def assertSimilarDevices(self, input_devices: list, created_devices: list, same_amount_of_devices=False):
         """
@@ -46,8 +47,11 @@ class TestSnapshot(TestStandard):
             found = False
             i = 0
             while not found and i < len(input_devices):
-                with self.app.app_context():
-                    found = Device.seem_equal(self.full(self.DEVICES, input_devices[i]), self.full(self.DEVICES, created_device))
+                try:
+                    self.assertSimilarDevice(input_devices[i], created_device)
+                    found = True
+                except AssertionError:
+                    pass
                 i += 1
             self.assertTrue(found)
 
@@ -98,13 +102,14 @@ class TestSnapshot(TestStandard):
 
     def get_num_events(self, snapshot):
         """
-        Get the num of events a snapshot is going to produce, by knowing how many tests are in there.
+        Get the num of events a snapshot is going to produce, by knowing how many tests and erasures are in there.
 
         todo: compute add/Remove and other events, not just tests.
         :param snapshot:
         :return:
         """
         values = nested_lookup('test', snapshot)
+        values += nested_lookup('erasure', snapshot)
         return len(values) + 1  # 1 == register event itself
 
     def _test_snapshot(self):
@@ -209,6 +214,7 @@ class TestSnapshot(TestStandard):
                 self.creation(snapshot, num_events)
 
     def test_benchmark(self):
+        # todo add benchmark for processors (which is done in `test_erase_sectors`
         snapshot = self.get_fixture(self.SNAPSHOT, 'device_benchmark')
         device_id = self.creation(snapshot, self.get_num_events(snapshot))
         full_device, _ = self.get(self.DEVICES, '?embedded={"components": 1}', device_id)
@@ -222,5 +228,45 @@ class TestSnapshot(TestStandard):
                 # self.creation makes 2 post, so we will have 2 benchmarks that are exactly the same
                 self.assertListEqual(component['benchmarks'], [benchmark, benchmark])
 
+    def test_erase_sectors(self):
+        """
+        Tests EraseSectors.
 
+        Inserts a device with BenchmarkProcessor and BenchmarkHardDrive.
+        """
+        self._test_erase_sectors('erase_sectors')
+
+    def test_erase_sectors_many_steps(self):
+        """
+        The same as :func:`test_erase_sectors`, however with more sectors and different benchmarks.
+        """
+        self._test_erase_sectors('erase_sectors_steps')
+
+    def _test_erase_sectors(self, fixture_name):
+        snapshot = self.get_fixture(self.SNAPSHOT, fixture_name)
+        # We do a Snapshot 2 times
+        device_id = self.creation(snapshot, self.get_num_events(snapshot))
+        full_device, _ = self.get(self.DEVICES, '?embedded={"components": 1}', device_id)
+        found = False
+        for component in full_device['components']:
+            if 'erasures' in component:
+                hard_drive, _ = self.get(self.DEVICES, '?embedded={"erasures":1}', component['_id'])
+                # erasure is a writeonly value
+                self.assertNotIn('erasure', hard_drive)
+                # erasures must exist and contain an array with 2 erasures, which are the same
+                erasure = next((c for c in snapshot['components'] if 'serialNumber' in c and c['serialNumber'] == component['serialNumber']))['erasure']
+                self.assertLen(hard_drive['erasures'], 2)
+                self.assertDictContainsSubset(erasure, hard_drive['erasures'][0])
+                self.assertDictContainsSubset(erasure, hard_drive['erasures'][1])
+                found = True
+        self.assertTrue(found, 'Any component has erasures!')
+
+    def test_signed(self):
+        """
+        The same as :func:`test_erase_sectors_many_steps`, but with a signed json.
+
+        We just try to POST it one, we do not do a full stack of tests.
+        """
+        raw_snapshot = self.get_fixture(self.SNAPSHOT, 'test_signed', False)
+        self.post_snapshot(raw_snapshot)
 

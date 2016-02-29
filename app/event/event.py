@@ -33,7 +33,8 @@ class Event:
 
     @staticmethod
     def get_special_types() -> set:
-        return {'Add', 'Register', 'Snapshot', 'Remove', 'Receive', 'TestHardDrive', 'Allocate', 'Locate', 'Deallocate', 'EraseBasic'}  # Snapshot cannot be the last type
+        return {'Add', 'Register', 'Snapshot', 'Remove', 'Receive', 'TestHardDrive', 'Allocate', 'Locate',
+                'Deallocate', 'EraseBasic', 'EraseSectors'}  # Snapshot cannot be the last type
 
     @staticmethod
     def resource_types():

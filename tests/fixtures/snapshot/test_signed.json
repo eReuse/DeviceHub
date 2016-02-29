@@ -1,0 +1,173 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+{
+    "@type": "Snapshot",
+    "comment": "1",
+    "components": [
+        {
+            "@type": "GraphicCard",
+            "manufacturer": "InnoTek Systemberatung GmbH",
+            "memory": 16.0,
+            "model": "VirtualBox Graphics Adapter"
+        },
+        {
+            "@type": "HardDrive",
+            "benchmark": {
+                "@type": "BenchmarkHardDrive",
+                "readingSpeed": 345.0,
+                "writingSpeed": 61.8
+            },
+            "erasure": {
+                "@type": "EraseBasic",
+                "cleanWithZeros": false,
+                "endingTime": "2016-02-29T18:33:22",
+                "secureRandomSteps": 0,
+                "startingTime": "2016-02-29T18:33:22",
+                "steps": [
+                    {
+                        "@type": "Random",
+                        "endingTime": "2016-02-29T18:33:22",
+                        "startingTime": "2016-02-29T18:33:22",
+                        "success": true
+                    }
+                ],
+                "success": true
+            },
+            "interface": "ata",
+            "model": "VBOX HARDDISK",
+            "serialNumber": "VB8158b186-156b4729",
+            "size": 4.0,
+            "test": {
+                "@type": "TestHardDrive",
+                "error": true,
+                "status": "SMART cannot be enabled on this device."
+            }
+        },
+        {
+            "@type": "HardDrive",
+            "benchmark": {
+                "@type": "BenchmarkHardDrive",
+                "readingSpeed": 333.0,
+                "writingSpeed": 65.7
+            },
+            "erasure": {
+                "@type": "EraseBasic",
+                "cleanWithZeros": false,
+                "endingTime": "2016-02-29T18:33:23",
+                "secureRandomSteps": 0,
+                "startingTime": "2016-02-29T18:33:23",
+                "steps": [
+                    {
+                        "@type": "Random",
+                        "endingTime": "2016-02-29T18:33:23",
+                        "startingTime": "2016-02-29T18:33:23",
+                        "success": true
+                    }
+                ],
+                "success": true
+            },
+            "interface": "ata",
+            "model": "VBOX HARDDISK",
+            "serialNumber": "VBeffb3aae-1021d6a4",
+            "size": 4.0,
+            "test": {
+                "@type": "TestHardDrive",
+                "error": true,
+                "status": "SMART cannot be enabled on this device."
+            }
+        },
+        {
+            "@type": "HardDrive",
+            "benchmark": {
+                "@type": "BenchmarkHardDrive",
+                "readingSpeed": 376.0,
+                "writingSpeed": 57.0
+            },
+            "erasure": {
+                "@type": "EraseBasic",
+                "cleanWithZeros": false,
+                "endingTime": "2016-02-29T18:33:23",
+                "secureRandomSteps": 0,
+                "startingTime": "2016-02-29T18:33:23",
+                "steps": [
+                    {
+                        "@type": "Random",
+                        "endingTime": "2016-02-29T18:33:23",
+                        "startingTime": "2016-02-29T18:33:23",
+                        "success": true
+                    }
+                ],
+                "success": true
+            },
+            "interface": "ata",
+            "model": "VBOX HARDDISK",
+            "serialNumber": "VB7b6ae042-ec584295",
+            "size": 4.0,
+            "test": {
+                "@type": "TestHardDrive",
+                "error": true,
+                "status": "SMART cannot be enabled on this device."
+            }
+        },
+        {
+            "@type": "Motherboard",
+            "connectors": {
+                "firewire": 0,
+                "pcmcia": 0,
+                "serial": 0,
+                "usb": 0
+            },
+            "manufacturer": "Oracle Corporation",
+            "model": "VirtualBox",
+            "serialNumber": "0",
+            "totalSlots": 0,
+            "usedSlots": 0
+        },
+        {
+            "@type": "NetworkAdapter",
+            "manufacturer": "Intel Corporation",
+            "model": "82540EM Gigabit Ethernet Controller",
+            "serialNumber": "08:00:27:15:db:70",
+            "speed": 1000
+        },
+        {
+            "@type": "OpticalDrive",
+            "description": "DVD reader"
+        },
+        {
+            "@type": "Processor",
+            "benchmark": {
+                "@type": "BenchmarkProcessor",
+                "score": 4792.88
+            },
+            "manufacturer": "Intel Corp.",
+            "model": "Intel(R) Core(TM) i5 CPU M 520 @ 2.40GHz",
+            "numberOfCores": 1
+        },
+        {
+            "@type": "SoundCard",
+            "manufacturer": "Intel Corporation",
+            "model": "82801AA AC'97 Audio Controller"
+        }
+    ],
+    "device": {
+        "@type": "Computer",
+        "manufacturer": "innotek GmbH",
+        "model": "VirtualBox",
+        "serialNumber": "0",
+        "type": "Desktop"
+    },
+    "label": "1",
+    "version": "7.0.3a5"
+}
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBCgAGBQJW1I70AAoJEBT1oRA8rHyi+/8IAMEKfT7XQAqVV8wLqQLsRGQf
+3TKTDwfkaWeH6UB+/GdW6rpsxrlalr361KQSY6tLkWIjX41TFGl43p6z4ke2J/3y
+R2p+wgrtOtAdCtJCNw4rmOYnWRGFsE4N98DJ5m3jBJaYWNafEZPJ4pKQrw+FZqS6
+BIkKZv7nrdhGWbw6SbgFIzBAP7mWthy1XlQl0wZQT5UTSAc0N4Jb7k5BmRhbL9i6
+c//P0aQsxT9egAqpU/6gkhYPQxXCdZ6/0VRsgcAWZnpGPL1wA6BRfVH+2vN0h8nS
+1PtrQFOlimAaD2NHoeiUzBRQSpkNfTTcn/2fceWIe1z5XYaBkgJO/AT6N7V+8Hs=
+=LI8B
+-----END PGP SIGNATURE-----

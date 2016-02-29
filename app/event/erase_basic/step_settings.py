@@ -13,5 +13,11 @@ step = {
     },
     'endingTime': {
         'type': 'datetime'
+    },
+    'secureRandomSteps': {
+        'type': 'boolean'
+    },
+    'cleanWithZeros': {
+        'type': 'boolean'
     }
 }

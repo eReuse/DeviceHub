@@ -3,6 +3,7 @@ from flask import g
 from app.device.device import Device
 from app.device.exceptions import DeviceNotFound, NoDevicesToProcess
 from app.rest import execute_post
+from app.utils import get_resource_name
 from .event_processor import EventProcessor
 
 
@@ -13,7 +14,7 @@ class Snapshot:
         self.components = components
         self.unsecured = []
         self.test_hard_drives = g.snapshot_test_hard_drives = []
-        self.basic_erasures = g.snapshot_basic_erasures = []
+        self.erasures = g.snapshot_basic_erasures = []
 
     def execute(self):
         event_log = []
@@ -21,8 +22,7 @@ class Snapshot:
         self.register(event_log)
         for component in self.components:
             self.get_add_remove(component, self.device)
-        self.exec_hard_drive_events(event_log, self.test_hard_drives, 'test-hard-drive')
-        self.exec_hard_drive_events(event_log, self.basic_erasures, 'erase-basic')
+        self.exec_hard_drive_events(event_log, self.erasures + self.test_hard_drives)
         self._remove_nonexistent_components()
         return event_log + self.events.process()
 
@@ -85,12 +85,12 @@ class Snapshot:
                 self.test_hard_drives.append((i, component['test']))
                 del component['test']
             if 'erasure' in component:
-                self.basic_erasures.append((i, component['erasure']))
+                self.erasures.append((i, component['erasure']))
                 del component['erasure']
             i += 1
 
-    def exec_hard_drive_events(self, event_log, events, event_name):
+    def exec_hard_drive_events(self, event_log, events):
         for i, event in events:
             event['device'] = self.components[i]['_id']
-            event_log.append(execute_post(event_name, event))
+            event_log.append(execute_post(get_resource_name(event['@type']), event))
             event.update(event_log[-1])

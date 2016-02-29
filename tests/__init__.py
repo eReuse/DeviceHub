@@ -1,7 +1,8 @@
-import json
+import copy
 import os
 from pprint import pprint
 
+import bson
 from bson import ObjectId
 from eve.io.mongo import MongoJSONEncoder
 from eve.methods.common import parse
@@ -11,7 +12,8 @@ from flask.ext.pymongo import MongoClient
 from passlib.handlers.sha2_crypt import sha256_crypt
 
 from app.utils import get_resource_name
-import json
+import simplejson as json
+
 
 class TestBase(TestMinimal):
     DEVICES = 'devices'
@@ -98,9 +100,17 @@ class TestBase(TestMinimal):
         return self.parse_response(r)
 
     def post(self, url, data, headers=None, content_type='application/json'):
+        full_url = self.select_database(url) + '/' + url
         if headers is None:
             headers = []
-        return super(TestBase, self).post(self.select_database(url) + '/' + url, data, headers + [self.auth_header], content_type)
+        full_headers = headers + [self.auth_header]
+        if type(data) is str:
+            # todo this is part of super.post, the only modification is that it does not json.dumps()
+            full_headers.append(('Content-Type', content_type))
+            r = self.test_client.post(full_url, data=data, headers=full_headers)
+            return self.parse_response(r)
+        else:
+            return super(TestBase, self).post(full_url, data, full_headers, content_type)
 
     def patch(self, url, data, headers=None):
         if headers is None:
@@ -122,7 +132,7 @@ class TestBase(TestMinimal):
 
 
 class TestStandard(TestBase):
-    def get_json_from_file(self, filename: str, directory: str=None) -> dict:
+    def get_json_from_file(self, filename: str, directory: str=None, parse_json=True) -> dict:
         """
 
         :type filename: str
@@ -132,13 +142,28 @@ class TestStandard(TestBase):
         if directory is None:
             directory = os.path.dirname(os.path.realpath(__file__))
         with open(os.path.abspath(os.path.join(directory, filename))) as data_file:
-            value = json.load(data_file)
+            value = json.load(data_file) if parse_json else data_file.read()
+        return value
+
+    def parse_event(self, event):
         with self.app.app_context():
-            event = parse(value, get_resource_name(value['@type']))
+            event = parse(event, get_resource_name(event['@type']))
             if 'components' in event:
                 for device in event['components'] + [event['device']]:
-                    device.update(parse(device, get_resource_name(device['@type'])))
+                    device.update(self.parse_device(device))
             return event
+
+    def parse_device(self, device):
+        """
+        Parses the device using the standard way of parsing input data, using the settings of DeviceHub.
+
+        This is needed when comparing a fixture with the device it represents, when this comparison happens
+        inside with ... app_context()
+        :param device:
+        :return:
+        """
+        with self.app.app_context():
+            return parse(copy.deepcopy(device), get_resource_name(device['@type']))
 
     def isType(self, type:str, item:dict):
         return item['@type'] == type
@@ -149,8 +174,8 @@ class TestStandard(TestBase):
     def assertLen(self, list: list, length: int):
         self.assertEqual(len(list), length)
 
-    def get_fixture(self, resource_name, file_name):
-        return self.get_json_from_file('fixtures/{}/{}.json'.format(resource_name, file_name))
+    def get_fixture(self, resource_name, file_name, parse_json=True):
+        return self.get_json_from_file('fixtures/{}/{}.json'.format(resource_name, file_name), None, parse_json)
 
     def post_fixture(self, resouce_name, file_name):
         return self.post_and_check(resouce_name, self.get_fixture(resouce_name, file_name))

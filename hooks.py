@@ -4,8 +4,8 @@ def event_hooks(app):
     :param app:
     :return:
     """
-    from app.utils import set_jsonld_link
-    app.on_post_GET += set_jsonld_link
+    from app.utils import set_response_headers_and_cache
+    app.on_post_GET += set_response_headers_and_cache
 
     from app.device.hooks import generate_etag, get_icon, get_icon_resource, autoincrement, post_benchmark
     app.on_insert += generate_etag

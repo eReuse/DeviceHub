@@ -80,17 +80,21 @@ def difference(new_list: list, old_list: list) -> list:
     return diff
 
 
-def set_jsonld_link(resource: str, request: LocalProxy, payload: Response):
+def set_response_headers_and_cache(resource: str, request: LocalProxy, payload: Response):
     """
     Sets JSON Header link referring to @type
     """
-    if payload._status_code == 200 and resource is not None:
+    if (payload._status_code == 200 or payload._status_code == 304) and resource is not None:
         data = json.loads(payload.data.decode(payload.charset))
         resource_type = resource
         try:
             resource_type = data['@type']
         except KeyError:
-            pass
+            if payload._status_code == 304:
+                payload.cache_control.max_age = 120
+        else:
+            # If we are here it means it is an item endpoint, not a list (resource) endpoint
+            payload.cache_control.max_age = 120
         payload.headers._list.append(get_header_link(resource_type))
 
 

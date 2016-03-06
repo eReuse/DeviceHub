@@ -29,15 +29,8 @@ class GRDLogger:
         """
 
         try:
-            embedded = {}
-            if event_type != 'Register':
-                embedded = {'device': 1, 'devices': 1, 'components': 1}
+            embedded = {'device': 1, 'devices': 1, 'components': 1}
             event = execute_get('{}/events/{}{}'.format(requested_database, event_id, '?embedded={}'.format(json.dumps(embedded))), token)
-            if event_type == 'Register':
-                # 'Components' and 'device' in Register do not act well with embedded
-                # as in the schema they are not set with data_relation as they have a double type
-                event['components'] = [self.get_device(component_id, requested_database, token) for component_id in event['components']]
-                event['device'] = self.get_device(event['device'], requested_database, token)
 
             for translated_event, original_event in Translate.translate(event, requested_database, token):
                 device_identifier = Translate.get_hid_or_url(original_event['device'], True)

@@ -55,7 +55,7 @@ def materialize_parent(resource_name: str, events: list):
         for event in events:
             sub_schema = current_app.config['DOMAIN'][resource_name]['schema']
             if 'parent' in sub_schema:
-                event['parent'] = Device.get_parent(event['device'])
+                event['parent'] = Device.get_parent(event['device'])['_id']
 
 
 def set_place(resource_name: str, events: list):

@@ -58,15 +58,25 @@ snapshot.update({
         'readonly': True
     },
     'device': {
-        'type': 'dict',
+        'type': 'dict', # eve doesn't care about the type when GET values
         'schema': computer,
-        'required': True
+        'required': True,
+        'data_relation': {
+            'resource': 'devices',
+            'field': '_id',
+            'embeddable': True
+        }
     },
     'components': {
         'type': 'list',
         'schema': {
             'type': 'dict',
-            'schema': component
+            'schema': component,
+            'data_relation': {
+                'resource': 'devices',
+                'field': '_id',
+                'embeddable': True
+            }
         },
         'default': []
     },

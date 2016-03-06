@@ -105,7 +105,7 @@ class DeviceHubValidator(Validator):
             self._validate_unique(True, field, self.document['hid'])
 
     def _validate_data_relation(self, data_relation, field, value):
-        if not isinstance(value, dict):  # todo more broad way?
+        if not isinstance(value, dict) and not isinstance(value, list):  # todo more broad way?
             super(DeviceHubValidator, self)._validate_data_relation(data_relation, field, value)
 
     def _validate_device_id(self, validate, field, value):

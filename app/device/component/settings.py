@@ -13,7 +13,12 @@ component.update({
         'sink': -1
     },
     'parent': {
-        'type': 'string'
+        'type': 'string',
+        'data_relation': {
+            'resource': 'devices',
+            'field': '_id',
+            'embeddable': True
+        },
     }
 })
 component_sub_settings = copy.deepcopy(device_sub_settings)

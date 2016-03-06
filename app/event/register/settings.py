@@ -4,14 +4,23 @@ from app.device.settings import device
 from app.event.settings import event_with_one_device, event_sub_settings_one_device, place
 
 register = copy.deepcopy(event_with_one_device)
-# todo 'device' and 'components' do not interact well with embedding (aka, sometimes work, sometimes not)
 register.update({
     'device': {
-        'type': ['dict', 'string'],
-        'schema': device  # anyof causes a bug where resource is not set
+        'type': ['dict', 'string'],  # POST dict, GET str
+        'schema': device,  # anyof causes a bug where resource is not set
+        'data_relation': {
+            'resource': 'devices',
+            'field': '_id',
+            'embeddable': True
+        }
     },
     'components': {
-        'type': ['string', 'list'],
+        'type': ['list', 'string'], # POST dict, GET str
+        'data_relation': {
+            'resource': 'devices',
+            'field': '_id',
+            'embeddable': True
+        }
     },
     'force': {
         'type': ['boolean']  # Creates a device even if it does not have pid or hid, doesn't affect components

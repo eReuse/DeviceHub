@@ -8,7 +8,9 @@ from .component import Component
 component = copy.deepcopy(device)
 component.update({
     'interface': {
-        'type': 'string'
+        'type': 'string',
+        'teaser': False,
+        'sink': -1
     },
     'parent': {
         'type': 'string'

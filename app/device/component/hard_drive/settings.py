@@ -12,10 +12,13 @@ hard_drive_settings = copy.deepcopy(component_sub_settings)
 hard_drive.update({
     'interface': {
         'type': 'string',
+        'sink': -1,
+        'teaser': False
     },
     'size': {
         'type': 'float',
-        'unitCode': UnitCodes.mbyte
+        'unitCode': UnitCodes.mbyte,
+        'sink': 1
     },
     'erasure': {
         'type': 'dict',
@@ -34,13 +37,19 @@ hard_drive.update({
         'readonly': True
     },
     'firmwareRevision': {
-        'type': 'string'
+        'type': 'string',
+        'teaser': False,
+        'sink': -1
     },
     'blockSize': {
         'type': 'integer',
+        'sink': -1,
+        'teaser': False
     },
     'sectors': {
-        'type': 'integer'
+        'type': 'integer',
+        'sink': -1,
+        'teaser': False
     },
     'test': {
         'type': 'dict',

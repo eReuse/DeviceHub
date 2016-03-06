@@ -5,10 +5,12 @@ from app.device.component.settings import component, component_sub_settings
 motherboard = copy.deepcopy(component)
 motherboard.update({
     'totalSlots': {
-        'type': 'integer'
+        'type': 'integer',
+        'teaser': False
     },
     'usedSlots': {
-        'type': 'integer'
+        'type': 'integer',
+        'teaser': False
     },
     'connectors': {
         'type': 'dict',
@@ -28,7 +30,8 @@ motherboard.update({
         }
     },
     'maxAcceptedMemory': {
-        'type': 'integer'  # Maximum accepted memory that the motherboard can hold
+        'type': 'integer',  # Maximum accepted memory that the motherboard can hold
+        'teaser': False
     }
 }
 )

@@ -10,20 +10,23 @@ processor.update({
     'numberOfCores': {
         'type': 'integer',
         'min': 1,
+        'sink': 1
     },
     'speed': {
         'type': 'float',
-        'unitCode': UnitCodes.ghz
+        'unitCode': UnitCodes.ghz,
+        'sink': 1
     },
     'address': {
         'type': 'integer',
         'unitCode': UnitCodes.bit,
-        'allowed': [8, 16, 32, 64, 128, 256]
+        'allowed': [8, 16, 32, 64, 128, 256],
+        'sink': -1
     },
     'benchmark': {
         'type': 'dict',
         'schema': copy.deepcopy(benchmark_processor),
-        'writeonly': True
+        'writeonly': True,
     },
     'benchmarks': {
         'type': 'list',

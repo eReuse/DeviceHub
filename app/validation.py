@@ -153,6 +153,9 @@ class DeviceHubValidator(Validator):
         """
         pass
 
+    def _validate_teaser(self, x, y, z):
+        pass
+
     def _validate_excludes(self, other_field: list, field: str, value):
         if other_field in self.document:
             self._error(field, 'Cannot be with {} field.'.format(other_field))

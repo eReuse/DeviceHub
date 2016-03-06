@@ -39,7 +39,8 @@ account = {
         'type': 'string',
         'default': 'Account',
         'allowed': ['Account'],
-        'sink': 0
+        'sink': 0,
+        'teaser': False
     },
     'active': {
         'type': 'boolean',
@@ -63,11 +64,13 @@ account = {
         'required': True,
         'allowed': list(DATABASES),
         ALLOWED_WRITE_ROLES: Role.MANAGERS,
+        'teaser': False,
         'sink': -4
     },
     'defaultDatabase': {
         'type': 'string',  # todo If this is not set, the first databased in 'databases' it should be used
         ALLOWED_WRITE_ROLES: Role.MANAGERS,
+        'teaser': False,
         'sink': -5
     },
     'fingerprints': {

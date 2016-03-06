@@ -8,12 +8,14 @@ ram_module.update({
     'size': {
         'type': 'integer',
         'unitCode': UnitCodes.mbyte,
-        'min': 1
+        'min': 1,
+        'sink': 1
     },
     'speed': {
         'type': 'float',
         'unitCode': UnitCodes.mhz,
-        'min': 1
+        'min': 1,
+        'sink': -1
     }
 })
 

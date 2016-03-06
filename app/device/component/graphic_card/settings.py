@@ -11,6 +11,7 @@ graphic_card.update({
         'type': 'float',
         'unitCode': UnitCodes.mbyte,  # MB
         'min': 1,
+        'sink': 3
     }
 })
 

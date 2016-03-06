@@ -25,17 +25,20 @@ rdfs = {
     '@type': {
         'type': 'string',
         'required': True,
-        'allowed': []
+        'allowed': [],
+        'teaser': False
     }
 }
 
 thing = dict(rdfs, **{
     'url': {
         'type': 'url',
-        'readonly': True
+        'readonly': True,
+        'teaser': False
     },
     'sameAs': {
-        'type': 'url'
+        'type': 'url',
+        'teaser': False
     },
     'description': {
         'type': 'string',

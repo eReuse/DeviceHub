@@ -270,3 +270,10 @@ class TestSnapshot(TestStandard):
         raw_snapshot = self.get_fixture(self.SNAPSHOT, 'test_signed', False)
         self.post_snapshot(raw_snapshot)
 
+    def test_703b6(self):
+        """
+        Tests a device generated with DeviceInventoroy version 7.0.3 beta 6
+        """
+        snapshot = self.get_fixture(self.SNAPSHOT, '703b6')
+        num_events = self.get_num_events(snapshot)
+        self.creation(snapshot, num_events)

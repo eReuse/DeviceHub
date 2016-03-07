@@ -1,0 +1,94 @@
+{
+    "@type": "Snapshot", 
+    "comment": "all ok", 
+    "components": [
+        {
+            "@type": "GraphicCard", 
+            "manufacturer": "InnoTek Systemberatung GmbH", 
+            "memory": 16.0, 
+            "model": "VirtualBox Graphics Adapter"
+        }, 
+        {
+            "@type": "HardDrive", 
+            "benchmark": {
+                "@type": "BenchmarkHardDrive", 
+                "readingSpeed": 55.6, 
+                "writingSpeed": 19.9
+            }, 
+            "erasure": {
+                "@type": "EraseBasic", 
+                "cleanWithZeros": false, 
+                "endingTime": "2016-03-06T22:19:57", 
+                "secureRandomSteps": 0, 
+                "startingTime": "2016-03-06T22:16:44", 
+                "steps": [
+                    {
+                        "@type": "Random", 
+                        "endingTime": "2016-03-06T22:19:57", 
+                        "startingTime": "2016-03-06T22:19:57", 
+                        "success": true
+                    }
+                ], 
+                "success": true
+            }, 
+            "interface": "ata", 
+            "model": "VBOX HARDDISK", 
+            "serialNumber": "VB98d6c3b2-890bccd6", 
+            "size": 8192.0, 
+            "test": {
+                "@type": "TestHardDrive", 
+                "error": true, 
+                "status": "SMART cannot be enabled on this device."
+            }
+        }, 
+        {
+            "@type": "Motherboard", 
+            "connectors": {
+                "firewire": 0, 
+                "pcmcia": 0, 
+                "serial": 0, 
+                "usb": 0
+            }, 
+            "manufacturer": "Oracle Corporation", 
+            "model": "VirtualBox", 
+            "serialNumber": "0", 
+            "totalSlots": 0, 
+            "usedSlots": 0
+        }, 
+        {
+            "@type": "NetworkAdapter", 
+            "manufacturer": "Intel Corporation", 
+            "model": "82540EM Gigabit Ethernet Controller", 
+            "serialNumber": "08:00:27:71:09:5c", 
+            "speed": 1000
+        }, 
+        {
+            "@type": "OpticalDrive", 
+            "description": "DVD reader"
+        }, 
+        {
+            "@type": "Processor", 
+            "benchmark": {
+                "@type": "BenchmarkProcessor", 
+                "score": 4794.79
+            }, 
+            "manufacturer": "Intel Corp.", 
+            "model": "Intel(R) Core(TM) i5 CPU M 520 @ 2.40GHz", 
+            "numberOfCores": 1
+        }, 
+        {
+            "@type": "SoundCard", 
+            "manufacturer": "Intel Corporation", 
+            "model": "82801AA AC'97 Audio Controller"
+        }
+    ], 
+    "device": {
+        "@type": "Computer", 
+        "manufacturer": "innotek GmbH", 
+        "model": "VirtualBox", 
+        "serialNumber": "0", 
+        "type": "Laptop"
+    }, 
+    "label": "123", 
+    "version": "7.0.3b6"
+}

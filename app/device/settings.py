@@ -122,13 +122,14 @@ device.update({
         'sink': 2
     },
     'public': {
-        'type': 'boolean'
+        'type': 'boolean',
+        'default': False
     }
 })
 
 device_settings = {
     'resource_methods': ['GET', 'POST'],
-    'item_methods': ['GET', 'PATCH'],
+    'item_methods': ['GET', 'PATCH'], # todo patch should only be able to modify selected fields like public
     'schema': device,
     'additional_lookup': {
         'field': 'hid',

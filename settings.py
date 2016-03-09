@@ -8,6 +8,7 @@ USE_DOCS = False  # Specify if generate api documentation in /docs
 DEBUG = True
 LOG = True
 X_DOMAINS = '*'
+CLIENT = 'http://localhost:63343/DeviceHubClient/dist'  # For redirections. No trailing slash
 BASE_PATH_SHOWN_TO_GRD = 'https://devicehub.ereuse.org/'  # Once you send the first device to GRD, always maintain this. Just affects at GRD.
 LOGGER = True  # Logger module, which is different from just writing to logs
 GRD = True  # GRD is part of logger, so in order for using GRD you need Logger

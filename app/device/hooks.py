@@ -1,5 +1,4 @@
 from eve.utils import document_etag
-
 from app.app import app
 from app.device.device import Device
 from app.utils import get_resource_name
@@ -51,3 +50,32 @@ def get_next_sequence():
         new=True,
         upsert=True
     ).get('seq')
+
+
+def materialize_public_in_components(resource: str, devices: list):
+    """
+    Materializes the 'public' field of the passed in devices in their components.
+    :param resource:
+    :param devices:
+    :return:
+    """
+    if resource in Device.resource_types():
+        for device in devices:
+            if 'components' in device:
+                Device.update(device['components'], {'$set': {'public': device.get('public', False)}})
+
+
+def materialize_public_in_components_update(resource: str, device: dict, original: dict):
+    """
+    The same as :func materialize_public_in_components: but thought to be used with PATCH methods.
+    :param resource:
+    :param device:
+    :param original:
+    """
+    # PATCH doesn't need to include components if we are not changing them
+    # We have already saved the device to the DB so we can securely modify the device dictionary
+    if original['@type'] in Device.get_types():
+        if 'components' not in device:
+            device['components'] = original['components']
+        materialize_public_in_components(get_resource_name(original['@type']), [device])
+

@@ -19,6 +19,9 @@ class TestSecurity(TestStandard):
         self.assert200(status_code)
         self.assertIn('public', public)
         self.assertTrue(public['public'])
+        public_component, _ = self.get(self.DEVICES, '', public['components'][0])
+        self.assertIn('public', public_component)
+        self.assertTrue(public_component['public'])
         # We access to the public device without credentials
         _, status_code = self.get(self.DEVICES, '', public_id, False)
         self.assert200(status_code)

@@ -4,8 +4,9 @@ def event_hooks(app):
     :param app:
     :return:
     """
-    from app.utils import set_response_headers_and_cache
+    from app.utils import set_response_headers_and_cache, redirect_on_browser
     app.on_post_GET += set_response_headers_and_cache
+    app.on_pre_GET += redirect_on_browser
 
     from app.security.hooks import project_item, project_resource, authorize_public, deny_public
     app.on_fetched_item += authorize_public
@@ -13,12 +14,15 @@ def event_hooks(app):
     app.on_fetched_item += project_item
     app.on_fetched_resource += project_resource
 
-    from app.device.hooks import generate_etag, get_icon, get_icon_resource, autoincrement, post_benchmark
+    from app.device.hooks import generate_etag, get_icon, get_icon_resource, autoincrement, post_benchmark, \
+        materialize_public_in_components, materialize_public_in_components_update
     app.on_insert += generate_etag
     app.on_fetched_item += get_icon
     app.on_fetched_resource += get_icon_resource
     app.on_insert += autoincrement
     app.on_insert += post_benchmark
+    app.on_inserted += materialize_public_in_components
+    app.on_updated += materialize_public_in_components_update
 
     from app.event.snapshot.hooks import on_insert_snapshot, save_request, materialize_test_hard_drives, \
         materialize_erase_basic, set_secured

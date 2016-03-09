@@ -8,12 +8,16 @@ from app.exceptions import UnauthorizedToUseDatabase
 class RolesAuth(TokenAuth):
     def authorized(self, allowed_roles, resource, method):
         authorized = super(RolesAuth, self).authorized(allowed_roles, resource, method)
-        if not authorized and method == 'GET' and resource == 'devices':
-            # We will check if the device is authorized in a hook, later
-            # We avoid requesting the device at the database twice
-            self.set_needs_to_be_public()
-            self._set_database(True)
-            authorized = True
+        if not authorized and method == 'GET':
+            from app.device.device import Device
+            if resource == 'devices' or resource in Device.resource_types():
+                # We will check if the device is authorized in a hook, later
+                # We avoid requesting the device at the database twice
+                authorized = True
+                self.set_needs_to_be_public()
+                self._set_database(True)
+            elif resource is None:  # schema (however will only load 'devices')
+                authorized = True
         return authorized
 
     def check_auth(self, token, allowed_roles, resource, method):

@@ -5,10 +5,10 @@ import sys
 from importlib import import_module
 
 import inflection as inflection
-from bson import ObjectId
-from eve.tests.endpoints import UUIDEncoder
 from flask import Response
 from werkzeug.local import LocalProxy
+
+from app.exceptions import Redirect
 
 
 def get_resource_name(string: str) -> str:
@@ -142,3 +142,14 @@ def get_last_exception_info():
     line = linecache.getline(filename, lineno, f.f_globals)
     return 'EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj)
 
+
+def redirect_on_browser(resource, request, lookup):
+    """
+    Redirects the browsers to the client webApp.
+    :param resource:
+    :param request:
+    :param lookup:
+    :return:
+    """
+    if request.accept_mimetypes.accept_html:
+        raise Redirect()

@@ -70,3 +70,8 @@ class WrongCredentials(StandardError):
     message = 'There is not an user with the matching username/password'
 
 
+class Redirect(Exception):
+    """
+    An exception that forces a redirection to the client.
+    """
+    pass

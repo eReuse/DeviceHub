@@ -120,12 +120,15 @@ device.update({
         },
         'readonly': True,  # Materialized
         'sink': 2
+    },
+    'public': {
+        'type': 'boolean'
     }
 })
 
 device_settings = {
     'resource_methods': ['GET', 'POST'],
-    'item_methods': ['GET'],
+    'item_methods': ['GET', 'PATCH'],
     'schema': device,
     'additional_lookup': {
         'field': 'hid',
@@ -145,7 +148,7 @@ device_settings = {
 
 device_sub_settings = {
     'resource_methods': ['POST'],
-    'item_methods': ['DELETE'],
+    'item_methods': ['DELETE', 'PATCH'],
     'url': device_settings['url'] + '/',
     'datasource': {
         'source': 'devices'

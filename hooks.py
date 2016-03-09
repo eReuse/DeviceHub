@@ -7,16 +7,18 @@ def event_hooks(app):
     from app.utils import set_response_headers_and_cache
     app.on_post_GET += set_response_headers_and_cache
 
+    from app.security.hooks import project_item, project_resource, authorize_public, deny_public
+    app.on_fetched_item += authorize_public
+    app.on_fetched_resource += deny_public
+    app.on_fetched_item += project_item
+    app.on_fetched_resource += project_resource
+
     from app.device.hooks import generate_etag, get_icon, get_icon_resource, autoincrement, post_benchmark
     app.on_insert += generate_etag
     app.on_fetched_item += get_icon
     app.on_fetched_resource += get_icon_resource
     app.on_insert += autoincrement
     app.on_insert += post_benchmark
-
-    from app.security.hooks import project_item, project_resource
-    app.on_fetched_item += project_item
-    app.on_fetched_resource += project_resource
 
     from app.event.snapshot.hooks import on_insert_snapshot, save_request, materialize_test_hard_drives, \
         materialize_erase_basic, set_secured

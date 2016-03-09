@@ -89,14 +89,15 @@ class TestBase(TestMinimal):
         else:
             return self.app.config['DATABASES'][0]
 
-    def get(self, resource, query='', item=None):
+    def get(self, resource, query='', item=None, authorize=True):
         if resource in self.domain:
             resource = self.domain[resource]['url']
         if item:
             request = '/%s/%s%s' % (resource, item, query)
         else:
             request = '/%s%s' % (resource, query)
-        r = self.test_client.get(self.select_database(resource) + request, environ_base={'HTTP_AUTHORIZATION': 'Basic ' + self.token})
+        environ_base = {'HTTP_AUTHORIZATION': 'Basic ' + self.token} if authorize else {}
+        r = self.test_client.get(self.select_database(resource) + request, environ_base=environ_base)
         return self.parse_response(r)
 
     def post(self, url, data, headers=None, content_type='application/json'):

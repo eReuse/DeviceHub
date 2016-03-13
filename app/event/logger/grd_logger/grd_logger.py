@@ -1,12 +1,10 @@
 import json
-from pprint import pprint
-from urllib.parse import quote_plus
 
 import requests
 from requests import HTTPError
-from requests.auth import AuthBase
 
 from app.app import app
+from app.event.logger.grd_logger.grd_auth import GRDAuth
 from app.rest import execute_get
 from app.utils import get_resource_name, get_last_exception_info
 from .translate import Translate
@@ -87,23 +85,4 @@ class GRDLogger:
         app.logger.info('GRDLogger, fake post event \n{}\n to url {}'.format(json.dumps(event), url))
 
 
-class GRDAuth(AuthBase):
-    """
-    Handles the authorization method GRD needs. This is token at django style.
 
-    If there is no available token for us, it logs-in and stores the token. Appends the token to the header accordingly.
-    """
-    token = None  # Class attribute todo know when it is going to expire
-
-    def __call__(self, r):
-        if self.token is None:
-            self.token = self.login()
-        r.headers['Authorization'] = 'Token ' + self.token
-        return r
-
-    @staticmethod
-    def login():
-        account = app.config['GRD_ACCOUNT']
-        r = requests.post(app.config['GRD_DOMAIN'] + 'api-token-auth/', json=account)
-        data = r.json()
-        return data['token']

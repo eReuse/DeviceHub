@@ -133,7 +133,8 @@ class TestBase(TestMinimal):
 
 
 class TestStandard(TestBase):
-    def get_json_from_file(self, filename: str, directory: str=None, parse_json=True) -> dict:
+    @staticmethod
+    def get_json_from_file(filename: str, directory: str=None, parse_json=True) -> dict:
         """
 
         :type filename: str

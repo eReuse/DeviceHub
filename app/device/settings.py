@@ -143,7 +143,7 @@ device_settings = {
         '@type and _created': [('@type', pymongo.DESCENDING), ('_created', pymongo.DESCENDING)]
     },
     'etag_ignore_fields': ['hid', '_id', 'components', 'isUidSecured', '_created', '_updated', '_etag', 'speed',
-                           'busClock', 'labelId', 'owners', 'place', 'benchmark', 'benchmarks'],
+                           'busClock', 'labelId', 'owners', 'place', 'benchmark', 'benchmarks', 'public'],
     'cache_control': 'max-age=1, must-revalidate'
 }
 

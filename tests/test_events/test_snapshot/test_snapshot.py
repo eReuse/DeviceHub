@@ -112,11 +112,6 @@ class TestSnapshot(TestStandard):
         values += nested_lookup('erasure', snapshot)
         return len(values) + 1  # 1 == register event itself
 
-    def _test_snapshot(self):
-        self.test_snapshot_register_easy_1()
-        self.test_snapshot_real_devices()
-        self.test_snapshot_2015_12_09()
-
     def test_add_remove(self):
         # todo create add/remove test with components and computers without hid
         # todo Check that the type of events generated are the correct ones

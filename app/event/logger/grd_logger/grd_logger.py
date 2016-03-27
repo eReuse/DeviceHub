@@ -6,7 +6,7 @@ from requests import HTTPError
 from app.app import app
 from app.event.logger.grd_logger.grd_auth import GRDAuth
 from app.rest import execute_get
-from app.utils import get_resource_name, get_last_exception_info
+from app.utils import Naming, get_last_exception_info
 from .translate import Translate
 
 
@@ -45,7 +45,7 @@ class GRDLogger:
         if event_type == 'Register':
             url += 'api/devices/register/'
         else:
-            url += 'api/devices/{}/{}'.format(device_identifier, get_resource_name(event_type))
+            url += 'api/devices/{}/{}'.format(device_identifier, Naming.resource(event_type))
         return url
 
     @staticmethod

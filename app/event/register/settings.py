@@ -15,7 +15,7 @@ register.update({
         }
     },
     'components': {
-        'type': ['list', 'string'], # POST dict, GET str
+        'type': ['list', 'string'],  # POST dict, GET str
         'data_relation': {
             'resource': 'devices',
             'field': '_id',
@@ -34,7 +34,5 @@ register_settings = copy.deepcopy(event_sub_settings_one_device)
 register_settings.update({
     'resource_methods': ['POST'],
     'schema': register,
-    'url': event_sub_settings_one_device['url'] + 'register',
     'extra_response_fields': ['device', 'components']
 })
-register_settings['datasource']['filter'] = {'@type': {'$eq': 'Register'}}

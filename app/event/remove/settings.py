@@ -7,7 +7,5 @@ remove.update(copy.deepcopy(components))
 
 remove_settings = copy.deepcopy(event_sub_settings_one_device)
 remove_settings.update({
-    'schema': remove,
-    'url': event_sub_settings_one_device['url'] + 'remove'
+    'schema': remove
 })
-remove_settings['datasource']['filter'] = {'@type': {'$eq': 'Remove'}}

@@ -7,8 +7,6 @@ test_hard_drive_settings = copy.deepcopy(event_sub_settings_one_device)
 test_hard_drive.update({
     'type': {
         'type': 'string',
-        # 'allowed': ['Short offline', 'Extended offline'],
-        # 'required': True
     },
     'status': {
         'type': 'string',
@@ -38,7 +36,5 @@ test_hard_drive.update({
 })
 test_hard_drive.update(copy.deepcopy(parent))
 test_hard_drive_settings.update({
-    'schema': test_hard_drive,
-    'url': event_sub_settings_one_device['url'] + 'test_hard_drive'
+    'schema': test_hard_drive
 })
-test_hard_drive_settings['datasource']['filter'] = {'@type': {'$eq': 'TestHardDrive'}}

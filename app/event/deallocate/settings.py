@@ -26,7 +26,5 @@ deallocate['components']['readonly'] = True
 
 deallocate_settings = copy.deepcopy(event_sub_settings_multiple_devices)
 deallocate_settings.update({
-    'schema': deallocate,
-    'url': event_sub_settings_multiple_devices['url'] + 'deallocate'
+    'schema': deallocate
 })
-deallocate_settings['datasource']['filter'] = {'@type': {'$eq': 'Deallocate'}}

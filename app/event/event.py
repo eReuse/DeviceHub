@@ -1,7 +1,7 @@
 from bson import ObjectId
 from flask import current_app
 
-from app.utils import get_resource_name
+from app.utils import Naming
 
 
 class Event:
@@ -38,7 +38,7 @@ class Event:
 
     @staticmethod
     def resource_types():
-        return {get_resource_name(event) for event in Event.get_types()}
+        return {Naming.resource(event) for event in Event.get_types()}
 
 
 class EventNotFound(Exception):

@@ -40,7 +40,5 @@ allocate['components']['readonly'] = True
 
 allocate_settings = copy.deepcopy(event_sub_settings_multiple_devices)
 allocate_settings.update({
-    'schema': allocate,
-    'url': event_sub_settings_multiple_devices['url'] + 'allocate'
+    'schema': allocate
 })
-allocate_settings['datasource']['filter'] = {'@type': {'$eq': 'Allocate'}}

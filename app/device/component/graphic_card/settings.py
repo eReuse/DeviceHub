@@ -17,5 +17,4 @@ graphic_card.update({
 
 graphic_card_settings.update({
     'schema': graphic_card,
-    'url': component_sub_settings['url'] + 'graphic-card'
 })

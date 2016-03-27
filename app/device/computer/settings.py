@@ -17,6 +17,5 @@ computer.update({
 computer_settings = copy.deepcopy(device_sub_settings)
 computer_settings.update({
     'schema': computer,
-    'url': device_sub_settings['url'] + 'computer',
     'etag_ignore_fields': computer_settings['etag_ignore_fields'] + ['forceCreation']
 })

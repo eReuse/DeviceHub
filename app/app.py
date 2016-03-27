@@ -7,12 +7,12 @@ from app.data_layer import DataLayer
 from app.request import RequestSignedJson
 from app.security.authentication import RolesAuth
 from app.validation import DeviceHubValidator
-from .devicehub import Devicehub
+from .devicehub import DeviceHub
 import gnupg
 
 this_directory = path.dirname(path.realpath(__file__))
 settings_file = path.abspath(path.join(this_directory, '.', 'settings.py'))
-app = Devicehub(
+app = DeviceHub(
     auth=RolesAuth,
     validator=DeviceHubValidator,
     settings=settings_file,

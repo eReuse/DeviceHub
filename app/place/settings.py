@@ -55,25 +55,3 @@ place_settings = {
         'geo': [('components', pymongo.GEO2D)],
     }
 }
-
-"""  'children': {  # inner places
-        'type': 'list',
-        'schema': {
-            'type': 'objectid',
-            'data_relation': {
-                'resource': 'places',
-                'field': '_id',
-                'embeddable': True
-            }
-        }
-    },
-    'parent': {
-        'type': 'objectid',
-        'data_relation': {
-            'resource': 'places',
-            'field': '_id',
-            'embeddable': True
-        },
-        # todo can I be the child of this parent?
-    },
-"""

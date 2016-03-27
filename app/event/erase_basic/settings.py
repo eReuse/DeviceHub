@@ -32,7 +32,6 @@ erase_basic.update({
 })
 erase_basic.update(copy.deepcopy(parent))
 erase_basic_settings.update({
-    'schema': erase_basic,
-    'url': event_sub_settings_one_device['url'] + 'erase_basic'
+    'schema': erase_basic
 })
 erase_basic_settings['datasource']['filter'] = {'@type': {'$eq': 'EraseBasic'}}

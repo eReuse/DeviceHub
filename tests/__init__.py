@@ -11,7 +11,7 @@ from eve.tests import TestMinimal
 from flask.ext.pymongo import MongoClient
 from passlib.handlers.sha2_crypt import sha256_crypt
 
-from app.utils import get_resource_name
+from app.utils import Naming
 import simplejson as json
 
 
@@ -149,7 +149,7 @@ class TestStandard(TestBase):
 
     def parse_event(self, event):
         with self.app.app_context():
-            event = parse(event, get_resource_name(event['@type']))
+            event = parse(event, Naming.resource(event['@type']))
             if 'components' in event:
                 for device in event['components'] + [event['device']]:
                     device.update(self.parse_device(device))
@@ -165,7 +165,7 @@ class TestStandard(TestBase):
         :return:
         """
         with self.app.app_context():
-            return parse(copy.deepcopy(device), get_resource_name(device['@type']))
+            return parse(copy.deepcopy(device), Naming.resource(device['@type']))
 
     def isType(self, type:str, item:dict):
         return item['@type'] == type
@@ -179,8 +179,8 @@ class TestStandard(TestBase):
     def get_fixture(self, resource_name, file_name, parse_json=True):
         return self.get_json_from_file('fixtures/{}/{}.json'.format(resource_name, file_name), None, parse_json)
 
-    def post_fixture(self, resouce_name, file_name):
-        return self.post_and_check(resouce_name, self.get_fixture(resouce_name, file_name))
+    def post_fixture(self, resource_name, url, file_name):
+        return self.post_and_check(url, self.get_fixture(resource_name, file_name))
 
     def get_first(self, resource_name):
         return self.get_n(resource_name, 0)
@@ -225,12 +225,12 @@ class TestStandard(TestBase):
         One computer has no HID, and it has been Snapshotted with the option 'force_creation' to True.
         :return:
         """
-        vaio = self.post_fixture(self.SNAPSHOT, 'vaio')
-        vostro = self.post_fixture(self.SNAPSHOT, 'vostro')
-        xps13 = self.post_fixture(self.SNAPSHOT, 'xps13')
+        vaio = self.post_fixture(self.SNAPSHOT, '{}/{}'.format(self.EVENTS, self.SNAPSHOT), 'vaio')
+        vostro = self.post_fixture(self.SNAPSHOT, '{}/{}'.format(self.EVENTS, self.SNAPSHOT), 'vostro')
+        xps13 = self.post_fixture(self.SNAPSHOT, '{}/{}'.format(self.EVENTS, self.SNAPSHOT), 'xps13')
         mounted = self.get_fixture(self.SNAPSHOT, 'mounted')
         mounted['device']['forceCreation'] = True
-        mounted = self.post_and_check(self.SNAPSHOT, mounted)
+        mounted = self.post_and_check('{}/{}'.format(self.EVENTS, self.SNAPSHOT), mounted)
         return [self.get(self.EVENTS, '', event['events'][0])[0]['device'] for event in [vaio, vostro, xps13, mounted]]
 
     def device_and_place_contain_each_other(self, device_id: str, place_id: str) -> list:

@@ -4,7 +4,6 @@ import pymongo
 
 from app.event.event import Event
 from app.schema import thing
-from app.utils import register_sub_types, register_sub_type, get_resource_name
 from settings import EXTRA_RESPONSE_FIELDS
 
 """
@@ -119,7 +118,12 @@ event_settings = {
     },
     'url': 'events',
     'cache_control': 'max-age=15, must-revalidate',
+    'is_super_class_of': {
+        'modules': Event.get_special_types(),
+        'generic': Event.get_generic_types()
+    }
 }
+
 event_sub_settings = {
     'item_methods': [],
     'datasource': event_settings['datasource'],
@@ -163,24 +167,6 @@ event_sub_settings_multiple_devices.update({
     'item_methods': ['PATCH', 'DELETE']
 })
 
-
-def register_events(domain: dict):
-    """
-    Register the subevents and generates the full event schema to insert it to Event Resource
-    :param domain: Full domain dict
-    :return:
-    """
-    event_merged_schema = register_sub_types(domain, 'app.event', Event.get_special_types())
-    for generic_type in Event.get_generic_types():
-        settings = copy.deepcopy(event_sub_settings_multiple_devices)
-        settings['schema'] = copy.deepcopy(event_with_devices)
-        settings['url'] += get_resource_name(generic_type)
-        settings['datasource']['filter'] = {'@type': {'$eq': generic_type}}
-        register_sub_type(
-            settings,
-            domain,
-            event_merged_schema,
-            generic_type
-        )
-    return copy.deepcopy(event_merged_schema)
+event_settings['generic_schema'] = copy.deepcopy(event_sub_settings_multiple_devices)
+event_settings['generic_schema']['schema'] = copy.deepcopy(event_with_devices)
 

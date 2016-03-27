@@ -2,6 +2,7 @@ import copy
 
 import pymongo
 
+from app.device.device import Device
 from app.schema import UnitCodes
 from app.schema import thing
 from app.utils import register_sub_types
@@ -33,7 +34,6 @@ product = dict(thing, **{
     'manufacturer': {
         'type': 'string',
         'sink': 4
-
     },
     'productId': {
         'type': 'string',
@@ -127,9 +127,10 @@ device.update({
     }
 })
 
+
 device_settings = {
     'resource_methods': ['GET', 'POST'],
-    'item_methods': ['GET', 'PATCH'], # todo patch should only be able to modify selected fields like public
+    'item_methods': ['GET', 'PATCH'],  # todo patch should only be able to modify selected fields like public
     'schema': device,
     'additional_lookup': {
         'field': 'hid',
@@ -143,23 +144,20 @@ device_settings = {
         '@type and _created': [('@type', pymongo.DESCENDING), ('_created', pymongo.DESCENDING)]
     },
     'etag_ignore_fields': ['hid', '_id', 'components', 'isUidSecured', '_created', '_updated', '_etag', 'speed',
-                           'busClock', 'labelId', 'owners', 'place', 'benchmark', 'benchmarks', 'public'],
-    'cache_control': 'max-age=1, must-revalidate'
+                           'busClock', 'labelId', 'owners', 'place', 'benchmark', 'benchmarks', 'public', '_links',
+                           'forceCreation', 'icon'],
+    'cache_control': 'max-age=1, must-revalidate',
+    'is_super_class_of': {
+        'modules': Device.get_direct_subclasses()
+    }
 }
 
 device_sub_settings = {
     'resource_methods': ['POST'],
     'item_methods': ['DELETE', 'PATCH'],
-    'url': device_settings['url'] + '/',
-    'datasource': {
-        'source': 'devices'
-    },
     'item_url': device_settings['item_url'],
     'extra_response_fields': ['@type', 'hid', 'pid'],
     'etag_ignore_fields': device_settings['etag_ignore_fields'] + ['parent'],
     'cache_control': device_settings['cache_control']
 }
 
-
-def register_parent_devices(domain: dict):
-    return register_sub_types(domain, 'app.device', ('Peripheral', 'Monitor', 'Mobile', 'Computer'))

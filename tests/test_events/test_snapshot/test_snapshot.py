@@ -40,7 +40,6 @@ class TestSnapshot(TestStandard):
         :param same_amount_of_devices: bool Force to both lists to have the same amount of devices
         :return:
         """
-        from app.device.device import Device
         if same_amount_of_devices:
             self.assertEqual(len(input_devices), len(created_devices))
         for created_device in created_devices:
@@ -53,10 +52,13 @@ class TestSnapshot(TestStandard):
                 except AssertionError:
                     pass
                 i += 1
-            self.assertTrue(found)
+            try:
+                self.assertTrue(found)
+            except AssertionError as e:
+                2 + 3
 
     def post_snapshot(self, input_snapshot):
-        return self.post_and_check('snapshot', input_snapshot)
+        return self.post_and_check('{}/{}'.format(self.EVENTS, self.SNAPSHOT), input_snapshot)
 
     def post_snapshot_get_full_events(self, input_snapshot, number_of_events_to_assert):
         snapshot = self.post_snapshot(copy.deepcopy(input_snapshot))
@@ -79,17 +81,17 @@ class TestSnapshot(TestStandard):
         # We do a snapshot again. We should receive a new snapshot without any event on it.
         if do_second_time_snapshot:
             pprint("2nd time snapshot:")
-            snapshot, status_code = self.post('snapshot', input_snapshot)
+            snapshot, status_code = self.post('{}/{}'.format(self.EVENTS, self.SNAPSHOT), input_snapshot)
             self.assert201(status_code)
             self.assertLen(snapshot['events'], num_of_events - 1)
         return register['device']
 
     def add_remove(self, input_snapshot):
-        from app.utils import get_resource_name
+        from app.utils import Naming
         component = choice(input_snapshot['components'])
         found = False
         while not found:
-            ignore_fields = self.app.config['DOMAIN'][get_resource_name(component['@type'])]['etag_ignore_fields']
+            ignore_fields = self.app.config['DOMAIN'][Naming.resource(component['@type'])]['etag_ignore_fields']
             key = choice(list(component.keys()))
             found = key not in ignore_fields
         if type(component[key]) is int or type(component[key]) is float:

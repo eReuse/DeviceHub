@@ -90,8 +90,6 @@ snapshot_settings = copy.deepcopy(event_sub_settings_one_device)
 snapshot_settings.update({
     'resource_methods': ['POST'],
     'schema': snapshot,
-    'url': 'snapshot',
     'get_projection_blacklist': {Role.ADMIN: ('request',)},  # Just superusers
     'extra_response_fields': snapshot_settings['extra_response_fields'] + ['events', 'test_hard_drives']
 })
-snapshot_settings['datasource']['filter'] = {'@type': {'$eq': 'Snapshot'}}

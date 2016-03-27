@@ -20,6 +20,5 @@ mobile.update({
 
 mobile_settings = copy.deepcopy(device_sub_settings)
 mobile_settings.update({
-    'schema': mobile,
-    'url': device_sub_settings['url'] + 'mobile'
+    'schema': mobile
 })

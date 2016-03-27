@@ -24,7 +24,7 @@ class TestLocate(TestEvent):
         except AssertionError as e:
             if e.args[0] == '400 != 201':
                 # Now we create the place
-                place = self.post_fixture(self.PLACES, 'place_with_coordinates')
+                place = self.post_fixture(self.PLACES, self.PLACES, 'place_with_coordinates')
                 # And we repeat the location. As the coordinates are in the area of the place, we should be able to create it
                 locate = self.post_and_check(self.POST_LOCATE, locate)
                 # Let's check if locate has been assigned to the place

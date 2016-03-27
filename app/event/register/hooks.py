@@ -6,7 +6,7 @@ from app.device.device import Device
 from app.device.exceptions import DeviceNotFound, NoDevicesToProcess
 from app.exceptions import InnerRequestError
 from app.rest import execute_post
-from app.utils import get_resource_name
+from app.utils import Naming
 
 
 def post_devices(registers: list):
@@ -52,7 +52,7 @@ def _execute_register(device: dict, log: list, force_new=False):
     """
     device['hid'] = 'dummy'
     try:
-        db_device = execute_post(get_resource_name(device['@type']), device)
+        db_device = execute_post(Naming.resource(device['@type']), device)
     except InnerRequestError as e:
         if force_new:
             raise e
@@ -98,7 +98,7 @@ def set_components(register):
 
 def _abort(log, e: Exception = NoDevicesToProcess()):
     for device in reversed(log):
-        deleteitem_internal(get_resource_name(device['@type']), device)
+        deleteitem_internal(Naming.resource(device['@type']), device)
     raise e
 
 """

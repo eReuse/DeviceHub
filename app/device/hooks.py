@@ -1,14 +1,14 @@
 from eve.utils import document_etag
 from app.app import app
 from app.device.device import Device
-from app.utils import get_resource_name
+from app.utils import Naming
 
 
 def generate_etag(resource: str, items: list):
     if resource in Device.resource_types():
         for item in items:
             item['_etag'] = document_etag(item,
-                                          app.config['DOMAIN'][get_resource_name(item['@type'])]['etag_ignore_fields'])
+                                          app.config['DOMAIN'][Naming.resource(item['@type'])]['etag_ignore_fields'])
 
 
 def get_icon(resource: str, item: dict):
@@ -77,5 +77,5 @@ def materialize_public_in_components_update(resource: str, device: dict, origina
     if original['@type'] in Device.get_types():
         if 'components' not in device:
             device['components'] = original['components']
-        materialize_public_in_components(get_resource_name(original['@type']), [device])
+        materialize_public_in_components(Naming.resource(original['@type']), [device])
 

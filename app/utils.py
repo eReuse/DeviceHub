@@ -11,13 +11,40 @@ from werkzeug.local import LocalProxy
 from app.exceptions import Redirect
 
 
-def get_resource_name(string: str) -> str:
+class Naming:
     """
+        In DeviceHub there are many ways to name the same resource (yay!), this is because of all the different
+        types of schemas we work in. But no worries, we offer easy ways to change between naming conventions.
 
-    :param string: String can already be a resource name, no worries.
-    :return:
+        - TypeCase is the one represented with '@type' and follow PascalCase and always singular. This is the standard preferred one.
+        - resource-case is the eve naming, using the standard URI conventions. This one is tricky, as although the types
+        are represented in singular, the URI convention is to be plural (Event vs events), however just few of them
+        follow this rule (Snapshot [type] to snapshot [resource]). You can set which ones you want to change their number.
+        - python_case is the one used by python for its folders and modules. It is underscored and always singular
     """
-    return inflection.dasherize(inflection.underscore(string))
+    @staticmethod
+    def resource(string: str):
+        """
+            :param string: String can be type, resource or python case
+        """
+        return Naming._standarize(string)[0]
+
+    @staticmethod
+    def python(string: str):
+        """
+            :param string: String can be type, resource or python case
+        """
+        _, pluralize = Naming._standarize(string)
+        a = inflection.underscore(inflection.singularize(string) if pluralize else string)
+        return a
+
+    @staticmethod
+    def _standarize(string):
+        from app.settings import RESOURCES_CHANGING_NUMBER
+        value = inflection.dasherize(inflection.underscore(string))
+        # We accept any text which my be in the singular or plural number
+        pluralize = value in RESOURCES_CHANGING_NUMBER or inflection.singularize(value) in RESOURCES_CHANGING_NUMBER
+        return inflection.pluralize(value) if pluralize else value, pluralize
 
 
 def register_sub_types(domain: dict, parent_type: str, types_to_register=()) -> dict:
@@ -45,6 +72,19 @@ def register_sub_types(domain: dict, parent_type: str, types_to_register=()) -> 
     return copy.deepcopy(merged_schema)  # We copy it so we avoid others to work with references
 
 
+def import_submodules(package_name):
+    """ Import all submodules of a module, recursively
+
+    :param package_name: Package name
+    :type package_name: str
+    :rtype: dict[types.ModuleType]
+    """
+    package = sys.modules[package_name]
+    return {
+        name: importlib.import_module(package_name + '.' + name)
+        for loader, name, is_pkg in pkgutil.walk_packages(package.__path__)
+    }
+
 def register_sub_type(type_settings: dict, domain: dict, merged_schema: dict, type_c: str):
     """
     Register one sub type, take a look at 'register_sub_types' to get more info
@@ -55,7 +95,7 @@ def register_sub_type(type_settings: dict, domain: dict, merged_schema: dict, ty
     :param type_c: PascalCase type name
     """
     type_settings['schema']['@type']['allowed'] = [type_c]
-    domain.update({get_resource_name(type_c): type_settings})
+    domain.update({Naming.resource(type_c): type_settings})
     new_type_settings_schema = copy.deepcopy(type_settings['schema'])
     del new_type_settings_schema['@type']  # We do not want to override 'allowed' in @type with the sub_type
     merged_schema.update(new_type_settings_schema)

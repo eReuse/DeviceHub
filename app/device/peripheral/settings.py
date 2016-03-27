@@ -12,6 +12,5 @@ peripheral.update({
 
 peripheral_settings = copy.deepcopy(device_sub_settings)
 peripheral_settings.update({
-    'schema': peripheral,
-    'url': device_sub_settings['url'] + 'peripheral'
+    'schema': peripheral
 })

@@ -12,8 +12,5 @@ locate['geo']['or'] = ['place']
 
 locate_settings = copy.deepcopy(event_sub_settings_multiple_devices)
 locate_settings.update({
-    'schema': locate,
-    # 'url': event_sub_settings_multiple_devices['url'] + 'locate',
-    'url': 'events/locate'
+    'schema': locate
 })
-locate_settings['datasource']['filter'] = {'@type': {'$eq': 'Locate'}}

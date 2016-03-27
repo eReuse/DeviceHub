@@ -38,6 +38,5 @@ processor.update({
     }
 })
 processor_settings.update({
-    'schema': processor,
-    'url': component_sub_settings['url'] + 'processor'
+    'schema': processor
 })

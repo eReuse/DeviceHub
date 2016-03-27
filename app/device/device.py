@@ -8,7 +8,7 @@ from app.device.exceptions import DeviceNotFound
 from app.event.event import Event
 from app.exceptions import InnerRequestError
 from app.rest import execute_get
-from app.utils import get_resource_name
+from app.utils import Naming
 
 
 class Device:
@@ -93,7 +93,7 @@ class Device:
 
     @staticmethod
     def generate_etag(device: dict) -> str:
-        return document_etag(device, current_app.config['DOMAIN'][get_resource_name(device['@type'])]['etag_ignore_fields'])
+        return document_etag(device, current_app.config['DOMAIN'][Naming.resource(device['@type'])]['etag_ignore_fields'])
 
     @staticmethod
     def seem_equal(x: dict, y: dict) -> bool:
@@ -123,11 +123,15 @@ class Device:
 
     @staticmethod
     def get_types():
-        return Component.get_types_of_components() + ('Peripheral', 'Monitor', 'Mobile', 'Computer')
+        return Component.get_types_of_components() + Device.get_direct_subclasses()
+
+    @staticmethod
+    def get_direct_subclasses():
+        return 'Peripheral', 'Monitor', 'Mobile', 'Computer', 'Component'
 
     @staticmethod
     def resource_types():
-        return (get_resource_name(event) for event in Device.get_types())
+        return (Naming.resource(event) for event in Device.get_types())
 
     @staticmethod
     def get_devices_with_components(devices_id: list) -> list:

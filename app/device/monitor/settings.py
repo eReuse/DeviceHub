@@ -15,6 +15,5 @@ monitor.update({
 
 monitor_settings = copy.deepcopy(device_sub_settings)
 monitor_settings.update({
-    'schema': monitor,
-    'url': device_sub_settings['url'] + 'monitor'
+    'schema': monitor
 })

@@ -50,7 +50,5 @@ receive['components']['readonly'] = True
 
 receive_settings = copy.deepcopy(event_sub_settings_multiple_devices)
 receive_settings.update({
-    'schema': receive,
-    'url': event_sub_settings_multiple_devices['url'] + 'receive'
+    'schema': receive
 })
-receive_settings['datasource']['filter'] = {'@type': {'$eq': 'Receive'}}

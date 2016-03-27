@@ -3,7 +3,7 @@ from flask import g
 from app.device.device import Device
 from app.device.exceptions import DeviceNotFound, NoDevicesToProcess
 from app.rest import execute_post
-from app.utils import get_resource_name
+from app.utils import Naming
 from .event_processor import EventProcessor
 
 
@@ -92,5 +92,5 @@ class Snapshot:
     def exec_hard_drive_events(self, event_log, events):
         for i, event in events:
             event['device'] = self.components[i]['_id']
-            event_log.append(execute_post(get_resource_name(event['@type']), event))
+            event_log.append(execute_post(Naming.resource(event['@type']), event))
             event.update(event_log[-1])

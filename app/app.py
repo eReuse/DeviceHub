@@ -7,6 +7,7 @@ from app.data_layer import DataLayer
 from app.request import RequestSignedJson
 from app.security.authentication import RolesAuth
 from app.validation import DeviceHubValidator
+from utilities.class_diagram import ToClassDiagram
 from .devicehub import DeviceHub
 import gnupg
 
@@ -22,6 +23,7 @@ app = DeviceHub(
 app.json_encoder = MongoJSONEncoder
 app.request_class = RequestSignedJson
 app.gpg = gnupg.GPG()
+ToClassDiagram(app)
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 from hooks import event_hooks

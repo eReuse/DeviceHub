@@ -114,6 +114,7 @@ class DeviceHub(Eve):
             this class to update the resource.
         """
         superclasses = [] if superclasses is None else superclasses
+        settings['original_schema'] = copy.deepcopy(settings['schema'])  # For documentation purposes
         super().register_resource(resource, settings)  # We register the actual resource
         superclasses.append(Naming.python(resource))  # And we added as a superclass for the sub-resources
         super_class_of = settings.get('is_super_class_of', {})
@@ -138,14 +139,18 @@ class DeviceHub(Eve):
         resource_name = Naming.resource(resource_type)
         # We update the values of the parent with ours.
         # We need to do some tricks to not to override allowed in @type in the parent when updating
-        for superclass in superclasses:
+        parent = True
+        for superclass in reversed(superclasses):
             new_type_settings_schema = copy.deepcopy(settings['schema'])
             del new_type_settings_schema['@type']
             parent_resource_name = Naming.resource(superclass)
             parent_resource_schema = self.config['DOMAIN'][parent_resource_name]['schema']
             parent_resource_schema.update(new_type_settings_schema)
             parent_resource_schema['@type']['allowed'].append(resource_type)
-            # We call directly 'super' so we do not end into an infinite recursion
+            if parent:
+                self.config['DOMAIN'][parent_resource_name]['is_super_class_of'].setdefault('references', {})[resource_type] = settings
+                parent = False
+                # We won't call to register_resource or we will end into an infinite recursion
             self.update_resource(parent_resource_name, self.config['DOMAIN'][parent_resource_name])
         # We register the actual subclass
         # And the subclasses it may have

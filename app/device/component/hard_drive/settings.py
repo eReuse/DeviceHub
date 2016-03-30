@@ -1,30 +1,30 @@
 import copy
 
 from app.device.benchmark_settings import benchmark_hard_drive
-from app.device.component.settings import component, component_sub_settings
-from app.event.erase_basic.settings import erase_basic
-from app.event.test_hard_drive.settings import test_hard_drive
+from app.device.component.settings import component_sub_settings, Component, ComponentSubSettings
+from app.event.erase_basic.settings import EraseBasic
+from app.event.test_hard_drive.settings import TestHardDrive
 from app.schema import UnitCodes
 
-hard_drive = copy.deepcopy(component)
 hard_drive_settings = copy.deepcopy(component_sub_settings)
 
-hard_drive.update({
-    'interface': {
+
+class HardDrive(Component):
+    interface = {
         'type': 'string',
         'sink': -1,
         'teaser': False
-    },
-    'size': {
+    }
+    size = {
         'type': 'float',
         'unitCode': UnitCodes.mbyte,
         'sink': 1
-    },
-    'erasure': {
+    }
+    erasure = {
         'type': 'dict',
-        'schema': copy.deepcopy(erase_basic)
-    },
-    'erasures': {
+        'schema': EraseBasic()
+    }
+    erasures = {
         'type': 'list',
         'schema': {
             'type': 'objectid',
@@ -35,27 +35,27 @@ hard_drive.update({
             }
         },
         'readonly': True
-    },
-    'firmwareRevision': {
+    }
+    firmwareRevision = {
         'type': 'string',
         'teaser': False,
         'sink': -1
-    },
-    'blockSize': {
+    }
+    blockSize = {
         'type': 'integer',
         'sink': -1,
         'teaser': False
-    },
-    'sectors': {
+    }
+    sectors = {
         'type': 'integer',
         'sink': -1,
         'teaser': False
-    },
-    'test': {
+    }
+    test = {
         'type': 'dict',
-        'schema': copy.deepcopy(test_hard_drive),
-    },
-    'tests': {
+        'schema': TestHardDrive()
+    }
+    tests = {
         'type': 'list',
         'schema': {
             'type': 'objectid',
@@ -66,13 +66,13 @@ hard_drive.update({
             }
         },
         'readonly': True
-    },
-    'benchmark': {
+    }
+    benchmark = {
         'type': 'dict',
         'schema': copy.deepcopy(benchmark_hard_drive),
         'writeonly': True
-    },
-    'benchmarks': {
+    }
+    benchmarks = {
         'type': 'list',
         'schema': {
             'type': 'dict',
@@ -80,16 +80,15 @@ hard_drive.update({
         },
         'readonly': True
     }
-})
-hard_drive['test']['schema']['device']['required'] = False
-hard_drive['erasure']['schema']['device']['required'] = False
-hard_drive['test']['schema']['@type']['allowed'] = ['TestHardDrive']
-del hard_drive['erasure']['schema']['incidence']['default']
-del hard_drive['erasure']['schema']['secured']['default']
-del hard_drive['test']['schema']['incidence']['default']
-del hard_drive['test']['schema']['secured']['default']
-hard_drive_settings.update({
-    'schema': hard_drive,
-    'etag_ignore_fields': hard_drive_settings['etag_ignore_fields'] + ['tests', 'erasures', 'test', 'erasure']
-})
+HardDrive.test['schema']['device']['required'] = False
+HardDrive.erasure['schema']['device']['required'] = False
+HardDrive.test['schema']['@type']['allowed'] = ['TestHardDrive']
+del HardDrive.erasure['schema']['incidence']['default']
+del HardDrive.erasure['schema']['secured']['default']
+del HardDrive.erasure['schema']['incidence']['default']
+del HardDrive.erasure['schema']['secured']['default']
 
+
+class HardDriveSettings(ComponentSubSettings):
+    _schema = HardDrive
+    etag_ignore_fields = ComponentSubSettings.etag_ignore_fields + ['tests', 'erasures', 'test', 'erasure']

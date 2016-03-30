@@ -1,16 +1,18 @@
 import copy
 
-from app.event.settings import event_with_devices, event_sub_settings_multiple_devices, place, components
+from app.event.settings import event_sub_settings_multiple_devices, place, components, EventWithDevices, \
+    EventSubSettingsMultipleDevices
 
-locate = copy.deepcopy(event_with_devices)
-locate.update(copy.deepcopy(place))
-locate.update(copy.deepcopy(components))
-locate['components']['readonly'] = True
 
-locate['geo']['excludes'] = 'place'  # geo xor place
-locate['geo']['or'] = ['place']
+class Locate(EventWithDevices):
+    place = place
+    components = copy.deepcopy(components)
 
-locate_settings = copy.deepcopy(event_sub_settings_multiple_devices)
-locate_settings.update({
-    'schema': locate
-})
+Locate.components['readonly'] = True
+Locate.geo = copy.deepcopy(Locate.geo)
+Locate.geo['excludes'] = 'place'  # geo xor place
+Locate.geo['or'] = ['place']
+
+
+class LocateSettings(EventSubSettingsMultipleDevices):
+    _schema = Locate

@@ -1,21 +1,21 @@
 import copy
 
-from app.device.settings import device, device_sub_settings
+from app.device.component.settings import ComponentSubSettings
+from app.device.schema import Device
+from app.device.settings import device_sub_settings, DeviceSubSettings
 
-computer = copy.deepcopy(device)
-computer.update({
-    'type': {
+
+class Computer(Device):
+    type = {
         'type': 'string',
         'allowed': ['Desktop', 'Laptop', 'Netbook', 'Server', 'Microtower']
-    },
-    'forceCreation': {
+    }
+    forceCreation = {
         'type': 'boolean',
         'default': False
     }
-})
 
-computer_settings = copy.deepcopy(device_sub_settings)
-computer_settings.update({
-    'schema': computer,
-    'etag_ignore_fields': computer_settings['etag_ignore_fields'] + ['forceCreation']
-})
+
+class ComputerSettings(DeviceSubSettings):
+    _schema = Computer
+    etag_ignore_fields = DeviceSubSettings.etag_ignore_fields + ['forceCreation']

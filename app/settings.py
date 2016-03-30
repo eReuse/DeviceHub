@@ -19,15 +19,15 @@
 from settings import *
 
 # Generation of the API (DOMAIN)
-from app.device.settings import device_settings
-from app.event.settings import event_settings
-from app.account.settings import account_settings
-from app.place.settings import place_settings
+from app.device.settings import DeviceSettings
+from app.event.settings import EventSettings
+from app.account.settings import AccountSettings
+from app.place.settings import PlaceSettings
 DOMAIN = {
-    'devices': device_settings,
-    'events': event_settings,
-    'accounts': account_settings,
-    'places': place_settings
+    'devices': DeviceSettings,
+    'events': EventSettings,
+    'accounts': AccountSettings,
+    'places': PlaceSettings
 }
 
 RESOURCES_CHANGING_NUMBER = 'device', 'event', 'account', 'place', 'erase'

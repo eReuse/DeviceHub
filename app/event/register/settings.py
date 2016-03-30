@@ -1,38 +1,34 @@
 import copy
 
-from app.device.settings import device
-from app.event.settings import event_with_one_device, event_sub_settings_one_device, place
+from app.device.schema import Device
+from app.event.settings import place, EventWithOneDevice, EventSubSettingsOneDevice
 
-register = copy.deepcopy(event_with_one_device)
-register.update({
-    'device': {
+
+class Register(EventWithOneDevice):
+    device = {
         'type': ['dict', 'string'],  # POST dict, GET str
-        'schema': device,  # anyof causes a bug where resource is not set
+        'schema': Device(),  # anyof causes a bug where resource is not set
         'data_relation': {
             'resource': 'devices',
             'field': '_id',
             'embeddable': True
         }
-    },
-    'components': {
+    }
+    components = {
         'type': ['list', 'string'],  # POST dict, GET str
         'data_relation': {
             'resource': 'devices',
             'field': '_id',
             'embeddable': True
         }
-    },
-    'force': {
+    }
+    force = {
         'type': ['boolean']  # Creates a device even if it does not have pid or hid, doesn't affect components
         # An automatic way of generating pid must be set (ex: PID_AS_AUTOINCREMENT)
-    },
-})
-register.update(copy.deepcopy(place))
+    }
+    place = place
 
 
-register_settings = copy.deepcopy(event_sub_settings_one_device)
-register_settings.update({
-    'resource_methods': ['POST'],
-    'schema': register,
-    'extra_response_fields': ['device', 'components']
-})
+class RegisterSettings(EventSubSettingsOneDevice):
+    _schema = Register
+    extra_response_fields = ['device', 'components']

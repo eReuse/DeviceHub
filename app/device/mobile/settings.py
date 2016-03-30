@@ -1,24 +1,23 @@
 import copy
 
-from app.device.settings import device, device_sub_settings
+from app.device.schema import Device
+from app.device.settings import device_sub_settings
 
-mobile = copy.deepcopy(device)
-mobile.update({
-    'type': {
+
+class Mobile(Device):
+    type = {
         'type': 'string',
         'allowed': ['Smartphone', 'Tablet']
-    },
-    'imei': {
-        'type': 'string',
-        'unique': True
-    },
-    'meid': {
+    }
+    imei = {
         'type': 'string',
         'unique': True
     }
-})
+    meid = {
+        'type': 'string',
+        'unique': True
+    }
 
-mobile_settings = copy.deepcopy(device_sub_settings)
-mobile_settings.update({
-    'schema': mobile
-})
+
+class MobileSettings(MobileSubSettings):
+    _schema = Mobile

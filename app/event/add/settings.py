@@ -1,10 +1,12 @@
 import copy
 
-from app.event.settings import event_with_one_device, event_sub_settings_one_device, components
+from app.event.settings import event_sub_settings_one_device, components, EventWithOneDevice, EventSubSettingsOneDevice
 
-add = copy.deepcopy(event_with_one_device)
-add_settings = copy.deepcopy(event_sub_settings_one_device)
-add.update(copy.deepcopy(components))
-add_settings.update({
-    'schema': add
-})
+
+class Add(EventWithOneDevice):
+    components = components
+
+
+class AddSettings(EventSubSettingsOneDevice):
+    _schema = Add
+

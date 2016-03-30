@@ -1,18 +1,18 @@
 import copy
 
-from app.device.component.settings import component, component_sub_settings
+from app.device.component.settings import component_sub_settings, Component, ComponentSubSettings
 
-motherboard = copy.deepcopy(component)
-motherboard.update({
-    'totalSlots': {
+
+class Motherboard(Component):
+    totalSlots = {
         'type': 'integer',
         'teaser': False
-    },
-    'usedSlots': {
+    }
+    usedSlots = {
         'type': 'integer',
         'teaser': False
-    },
-    'connectors': {
+    }
+    connectors = {
         'type': 'dict',
         'schema': {
             'usb': {
@@ -28,17 +28,13 @@ motherboard.update({
                 'type': 'natural'
             }
         }
-    },
-    'maxAcceptedMemory': {
+    }
+    maxAcceptedMemory = {
         'type': 'integer',  # Maximum accepted memory that the motherboard can hold
         'teaser': False
     }
-}
-)
 
-motherboard_settings = copy.deepcopy(component_sub_settings)
 
-motherboard_settings.update({
-    'schema': motherboard,
-    'etag_ignore_fields': motherboard_settings['etag_ignore_fields'] + ['usedSlots']
-})
+class Settings(ComponentSubSettings):
+    _schema = Motherboard
+    etag_ignore_fields = ComponentSubSettings.etag_ignore_fields + ['usedSlots']

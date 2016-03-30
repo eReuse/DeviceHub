@@ -2,21 +2,21 @@ import copy
 
 import pymongo
 
-from app.schema import thing
+from app.schema import Thing, ResourceSettings
 
-place = copy.deepcopy(thing)
-place.update({
-    'geo': {
+
+class Place(Thing):
+    geo = {
         'type': 'polygon',
         'sink': -5,
         'description': 'Set the area of the place. Be careful! Once set, you cannot update the area.',
         'modifiable': False
-    },
-    'type': {
+    }
+    type = {
         'type': 'string',
         'allowed': ['Department', 'Zone', 'Warehouse', 'CollectionPoint']
-    },
-    'devices': {
+    }
+    devices = {
         'type': 'list',
         'schema': {
             'type': 'string',
@@ -28,8 +28,8 @@ place.update({
         },
         'default': [],
         'unique_values': True
-    },
-    'byUser': {
+    }
+    byUser = {
         'type': 'objectid',
         'data_relation': {
             'resource': 'accounts',
@@ -38,20 +38,18 @@ place.update({
         },
         'readonly': True
     }
-})
-place['label']['required'] = True
-place['@type']['allowed'] = ['Place']
+    label = copy.deepcopy(Thing.label)
+Place.label['required'] = True
 
-place_settings = {
-    'resource_methods': ['GET', 'POST'],
-    'item_methods': ['GET', 'PATCH', 'DELETE', 'PUT'],
-    'schema': place,
-    'datasource': {
+
+class PlaceSettings(ResourceSettings):
+    resource_methods = ['GET', 'POST']
+    item_methods = ['GET', 'PATCH', 'DELETE', 'PUT']
+    _schema = Place
+    datasource = {
         'default_sort': [('_created', -1)]
-    },
-    'extra_response_fields': ['devices'],
-    'url': 'places',
-    'mongo_indexes': {
-        'geo': [('components', pymongo.GEO2D)],
     }
-}
+    extra_response_fields = ['devices']
+    mongo_indexes = {
+        'geo': [('components', pymongo.GEO2D)]
+    }

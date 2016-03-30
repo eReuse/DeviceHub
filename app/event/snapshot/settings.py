@@ -1,22 +1,22 @@
 import copy
 
 from app.account.user import Role
-from app.device.component.settings import component
-from app.device.computer.settings import computer
-from app.event.settings import event_with_one_device, event_sub_settings_one_device, place
+from app.device.component.settings import Component
+from app.device.computer.settings import Computer
+from app.event.settings import event_sub_settings_one_device, place, EventWithOneDevice, EventSubSettingsOneDevice
 
-snapshot = copy.deepcopy(event_with_one_device)
-snapshot.update({
-    'offline': {
+
+class Snapshot(EventWithOneDevice):
+    offline = {
         'type': 'boolean'
-    },
-    'automatic': {
+    }
+    automatic = {
         'type': 'boolean'
-    },
-    'version': {
+    }
+    version = {
         'type': 'version',
-    },
-    'events': {
+    }
+    events = {
         'type': 'list',  # Snapshot generates this automatically
         'schema': {
             'type': 'objectid',
@@ -27,12 +27,12 @@ snapshot.update({
             }
         },
         'readonly': True
-    },
-    'request': {
+    }
+    request = {
         'type': 'string',  # The request sent, saved in case of debugging
         'readonly': True
-    },
-    'unsecured': {
+    }
+    unsecured = {
         'type': 'list',  # When we match an existing non-hid device, we state it here
         'schema': {
             'type': 'dict',
@@ -56,22 +56,22 @@ snapshot.update({
         },
         'default': [],
         'readonly': True
-    },
-    'device': {
-        'type': 'dict', # eve doesn't care about the type when GET values
-        'schema': computer,
+    }
+    device = {
+        'type': 'dict',  # eve doesn't care about the type when GET values
+        'schema': Computer(),
         'required': True,
         'data_relation': {
             'resource': 'devices',
             'field': '_id',
             'embeddable': True
         }
-    },
-    'components': {
+    }
+    components = {
         'type': 'list',
         'schema': {
             'type': 'dict',
-            'schema': component,
+            'schema': Component(),
             'data_relation': {
                 'resource': 'devices',
                 'field': '_id',
@@ -79,17 +79,14 @@ snapshot.update({
             }
         },
         'default': []
-    },
-    'debug': {
+    }
+    debug = {
         'type': 'dict'
     }
-})
-snapshot.update(copy.deepcopy(place))
+    place = place
 
-snapshot_settings = copy.deepcopy(event_sub_settings_one_device)
-snapshot_settings.update({
-    'resource_methods': ['POST'],
-    'schema': snapshot,
-    'get_projection_blacklist': {Role.ADMIN: ('request',)},  # Just superusers
-    'extra_response_fields': snapshot_settings['extra_response_fields'] + ['events', 'test_hard_drives']
-})
+
+class SnapshotSettings(EventSubSettingsOneDevice):
+    _schema = Snapshot
+    get_projection_blacklist = {Role.ADMIN: ('request',)}
+    extra_response_fields = EventSubSettingsOneDevice.extra_response_fields + ['events', 'test_hard_drives']

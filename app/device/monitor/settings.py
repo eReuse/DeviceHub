@@ -1,19 +1,18 @@
 import copy
 
-from app.device.settings import device, device_sub_settings
+from app.device.schema import Device
+from app.device.settings import device_sub_settings, DeviceSubSettings
 
-monitor = copy.deepcopy(device)
-monitor.update({
-    'type': {
+
+class Monitor(Device):
+    type = {
         'type': 'string',
         'allowed': ['TFT', 'LCD']
-    },
-    'inches': {
+    }
+    inches = {
         'type': 'natural'
     }
-})
 
-monitor_settings = copy.deepcopy(device_sub_settings)
-monitor_settings.update({
-    'schema': monitor
-})
+
+class MonitorSettings(DeviceSubSettings):
+    _schema = Monitor

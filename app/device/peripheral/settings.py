@@ -1,16 +1,16 @@
 import copy
 
-from app.device.settings import device, device_sub_settings
+from app.device.schema import Device
+from app.device.settings import DeviceSubSettings
 
-peripheral = copy.deepcopy(device)
-peripheral.update({
-    'type': {
+
+class Peripheral(Device):
+    type = {
         'type': 'string',
-        'allowed': ['Router', 'Switch', 'Printer', 'Scanner', 'MultifunctionPrinter', 'Terminal', 'HUB', 'SAI', 'Keyboard', 'Mouse']
+        'allowed': ['Router', 'Switch', 'Printer', 'Scanner', 'MultifunctionPrinter', 'Terminal', 'HUB', 'SAI',
+                    'Keyboard', 'Mouse']
     }
-})
 
-peripheral_settings = copy.deepcopy(device_sub_settings)
-peripheral_settings.update({
-    'schema': peripheral
-})
+
+class PeripheralSettings(DeviceSubSettings):
+    _schema = Peripheral

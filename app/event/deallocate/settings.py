@@ -1,10 +1,11 @@
 import copy
 
-from app.event.settings import event_with_devices, event_sub_settings_multiple_devices, components
+from app.event.settings import event_sub_settings_multiple_devices, components, EventWithDevices, \
+    EventSubSettingsMultipleDevices
 
-deallocate = copy.deepcopy(event_with_devices)
-deallocate.update({
-    'from': {
+
+class Deallocate(EventWithDevices):
+    _from = {
         'type': 'objectid',
         'data_relation': {
             'resource': 'accounts',
@@ -12,19 +13,26 @@ deallocate.update({
             'embeddable': True,
         },
         'sink': 2
-    },
-    'fromOrganization': {  # Materialization of the organization that, by the time of the deallocation, the user worked in
+    }
+    fromOrganization = {
+    # Materialization of the organization that, by the time of the deallocation, the user worked in
         'type': 'string',
         'readonly': True
     }
-})
-deallocate.update(copy.deepcopy(components))
-deallocate['components']['readonly'] = True
+
+    @staticmethod
+    def _clean(full_dict):
+        super()._clean(full_dict)
+        full_dict['from'] = full_dict['_from']
+        del full_dict['_from']
+
+
+Deallocate.components = copy.deepcopy(components)
+Deallocate.components['readonly'] = True
+
 
 # Receiver OR ReceiverEmail. We need to hook this in a required field so it is always executed
 # And @type is an always required field so we can happily hook on it
 
-deallocate_settings = copy.deepcopy(event_sub_settings_multiple_devices)
-deallocate_settings.update({
-    'schema': deallocate
-})
+class DeallocateSettings(EventSubSettingsMultipleDevices):
+    _schema = Deallocate

@@ -14,7 +14,7 @@ class Place(Thing):
     }
     type = {
         'type': 'string',
-        'allowed': ['Department', 'Zone', 'Warehouse', 'CollectionPoint']
+        'allowed': {'Department', 'Zone', 'Warehouse', 'CollectionPoint'}
     }
     devices = {
         'type': 'list',
@@ -47,7 +47,8 @@ class PlaceSettings(ResourceSettings):
     item_methods = ['GET', 'PATCH', 'DELETE', 'PUT']
     _schema = Place
     datasource = {
-        'default_sort': [('_created', -1)]
+        'default_sort': [('_created', -1)],
+        'source': 'places'
     }
     extra_response_fields = ['devices']
     mongo_indexes = {

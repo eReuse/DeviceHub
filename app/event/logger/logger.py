@@ -36,6 +36,7 @@ class Logger:
         """
         account = current_app.config['LOGGER_ACCOUNT']
         account.update({'role': Role.SUPERUSER})
+        account['@type'] = 'Account'
         actual_mongo_prefix = g.mongo_prefix  # todo why can't I use current_app.get_mongo_prefix()?
         del g.mongo_prefix
         result = app.data.find_one_raw('accounts', {'email': account['email']})

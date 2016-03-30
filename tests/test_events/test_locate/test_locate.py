@@ -1,5 +1,4 @@
 from tests.test_events import TestEvent
-from tests.test_place.test_place import TestPlace
 
 
 class TestLocate(TestEvent):

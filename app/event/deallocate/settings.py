@@ -1,6 +1,6 @@
 import copy
 
-from app.event.settings import event_sub_settings_multiple_devices, components, EventWithDevices, \
+from app.event.settings import components, EventWithDevices, \
     EventSubSettingsMultipleDevices
 
 
@@ -20,11 +20,12 @@ class Deallocate(EventWithDevices):
         'readonly': True
     }
 
-    @staticmethod
-    def _clean(full_dict):
-        super()._clean(full_dict)
+    @classmethod
+    def _clean(cls, full_dict):
+        full_dict = super(Deallocate, cls)._clean(full_dict)
         full_dict['from'] = full_dict['_from']
         del full_dict['_from']
+        return full_dict
 
 
 Deallocate.components = copy.deepcopy(components)

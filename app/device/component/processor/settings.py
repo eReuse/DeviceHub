@@ -1,10 +1,7 @@
-import copy
-
-from app.device.benchmark_settings import benchmark_processor
-from app.device.component.settings import component_sub_settings, Component, ComponentSubSettings
+from app.device.benchmark_settings import BenchmarkProcessor
+from app.device.component.settings import Component, ComponentSubSettings
 from app.schema import UnitCodes
 
-processor_settings = copy.deepcopy(component_sub_settings)
 
 
 class Processor(Component):
@@ -21,19 +18,19 @@ class Processor(Component):
     address = {
         'type': 'integer',
         'unitCode': UnitCodes.bit,
-        'allowed': [8, 16, 32, 64, 128, 256],
+        'allowed': {8, 16, 32, 64, 128, 256},
         'sink': -1
     }
     benchmark = {
         'type': 'dict',
-        'schema': copy.deepcopy(benchmark_processor),
+        'schema': BenchmarkProcessor,
         'writeonly': True,
     }
     benchmarks = {
         'type': 'list',
         'schema': {
             'type': 'dict',
-            'schema': copy.deepcopy(benchmark_processor)
+            'schema': BenchmarkProcessor
         },
         'readonly': True
     }

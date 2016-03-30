@@ -1,9 +1,7 @@
-import copy
-
 from app.account.user import Role
 from app.device.component.settings import Component
 from app.device.computer.settings import Computer
-from app.event.settings import event_sub_settings_one_device, place, EventWithOneDevice, EventSubSettingsOneDevice
+from app.event.settings import place, EventWithOneDevice, EventSubSettingsOneDevice
 
 
 class Snapshot(EventWithOneDevice):
@@ -50,7 +48,7 @@ class Snapshot(EventWithOneDevice):
                 },
                 'type': {
                     'type': 'string',
-                    'allowed': ('model', 'pid')
+                    'allowed': {'model', 'pid'}
                 }
             }
         },
@@ -59,7 +57,7 @@ class Snapshot(EventWithOneDevice):
     }
     device = {
         'type': 'dict',  # eve doesn't care about the type when GET values
-        'schema': Computer(),
+        'schema': Computer,
         'required': True,
         'data_relation': {
             'resource': 'devices',
@@ -71,7 +69,7 @@ class Snapshot(EventWithOneDevice):
         'type': 'list',
         'schema': {
             'type': 'dict',
-            'schema': Component(),
+            'schema': Component,
             'data_relation': {
                 'resource': 'devices',
                 'field': '_id',

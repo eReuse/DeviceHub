@@ -18,8 +18,12 @@
 # noinspection PyUnresolvedReferences
 from settings import *
 
+
+
 # Generation of the API (DOMAIN)
 from app.device.settings import DeviceSettings
+# noinspection PyUnresolvedReferences
+from app.device.component import settings
 from app.event.settings import EventSettings
 from app.account.settings import AccountSettings
 from app.place.settings import PlaceSettings
@@ -29,5 +33,6 @@ DOMAIN = {
     'accounts': AccountSettings,
     'places': PlaceSettings
 }
+
 
 RESOURCES_CHANGING_NUMBER = 'device', 'event', 'account', 'place', 'erase'

@@ -47,60 +47,6 @@ class Naming:
         return inflection.pluralize(value) if pluralize else value, pluralize
 
 
-def register_sub_types(domain: dict, parent_type: str, types_to_register=()) -> dict:
-    """
-    Given the following folder structure:
-    parent_type/
-                /subtype1
-                /subtype2
-                /...
-    Where each subtype folder has a 'settings.py' file with a {subtype}_settings dictionary,
-    it updates domain dict by adding a new key (subtype name) and {subtype}_settings dictionary.
-    Ultimately, returns a full schema, resulting of merging all schemas found in {subtype}_settings
-    dictionary.
-    :param domain: dict to update.
-    :param parent_type:
-    :param types_to_register:
-    :return: A newly deeped copied schema
-    """
-    merged_schema = {'@type': {'allowed': []}}
-    for type_c in types_to_register:
-        type_u = inflection.underscore(type_c)
-        settings = import_module('.' + type_u + '.settings', parent_type)
-        type_definition = getattr(settings, type_u + '_settings')
-        register_sub_type(type_definition, domain, merged_schema, type_c)
-    return copy.deepcopy(merged_schema)  # We copy it so we avoid others to work with references
-
-
-def import_submodules(package_name):
-    """ Import all submodules of a module, recursively
-
-    :param package_name: Package name
-    :type package_name: str
-    :rtype: dict[types.ModuleType]
-    """
-    package = sys.modules[package_name]
-    return {
-        name: importlib.import_module(package_name + '.' + name)
-        for loader, name, is_pkg in pkgutil.walk_packages(package.__path__)
-    }
-
-def register_sub_type(type_settings: dict, domain: dict, merged_schema: dict, type_c: str):
-    """
-    Register one sub type, take a look at 'register_sub_types' to get more info
-    :param type_settings: The resource settings dictionary
-    :param domain: Eve's site domain dictionary
-    :param merged_schema: The result dictionary of inserting all the schemas, normally used for the generic event
-    Merged schema needs to have '@type' and inside it 'allowed', being a list
-    :param type_c: PascalCase type name
-    """
-    type_settings['schema']['@type']['allowed'] = [type_c]
-    domain.update({Naming.resource(type_c): type_settings})
-    new_type_settings_schema = copy.deepcopy(type_settings['schema'])
-    del new_type_settings_schema['@type']  # We do not want to override 'allowed' in @type with the sub_type
-    merged_schema.update(new_type_settings_schema)
-    merged_schema['@type']['allowed'].append(type_c)
-
 
 def difference(new_list: list, old_list: list) -> list:
     """
@@ -146,31 +92,48 @@ def normalize(string):
     return inflection.parameterize(string, '_')
 
 
-def nested_lookup(key, document):
+def key_equality_factory(key_to_find):
+    def key_equality(key, value):
+        return key == key_to_find
+    return key_equality
+
+
+def is_sub_type_factory(type):
+    def is_sub_type(key, value):
+        try:
+            return issubclass(value, type)
+        except TypeError:
+            return issubclass(value.__class__, type)
+    return is_sub_type
+
+
+def nested_lookup(document, references, operation):
     """Lookup a key in a nested document, return a list of values
     From https://github.com/russellballestrini/nested-lookup/ but in python 3
     """
-    return list(_nested_lookup(key, document))
+    return list(_nested_lookup(document, references, operation))
 
 
-def _nested_lookup(key, document):
+def _nested_lookup(document, references, operation):
     """Lookup a key in a nested document, yield a value"""
     if isinstance(document, list):
         for d in document:
-            for result in _nested_lookup(key, d):
+            for result in _nested_lookup(d, references, operation):
                 yield result
 
     if isinstance(document, dict):
         for k, v in document.items():
-            if k == key:
+            if operation(k, v):
+                references.append((document, k))
                 yield v
             elif isinstance(v, dict):
-                for result in _nested_lookup(key, v):
+                for result in _nested_lookup(v, references, operation):
                     yield result
             elif isinstance(v, list):
                 for d in v:
-                    for result in _nested_lookup(key, d):
+                    for result in _nested_lookup(d, references, operation):
                         yield result
+
 
 
 def get_last_exception_info():

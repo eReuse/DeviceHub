@@ -1,8 +1,6 @@
-import copy
-
-from app.device.benchmark_settings import union_of_benchmarks
+from app.device.benchmark_settings import BenchmarkHardDrive, BenchmarkProcessor, Benchmark
 from app.device.schema import Device
-from app.device.settings import device_settings, device_sub_settings, DeviceSettings, DeviceSubSettings
+from app.device.settings import DeviceSettings, DeviceSubSettings
 
 
 class Component(Device):
@@ -22,10 +20,16 @@ class Component(Device):
 
     @classmethod
     def subclasses_attributes(cls):
-        global_types = super().subclasses_attributes()
-        global_types['size']['type'] = global_types['speed']['type'] = 'number'
-        global_types['erasure']['schema']['@type']['allowed'] = 'EraseSectors', 'EraseBasic'
-        global_types['benchmark']['schema'] = union_of_benchmarks
+        global_types = super(Component, cls).subclasses_attributes()
+        try:
+            global_types['size']['type'] = global_types['speed']['type'] = 'number'
+            global_types['erasure']['schema']['@type']['allowed'] = {'EraseSectors', 'EraseBasic'}
+            union_of_benchmarks = BenchmarkHardDrive()
+            union_of_benchmarks.update(BenchmarkProcessor())
+            union_of_benchmarks['@type']['allowed'] = set(Benchmark.TYPES)
+            global_types['benchmark']['schema'] = union_of_benchmarks
+        except KeyError:
+            pass
         return global_types
 
 
@@ -34,4 +38,4 @@ class ComponentSettings(DeviceSettings):
 
 
 class ComponentSubSettings(DeviceSubSettings):
-    pass
+    _schema = False

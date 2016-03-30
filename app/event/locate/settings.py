@@ -1,6 +1,6 @@
 import copy
 
-from app.event.settings import event_sub_settings_multiple_devices, place, components, EventWithDevices, \
+from app.event.settings import place, components, EventWithDevices, \
     EventSubSettingsMultipleDevices
 
 

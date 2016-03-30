@@ -1,9 +1,5 @@
-import copy
-
-from app.event.settings import event_sub_settings_one_device, parent, EventWithOneDevice, EventSubSettingsOneDevice
+from app.event.settings import parent, EventWithOneDevice, EventSubSettingsOneDevice
 from .step_settings import step
-
-erase_basic_settings = copy.deepcopy(event_sub_settings_one_device)
 
 
 class EraseBasic(EventWithOneDevice):
@@ -32,5 +28,6 @@ class EraseBasic(EventWithOneDevice):
     }
     parent = parent
 
-class StepSettings(EventSubSettingsOneDevice):
+
+class EraseBasicSettings(EventSubSettingsOneDevice):
     _schema = EraseBasic

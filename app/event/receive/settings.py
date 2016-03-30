@@ -1,7 +1,7 @@
 import copy
 
 from app.account.settings import unregistered_user
-from app.event.settings import event_sub_settings_multiple_devices, place, components, EventWithDevices, \
+from app.event.settings import place, components, EventWithDevices, \
     EventSubSettingsMultipleDevices
 
 
@@ -25,12 +25,12 @@ class Receive(EventWithDevices):
     acceptedConditions = {
         'type': 'boolean',
         'required': True,
-        'allowed': [True]
+        'allowed': {True}
     }
     type = {
         'type': 'string',
         'required': True,
-        'allowed': ['FinalUser', 'CollectionPoint', 'RecyclingPoint']
+        'allowed': {'FinalUser', 'CollectionPoint', 'RecyclingPoint'}
     }
     automaticallyAllocate = {
         'type': 'boolean',

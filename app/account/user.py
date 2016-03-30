@@ -4,7 +4,6 @@ from flask import g
 from flask import request
 from werkzeug.http import parse_authorization_header
 
-from flask import current_app
 from app.exceptions import WrongCredentials, BasicError, StandardError
 
 

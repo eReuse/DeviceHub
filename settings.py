@@ -62,10 +62,10 @@ EXTRA_RESPONSE_FIELDS = ['@type', 'label']
 # Role settings
 from app.account.user import Role
 #ALLOWED_ROLES = list(Role.ROLES)
-ALLOWED_WRITE_ROLES = [Role.AMATEUR]
-ALLOWED_ITEM_WRITE_ROLES = [Role.AMATEUR]
-ALLOWED_READ_ROLES = [Role.BASIC]
-ALLOWED_ITEM_READ_ROLES = [Role.BASIC]
+ALLOWED_WRITE_ROLES = {Role.AMATEUR}
+ALLOWED_ITEM_WRITE_ROLES = {Role.AMATEUR}
+ALLOWED_READ_ROLES = {Role.BASIC}
+ALLOWED_ITEM_READ_ROLES = {Role.BASIC}
 
 # GRD Settings, do not need to change them
 EVENTS_IN_GRD = 'deallocate', 'migrate', 'allocate', 'receive', 'remove', 'add', 'register', 'locate', 'usage-proof', 'recycle'

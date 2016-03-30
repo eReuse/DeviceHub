@@ -23,7 +23,7 @@ app = DeviceHub(
 app.json_encoder = MongoJSONEncoder
 app.request_class = RequestSignedJson
 app.gpg = gnupg.GPG()
-ToClassDiagram(app)
+#ToClassDiagram(app)
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 from hooks import event_hooks

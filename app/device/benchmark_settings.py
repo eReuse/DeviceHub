@@ -1,41 +1,41 @@
-import copy
-
-from app.schema import UnitCodes, rdfs
+from app.schema import UnitCodes, RDFS
 
 
-class Benchmark:
+class Benchmark(RDFS):
     BENCHMARK_HARD_DRIVE = 'BenchmarkHardDrive'
     BENCHMARK_PROCESSOR = 'BenchmarkProcessor'
     TYPES = (
         BENCHMARK_HARD_DRIVE,
         BENCHMARK_PROCESSOR
     )
-
-benchmark = copy.deepcopy(rdfs)
-
-benchmark_hard_drive = copy.deepcopy(benchmark)
-benchmark_hard_drive.update({
-    'readingSpeed': {
-        'type': 'float',
-        'unitCode': UnitCodes.mbyte
-    },
-    'writingSpeed': {
+    readingSpeed = {
         'type': 'float',
         'unitCode': UnitCodes.mbyte
     }
-})
-benchmark_hard_drive['@type']['allowed'] = Benchmark.BENCHMARK_HARD_DRIVE
+    writingSpeed = {
+        'type': 'float',
+        'unitCode': UnitCodes.mbyte
+    }
 
-benchmark_with_score = copy.deepcopy(benchmark)
-benchmark_with_score.update({
-    'score': {
+    @classmethod
+    def _clean(cls, new_dict):
+        full_dict = super(Benchmark, cls)._clean(new_dict)
+        for val_name in ('BENCHMARK_HARD_DRIVE', 'BENCHMARK_PROCESSOR', 'TYPES'):
+            if val_name in full_dict:
+                del full_dict[val_name]
+        return full_dict
+
+
+class BenchmarkHardDrive(Benchmark):
+    pass
+
+
+class BenchmarkWithScore(Benchmark):
+    score = {
         'type': 'float'
     }
-})
-
-benchmark_processor = copy.deepcopy(benchmark_with_score)
-benchmark_processor['@type']['allowed'] = Benchmark.BENCHMARK_PROCESSOR
 
 
-union_of_benchmarks = copy.deepcopy(dict(benchmark_hard_drive, **benchmark_processor))
-union_of_benchmarks['@type']['allowed'] = Benchmark.TYPES
+class BenchmarkProcessor(BenchmarkWithScore):
+    pass
+

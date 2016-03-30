@@ -3,7 +3,7 @@ import os
 from pprint import pprint
 from random import choice
 
-from app.utils import nested_lookup
+from app.utils import nested_lookup, is_sub_type_factory, key_equality_factory
 from tests import TestStandard
 
 
@@ -110,8 +110,8 @@ class TestSnapshot(TestStandard):
         :param snapshot:
         :return:
         """
-        values = nested_lookup('test', snapshot)
-        values += nested_lookup('erasure', snapshot)
+        values = nested_lookup(snapshot, [], key_equality_factory('test'))
+        values += nested_lookup(snapshot, [], key_equality_factory('erasure'))
         return len(values) + 1  # 1 == register event itself
 
     def test_add_remove(self):

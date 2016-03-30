@@ -1,6 +1,5 @@
-from functools import singledispatch
-
 from flask import current_app
+
 from app.device.device import Device
 from app.exceptions import StandardError
 

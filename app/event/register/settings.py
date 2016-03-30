@@ -1,5 +1,3 @@
-import copy
-
 from app.device.schema import Device
 from app.event.settings import place, EventWithOneDevice, EventSubSettingsOneDevice
 
@@ -7,7 +5,7 @@ from app.event.settings import place, EventWithOneDevice, EventSubSettingsOneDev
 class Register(EventWithOneDevice):
     device = {
         'type': ['dict', 'string'],  # POST dict, GET str
-        'schema': Device(),  # anyof causes a bug where resource is not set
+        'schema': Device,  # anyof causes a bug where resource is not set
         'data_relation': {
             'resource': 'devices',
             'field': '_id',

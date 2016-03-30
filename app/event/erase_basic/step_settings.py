@@ -1,7 +1,7 @@
 step = {
     '@type': {
         'type': 'string',
-        'allowed': ['Zeros', 'Random'],
+        'allowed': {'Zeros', 'Random'},
         'required': True
     },
     'success': {

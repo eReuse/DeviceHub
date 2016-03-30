@@ -41,7 +41,7 @@ class ToClassDiagram:
                 self.dot.edge(resource_name, settings['data_relation']['resource'], headlabel=head_label, taillabel='*', label=field_name)
             else:
                 field = '+ {}'.format(field_name)
-                if len(settings.get('allowed', [])) > 0:
+                if len(settings.get('allowed', set())) > 0:
                     self.dot.node('{}Enum'.format(resource_name), '{}Enum\lEnum'.format(resource_name, '\l'.join(map(str,settings['allowed']))))
                 else:
                     field += ': {}'.format(settings['type'])

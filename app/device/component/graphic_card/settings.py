@@ -1,9 +1,5 @@
-import copy
-
-from app.device.component.settings import component_sub_settings, Component, ComponentSubSettings
+from app.device.component.settings import Component, ComponentSubSettings
 from app.schema import UnitCodes
-
-graphic_card_settings = copy.deepcopy(component_sub_settings)
 
 
 class GraphicCard(Component):
@@ -18,5 +14,3 @@ class GraphicCard(Component):
 class GraphicCardSettings(ComponentSubSettings):
     _schema = GraphicCard
 
-
-a = 2

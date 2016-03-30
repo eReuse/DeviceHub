@@ -20,14 +20,17 @@ class DeviceSettings(ResourceSettings):
         '@type and _created': [('@type', pymongo.DESCENDING), ('_created', pymongo.DESCENDING)]
     }
     etag_ignore_fields = ['hid', '_id', 'components', 'isUidSecured', '_created', '_updated', '_etag', 'speed'
-                           'busClock', 'labelId', 'owners', 'place', 'benchmark', 'benchmarks', 'public', '_links',
-                           'forceCreation', 'icon', 'parent'],
+                                                                                                       'busClock',
+                          'labelId', 'owners', 'place', 'benchmark', 'benchmarks', 'public', '_links',
+                          'forceCreation', 'icon', 'parent']
     cache_control = 'max-age=1, must-revalidate'
     extra_response_fields = ['@type', 'hid', 'pid']
+    datasource = {
+        'source': 'devices'
+    }
 
 
 class DeviceSubSettings(DeviceSettings):
     _schema = False
     resource_methods = ['POST']
     item_methods = ['DELETE', 'PATCH']
-

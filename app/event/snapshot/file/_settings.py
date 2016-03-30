@@ -1,4 +1,3 @@
-from app.event.snapshot.settings import snapshot_settings
 
 snapshot_file = {
     'file': {
@@ -13,6 +12,5 @@ snapshot_settings = {
     'datasource': {
         'source': 'events',
         'filter': {'@type': {'$eq': 'snapshot'}},
-        'url': snapshot_settings['datasource']['url'] + '/file'
     }
 }

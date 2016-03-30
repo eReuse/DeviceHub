@@ -1,6 +1,4 @@
-import copy
-
-from app.event.settings import event_sub_settings_one_device, parent, EventWithOneDevice, EventSubSettingsOneDevice
+from app.event.settings import parent, EventWithOneDevice, EventSubSettingsOneDevice
 
 
 class TestHardDrive(EventWithOneDevice):

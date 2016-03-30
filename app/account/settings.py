@@ -21,7 +21,7 @@ class Account(RDFS):
     }
     role = {
         'type': 'string',
-        'allowed': Role.ROLES,
+        'allowed': set(Role.ROLES),
         'default': Role.BASIC,
         ALLOWED_WRITE_ROLES: Role.MANAGERS
     }
@@ -58,7 +58,7 @@ class Account(RDFS):
     databases = {
         'type': 'list',
         'required': True,
-        'allowed': list(DATABASES),
+        'allowed': set(DATABASES),
         ALLOWED_WRITE_ROLES: Role.MANAGERS,
         'teaser': False,
         'sink': -4
@@ -92,7 +92,8 @@ class AccountSettings(ResourceSettings):
     # 'public_methods': ['POST'],  # Everyone can create an account, which will be blocked (not active)
 
     datasource = {
-        'projection': {'token': 0}  # We exclude from showing tokens to everyone
+        'projection': {'token': 0},  # We exclude from showing tokens to everyone
+        'source': 'accounts'
     }
 
     # We also disable endpoint caching as we don't want client apps to
@@ -119,7 +120,7 @@ class AccountSettings(ResourceSettings):
     get_projection_whitelist = {
         'author': ('password', 'active')  # Except the own author
     }
-    allowed_item_write_roles = [Role.AMATEUR]  # Amateur can write it's account
+    allowed_item_write_roles = {Role.AMATEUR}  # Amateur can write it's account
 
 
 unregistered_user = {

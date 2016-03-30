@@ -1,10 +1,10 @@
 import json
-from pprint import pprint
 
 from eve.methods.patch import patch_internal
 from eve.methods.post import post_internal
-from app.exceptions import InnerRequestError
 from flask import request, current_app as app
+
+from app.exceptions import InnerRequestError
 
 
 def execute_post(resource: str, payload: dict):

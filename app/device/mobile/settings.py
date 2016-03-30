@@ -1,13 +1,11 @@
-import copy
-
 from app.device.schema import Device
-from app.device.settings import device_sub_settings
+from app.device.settings import DeviceSubSettings
 
 
 class Mobile(Device):
     type = {
         'type': 'string',
-        'allowed': ['Smartphone', 'Tablet']
+        'allowed': {'Smartphone', 'Tablet'}
     }
     imei = {
         'type': 'string',
@@ -19,5 +17,5 @@ class Mobile(Device):
     }
 
 
-class MobileSettings(MobileSubSettings):
+class MobileSettings(DeviceSubSettings):
     _schema = Mobile

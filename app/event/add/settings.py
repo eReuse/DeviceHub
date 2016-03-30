@@ -1,6 +1,4 @@
-import copy
-
-from app.event.settings import event_sub_settings_one_device, components, EventWithOneDevice, EventSubSettingsOneDevice
+from app.event.settings import components, EventWithOneDevice, EventSubSettingsOneDevice
 
 
 class Add(EventWithOneDevice):

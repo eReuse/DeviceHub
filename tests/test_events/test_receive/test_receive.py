@@ -1,4 +1,3 @@
-from time import sleep
 
 from tests.test_events import TestEvent
 

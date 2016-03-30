@@ -1,4 +1,3 @@
-from app.app import app
 from app.event.event import Event, EventNotFound
 from app.place.place import CannotDeleteIfHasEvent, Place
 

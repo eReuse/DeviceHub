@@ -1,14 +1,11 @@
-import copy
-
-from app.device.component.settings import ComponentSubSettings
 from app.device.schema import Device
-from app.device.settings import device_sub_settings, DeviceSubSettings
+from app.device.settings import DeviceSubSettings
 
 
 class Computer(Device):
     type = {
         'type': 'string',
-        'allowed': ['Desktop', 'Laptop', 'Netbook', 'Server', 'Microtower']
+        'allowed': {'Desktop', 'Laptop', 'Netbook', 'Server', 'Microtower'}
     }
     forceCreation = {
         'type': 'boolean',

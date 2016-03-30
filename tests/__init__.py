@@ -25,7 +25,7 @@ class TestBase(TestMinimal):
         import settings
         settings.MONGO_DBNAME = 'devicehubtest'
         settings.DATABASES = 'dht1', 'dht2'
-        settings.DHT1_DBNAME = self.FIRST_DB = 'dth_1'
+        settings.DHT1_DBNAME = self.FIRST_DB = 'dht_1'
         settings.DHT2_DBNAME = self.SECOND_DB = 'dht_2'
         settings.GRD_DEBUG = True  # We do not want to actually fulfill GRD
 

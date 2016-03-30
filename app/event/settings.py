@@ -1,5 +1,3 @@
-import copy
-
 import pymongo
 
 from app.schema import Thing, ResourceSettings
@@ -78,16 +76,14 @@ class EventWithDevices(Event):
 
 
 place = {
-    'place': {
-        'type': 'objectid',
-        'data_relation': {
-            'resource': 'places',
-            'field': '_id',
-            'embeddable': True
-        },
-        'sink': 0,
-        'description': 'Where did it happened'
-    }
+    'type': 'objectid',
+    'data_relation': {
+        'resource': 'places',
+        'field': '_id',
+        'embeddable': True
+    },
+    'sink': 0,
+    'description': 'Where did it happened'
 }
 
 # Materialized fields
@@ -110,15 +106,13 @@ components = {
     'description': 'Components affected by the event.'
 }
 parent = {
-    'parent': {
-        'type': 'string',
-        'data_relation': {
-            'resource': 'devices',
-            'field': '_id',
-            'embeddable': True
-        },
-        'description': 'The event triggered in this computer.'
-    }
+    'type': 'string',
+    'data_relation': {
+        'resource': 'devices',
+        'field': '_id',
+        'embeddable': True
+    },
+    'description': 'The event triggered in this computer.'
 }
 
 
@@ -138,15 +132,15 @@ class EventSettings(ResourceSettings):
 
 
 class EventSubSettings(EventSettings):
-    resource_methods = ['POST']
     _schema = False
+    resource_methods = ['POST']
     item_methods = ['PATCH', 'DELETE']
     extra_response_fields = EXTRA_RESPONSE_FIELDS
 
 
 class EventSubSettingsOneDevice(EventSubSettings):
-    pass
+    _schema = False
 
 
 class EventSubSettingsMultipleDevices(EventSubSettings):
-    pass
+    _schema = False

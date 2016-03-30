@@ -1,5 +1,4 @@
 from app.account.user import User
-from app.app import app
 from app.device.device import Device
 from app.event.deallocate.deallocate import AlreadyAllocated
 

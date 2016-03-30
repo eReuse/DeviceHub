@@ -1,7 +1,7 @@
-from app.schema import UnitCodes, RDFS
+from app.schema import UnitCodes, Thing
 
 
-class Product(RDFS):
+class Product(Thing):
     model = {
         'type': 'string',
         'sink': 4
@@ -117,4 +117,5 @@ class Device(IndividualProduct):
         'type': 'boolean',
         'default': False
     }
+
 

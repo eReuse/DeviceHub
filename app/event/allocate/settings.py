@@ -1,7 +1,7 @@
 import copy
 
 from app.account.settings import unregistered_user
-from app.event.settings import event_sub_settings_multiple_devices, components, EventWithDevices, \
+from app.event.settings import components, EventWithDevices, \
     EventSubSettingsMultipleDevices
 
 

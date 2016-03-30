@@ -1,12 +1,8 @@
-import copy
-
-from app.device.benchmark_settings import benchmark_hard_drive
-from app.device.component.settings import component_sub_settings, Component, ComponentSubSettings
+from app.device.benchmark_settings import BenchmarkHardDrive
+from app.device.component.settings import Component, ComponentSubSettings
 from app.event.erase_basic.settings import EraseBasic
 from app.event.test_hard_drive.settings import TestHardDrive
 from app.schema import UnitCodes
-
-hard_drive_settings = copy.deepcopy(component_sub_settings)
 
 
 class HardDrive(Component):
@@ -22,7 +18,8 @@ class HardDrive(Component):
     }
     erasure = {
         'type': 'dict',
-        'schema': EraseBasic()
+        'schema': EraseBasic,
+        'writeonly': True
     }
     erasures = {
         'type': 'list',
@@ -53,7 +50,7 @@ class HardDrive(Component):
     }
     test = {
         'type': 'dict',
-        'schema': TestHardDrive()
+        'schema': TestHardDrive
     }
     tests = {
         'type': 'list',
@@ -69,24 +66,33 @@ class HardDrive(Component):
     }
     benchmark = {
         'type': 'dict',
-        'schema': copy.deepcopy(benchmark_hard_drive),
+        'schema': BenchmarkHardDrive,
         'writeonly': True
     }
     benchmarks = {
         'type': 'list',
         'schema': {
             'type': 'dict',
-            'schema': copy.deepcopy(benchmark_hard_drive)
+            'schema': BenchmarkHardDrive
         },
         'readonly': True
     }
-HardDrive.test['schema']['device']['required'] = False
-HardDrive.erasure['schema']['device']['required'] = False
-HardDrive.test['schema']['@type']['allowed'] = ['TestHardDrive']
-del HardDrive.erasure['schema']['incidence']['default']
-del HardDrive.erasure['schema']['secured']['default']
-del HardDrive.erasure['schema']['incidence']['default']
-del HardDrive.erasure['schema']['secured']['default']
+
+    @classmethod
+    def _clean(cls, full_dict):
+        full_dict = super(HardDrive, cls)._clean(full_dict)
+        # todo We need to add this because these events are taken from hardDrive in snapshot,
+        # We should remove them in Device POST, so they don't pass through the API and get generated.
+        # This fields are generated automatically by the API
+        del full_dict['erasure']['schema']['incidence']['default']
+        del full_dict['erasure']['schema']['secured']['default']
+        del full_dict['test']['schema']['incidence']['default']
+        del full_dict['test']['schema']['secured']['default']
+        full_dict['test']['schema']['device']['required'] = False
+        full_dict['erasure']['schema']['device']['required'] = False
+
+        return full_dict
+
 
 
 class HardDriveSettings(ComponentSubSettings):

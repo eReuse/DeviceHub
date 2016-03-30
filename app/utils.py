@@ -35,8 +35,7 @@ class Naming:
             :param string: String can be type, resource or python case
         """
         _, pluralize = Naming._standarize(string)
-        a = inflection.underscore(inflection.singularize(string) if pluralize else string)
-        return a
+        return inflection.underscore(inflection.singularize(string) if pluralize else string)
 
     @staticmethod
     def _standarize(string):
@@ -46,6 +45,10 @@ class Naming:
         pluralize = value in RESOURCES_CHANGING_NUMBER or inflection.singularize(value) in RESOURCES_CHANGING_NUMBER
         return inflection.pluralize(value) if pluralize else value, pluralize
 
+    @staticmethod
+    def type(string: str):
+        _, pluralize = Naming._standarize(string)
+        return inflection.camelize(inflection.singularize(string) if pluralize else string)
 
 
 def difference(new_list: list, old_list: list) -> list:

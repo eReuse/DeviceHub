@@ -27,7 +27,7 @@ class Settings:
             Returns the superclasses attributes (except object class) and the actual one.
         """
         full_dict = {}
-        for superclass in reversed(inspect.getmro(cls)[:-cls.CLASSES_TO_IGNORE]):  # We remove object and Settings
+        for superclass in reversed(cls.get_super_classes(cls.CLASSES_TO_IGNORE)):  # We remove object and Settings
             full_dict.update(superclass.actual_attributes())
         return full_dict
 
@@ -35,6 +35,17 @@ class Settings:
     def _clean(cls, given_dict):
         raise NotImplementedError
 
+    @classmethod
+    def get_all_subclasses(cls):
+        all_subclasses = []
+        for subclass in cls.__subclasses__():
+            all_subclasses.append(subclass)
+            all_subclasses.extend(subclass.get_all_subclasses())
+        return all_subclasses
+
+    @classmethod
+    def get_super_classes(cls, ignore_n):
+        return inspect.getmro(cls)[:-ignore_n]
 
 class RDFS(Settings):
     label = {
@@ -78,7 +89,7 @@ class RDFS(Settings):
         full_dictx = {}
         type_allowed = set()
         subtype_allowed = set()
-        for subclass in get_all_subclasses(cls):
+        for subclass in cls.get_all_subclasses():
             attributes = subclass.actual_attributes()
             type_allowed |= attributes.get('@type', {}).get('allowed', set())
             subtype_allowed |= set(attributes.get('type', {}).get('allowed', set()))
@@ -94,7 +105,8 @@ class RDFS(Settings):
         for key in dict(given_dict).keys():
             if key.startswith('__') or key in ['actual_attributes', 'attributes', '_clean',
                                                'subclasses_attributes', 'resource_name',
-                                               'superclasses_attributes', '_settings', 'CLASSES_TO_IGNORE']:
+                                               'superclasses_attributes', '_settings', 'CLASSES_TO_IGNORE',
+                                               'get_all_subclasses', 'get_super_classes', 'type_name']:
                 del given_dict[key]
         full_dict = copy.deepcopy(given_dict)
         if '_type' in full_dict:
@@ -117,6 +129,10 @@ class RDFS(Settings):
     @classmethod
     def resource_name(cls):
         return Naming.resource(cls.__name__)
+
+    @classmethod
+    def type_name(cls):
+        return cls.__name__
 
 
 class Thing(RDFS):
@@ -159,7 +175,7 @@ class ResourceSettings(Settings):
     @classmethod
     def _clean(cls, given_dict):
         for key in dict(given_dict).keys():
-            if key.startswith('__') or key in ('sub_resources', 'resource_name', 'CLASSES_TO_IGNORE'):
+            if key.startswith('__') or key in ('sub_resources', 'resource_name', 'CLASSES_TO_IGNORE', 'get_all_subclasses', 'get_super_classes'):
                 del given_dict[key]
         return copy.deepcopy(given_dict)
 
@@ -168,18 +184,11 @@ class ResourceSettings(Settings):
         """
         Returns all the sub-resources, without including the actual resource
         """
-        return [subclass for subclass in get_all_subclasses(cls) if getattr(subclass, '_schema', False)]
+        return [subclass for subclass in cls.get_all_subclasses() if getattr(subclass, '_schema', False)]
 
     @classmethod
     def resource_name(cls):
         return cls._schema.resource_name()
 
 
-def get_all_subclasses(cls: object):
-    all_subclasses = []
 
-    for subclass in cls.__subclasses__():
-        all_subclasses.append(subclass)
-        all_subclasses.extend(get_all_subclasses(subclass))
-
-    return all_subclasses

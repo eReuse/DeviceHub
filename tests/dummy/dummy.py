@@ -3,7 +3,7 @@ import os
 import requests
 
 from app.security.request_auth import Auth
-from app.event.logger.grd_logger.grd_auth import GRDAuth
+from app.resources.event.logger.grd_logger.grd_auth import GRDAuth
 from settings import GRD_DOMAIN
 from tests import TestStandard
 

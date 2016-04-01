@@ -8,7 +8,7 @@ from eve.utils import config
 from flask import current_app as app
 from validators.utils import ValidationFailure
 
-from app.account.user import User
+from app.resources.account.user import User
 from app.utils import normalize
 
 ALLOWED_WRITE_ROLES = 'dh_allowed_write_roles'
@@ -65,7 +65,7 @@ class DeviceHubValidator(Validator):
 
             response = app.data.find_one_raw(self.resource, query)
             if response:
-                from app.device.device import Device
+                from app.resources.device.device import Device
                 device = Device.get_one(response['_id'])
                 self._error(field, json_util.dumps({'NotUnique': device}))
 
@@ -78,8 +78,8 @@ class DeviceHubValidator(Validator):
             - If it has a parent, ensures that the device is unique.
             - If it has not a parent, validates that the device has an user provided _id.
         """
-        from app.device.device import Device
-        from app.device.exceptions import DeviceNotFound
+        from app.resources.device.device import Device
+        from app.resources.device.exceptions import DeviceNotFound
         try:
             self.document['hid'] = normalize(self.document['manufacturer']) + \
                                    '-' + normalize(self.document['serialNumber']) + \

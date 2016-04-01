@@ -1,5 +1,6 @@
 from os import path
 
+import gnupg
 from eve.io.mongo import MongoJSONEncoder
 from flask.ext.cache import Cache
 
@@ -9,7 +10,6 @@ from app.security.authentication import RolesAuth
 from app.validation import DeviceHubValidator
 from utilities.class_diagram import ToClassDiagram
 from .devicehub import DeviceHub
-import gnupg
 
 this_directory = path.dirname(path.realpath(__file__))
 settings_file = path.abspath(path.join(this_directory, '.', 'settings.py'))
@@ -33,7 +33,7 @@ event_hooks(app)
 # noinspection PyUnresolvedReferences
 from app import error_handler
 # noinspection PyUnresolvedReferences
-from app.account.login.settings import login
+from app.resources.account.login.settings import login
 # noinspection PyUnresolvedReferences
 from app.static import send_device_icon
 # noinspection PyUnresolvedReferences

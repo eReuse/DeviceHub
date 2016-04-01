@@ -21,12 +21,12 @@ from settings import *
 
 
 # Generation of the API (DOMAIN)
-from app.device.settings import DeviceSettings
+from app.resources.device.settings import DeviceSettings
 # noinspection PyUnresolvedReferences
-from app.device.component import settings
-from app.event.settings import EventSettings
-from app.account.settings import AccountSettings
-from app.place.settings import PlaceSettings
+from app.resources.device.component import settings
+from app.resources.event.settings import EventSettings
+from app.resources.account.settings import AccountSettings
+from app.resources.place.settings import PlaceSettings
 DOMAIN = {
     'devices': DeviceSettings,
     'events': EventSettings,

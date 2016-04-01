@@ -26,7 +26,7 @@ class TestSnapshot(TestStandard):
         """
         # todo make sure .0 doesn't crush in real program
         parsed_device = self.parse_device(inputDevice)
-        from app.device.device import Device
+        from app.resources.device.device import Device
         with self.app.app_context():
             self.assertTrue(Device.seem_equal(self.full(self.DEVICES, parsed_device), self.full(self.DEVICES, createdDevice)))
 

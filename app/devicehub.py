@@ -1,7 +1,7 @@
 from eve import Eve
 from eve.exceptions import ConfigException
 
-from app.schema import ResourceSettings
+from app.resources.resource import ResourceSettings
 
 
 class DeviceHub(Eve):

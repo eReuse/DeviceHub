@@ -60,7 +60,7 @@ SCHEMA_ENDPOINT = 'schema'
 EXTRA_RESPONSE_FIELDS = ['@type', 'label']
 
 # Role settings
-from app.account.user import Role
+from app.resources.account.user import Role
 #ALLOWED_ROLES = list(Role.ROLES)
 ALLOWED_WRITE_ROLES = {Role.AMATEUR}
 ALLOWED_ITEM_WRITE_ROLES = {Role.AMATEUR}

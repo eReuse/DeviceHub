@@ -2,9 +2,9 @@ from collections import OrderedDict
 
 from graphviz import Digraph
 
-from app.device.schema import Device
-from app.event.settings import Event
-from app.schema import RDFS
+from app.resources.device.schema import Device
+from app.resources.event.settings import Event
+from app.resources.schema import RDFS
 from app.utils import Naming
 
 class ToClassDiagram:
@@ -23,9 +23,9 @@ class ToClassDiagram:
         self.devices = Digraph()
         self.events = Digraph()
         self.generate_class(RDFS, self.classes)
-        device_subclasses = Device.get_all_subclasses() + [Device]
-        event_subclasses = Event.get_all_subclasses() + [Event]
-        for subclass in RDFS.get_all_subclasses():
+        device_subclasses = Device.subclasses() + [Device]
+        event_subclasses = Event.subclasses() + [Event]
+        for subclass in RDFS.subclasses():
             if subclass in device_subclasses:
                 self.generate_class(subclass, self.devices)
             elif subclass in event_subclasses:
@@ -39,13 +39,13 @@ class ToClassDiagram:
         self.g.render('diagram.sv', None, True)
 
     def generate_class(self, cls, group):
-        schema = OrderedDict(cls.actual_attributes())
+        schema = OrderedDict(cls.actual_fields())
         if cls != RDFS:
             del schema['@type']
         name = cls.type_name()
         group.node(name, '{{{}|{}}}'.format(name, '\l'.join(self.print_schema_fields(name, schema, group))))
         try:
-            super_class = cls.get_super_classes(1)[1]
+            super_class = cls.superclasses(1)[1]
             group.edge(name, super_class.type_name(), arrowhead='empty')
         except AttributeError:
             pass

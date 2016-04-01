@@ -1,15 +1,15 @@
 from eve.auth import TokenAuth
 from flask import g, current_app
 
-from app.account.user import User, Role, NotADatabase
 from app.exceptions import UnauthorizedToUseDatabase
+from app.resources.account.user import User, Role, NotADatabase
 
 
 class RolesAuth(TokenAuth):
     def authorized(self, allowed_roles, resource, method):
         authorized = super(RolesAuth, self).authorized(allowed_roles, resource, method)
         if not authorized and method == 'GET':
-            from app.device.device import Device
+            from app.resources.device.device import Device
             if resource == 'devices' or resource in Device.resource_types():
                 # We will check if the device is authorized in a hook, later
                 # We avoid requesting the device at the database twice

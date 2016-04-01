@@ -11,7 +11,7 @@ from eve.tests import TestMinimal
 from flask.ext.pymongo import MongoClient
 from passlib.handlers.sha2_crypt import sha256_crypt
 
-from app.utils import Naming
+from ereuse_devicehub.utils import Naming
 import simplejson as json
 
 
@@ -22,14 +22,14 @@ class TestBase(TestMinimal):
     SNAPSHOT = 'snapshot'
 
     def setUp(self, settings_file=None, url_converters=None):
-        import settings
+        from ereuse_devicehub import default_settings as settings
         settings.MONGO_DBNAME = 'devicehubtest'
         settings.DATABASES = 'dht1', 'dht2'
         settings.DHT1_DBNAME = self.FIRST_DB = 'dht_1'
         settings.DHT2_DBNAME = self.SECOND_DB = 'dht_2'
         settings.GRD_DEBUG = True  # We do not want to actually fulfill GRD
 
-        from app.app import app
+        from ereuse_devicehub.app import app
         self.MONGO_DBNAME = app.config['MONGO_DBNAME']
         self.MONGO_HOST = app.config['MONGO_HOST']
         self.MONGO_PORT = app.config['MONGO_PORT']

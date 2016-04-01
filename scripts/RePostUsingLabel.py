@@ -1,4 +1,4 @@
-from app.app import app
+from ereuse_devicehub.app import app
 
 
 class RePostUsingLabel:

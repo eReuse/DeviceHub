@@ -3,7 +3,7 @@ import os
 from pprint import pprint
 from random import choice
 
-from app.utils import nested_lookup, is_sub_type_factory, key_equality_factory
+from ereuse_devicehub.utils import nested_lookup, is_sub_type_factory, key_equality_factory
 from tests import TestStandard
 
 
@@ -26,7 +26,7 @@ class TestSnapshot(TestStandard):
         """
         # todo make sure .0 doesn't crush in real program
         parsed_device = self.parse_device(inputDevice)
-        from app.resources.device.device import Device
+        from ereuse_devicehub.resources.device.device import Device
         with self.app.app_context():
             self.assertTrue(Device.seem_equal(self.full(self.DEVICES, parsed_device), self.full(self.DEVICES, createdDevice)))
 
@@ -87,7 +87,7 @@ class TestSnapshot(TestStandard):
         return register['device']
 
     def add_remove(self, input_snapshot):
-        from app.utils import Naming
+        from ereuse_devicehub.utils import Naming
         component = choice(input_snapshot['components'])
         found = False
         while not found:

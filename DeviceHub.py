@@ -1,6 +1,6 @@
 import logging
 
-from app.docs import app
+from ereuse_devicehub.docs import app
 
 if __name__ == '__main__':
     if app.config['LOG']:

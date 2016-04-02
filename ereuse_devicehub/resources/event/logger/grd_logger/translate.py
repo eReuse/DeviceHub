@@ -1,15 +1,19 @@
 import copy
 from urllib.parse import quote_plus
 
-from ereuse_devicehub.app import app
 from ereuse_devicehub.utils import get_last_exception_info
+
 
 class Translate:
     requested_database = ''
     token = ''
+    logger = None
+    config = None
 
     @staticmethod
-    def translate(event, requested_database, token):
+    def translate(event, requested_database, token, logger, config):
+        Translate.logger = logger
+        Translate.config = config
         try:
             Translate.requested_database = requested_database  # This value makes Translate not safe for use with parallelism
             Translate.token = token
@@ -24,7 +28,7 @@ class Translate:
                 translated.append((Translate.translate_one(event), event))
             return translated
         except Exception as e:
-            app.logger.error(get_last_exception_info())
+            logger.error(get_last_exception_info())
             e.ok = True
             raise e
 
@@ -44,6 +48,7 @@ class Translate:
     def url(resource):
         def url(identifier):
             return Translate.get_resource_url(identifier, resource)
+
         return url
 
     @staticmethod
@@ -96,7 +101,7 @@ class Translate:
 
     @staticmethod
     def get_resource_url(identifier, resource):
-        if app.config['DOMAIN'][resource]['use_default_database']:
+        if Translate.config['DOMAIN'][resource]['use_default_database']:
             url = '{}/{}'.format(resource, identifier)
         else:
             url = '{}/{}/{}'.format(Translate.requested_database, resource, identifier)
@@ -104,9 +109,9 @@ class Translate:
 
     @staticmethod
     def parse_url(url):
-        if app.config['URL_PREFIX']:
-            url = '{}/{}'.format(URL_PREFIX, url)
-        return app.config['BASE_PATH_SHOWN_TO_GRD'] + url
+        if Translate.config['URL_PREFIX']:
+            url = '{}/{}'.format(Translate.config['URL_PREFIX'], url)
+        return Translate.config['BASE_PATH_SHOWN_TO_GRD'] + url
 
 
 """
@@ -157,4 +162,3 @@ TRANSLATION = {
     'Recycle': dict(),
     'Migrate': dict()
 }
-

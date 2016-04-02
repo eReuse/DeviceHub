@@ -8,6 +8,7 @@ class Locate(EventWithDevices):
     place = place
     components = copy.deepcopy(components)
 
+
 Locate.components['readonly'] = True
 Locate.geo = copy.deepcopy(Locate.geo)
 Locate.geo['excludes'] = 'place'  # geo xor place

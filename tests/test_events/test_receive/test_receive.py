@@ -1,4 +1,3 @@
-
 from tests.test_events import TestEvent
 
 

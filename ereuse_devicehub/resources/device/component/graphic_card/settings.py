@@ -13,4 +13,3 @@ class GraphicCard(Component):
 
 class GraphicCardSettings(ComponentSubSettings):
     _schema = GraphicCard
-

@@ -1,6 +1,6 @@
-from ereuse_devicehub.resources.device.device import Device
 from flask import current_app
 
+from ereuse_devicehub.resources.device.device import Device
 from ereuse_devicehub.resources.place.place import Place, NoPlaceForGivenCoordinates, CoordinatesAndPlaceDoNotMatch
 from ereuse_devicehub.rest import execute_patch
 from .event import Event
@@ -72,4 +72,3 @@ def set_place(resource_name: str, events: list):
             if 'place' in event:
                 place = Place.get(event['place'])
                 execute_patch('places', {'devices': list(set(place['devices'] + event['devices']))}, event['place'])
-

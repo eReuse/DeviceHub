@@ -72,7 +72,6 @@
       "manufacturer": "Intel Corp.",
       "numberOfCores": 2,
       "model": "Intel(R) Core(TM)2 Duo CPU E8500 @ 3.16GHz"
-
     },
     {
       "@type": "SoundCard",

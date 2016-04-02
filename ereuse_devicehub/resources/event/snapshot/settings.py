@@ -1,7 +1,7 @@
+from ereuse_devicehub.resources.account.user import Role
 from ereuse_devicehub.resources.device.component.settings import Component
 from ereuse_devicehub.resources.device.computer.settings import Computer
 from ereuse_devicehub.resources.event.settings import place, EventWithOneDevice, EventSubSettingsOneDevice
-from ereuse_devicehub.resources.account.user import Role
 
 
 class Snapshot(EventWithOneDevice):

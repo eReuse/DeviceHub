@@ -7,4 +7,3 @@ class Add(EventWithOneDevice):
 
 class AddSettings(EventSubSettingsOneDevice):
     _schema = Add
-

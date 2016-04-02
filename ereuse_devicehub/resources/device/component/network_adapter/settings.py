@@ -2,7 +2,6 @@ from ereuse_devicehub.resources.device.component.settings import Component, Comp
 from ereuse_devicehub.resources.schema import UnitCodes
 
 
-
 class NetworkAdapter(Component):
     speed = {
         'type': 'float',
@@ -15,4 +14,3 @@ class NetworkAdapter(Component):
 
 class NetworkAdapterSettings(ComponentSubSettings):
     _schema = NetworkAdapter
-

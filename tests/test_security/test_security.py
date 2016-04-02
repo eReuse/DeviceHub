@@ -38,9 +38,3 @@ class TestSecurity(TestStandard):
         private_event = self.get_first(self.EVENTS)
         _, status_code = self.get(self.EVENTS, '', private_event['_id'], False)
         self.assert401(status_code)
-
-    def test_create_allocate_with_place(self):
-        allocate = self.get_fixture('allocate', 'allocate')
-        allocate['to'] = self.get_first('accounts')['_id']
-        allocate['devices'] = self.devices_id
-        self.post_and_check('events/allocate', allocate)

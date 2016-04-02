@@ -3,7 +3,6 @@ from ereuse_devicehub.resources.device.component.settings import Component, Comp
 from ereuse_devicehub.resources.schema import UnitCodes
 
 
-
 class Processor(Component):
     numberOfCores = {
         'type': 'integer',

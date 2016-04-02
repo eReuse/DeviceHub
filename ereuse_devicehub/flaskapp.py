@@ -1,27 +1,58 @@
+import inspect
 import os
-
 import sys
+
+import gnupg
 from eve import Eve
 from eve.exceptions import ConfigException
-from eve.io.mongo import Validator, GridFSMediaStorage, Mongo
-from eve.utils import Config
+from eve.io.mongo import GridFSMediaStorage
+from eve.io.mongo import MongoJSONEncoder
 
+from ereuse_devicehub.aggregation.settings import aggregate_view
+from ereuse_devicehub.data_layer import DataLayer
+from ereuse_devicehub.error_handler import ErrorHandlers
+from ereuse_devicehub.hooks import hooks
+from ereuse_devicehub.request import RequestSignedJson
+from ereuse_devicehub.resources.account.login.settings import login
+from ereuse_devicehub.resources.event.logger.grd_logger.grd_logger import GRDLogger
 from ereuse_devicehub.resources.resource import ResourceSettings
+from ereuse_devicehub.security.authentication import RolesAuth
+from ereuse_devicehub.static import send_device_icon
+from ereuse_devicehub.utils import cache
+from ereuse_devicehub.validation import DeviceHubValidator
 
 
 class DeviceHub(Eve):
-    def __init__(self, import_name=__package__, settings='settings.py', validator=Validator, data=Mongo, auth=None,
-                 redis=None, url_converters=None, json_encoder=None, media=GridFSMediaStorage, **kwargs):
+    def __init__(self, import_name=__package__, settings='settings.py', validator=DeviceHubValidator, data=DataLayer,
+                 auth=RolesAuth, redis=None, url_converters=None, json_encoder=None, media=GridFSMediaStorage,
+                 **kwargs):
+        kwargs.setdefault('static_url_path', '/static')
         super().__init__(import_name, settings, validator, data, auth, redis, url_converters, json_encoder, media,
                          **kwargs)
+        self.json_encoder = MongoJSONEncoder
+        self.request_class = RequestSignedJson
+        self.gpg = gnupg.GPG()
+        self.cache = cache
+        self.cache.init_app(self)
+        hooks(self)  # Set up hooks. You can add more hooks by doing something similar with app "hooks(app)"
+        ErrorHandlers(self)
+        GRDLogger.logger = self.logger  # We need to pass the logger like this, as GRDLogger cannot access to app
+        self.add_url_rule('/login', 'login', view_func=login, methods=['POST', 'OPTIONS'])
+        self.add_url_rule('/devices/icons/<path:path>', view_func=send_device_icon)
+        self.add_url_rule('/<db>/aggregations/<resource>/<method>', 'aggregation', view_func=aggregate_view)
 
     def register_resource(self, resource: str, settings: ResourceSettings):
         """
             Recursively registers a resource and it's sub-resources.
         """
-        for sub_resource_settings in settings.sub_resources():
-            self.register_resource(sub_resource_settings.resource_name(), sub_resource_settings)
-        super().register_resource(resource, settings())
+        if inspect.isclass(settings) and issubclass(settings, ResourceSettings):
+            for sub_resource_settings in settings.sub_resources():
+                self.register_resource(sub_resource_settings.resource_name(), sub_resource_settings)
+            # noinspection PyCallingNonCallable
+            new_settings = settings()
+        else:
+            new_settings = settings
+        super().register_resource(resource, new_settings)
 
     def _add_resource_url_rules(self, resource, settings):
         """
@@ -65,7 +96,8 @@ class DeviceHub(Eve):
         # load defaults
         self.config.from_object('eve.default_settings')
 
-        self.config.from_object('app.default_settings')  # We just add this line todo way to avoid writing all method?
+        self.config.from_object(
+            'ereuse_devicehub.default_settings')  # We just add this line todo way to avoid writing all method?
 
         # overwrite the defaults with custom user settings
         if isinstance(self.settings, dict):
@@ -88,4 +120,3 @@ class DeviceHub(Eve):
         envvar = 'EVE_SETTINGS'
         if os.environ.get(envvar):
             self.config.from_envvar(envvar)
-

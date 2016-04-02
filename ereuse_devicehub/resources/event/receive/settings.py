@@ -1,8 +1,8 @@
 import copy
 
+from ereuse_devicehub.resources.account.settings import unregistered_user
 from ereuse_devicehub.resources.event.settings import place, components, EventWithDevices, \
     EventSubSettingsMultipleDevices
-from ereuse_devicehub.resources.account.settings import unregistered_user
 
 
 class Receive(EventWithDevices):
@@ -43,6 +43,8 @@ class Receive(EventWithDevices):
     }
     place = place
     components = copy.deepcopy(components)
+
+
 Receive.components['readonly'] = True
 
 

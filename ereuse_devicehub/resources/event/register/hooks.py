@@ -1,10 +1,10 @@
 from bson import json_util
 from eve.methods.delete import deleteitem_internal
+from flask import current_app as app
 
-from ereuse_devicehub.app import app
+from ereuse_devicehub.exceptions import InnerRequestError
 from ereuse_devicehub.resources.device.device import Device
 from ereuse_devicehub.resources.device.exceptions import DeviceNotFound, NoDevicesToProcess
-from ereuse_devicehub.exceptions import InnerRequestError
 from ereuse_devicehub.rest import execute_post
 from ereuse_devicehub.utils import Naming
 
@@ -38,11 +38,13 @@ def post_devices(registers: list):
                 if 'new' in component:  # todo put new in g., don't use device
                     register['components'].append(component['_id'])
             if not register['components'] and 'new' not in caller_device:
-                _abort(log)  # If we have not POST neither any component and any device there is no reason for register to exist
+                _abort(
+                    log)  # If we have not POST neither any component and any device there is no reason for register to exist
             if 'new' in caller_device:
                 set_components(register)
 
 
+# noinspection PyUnboundLocalVariable
 def _execute_register(device: dict, log: list, force_new=False):
     """
 
@@ -100,6 +102,7 @@ def _abort(log, e: Exception = NoDevicesToProcess()):
     for device in reversed(log):
         deleteitem_internal(Naming.resource(device['@type']), device)
     raise e
+
 
 """
 def materialize_actual_owners_set(registers: list):

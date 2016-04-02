@@ -2,17 +2,15 @@ import copy
 import os
 from pprint import pprint
 
-import bson
+import simplejson as json
 from bson import ObjectId
-from eve.io.mongo import MongoJSONEncoder
 from eve.methods.common import parse
-
 from eve.tests import TestMinimal
 from flask.ext.pymongo import MongoClient
 from passlib.handlers.sha2_crypt import sha256_crypt
 
+from ereuse_devicehub.flaskapp import DeviceHub
 from ereuse_devicehub.utils import Naming
-import simplejson as json
 
 
 class TestBase(TestMinimal):
@@ -29,12 +27,11 @@ class TestBase(TestMinimal):
         settings.DHT2_DBNAME = self.SECOND_DB = 'dht_2'
         settings.GRD_DEBUG = True  # We do not want to actually fulfill GRD
 
-        from ereuse_devicehub.app import app
-        self.MONGO_DBNAME = app.config['MONGO_DBNAME']
-        self.MONGO_HOST = app.config['MONGO_HOST']
-        self.MONGO_PORT = app.config['MONGO_PORT']
-        self.DATABASES = app.config['DATABASES']
-        self.app = app
+        self.app = DeviceHub()
+        self.MONGO_DBNAME = self.app.config['MONGO_DBNAME']
+        self.MONGO_HOST = self.app.config['MONGO_HOST']
+        self.MONGO_PORT = self.app.config['MONGO_PORT']
+        self.DATABASES = self.app.config['DATABASES']
 
         self.connection = None
         self.known_resource_count = 101
@@ -80,8 +77,8 @@ class TestBase(TestMinimal):
         self.drop_databases()
         self.connection.close()
 
-    def full(self, resourceName: str, resource: dict or str or ObjectId) -> dict:
-        return resource if type(resource) is dict else self.get(resourceName, '', str(resource))[0]
+    def full(self, resource_name: str, resource: dict or str or ObjectId) -> dict:
+        return resource if type(resource) is dict else self.get(resource_name, '', str(resource))[0]
 
     def select_database(self, url):
         if 'accounts' in url:
@@ -134,7 +131,7 @@ class TestBase(TestMinimal):
 
 class TestStandard(TestBase):
     @staticmethod
-    def get_json_from_file(filename: str, directory: str=None, parse_json=True) -> dict:
+    def get_json_from_file(filename: str, directory: str = None, parse_json=True) -> dict:
         """
 
         :type filename: str
@@ -167,14 +164,15 @@ class TestStandard(TestBase):
         with self.app.app_context():
             return parse(copy.deepcopy(device), Naming.resource(device['@type']))
 
-    def isType(self, type:str, item:dict):
-        return item['@type'] == type
+    @staticmethod
+    def isType(t: str, item: dict):
+        return item['@type'] == t
 
-    def assertType(self, type: str, item: dict):
-        self.assertEqual(type, item['@type'])
+    def assertType(self, t: str, item: dict):
+        self.assertEqual(t, item['@type'])
 
-    def assertLen(self, list: list, length: int):
-        self.assertEqual(len(list), length)
+    def assertLen(self, list_to_assert: list, length: int):
+        self.assertEqual(len(list_to_assert), length)
 
     def get_fixture(self, resource_name, file_name, parse_json=True):
         return self.get_json_from_file('fixtures/{}/{}.json'.format(resource_name, file_name), None, parse_json)

@@ -4,9 +4,8 @@ the UN/CEFACT Common Code.
 """
 import copy
 
-
 from ereuse_devicehub.resources.resource import Resource
-from ereuse_devicehub.utils import Naming, nested_lookup, is_sub_type_factory
+from ereuse_devicehub.utils import Naming, NestedLookup
 
 
 class UnitCodes:
@@ -42,7 +41,7 @@ class RDFS(Resource):
         """
         fields = super(RDFS, cls).actual_fields()
         references = []
-        nested_lookup(fields, references, is_sub_type_factory(RDFS))
+        NestedLookup(fields, references, NestedLookup.is_sub_type_factory(RDFS))
         for document, ref_key in references:
             document[ref_key] = document[ref_key]()
         return fields

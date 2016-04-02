@@ -117,5 +117,3 @@ class Device(IndividualProduct):
         'type': 'boolean',
         'default': False
     }
-
-

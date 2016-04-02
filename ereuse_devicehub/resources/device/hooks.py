@@ -1,5 +1,6 @@
 from eve.utils import document_etag
-from ereuse_devicehub.app import app
+from flask import current_app as app
+
 from ereuse_devicehub.resources.device.device import Device
 from ereuse_devicehub.utils import Naming
 
@@ -13,8 +14,8 @@ def generate_etag(resource: str, items: list):
 
 def get_icon(resource: str, item: dict):
     if item['@type'] in Device.get_types():
-        type = item['type'] if 'type' in item else item['@type']
-        item['icon'] = 'devices/icons/' + type + '.svg'
+        item_type = item['type'] if 'type' in item else item['@type']
+        item['icon'] = 'devices/icons/' + item_type + '.svg'
 
 
 def get_icon_resource(resource: str, response: dict):
@@ -40,7 +41,8 @@ def post_benchmark(resource: str, devices: list):
 def autoincrement(resource: str, devices: list):
     if resource in Device.resource_types():
         for device in devices:
-            device['_id'] = str(get_next_sequence())  # string makes this compatible with other systems that use custom id
+            device['_id'] = str(
+                get_next_sequence())  # string makes this compatible with other systems that use custom id
 
 
 def get_next_sequence():
@@ -78,4 +80,3 @@ def materialize_public_in_components_update(resource: str, device: dict, origina
         if 'components' not in device:
             device['components'] = original['components']
         materialize_public_in_components(Naming.resource(original['@type']), [device])
-

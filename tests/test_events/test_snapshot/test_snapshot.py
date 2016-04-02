@@ -3,10 +3,12 @@ import os
 from pprint import pprint
 from random import choice
 
-from ereuse_devicehub.utils import nested_lookup, is_sub_type_factory, key_equality_factory
+from ereuse_devicehub.utils import NestedLookup
+from ereuse_devicehub.utils import Naming
 from tests import TestStandard
 
 
+# noinspection PyUnresolvedReferences,PyDeprecation
 class TestSnapshot(TestStandard):
     DUMMY_DEVICES = (
         '1_1_Register_one_device_with_components',
@@ -19,16 +21,17 @@ class TestSnapshot(TestStandard):
     )
     RESOURCES_PATH = 'test_events/test_snapshot/resources/'
 
-    def assertSimilarDevice(self, inputDevice: dict or str, createdDevice: dict or str):
+    def assertSimilarDevice(self, input_device: dict or str, created_device: dict or str):
         """
         Checks that the createdDevice is the same as the input one, removing computed values as hid... It uses etag.
-        :param inputDevice Input device needs all the float values to have, by default, ".0", or it won't work
+        :param input_device Input device needs all the float values to have, by default, ".0", or it won't work
         """
         # todo make sure .0 doesn't crush in real program
-        parsed_device = self.parse_device(inputDevice)
+        parsed_device = self.parse_device(input_device)
         from ereuse_devicehub.resources.device.device import Device
         with self.app.app_context():
-            self.assertTrue(Device.seem_equal(self.full(self.DEVICES, parsed_device), self.full(self.DEVICES, createdDevice)))
+            self.assertTrue(
+                Device.seem_equal(self.full(self.DEVICES, parsed_device), self.full(self.DEVICES, created_device)))
 
     def assertSimilarDevices(self, input_devices: list, created_devices: list, same_amount_of_devices=False):
         """
@@ -52,10 +55,7 @@ class TestSnapshot(TestStandard):
                 except AssertionError:
                     pass
                 i += 1
-            try:
-                self.assertTrue(found)
-            except AssertionError as e:
-                2 + 3
+            self.assertTrue(found)
 
     def post_snapshot(self, input_snapshot):
         return self.post_and_check('{}/{}'.format(self.EVENTS, self.SNAPSHOT), input_snapshot)
@@ -87,7 +87,6 @@ class TestSnapshot(TestStandard):
         return register['device']
 
     def add_remove(self, input_snapshot):
-        from ereuse_devicehub.utils import Naming
         component = choice(input_snapshot['components'])
         found = False
         while not found:
@@ -100,9 +99,9 @@ class TestSnapshot(TestStandard):
             import uuid
             component[key] = uuid.uuid4().hex[:6].upper()
         events = self.post_snapshot_get_full_events(input_snapshot, 3)
-        a = 2
 
-    def get_num_events(self, snapshot):
+    @staticmethod
+    def get_num_events(snapshot):
         """
         Get the num of events a snapshot is going to produce, by knowing how many tests and erasures are in there.
 
@@ -110,17 +109,17 @@ class TestSnapshot(TestStandard):
         :param snapshot:
         :return:
         """
-        values = nested_lookup(snapshot, [], key_equality_factory('test'))
-        values += nested_lookup(snapshot, [], key_equality_factory('erasure'))
+        values = NestedLookup(snapshot, [], NestedLookup.key_equality_factory('test'))
+        values += NestedLookup(snapshot, [], NestedLookup.key_equality_factory('erasure'))
         return len(values) + 1  # 1 == register event itself
 
     def test_add_remove(self):
         # todo create add/remove test with components and computers without hid
         # todo Check that the type of events generated are the correct ones
-        FOLDER = 'add_remove'
+        folder = 'add_remove'
         snapshots = []
         for dummy_device in self.DUMMY_DEVICES:
-            snapshots.append(self.get_fixture(FOLDER, dummy_device))
+            snapshots.append(self.get_fixture(folder, dummy_device))
         # We add the first device (2 times)
         self.creation(snapshots[0], self.get_num_events(snapshots[0]))
         # We register a new device, which has the processor of the first one
@@ -132,7 +131,6 @@ class TestSnapshot(TestStandard):
         # We register the first device but without the processor and adding a graphic card
         # We have created 1 Remove, 1 Add
         self.post_snapshot_get_full_events(snapshots[3], 2)
-
 
     def _test_snapshot_register_vostro(self):
         """
@@ -251,7 +249,8 @@ class TestSnapshot(TestStandard):
                 # erasure is a writeonly value
                 self.assertNotIn('erasure', hard_drive)
                 # erasures must exist and contain an array with 2 erasures, which are the same
-                erasure = next((c for c in snapshot['components'] if 'serialNumber' in c and c['serialNumber'] == component['serialNumber']))['erasure']
+                erasure = next((c for c in snapshot['components'] if
+                                'serialNumber' in c and c['serialNumber'] == component['serialNumber']))['erasure']
                 self.assertLen(hard_drive['erasures'], 2)
                 self.assertDictContainsSubset(erasure, hard_drive['erasures'][0])
                 self.assertDictContainsSubset(erasure, hard_drive['erasures'][1])

@@ -1,8 +1,8 @@
 import copy
 
+from ereuse_devicehub.resources.account.settings import unregistered_user
 from ereuse_devicehub.resources.event.settings import components, EventWithDevices, \
     EventSubSettingsMultipleDevices
-from ereuse_devicehub.resources.account.settings import unregistered_user
 
 
 class Allocate(EventWithDevices):
@@ -34,6 +34,7 @@ class Allocate(EventWithDevices):
     }
     components = copy.deepcopy(components)
 
+
 Allocate.components['readonly'] = True
 
 
@@ -42,4 +43,3 @@ class AllocateSettings(EventSubSettingsMultipleDevices):
 
 # Receiver OR ReceiverEmail. We need to hook this in a required field so it is always executed
 # And @type is an always required field so we can happily hook on it
-

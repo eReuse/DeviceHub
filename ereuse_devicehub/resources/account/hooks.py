@@ -1,9 +1,9 @@
 import random
 import string
 
+from flask import current_app as app
 from passlib.handlers.sha2_crypt import sha256_crypt
 
-from ereuse_devicehub.app import app
 from ereuse_devicehub.resources.account.user import User, Role
 from ereuse_devicehub.rest import execute_post
 
@@ -28,7 +28,6 @@ def generate_token() -> str:
 
 
 def set_byUser(resource_name: str, items: list):
-    from ereuse_devicehub.app import app
     if 'byUser' in app.config['DOMAIN'][resource_name]['schema']:
         for item in items:
             item['byUser'] = User.actual['_id']
@@ -63,12 +62,13 @@ def add_or_get_inactive_account(events: list):
 def _add_or_get_inactive_account_id(event, field_name, recipient_field_name):
     if field_name in event:
         try:
+            # We look for just accounts that share our database
             _id = app.data.find_one_raw('accounts',
-                {
-                    'email': event[field_name]['email'],
-                    'databases': {'$in': User.actual['databases']}  # We look for just accounts that share our database
-                }
-            )['_id']
+                                        {
+                                            'email': event[field_name]['email'],
+                                            'databases': {'$in': User.actual['databases']}
+                                        }
+                                        )['_id']
         except TypeError:  # No account
             event[field_name]['databases'] = User.actual['databases']
             event[field_name]['active'] = False

@@ -7,10 +7,10 @@
 
     This works with the original snapshot json file.
 """
-from pprint import pprint
-import os
 import json
+import os
 import shutil
+from pprint import pprint
 
 this_directory = os.path.dirname(os.path.realpath(__file__))
 

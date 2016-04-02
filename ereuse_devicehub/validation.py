@@ -9,7 +9,7 @@ from flask import current_app as app
 from validators.utils import ValidationFailure
 
 from ereuse_devicehub.resources.account.user import User
-from ereuse_devicehub.utils import normalize
+from ereuse_devicehub.utils import Naming
 
 ALLOWED_WRITE_ROLES = 'dh_allowed_write_roles'
 DEFAULT_AUTHOR = 'dh_default_author'
@@ -18,6 +18,7 @@ IF_VALUE_REQUIRE = 'dh_if_value_require'
 HID_REGEX = '[\w]+-[\w]+-[\w]+'
 
 
+# noinspection PyPep8Naming
 class DeviceHubValidator(Validator):
     special_rules = Validator.special_rules + ('or',)
 
@@ -35,7 +36,8 @@ class DeviceHubValidator(Validator):
             if 'or' in definition:
                 field_names = set([field_name] + definition['or'])
                 if field_names.isdisjoint(document.keys()):
-                    self._error(next(iter(field_names)), 'You need at least one of the following: {}'.format(field_names))
+                    self._error(next(iter(field_names)),
+                                'You need at least one of the following: {}'.format(field_names))
 
     def _validate_dh_if_value_require(self, condition: tuple, field: str, value):
         desired_value, fields = condition
@@ -81,9 +83,9 @@ class DeviceHubValidator(Validator):
         from ereuse_devicehub.resources.device.device import Device
         from ereuse_devicehub.resources.device.exceptions import DeviceNotFound
         try:
-            self.document['hid'] = normalize(self.document['manufacturer']) + \
-                                   '-' + normalize(self.document['serialNumber']) + \
-                                   '-' + normalize(self.document['model'])
+            self.document['hid'] = Naming.url_word(self.document['manufacturer']) + \
+                                   '-' + Naming.url_word(self.document['serialNumber']) + \
+                                   '-' + Naming.url_word(self.document['model'])
         except KeyError:
             del self.document['hid']
             self.document['isUidSecured'] = False
@@ -98,8 +100,8 @@ class DeviceHubValidator(Validator):
                     # If device has no parent and no hid, user needs to: or provide _id or forcing creating it
                     if 'forceCreation' not in self.document or not self.document['forceCreation']:
                         self._error('_id', json_util.dumps({'NeedsId': self.document}))
-                    # else: user forces us to create the device, it will be assigned an _id
-            # else: user provided _id. We accept this, however is unsecured.
+                        # else: user forces us to create the device, it will be assigned an _id
+                        # else: user provided _id. We accept this, however is unsecured.
         else:
             self._validate_regex(HID_REGEX, field, self.document['hid'])
             self._validate_unique(True, field, self.document['hid'])
@@ -113,7 +115,7 @@ class DeviceHubValidator(Validator):
         if validate and self.resource == 'computer':
             self._validate_unique(True, field, value)
             if len(self._errors) == 0:
-                  self._error(field, json_util.dumps({'CannotCreateId': self.document}))
+                self._error(field, json_util.dumps({'CannotCreateId': self.document}))
 
     def _validate_type_natural(self, field, value):
         self._validate_type_integer(field, value)
@@ -147,7 +149,8 @@ class DeviceHubValidator(Validator):
     def _validate_unitCode(self, nothing, field, value):
         pass
 
-    def _validate_writeonly(self, x, y, z):
+    @staticmethod
+    def _validate_writeonly(x, y, z):
         """
         Don't expect to GET this value.
         """

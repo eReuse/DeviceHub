@@ -1,4 +1,3 @@
-
 from flask import Request, g
 from flask import json, current_app
 from flask.wrappers import _missing, _get_data
@@ -8,6 +7,7 @@ from ereuse_devicehub.exceptions import StandardError
 PGP_MESSAGE = '-----BEGIN PGP SIGNED MESSAGE-----'
 
 
+# noinspection PyAttributeOutsideInit
 class RequestSignedJson(Request):
     """
         Adds the ability to parse signed JSON.
@@ -48,7 +48,7 @@ class RequestSignedJson(Request):
             else:
                 rv = json.loads(decrypted_data)
         except ValueError as e:
-                rv = self.on_json_loading_failed(e)
+            rv = self.on_json_loading_failed(e)
         if cache:
             self._cached_json = rv
         g.trusted_json = True

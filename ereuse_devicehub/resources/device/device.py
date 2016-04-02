@@ -1,12 +1,12 @@
 from bson import ObjectId
 from eve.utils import document_etag
+from flask import current_app
 from flask import json
 
-from flask import current_app
+from ereuse_devicehub.exceptions import InnerRequestError
 from ereuse_devicehub.resources.device.component.component import Component
 from ereuse_devicehub.resources.device.exceptions import DeviceNotFound
 from ereuse_devicehub.resources.event.event import Event
-from ereuse_devicehub.exceptions import InnerRequestError
 from ereuse_devicehub.rest import execute_get
 from ereuse_devicehub.utils import Naming
 
@@ -18,6 +18,7 @@ class Device:
     Device get methods need to construct the element using the hooks, so they call internally using REST methods,
     not directly from the database.
     """
+
     # todo use get_internal when released for get_one and get_many methods
 
     @staticmethod
@@ -37,7 +38,8 @@ class Device:
                 raise DeviceNotFound()
         else:
             try:
-                device = execute_get(current_app.auth.get_requested_database_for_uri() + 'devices' + '/' + str(identifier_or_where))
+                device = execute_get(
+                    current_app.auth.get_requested_database_for_uri() + 'devices' + '/' + str(identifier_or_where))
             except InnerRequestError as e:
                 if e.status_code == 404:
                     raise DeviceNotFound()
@@ -47,7 +49,8 @@ class Device:
 
     @staticmethod
     def get_many(where):
-        response = execute_get(current_app.auth.get_requested_database_for_uri() + 'devices' + '/' + '?where=' + json.dumps(where))
+        response = execute_get(
+            current_app.auth.get_requested_database_for_uri() + 'devices' + '/' + '?where=' + json.dumps(where))
         return response['_items']
 
     @staticmethod
@@ -58,7 +61,8 @@ class Device:
         :return:
         """
         try:
-            device = execute_get(current_app.auth.get_requested_database_for_uri() + 'devices?where={"pid":"' + pid + '"}')[0]
+            database = current_app.auth.get_requested_database_for_uri()
+            device = execute_get(database + 'devices?where={"pid":"' + pid + '"}')[0]
         except KeyError:
             raise DeviceNotFound()
         else:
@@ -93,7 +97,8 @@ class Device:
 
     @staticmethod
     def generate_etag(device: dict) -> str:
-        return document_etag(device, current_app.config['DOMAIN'][Naming.resource(device['@type'])]['etag_ignore_fields'])
+        return document_etag(device,
+                             current_app.config['DOMAIN'][Naming.resource(device['@type'])]['etag_ignore_fields'])
 
     @staticmethod
     def seem_equal(x: dict, y: dict) -> bool:
@@ -164,9 +169,6 @@ class Device:
         """
         Sets the properties of a device using directly the database layer. The method just updates the keys in
         properties. Properties can use mongodb parameters.
-        :param device_id:
-        :param properties:
-        :return:
         """
         devices_id = [ids] if type(ids) is str else ids
         for device_id in devices_id:

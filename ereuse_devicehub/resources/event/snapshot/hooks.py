@@ -1,6 +1,6 @@
+from flask import current_app as app
 from flask import request, g
 
-from ereuse_devicehub.app import app
 from .snapshot import Snapshot
 
 

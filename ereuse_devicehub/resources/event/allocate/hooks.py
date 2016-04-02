@@ -1,6 +1,6 @@
+from ereuse_devicehub.resources.account.user import User
 from ereuse_devicehub.resources.device.device import Device
 from ereuse_devicehub.resources.event.deallocate.deallocate import AlreadyAllocated
-from ereuse_devicehub.resources.account.user import User
 
 
 def materialize_actual_owners_add(allocates: list):

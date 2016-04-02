@@ -30,6 +30,7 @@ class StandardError(BasicError):
             '_status': 'ERR'
         }
 
+
 class SchemaError(StandardError):
     status_code = 422
 

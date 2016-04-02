@@ -30,7 +30,7 @@ class User:
             try:
                 x = request.headers.environ['HTTP_AUTHORIZATION']
                 token = parse_authorization_header(x)['username']
-                from ereuse_devicehub.app import app
+                from flask import current_app as app
                 g._actual_user = User.get({'token': token})
                 g._actual_user['role'] = Role(g._actual_user['role'])
             except KeyError:

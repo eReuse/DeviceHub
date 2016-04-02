@@ -1,12 +1,10 @@
-def event_hooks(app):
+def hooks(app):
     """
-    pre_POST methods are not executed by post_internal
-    :param app:
-    :return:
+        This method "ties" all the hooks DeviceHub uses with the app.
     """
-    from ereuse_devicehub.utils import set_response_headers_and_cache, redirect_on_browser
-    app.on_post_GET += set_response_headers_and_cache
-    app.on_pre_GET += redirect_on_browser
+    from ereuse_devicehub.utils import GeneralHooks
+    app.on_post_GET += GeneralHooks.set_response_headers_and_cache
+    app.on_pre_GET += GeneralHooks.redirect_on_browser
 
     from ereuse_devicehub.security.hooks import project_item, project_resource, authorize_public, deny_public
     app.on_fetched_item += authorize_public
@@ -14,7 +12,8 @@ def event_hooks(app):
     app.on_fetched_item += project_item
     app.on_fetched_resource += project_resource
 
-    from ereuse_devicehub.resources.device.hooks import generate_etag, get_icon, get_icon_resource, autoincrement, post_benchmark, \
+    from ereuse_devicehub.resources.device.hooks import generate_etag, get_icon, get_icon_resource, autoincrement, \
+        post_benchmark, \
         materialize_public_in_components, materialize_public_in_components_update
     app.on_insert += generate_etag
     app.on_fetched_item += get_icon
@@ -24,7 +23,8 @@ def event_hooks(app):
     app.on_inserted += materialize_public_in_components
     app.on_updated += materialize_public_in_components_update
 
-    from ereuse_devicehub.resources.event.snapshot.hooks import on_insert_snapshot, save_request, materialize_test_hard_drives, \
+    from ereuse_devicehub.resources.event.snapshot.hooks import on_insert_snapshot, save_request, \
+        materialize_test_hard_drives, \
         materialize_erase_basic, set_secured
     app.on_insert_snapshot += set_secured
     app.on_insert_snapshot += on_insert_snapshot
@@ -38,7 +38,6 @@ def event_hooks(app):
     app.on_insert += materialize_components
     app.on_insert += materialize_parent
 
-
     from ereuse_devicehub.resources.event.add.hooks import add_components
     app.on_inserted_add += add_components
 
@@ -48,7 +47,8 @@ def event_hooks(app):
     from ereuse_devicehub.resources.event.remove.hooks import remove_components
     app.on_inserted_remove += remove_components
 
-    from ereuse_devicehub.resources.event.allocate.hooks import materialize_actual_owners_add, avoid_repeating_allocations, set_organization
+    from ereuse_devicehub.resources.event.allocate.hooks import materialize_actual_owners_add, \
+        avoid_repeating_allocations, set_organization
     app.on_insert_allocate += avoid_repeating_allocations
     app.on_inserted_allocate += materialize_actual_owners_add
     app.on_insert_allocate += set_organization
@@ -77,7 +77,8 @@ def event_hooks(app):
     app.on_insert_receive += transfer_property
     app.on_insert_receive += set_organization
 
-    from ereuse_devicehub.resources.place.hooks import set_place_in_devices, update_place_in_devices, unset_place_in_devices, update_place_in_devices_if_places, avoid_deleting_if_has_event
+    from ereuse_devicehub.resources.place.hooks import set_place_in_devices, update_place_in_devices, \
+        unset_place_in_devices, update_place_in_devices_if_places, avoid_deleting_if_has_event
     app.on_inserted_places += set_place_in_devices
     app.on_updated_places += update_place_in_devices_if_places
     app.on_delete_item_places += avoid_deleting_if_has_event

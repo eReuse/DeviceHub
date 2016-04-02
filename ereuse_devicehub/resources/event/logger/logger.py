@@ -2,10 +2,10 @@ import json
 from multiprocessing import Process, Queue
 
 from eve.methods.post import post_internal
+from flask import current_app as app
 from flask import current_app, g
 from pymongo.errors import DuplicateKeyError
 
-from ereuse_devicehub.app import app
 from ereuse_devicehub.resources.account.user import Role
 from ereuse_devicehub.utils import get_last_exception_info
 from .grd_logger.grd_logger import GRDLogger
@@ -21,13 +21,13 @@ class Logger:
     token = None
 
     @classmethod
-    def log_event(cls, event_id: str, event_type: str, requested_database: str):
+    def log_event(cls, event_id: str, requested_database: str):
         """
         Logs an event.
         """
         if not cls.thread or not cls.thread.is_alive():
             cls._init()
-        cls.queue.put((event_id, event_type, requested_database))
+        cls.queue.put((event_id, requested_database, app.config))
 
     @classmethod
     def _init(cls):
@@ -42,7 +42,8 @@ class Logger:
         result = app.data.find_one_raw('accounts', {'email': account['email']})
         if result is None:
             try:
-                post_internal('accounts', dict(account), True)  # If we validate, RolesAuth._set_database will change our db
+                post_internal('accounts', dict(account),
+                              True)  # If we validate, RolesAuth._set_database will change our db
             except DuplicateKeyError:
                 pass
         g.mongo_prefix = actual_mongo_prefix
@@ -63,16 +64,11 @@ def _loop(queue: Queue, token: str):
     :return:
     """
     while True:
-        event_id, event_type, requested_database = queue.get(True)  # We block ourselves waiting for something in the queue
-        if current_app.config.get('GRD', True):
+        event_id, requested_database, config = queue.get(True)  # We block ourselves waiting for something in the queue
+        if config.get('GRD', True):
             try:
-                GRDLogger(event_id, event_type, token, requested_database)
+                GRDLogger(event_id, token, requested_database, config)
             except Exception as e:
                 if not hasattr(e, 'ok'):
-                    app.logger.error(get_last_exception_info())
+                    GRDLogger.logger.error(get_last_exception_info())
                 raise e
-
-
-
-
-

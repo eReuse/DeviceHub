@@ -6,6 +6,9 @@
   "description": "This is a description for the location",
   "geo": {
     "type": "Point",
-    "coordinates": [ 17.3734, 78.4738 ]
+    "coordinates": [
+      17.3734,
+      78.4738
+    ]
   }
 }

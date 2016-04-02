@@ -1,5 +1,3 @@
-from collections import Sequence
-
 from ereuse_devicehub.resources.schema import UnitCodes, RDFS
 
 
@@ -18,7 +16,6 @@ class Benchmark(RDFS):
         'type': 'float',
         'unitCode': UnitCodes.mbyte
     }
-
 
     @classmethod
     def _clean(cls, attributes: dict, attributes_to_remove: tuple = None) -> dict:
@@ -39,4 +36,3 @@ class BenchmarkWithScore(Benchmark):
 
 class BenchmarkProcessor(BenchmarkWithScore):
     pass
-

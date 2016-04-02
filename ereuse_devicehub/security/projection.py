@@ -1,4 +1,5 @@
-from ereuse_devicehub.app import app
+from flask import current_app as app
+
 from ereuse_devicehub.resources.account.user import User
 
 GET_PROJECTION_BLACKLIST = 'get_projection_blacklist'

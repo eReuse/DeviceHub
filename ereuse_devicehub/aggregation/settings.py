@@ -3,11 +3,9 @@ from flask import jsonify
 from flask import request
 
 from ereuse_devicehub.aggregation.aggregation import Aggregation, AggregationError
-from ereuse_devicehub.app import app
 from ereuse_devicehub.flask_decorators import crossdomain, cache
 
 
-@app.route('/<db>/aggregations/<resource>/<method>', methods=['GET'])
 @cache(Aggregation.CACHE_TIMEOUT)
 @crossdomain(origin='*', headers=['Content-Type', 'Authorization'])
 @requires_auth('resource')

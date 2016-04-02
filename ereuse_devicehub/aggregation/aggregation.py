@@ -5,8 +5,8 @@ from flask import current_app
 from pymongo import DESCENDING
 from werkzeug.datastructures import ImmutableList
 
-from ereuse_devicehub.app import cache
 from ereuse_devicehub.exceptions import StandardError
+from ereuse_devicehub.utils import cache
 
 
 class Aggregation:

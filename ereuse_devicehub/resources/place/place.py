@@ -1,7 +1,7 @@
 from flask import current_app
 
-from ereuse_devicehub.resources.device.device import Device
 from ereuse_devicehub.exceptions import StandardError
+from ereuse_devicehub.resources.device.device import Device
 
 
 class Place:

@@ -14,7 +14,7 @@ def execute_post(resource: str, payload: dict):
     return response[0]  # Actual data
 
 
-def execute_get(url: str, token: str=None):
+def execute_get(url: str, token: str = None):
     http_authorization = request.headers.environ['HTTP_AUTHORIZATION'] if token is None else 'Basic ' + token
     response = app.test_client().get(url, environ_base={'HTTP_AUTHORIZATION': http_authorization})
     data = json.loads(response.data.decode())  # It is useless to use json_util

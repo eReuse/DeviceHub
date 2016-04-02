@@ -1,94 +1,94 @@
 {
-    "@type": "Snapshot", 
-    "components": [
-        {
-            "@type": "Processor", 
-            "address": "64", 
-            "manufacturer": "Intel Corp.",
-            "model": "Intel(R) Core(TM) i5-2300 CPU @ 2.80GHz", 
-            "numberOfCores": "2", 
-            "speed": 2.394
-        }, 
-        {
-            "@type": "RamModule", 
-            "interface": "DDR3", 
-            "serialNumber": "15723A13", 
-            "size": 8192, 
-            "speed": 1066.0
-        }, 
-        {
-            "@type": "HardDrive", 
-            "interface": "ata", 
-            "model": "OCZ-VERTEX3", 
-            "serialNumber": "O32F-38SSDFHH23S",
-            "size": 57241.8984375
-        }, 
-        {
-            "@type": "HardDrive", 
-            "interface": "ata", 
-            "manufacturer": "Linux", 
-            "model": "WDC WD20EARX-00P", 
-            "serialNumber": "23FASF-39fAS923-ads2-3f3f3-23odjs820",
-            "size": 1907729.0859375
-        }, 
-        {
-            "@type": "HardDrive", 
-            "interface": "ata", 
-            "manufacturer": "Linux", 
-            "model": "WDC WD10EZEX-00K", 
-            "serialNumber": "23fasd-f322-fff-2saf-65kgss",
-            "size": 953869.7109375
-        }, 
-        {
-            "@type": "HardDrive", 
-            "interface": "ata", 
-            "manufacturer": "Linux", 
-            "model": "WDC WD20EARX-00P", 
-            "serialNumber": "3gas-6eg229a-saf2-554-12asdnm",
-            "size": 1907729.0859375
-        }, 
-        {
-            "@type": "GraphicCard", 
-            "manufacturer": "Intel Corporation", 
-            "model": "2nd Generation Core Processor Family Integrated Graphics Controller"
-        }, 
-        {
-            "@type": "Motherboard", 
-            "manufacturer": "ASUSTeK Computer INC.", 
-            "model": "P8H67-M LE", 
-            "serialNumber": "F32ASXXX"
-        }, 
-        {
-            "@type": "NetworkAdapter", 
-            "manufacturer": "Intel Corporation", 
-            "model": "82572EI Gigabit Ethernet Controller (Copper)", 
-            "serialNumber": "12:12:12:13:1f:1d",
-            "speed": 1000
-        }, 
-        {
-            "@type": "NetworkAdapter", 
-            "manufacturer": "Realtek Semiconductor Co., Ltd.", 
-            "model": "RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller", 
-            "serialNumber": "1d:6d:3d:4f:7c:11",
-            "speed": 1000
-        }, 
-        {
-            "@type": "NetworkAdapter", 
-            "serialNumber": "69:69:69:69:69:69"
-        }, 
-        {
-            "@type": "NetworkAdapter", 
-            "serialNumber": "96:96:96:96:96:96"
-        },
-        {
-            "@type": "SoundCard", 
-            "manufacturer": "Intel Corporation", 
-            "model": "6 Series/C200 Series Chipset Family High Definition Audio Controller"
-        }
-    ], 
-    "device": {
-        "@type": "Computer", 
-        "label": "", 
-        "type": "Desktop"
+  "@type": "Snapshot",
+  "components": [
+    {
+      "@type": "Processor",
+      "address": "64",
+      "manufacturer": "Intel Corp.",
+      "model": "Intel(R) Core(TM) i5-2300 CPU @ 2.80GHz",
+      "numberOfCores": "2",
+      "speed": 2.394
+    },
+    {
+      "@type": "RamModule",
+      "interface": "DDR3",
+      "serialNumber": "15723A13",
+      "size": 8192,
+      "speed": 1066.0
+    },
+    {
+      "@type": "HardDrive",
+      "interface": "ata",
+      "model": "OCZ-VERTEX3",
+      "serialNumber": "O32F-38SSDFHH23S",
+      "size": 57241.8984375
+    },
+    {
+      "@type": "HardDrive",
+      "interface": "ata",
+      "manufacturer": "Linux",
+      "model": "WDC WD20EARX-00P",
+      "serialNumber": "23FASF-39fAS923-ads2-3f3f3-23odjs820",
+      "size": 1907729.0859375
+    },
+    {
+      "@type": "HardDrive",
+      "interface": "ata",
+      "manufacturer": "Linux",
+      "model": "WDC WD10EZEX-00K",
+      "serialNumber": "23fasd-f322-fff-2saf-65kgss",
+      "size": 953869.7109375
+    },
+    {
+      "@type": "HardDrive",
+      "interface": "ata",
+      "manufacturer": "Linux",
+      "model": "WDC WD20EARX-00P",
+      "serialNumber": "3gas-6eg229a-saf2-554-12asdnm",
+      "size": 1907729.0859375
+    },
+    {
+      "@type": "GraphicCard",
+      "manufacturer": "Intel Corporation",
+      "model": "2nd Generation Core Processor Family Integrated Graphics Controller"
+    },
+    {
+      "@type": "Motherboard",
+      "manufacturer": "ASUSTeK Computer INC.",
+      "model": "P8H67-M LE",
+      "serialNumber": "F32ASXXX"
+    },
+    {
+      "@type": "NetworkAdapter",
+      "manufacturer": "Intel Corporation",
+      "model": "82572EI Gigabit Ethernet Controller (Copper)",
+      "serialNumber": "12:12:12:13:1f:1d",
+      "speed": 1000
+    },
+    {
+      "@type": "NetworkAdapter",
+      "manufacturer": "Realtek Semiconductor Co., Ltd.",
+      "model": "RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller",
+      "serialNumber": "1d:6d:3d:4f:7c:11",
+      "speed": 1000
+    },
+    {
+      "@type": "NetworkAdapter",
+      "serialNumber": "69:69:69:69:69:69"
+    },
+    {
+      "@type": "NetworkAdapter",
+      "serialNumber": "96:96:96:96:96:96"
+    },
+    {
+      "@type": "SoundCard",
+      "manufacturer": "Intel Corporation",
+      "model": "6 Series/C200 Series Chipset Family High Definition Audio Controller"
     }
+  ],
+  "device": {
+    "@type": "Computer",
+    "label": "",
+    "type": "Desktop"
+  }
 }

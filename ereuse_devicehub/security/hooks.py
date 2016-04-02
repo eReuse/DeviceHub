@@ -1,5 +1,7 @@
-from .projection import project
 from flask import current_app
+
+from .projection import project
+
 
 def project_item(resource: str, item: dict):
     project(resource, item)

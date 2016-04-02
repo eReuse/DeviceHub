@@ -7,4 +7,3 @@ class Remove(EventWithOneDevice):
 
 class RemoveSettings(EventSubSettingsOneDevice):
     _schema = Remove
-

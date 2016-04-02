@@ -1,9 +1,9 @@
 import pymongo
 
-from ..schema import RDFS
 from ereuse_devicehub.resources.resource import ResourceSettings
 from ereuse_devicehub.validation import ALLOWED_WRITE_ROLES
 from .user import Role
+from ..schema import RDFS
 
 
 class Account(RDFS):
@@ -101,7 +101,8 @@ class AccountSettings(ResourceSettings):
     cache_expires = 0
 
     # Allow 'token' to be returned with POST responses
-    extra_response_fields = ResourceSettings.extra_response_fields + ['token', 'email', 'role', 'active', 'name', 'databases']
+    extra_response_fields = ResourceSettings.extra_response_fields + ['token', 'email', 'role', 'active', 'name',
+                                                                      'databases']
 
     # Finally, let's add the schema definition for this endpoint.
     _schema = Account

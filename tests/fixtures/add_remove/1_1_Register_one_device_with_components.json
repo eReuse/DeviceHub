@@ -9,7 +9,7 @@
   },
   "secured": false,
   "@type": "Snapshot",
-  "components":[
+  "components": [
     {
       "manufacturer": "p1c1m",
       "serialNumber": "p1c1s",
@@ -18,7 +18,7 @@
     {
       "manufacturer": "p1c2m",
       "serialNumber": "p1c2s",
-      "speed":1.23,
+      "speed": 1.23,
       "numberOfCores": 2,
       "@type": "Processor",
       "model": "processor1"

@@ -2,8 +2,8 @@ import copy
 
 import pymongo
 
-from ereuse_devicehub.resources.schema import Thing
 from ereuse_devicehub.resources.resource import ResourceSettings
+from ereuse_devicehub.resources.schema import Thing
 
 
 class Place(Thing):
@@ -40,6 +40,8 @@ class Place(Thing):
         'readonly': True
     }
     label = copy.deepcopy(Thing.label)
+
+
 Place.label['required'] = True
 
 

@@ -1,6 +1,8 @@
 import logging
 
-from ereuse_devicehub.docs import app
+from ereuse_devicehub.flaskapp import DeviceHub
+
+app = DeviceHub()
 
 if __name__ == '__main__':
     if app.config['LOG']:

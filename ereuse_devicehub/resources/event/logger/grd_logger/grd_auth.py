@@ -1,5 +1,6 @@
-from ereuse_devicehub.security.request_auth import Auth
 from flask import current_app
+
+from ereuse_devicehub.security.request_auth import Auth
 
 
 class GRDAuth(Auth):

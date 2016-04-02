@@ -1,7 +1,7 @@
 import pymongo
 
-from ereuse_devicehub.resources.schema import Thing
 from ereuse_devicehub.resources.resource import ResourceSettings
+from ereuse_devicehub.resources.schema import Thing
 
 
 class Event(Thing):

@@ -3,13 +3,11 @@ import base64
 from flask import request, jsonify
 from passlib.handlers.sha2_crypt import sha256_crypt
 
-from ereuse_devicehub.app import app
 from ereuse_devicehub.exceptions import WrongCredentials
 from ereuse_devicehub.flask_decorators import crossdomain
 from ereuse_devicehub.resources.account.user import User
 
 
-@app.route('/login', methods=['POST', 'OPTIONS'])
 @crossdomain(origin='*', headers=['Content-Type', 'Authorization'])
 def login():
     """

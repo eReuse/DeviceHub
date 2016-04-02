@@ -15,14 +15,14 @@ class Deallocate(EventWithDevices):
         'sink': 2
     }
     fromOrganization = {
-    # Materialization of the organization that, by the time of the deallocation, the user worked in
+        # Materialization of the organization that, by the time of the deallocation, the user worked in
         'type': 'string',
         'readonly': True
     }
 
     @classmethod
-    def _clean(cls, full_dict, attributes_to_remove):
-        full_dict = super(Deallocate, cls)._clean(full_dict, attributes_to_remove)
+    def _clean(cls, attributes: dict, attributes_to_remove: tuple = None) -> dict:
+        full_dict = super(Deallocate, cls)._clean(attributes, attributes_to_remove)
         full_dict['from'] = full_dict['_from']
         del full_dict['_from']
         return full_dict

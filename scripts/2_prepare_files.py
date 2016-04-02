@@ -4,11 +4,11 @@ This script is thought to run in a folder with JSON with the objective of:
 - Make JSON devices anonymous by replacing S/N with hash values. Hash values are injective methods.
 - Detect special characters in HID fields (S/N, model, manufacturer) which would cause a problem
 """
-from collections import defaultdict,OrderedDict
+import hashlib
 import json
 import os
+from collections import defaultdict, OrderedDict
 from pprint import pprint
-import hashlib
 
 HID_FIELDS = 'serialNumber', 'manufacturer', 'model'
 chars = defaultdict(OrderedDict)
@@ -66,5 +66,6 @@ def main():
         pprint(chars, f)
     with open(os.path.join(dest_dict, 'words.txt'), 'xt') as f:
         pprint(words, f)
+
 
 main()

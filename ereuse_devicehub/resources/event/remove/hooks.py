@@ -1,4 +1,4 @@
-from ereuse_devicehub.app import app
+from flask import current_app as app
 
 
 def remove_components(events: dict):

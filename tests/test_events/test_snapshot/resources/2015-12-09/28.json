@@ -80,7 +80,6 @@
       "manufacturer": "Intel Corp.",
       "numberOfCores": 1,
       "model": "Intel(R) Celeron(R) D CPU 3.06GHz"
-
     },
     {
       "@type": "SoundCard",

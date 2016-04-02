@@ -1,10 +1,10 @@
 import os
 
 import requests
-
-from ereuse_devicehub.security.request_auth import Auth
-from ereuse_devicehub.resources.event.logger.grd_logger.grd_auth import GRDAuth
 from settings import GRD_DOMAIN
+
+from ereuse_devicehub.resources.event.logger.grd_logger.grd_auth import GRDAuth
+from ereuse_devicehub.security.request_auth import Auth
 from tests import TestStandard
 
 
@@ -21,11 +21,11 @@ class Dummy:
         response.raise_for_status()
         places = response.json()['results']
         for place in places:
-            #place['sameAs'] = place['url']
             place['type'] = 'CollectionPoint'
             place['@type'] = 'Place'
             del place['url']
-            response = requests.post('{}/{}/{}'.format(self.domain, self.database, 'places'), json=place, auth=self.auth)
+            response = requests.post('{}/{}/{}'.format(self.domain, self.database, 'places'), json=place,
+                                     auth=self.auth)
             response.raise_for_status()
 
     def _execute2(self):

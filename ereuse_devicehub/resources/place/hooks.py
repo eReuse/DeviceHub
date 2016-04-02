@@ -28,4 +28,3 @@ def avoid_deleting_if_has_event(item):
         pass
     else:
         raise CannotDeleteIfHasEvent()
-

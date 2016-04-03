@@ -6,7 +6,7 @@ from functools import wraps
 from wsgiref.handlers import format_date_time
 
 from flask import make_response, request, current_app
-from setuptools.compat import basestring
+from requests.compat import basestring
 
 
 def cache(expires=None, round_to_minute=False):

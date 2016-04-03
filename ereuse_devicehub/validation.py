@@ -51,6 +51,8 @@ class DeviceHubValidator(Validator):
 
         We add self.resource validation, as when in used in a dict, unique doesn't work (it is under other resource,
         anyway, so we do not expect it to work)
+
+        We move the logic of unique in the following method.
         """
         if unique and self.resource:
             query[field] = value
@@ -111,7 +113,6 @@ class DeviceHubValidator(Validator):
             super(DeviceHubValidator, self)._validate_data_relation(data_relation, field, value)
 
     def _validate_device_id(self, validate, field, value):
-        # if autoincrement:
         if validate and self.resource == 'computer':
             self._validate_unique(True, field, value)
             if len(self._errors) == 0:
@@ -180,3 +181,11 @@ class DeviceHubValidator(Validator):
             if hasattr(self, '_original_document') and self._original_document is not None \
                     and field in self._original_document and value != self._original_document[field]:
                 self._error(field, 'You cannot modify this value.')
+
+    def _error(self, field, _error):
+        super()._error(field, _error)
+        # In DeviceHub, some errors may need to check for other errors, which can cause the same error
+        # being showed again. Let's remove duplicates
+        # todo do this after using all the errors
+        if type(self._errors[field]) is list:
+            self._errors[field] = list(set(self._errors[field]))

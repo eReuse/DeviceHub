@@ -3,8 +3,8 @@ import os
 from pprint import pprint
 from random import choice
 
-from ereuse_devicehub.utils import NestedLookup
 from ereuse_devicehub.utils import Naming
+from ereuse_devicehub.utils import NestedLookup
 from tests import TestStandard
 
 
@@ -165,7 +165,7 @@ class TestSnapshot(TestStandard):
             # Let's try first a simple snapshot
             self.post_snapshot(snapshot)
         except AssertionError as e:
-            if e.args[0] == '422 != 201' and 'NeedsId' in e.message['_issues']['_id']:
+            if e.args[0] == '422 != 201' and 'NeedsId' in e.message['_issues']['_id'][0]:
                 # The system tells us that it could not register the device because the device (computer) has no hid
                 # We can tell the system that this device already exists, by specifying an '_id', or stating
                 # that this is new. We say it is new:
@@ -179,7 +179,7 @@ class TestSnapshot(TestStandard):
                 except AssertionError as k:
                     # The system asks again the same. This time we will say that the device is the first one
                     # by specifying the '_id' to '1'
-                    if k.args[0] == '422 != 201' and 'NeedsId' in k.message['_issues']['_id']:
+                    if k.args[0] == '422 != 201' and 'NeedsId' in k.message['_issues']['_id'][0]:
                         snapshot['device']['_id'] = '1'
                         # The system now is going to recognize the device and it's components,
                         # thus causing no extra event, apart from the snapshot itself

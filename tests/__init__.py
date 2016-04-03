@@ -25,7 +25,13 @@ class TestBase(TestMinimal):
         settings.DATABASES = 'dht1', 'dht2'
         settings.DHT1_DBNAME = self.FIRST_DB = 'dht_1'
         settings.DHT2_DBNAME = self.SECOND_DB = 'dht_2'
+        settings.LOGGER = True
         settings.GRD_DEBUG = True  # We do not want to actually fulfill GRD
+        settings.APP_NAME = 'DeviceHub'
+        settings.DEBUG = True
+        settings.LOG = True
+        settings.GRD = True
+        settings.BASE_PATH_SHOWN_TO_GRD = 'www.example.com'
 
         self.app = DeviceHub()
         self.MONGO_DBNAME = self.app.config['MONGO_DBNAME']

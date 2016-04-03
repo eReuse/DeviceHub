@@ -80,7 +80,13 @@ def _get_existing_device(e):
     for field in 'hid', '_id', 'model':  # unique fields
         if field in e.body['_issues']:
             try:
-                device = json_util.loads(e.body['_issues'][field])['NotUnique']
+                for error in e.body['_issues'][field]:
+                    try:
+                        device = json_util.loads(error)['NotUnique']
+                    except (ValueError, KeyError):
+                        pass
+                    else:
+                        break
             except (ValueError, KeyError):  # it can be an unique field but the
                 raise DeviceNotFound()
     if not device:

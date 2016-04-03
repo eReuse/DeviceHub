@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='DeviceHub',
+    name='eReuse-DeviceHub',
     version='0.1',
     packages=find_packages(),
     url='https://github.com/eReuse/DeviceHub',

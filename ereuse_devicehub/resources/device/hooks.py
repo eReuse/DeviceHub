@@ -15,7 +15,7 @@ def generate_etag(resource: str, items: list):
 def get_icon(resource: str, item: dict):
     if item['@type'] in Device.get_types():
         item_type = item['type'] if 'type' in item else item['@type']
-        item['icon'] = 'devices/icons/' + item_type + '.svg'
+        item['icon'] = 'devices/icons/{}.svg'.format(item_type)  # The path doesn't need to be the real one
 
 
 def get_icon_resource(resource: str, response: dict):

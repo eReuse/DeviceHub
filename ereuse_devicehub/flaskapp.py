@@ -38,7 +38,7 @@ class DeviceHub(Eve):
         ErrorHandlers(self)
         GRDLogger.logger = self.logger  # We need to pass the logger like this, as GRDLogger cannot access to app
         self.add_url_rule('/login', 'login', view_func=login, methods=['POST', 'OPTIONS'])
-        self.add_url_rule('/devices/icons/<path:path>', view_func=send_device_icon)
+        self.add_url_rule('/devices/icons/<file_name>', view_func=send_device_icon)
         self.add_url_rule('/<db>/aggregations/<resource>/<method>', 'aggregation', view_func=aggregate_view)
 
     def register_resource(self, resource: str, settings: ResourceSettings):

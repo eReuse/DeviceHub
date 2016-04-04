@@ -21,7 +21,7 @@ class DataLayer(Mongo):
 
     def aggregate(self, resource, pipeline):
         datasource, *_ = self.datasource(resource)
-        return self.pymongo(resource).db[datasource].aggregate(pipeline)
+        return list(self.pymongo(resource).db[datasource].aggregate(pipeline))
 
     def find_raw(self, resource, query):
         datasource, *_ = self.datasource(resource)

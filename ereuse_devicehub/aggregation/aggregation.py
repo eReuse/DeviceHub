@@ -15,7 +15,7 @@ class Aggregation:
     """
 
     # For how much time is the data cached?
-    CACHE_TIMEOUT = 3600
+    CACHE_TIMEOUT = 1 * 60  # 1 minute
 
     def __init__(self, resouce_name):
         self.resource_name = resouce_name
@@ -98,7 +98,7 @@ class Aggregation:
 
     @cache.memoize(timeout=CACHE_TIMEOUT)
     def _aggregate(self, pipeline):
-        return current_app.data.aggregate(self.resource_name, pipeline)['result']
+        return current_app.data.aggregate(self.resource_name, pipeline)
 
 
 class AggregationError(StandardError):

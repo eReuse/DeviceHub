@@ -1,2 +1,2 @@
 recursive-include tests *
-recursive-include ereuse_devicehub/resources/device/icons/ *.svg
+recursive-include ereuse_devicehub/resources/device/icons *.svg

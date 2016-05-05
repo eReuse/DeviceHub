@@ -7,6 +7,9 @@ from ..schema import RDFS
 
 
 class Account(RDFS):
+    """
+    An account represents a physical person or an organization.
+    """
     email = {
         'type': 'email',
         'required': True,

@@ -134,7 +134,7 @@ class EventSettings(ResourceSettings):
 class EventSubSettings(EventSettings):
     _schema = False
     resource_methods = ['POST']
-    item_methods = ['PATCH', 'DELETE']
+    item_methods = []
 
 
 class EventSubSettingsOneDevice(EventSubSettings):

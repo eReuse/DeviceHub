@@ -25,19 +25,25 @@ class User:
     @ClassProperty
     @classmethod
     def actual(cls) -> dict:
-        if not hasattr(g, '_actual_user'):
-            from flask import request
-            try:
-                x = request.headers.environ['HTTP_AUTHORIZATION']
-                token = parse_authorization_header(x)['username']
-                from flask import current_app as app
-                g._actual_user = User.get({'token': token})
-                g._actual_user['role'] = Role(g._actual_user['role'])
-            except KeyError:
-                raise UserIsAnonymous("You need to be logged in.")
-            except TypeError:
-                raise NoUserForGivenToken()
-        return g._actual_user
+        try:
+            if not hasattr(g, '_actual_user'):
+                from flask import request
+                try:
+                    x = request.headers.environ['HTTP_AUTHORIZATION']
+                    token = parse_authorization_header(x)['username']
+                    from flask import current_app as app
+                    g._actual_user = User.get({'token': token})
+                    g._actual_user['role'] = Role(g._actual_user['role'])
+                except KeyError:
+                    raise UserIsAnonymous("You need to be logged in.")
+                except TypeError:
+                    raise NoUserForGivenToken()
+            return g._actual_user
+        except RuntimeError as e:
+            # Documentation access this variable
+            if str(e) != 'working outside of application context':
+                raise e
+
 
     @staticmethod
     def get(account_id_or_query: ObjectId or dict):
@@ -68,12 +74,18 @@ class Role:
 
     We can use operators to compare between roles. For example BASIC < AMATEUR == True
     """
-    BASIC = 'basic'  # Most basic user. Cannot do anything (except its account). Useful for external people.
-    AMATEUR = 'amateur'  # Can create devices, however can just see and edit the ones it created. Events are restricted.
-    EMPLOYEE = 'employee'  # Technicians. Full spectre of operations. Can interact with devices of others.
-    ADMIN = 'admin'  # worker role + manage other users (except superusers). No location restrictions. Can see analytics.
-    SUPERUSER = 'superuser'  # admin + they don't appear as public users, and they can manage other superusers. See all databases.
-    ROLES = BASIC, AMATEUR, EMPLOYEE, ADMIN, SUPERUSER  # In grading order (BASIC < AMATEUR)
+    BASIC = 'basic'
+    """Most basic user. Cannot do anything (except its account). Useful for external people."""
+    AMATEUR = 'amateur'
+    """Can create devices, however can just see and edit the ones it created. Events are restricted."""
+    EMPLOYEE = 'employee'
+    """Technicians. Full spectre of operations. Can interact with devices of others."""
+    ADMIN = 'admin'
+    """worker role + manage other users (except superusers). No location restrictions. Can see analytics."""
+    SUPERUSER = 'superuser'
+    """admin + they don't appear as public users, and they can manage other superusers. See all databases."""
+    ROLES = BASIC, AMATEUR, EMPLOYEE, ADMIN, SUPERUSER
+    """In grading order (BASIC < AMATEUR)"""
     MANAGERS = ADMIN, SUPERUSER
 
     def __init__(self, representation):

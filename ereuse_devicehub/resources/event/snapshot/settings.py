@@ -87,4 +87,4 @@ class Snapshot(EventWithOneDevice):
 class SnapshotSettings(EventSubSettingsOneDevice):
     _schema = Snapshot
     get_projection_blacklist = {Role.ADMIN: ('request',)}
-    extra_response_fields = EventSubSettingsOneDevice.extra_response_fields + ['events', 'test_hard_drives']
+    extra_response_fields = EventSubSettingsOneDevice.extra_response_fields + ['events']

@@ -81,15 +81,16 @@ class HardDrive(Component):
     @classmethod
     def actual_fields(cls):
         fields = super().actual_fields()
-        # todo We need to add this because these events are taken from hardDrive in snapshot,
-        # We should remove them in Device POST, so they don't pass through the API and get generated.
-        # This fields are generated automatically by the API
-        del fields['erasure']['schema']['incidence']['default']
-        del fields['erasure']['schema']['secured']['default']
-        del fields['test']['schema']['incidence']['default']
-        del fields['test']['schema']['secured']['default']
-        fields['test']['schema']['device']['required'] = False
-        fields['erasure']['schema']['device']['required'] = False
+        if cls._import_schemas:
+            # todo We need to add this because these events are taken from hardDrive in snapshot,
+            # We should remove them in Device POST, so they don't pass through the API and get generated.
+            # This fields are generated automatically by the API
+            del fields['erasure']['schema']['incidence']['default']
+            del fields['erasure']['schema']['secured']['default']
+            del fields['test']['schema']['incidence']['default']
+            del fields['test']['schema']['secured']['default']
+            fields['test']['schema']['device']['required'] = False
+            fields['erasure']['schema']['device']['required'] = False
         return fields
 
 

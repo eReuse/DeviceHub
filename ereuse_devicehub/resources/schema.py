@@ -18,6 +18,12 @@ class UnitCodes:
     kgm = 'KGM'
     m = 'MTR'
 
+    @classmethod
+    def humanize(cls, code_to_search):
+        for human_name, code in vars(cls).items():
+            if code == code_to_search:
+                return human_name
+
 
 class RDFS(Resource):
     label = {
@@ -33,6 +39,7 @@ class RDFS(Resource):
     _settings = {
         'abstract': True
     }
+    _import_schemas = True
 
     @classmethod
     def actual_fields(cls):
@@ -40,17 +47,19 @@ class RDFS(Resource):
         Returns the fields of only this class.
         """
         fields = super(RDFS, cls).actual_fields()
-        references = []
-        NestedLookup(fields, references, NestedLookup.is_sub_type_factory(RDFS))
-        for document, ref_key in references:
-            document[ref_key] = document[ref_key]()
+        if cls._import_schemas:
+            references = []
+            NestedLookup(fields, references, NestedLookup.is_sub_type_factory(RDFS))
+            for document, ref_key in references:
+                document[ref_key] = document[ref_key]()
         return fields
 
     @staticmethod
-    def __new__(cls, *more) -> dict:
+    def __new__(cls, import_schemas=True) -> dict:
         """
             Returns all the attributes of all the heriarchy: sub-classess and super-classes.
         """
+        RDFS._import_schemas = import_schemas  # todo not thread safe
         full_dict = cls.superclasses_fields(2)  # We ignore Object and Resource
         allowed = full_dict['@type']['allowed']
         full_dict.update(cls.subclasses_fields())
@@ -86,7 +95,7 @@ class RDFS(Resource):
             Extends :func:`Resource._clean` by setting @type accordingly and adding the 'allowed' property.
         """
         attributes_to_remove = tuple() if attributes_to_remove is None else attributes_to_remove
-        fields = super()._clean(attributes, attributes_to_remove + ('_settings',))
+        fields = super()._clean(attributes, attributes_to_remove + ('_settings','_import_schemas'))
         if '_type' in fields:
             fields['@type'] = fields['_type']
             del fields['_type']

@@ -35,6 +35,8 @@ class Component(Device):
 
 class ComponentSettings(DeviceSettings):
     _schema = Component
+    resource_methods = []
+    item_methods = []
 
 
 class ComponentSubSettings(DeviceSubSettings):

@@ -11,19 +11,18 @@ from requests.compat import basestring
 
 def cache(expires=None, round_to_minute=False):
     """
-    Add Flask cache response headers based on expires in seconds.
+        Add Flask cache response headers based on expires in seconds.
 
-    If expires is None, caching will be disabled.
-    Otherwise, caching headers are set to expire in now + expires seconds
-    If round_to_minute is True, then it will always expire at the start of a minute (seconds = 0)
+        If expires is None, caching will be disabled.
+        Otherwise, caching headers are set to expire in now + expires seconds
+        If round_to_minute is True, then it will always expire at the start of a minute (seconds = 0)
 
-    Example usage:
+        Example usage:
 
-    @app.route('/map')
-    @cache(expires=60)
-    def index():
-      return render_template('index.html')
-
+        @app.route('/map')
+        @cache(expires=60)
+        def index():
+          return render_template('index.html')
     """
 
     def cache_decorator(view):

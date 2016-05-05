@@ -7,7 +7,7 @@ from ereuse_devicehub.validation import HID_REGEX
 
 class DeviceSettings(ResourceSettings):
     resource_methods = ['GET', 'POST']
-    item_methods = ['GET', 'PATCH']  # todo patch should only be able to modify selected fields like public
+    item_methods = ['GET', 'PATCH']
     _schema = Device
     additional_lookup = {
         'field': 'hid',
@@ -32,5 +32,5 @@ class DeviceSettings(ResourceSettings):
 
 class DeviceSubSettings(DeviceSettings):
     _schema = False
-    resource_methods = ['POST']
-    item_methods = ['DELETE', 'PATCH']
+    resource_methods = []
+    item_methods = []

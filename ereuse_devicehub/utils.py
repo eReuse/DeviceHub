@@ -3,7 +3,7 @@ import linecache
 import sys
 
 import inflection as inflection
-from flask import Response
+from flask import Response, current_app
 from flask.ext.cache import Cache
 from werkzeug.local import LocalProxy
 
@@ -21,7 +21,8 @@ class Naming:
         - resource-case is the eve naming, using the standard URI conventions. This one is tricky, as although the types
         are represented in singular, the URI convention is to be plural (Event vs events), however just few of them
         follow this rule (Snapshot [type] to snapshot [resource]). You can set which ones you want to change their number.
-        - python_case is the one used by python for its folders and modules. It is underscored and always singular
+        - python_case is the one used by python for its folders and modules. It is underscored and always singular.
+
     """
 
     @staticmethod
@@ -78,13 +79,10 @@ class NestedLookup:
 
     @staticmethod
     def is_sub_type_factory(type):
-        def is_sub_type(key, value):
-            try:
-                return issubclass(value, type)
-            except TypeError:
-                return issubclass(value.__class__, type)
+        def _is_sub_type(key, value):
+            return is_sub_type(value, type)
 
-        return is_sub_type
+        return _is_sub_type
 
     @staticmethod
     def _nested_lookup(document, references, operation):
@@ -107,6 +105,11 @@ class NestedLookup:
                         for result in NestedLookup._nested_lookup(d, references, operation):
                             yield result
 
+def is_sub_type(value, type):
+    try:
+        return issubclass(value, type)
+    except TypeError:
+        return issubclass(value.__class__, type)
 
 def get_last_exception_info():
     exc_type, exc_obj, tb = sys.exc_info()
@@ -143,10 +146,10 @@ class GeneralHooks:
                 resource_type = data['@type']
             except KeyError:
                 if payload._status_code == 304:
-                    payload.cache_control.max_age = 120
+                    payload.cache_control.max_age = current_app.config['ITEM_CACHE']
             else:
                 # If we are here it means it is an item endpoint, not a list (resource) endpoint
-                payload.cache_control.max_age = 120
+                payload.cache_control.max_age = current_app.config['ITEM_CACHE']
             payload.headers._list.append(get_header_link(resource_type))
 
 

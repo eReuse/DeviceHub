@@ -1,3 +1,6 @@
+"""
+DeviceHub app
+"""
 import inspect
 import os
 import sys

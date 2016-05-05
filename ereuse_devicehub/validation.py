@@ -150,6 +150,9 @@ class DeviceHubValidator(Validator):
     def _validate_unitCode(self, nothing, field, value):
         pass
 
+    def _validate_doc(self, nothing, field, value):
+        pass
+
     @staticmethod
     def _validate_writeonly(x, y, z):
         """

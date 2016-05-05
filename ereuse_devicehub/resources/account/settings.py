@@ -20,32 +20,36 @@ class Account(RDFS):
         'type': 'string',
         # 'required': True, todo active OR password required
         'minlength': 4,
-        'sink': 4
+        'sink': 4,
+        'doc': 'Users can only see their own passwords.'
     }
     role = {
         'type': 'string',
         'allowed': set(Role.ROLES),
         'default': Role.BASIC,
+        'doc': 'See the Roles section to get more info.',
         ALLOWED_WRITE_ROLES: Role.MANAGERS
     }
     token = {
         'type': 'string',
-        'readonly': True
+        'readonly': True,
     }
     name = {
         'type': 'string',
-        'sink': 3
+        'sink': 3,
+        'description': 'The name of an account, if it is a person or an organization.'
     }
     organization = {
         'type': 'string',
-        'sink': 1
+        'sink': 1,
+        'description': 'The name of the organization the account is in. Organizations can be inside other organizations.'
     }
     active = {
         'type': 'boolean',
         'default': True,
         'sink': -1,
-        'description': 'Activate the account so you can start using it.'
-        # Accounts created through an event are inactive
+        'description': 'Activate the account so you can start using it.',
+        'doc': 'Inactive accounts cannot login, and they are created through regular events. `Employee` or below cannot see this parameter.'
     }
     blocked = {
         'type': 'boolean',
@@ -55,7 +59,7 @@ class Account(RDFS):
         ALLOWED_WRITE_ROLES: Role.MANAGERS
     }
     isOrganization = {
-        'type': 'boolean',  # If is an organization,  name needs to be filled, too
+        'type': 'boolean',
         'sink': 2
     }
     databases = {  # todo set allowed for the active databases

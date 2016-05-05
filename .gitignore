@@ -52,7 +52,6 @@ docs/_build/
 
 # Logs
 logs/**
-docs/**
 
 /app.py
 /settings.py

@@ -14,6 +14,13 @@ def event_hooks(app):
     app.on_fetched_item += project_item
     app.on_fetched_resource += project_resource
 
+    from app.account.hooks import set_byUser, add_or_get_inactive_account, set_byOrganization
+    app.on_insert += set_byUser
+    app.on_insert_receive += add_or_get_inactive_account  # We need to execute after insert and insert_resource as it
+    app.on_insert_register += add_or_get_inactive_account  # deletes the 'unregistered...'
+    app.on_insert_allocate += add_or_get_inactive_account
+    app.on_insert += set_byOrganization
+
     from app.device.hooks import generate_etag, get_icon, get_icon_resource, autoincrement, post_benchmark, \
         materialize_public_in_components, materialize_public_in_components_update
     app.on_insert += generate_etag
@@ -48,6 +55,8 @@ def event_hooks(app):
     from app.event.remove.hooks import remove_components
     app.on_inserted_remove += remove_components
 
+
+
     from app.event.allocate.hooks import materialize_actual_owners_add, avoid_repeating_allocations, set_organization
     app.on_insert_allocate += avoid_repeating_allocations
     app.on_inserted_allocate += materialize_actual_owners_add
@@ -66,12 +75,7 @@ def event_hooks(app):
     app.on_insert_accounts += hash_password
     app.on_insert_accounts += set_default_database_if_empty
 
-    from app.account.hooks import set_byUser, add_or_get_inactive_account, set_byOrganization
-    app.on_insert += set_byUser
-    app.on_insert_receive += add_or_get_inactive_account  # We need to execute after insert and insert_resource as it
-    app.on_insert_register += add_or_get_inactive_account  # deletes the 'unregistered...'
-    app.on_insert_allocate += add_or_get_inactive_account
-    app.on_insert += set_byOrganization
+
 
     from app.event.receive.hooks import transfer_property, set_organization
     app.on_insert_receive += transfer_property

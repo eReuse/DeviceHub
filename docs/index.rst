@@ -3,11 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to DeviceHub's documentation!
-=====================================
+DeviceHub's documentation
+=========================
 
-Requires:
-    My project depends on X,Y,Z.
+This is the API and in-line documentation of the development version of  `DeviceHub <https://github.com/eReuse/DeviceHub/tree/modules>`_.
 
 Contents:
 
@@ -15,6 +14,7 @@ Contents:
    :maxdepth: 2
 
    api
+   modules
 
 
 

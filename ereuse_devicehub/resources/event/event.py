@@ -29,7 +29,7 @@ class Event:
 
     @staticmethod
     def get_generic_types() -> set:
-        return {'Ready', 'Repair', 'ToPrepare', 'ToRepair', 'ToRecycle', 'Recycle'}
+        return {'Ready', 'Repair', 'ToPrepare', 'ToRepair', 'ToDispose', 'Dispose', 'Free'}
 
     @staticmethod
     def get_special_types() -> set:

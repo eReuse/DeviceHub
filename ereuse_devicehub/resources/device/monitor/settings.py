@@ -2,7 +2,7 @@ from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.device.settings import DeviceSubSettings
 
 
-class Monitor(Device):
+class ComputerMonitor(Device):
     type = {
         'type': 'string',
         'allowed': {'TFT', 'LCD'}
@@ -13,4 +13,4 @@ class Monitor(Device):
 
 
 class MonitorSettings(DeviceSubSettings):
-    _schema = Monitor
+    _schema = ComputerMonitor

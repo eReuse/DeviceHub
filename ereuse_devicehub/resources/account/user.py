@@ -67,7 +67,7 @@ class Role:
     """
     Roles specify what users can do generally.
     Locations alter what users can do. Locations permissions > roles. Admins don't get affected by location perms.
-    Roles are ordered jeriarchially. This means that an amateur role has the same permissions as a basic, and more.
+    Roles are ordered hierarchically. This means that an amateur role has the same permissions as a basic, and more.
     An employee can do the same as an amateur, and more.
     The gradient is:
     BASIC < AMATEUR < EMPLOYEE < ADMIN < SUPERUSER

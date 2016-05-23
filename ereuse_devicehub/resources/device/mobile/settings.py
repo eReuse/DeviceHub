@@ -3,10 +3,6 @@ from ereuse_devicehub.resources.device.settings import DeviceSubSettings
 
 
 class Mobile(Device):
-    type = {
-        'type': 'string',
-        'allowed': {'Smartphone', 'Tablet'}
-    }
     imei = {
         'type': 'string',
         'unique': True
@@ -15,6 +11,14 @@ class Mobile(Device):
         'type': 'string',
         'unique': True
     }
+
+
+class MobilePhone(Mobile):
+    pass
+
+
+class TabletComputer(Mobile):
+    pass
 
 
 class MobileSettings(DeviceSubSettings):

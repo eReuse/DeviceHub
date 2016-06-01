@@ -1,4 +1,4 @@
-from tests.test_events import TestEvent
+from tests.test_resources.test_events import TestEvent
 
 
 class TestAllocate(TestEvent):

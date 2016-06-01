@@ -96,6 +96,24 @@ class Resource:
     def actual_fields(cls):
         return cls._clean(dict(vars(cls)), ())
 
+    @classmethod
+    def create(cls, name: str, parent_schema: object, schema: dict, parent_resource_settings: object, resource_settings: dict):
+        """
+        Defines a new resource, setting its endpoint settings and schema.
+
+        Use this method before instantiating the app (app = DeviceHub()). Future work is to avoid this restriction.
+        :param name: The name of the resource to create. We append 'Settings' for the settings of the resource.
+        :param parent_schema: The parent class to extend, minimum RDFS.
+        :param schema: A dict personalizing the schema, or empty dict if using exactly the same schema of the parent.
+        :param parent_resource_settings: As 'parent_schema', the ResourceSettings class or subclass to extend from.
+        :param resource_settings: As 'schema', for the resource settings.
+        """
+        # Although it is not very pythonic to register in globals, we are doing so at initialization
+        globals()[name] = type(name, (parent_schema,), schema)
+        resource_settings_name = '{}Settings'.format(name)
+        resource_settings['_schema'] = globals()[name]
+        globals()[resource_settings_name] = type(resource_settings_name, (parent_resource_settings,), resource_settings)
+
 
 class ResourceSettings(Resource):
     # Custom defaults (apart from defined defaults in EVE's settings)

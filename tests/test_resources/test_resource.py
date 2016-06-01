@@ -39,8 +39,8 @@ class TestResource(TestStandard):
         # Let's check we can perform some actions
         # Let's create a dummy device
         dummy_device = {'serialNumber': '33', 'model': 'model1', 'manufacturer': '234', self.dummy_field: 'dummyField', '@type': self.dummy_device_name}
-        _, status_code = self.post(self.DEVICES, dummy_device)
-        self.assert201(status_code)
+        register = {'@type': 'Register', 'device': dummy_device}
+        self.post_and_check('{}/{}'.format(self.EVENTS, 'register'), register)
         # And now without the necessary new field
         # wrong_dummy_device = dummy_device
         # del wrong_dummy_device[self.dummy_field]

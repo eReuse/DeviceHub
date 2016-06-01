@@ -6,7 +6,7 @@ from ereuse_devicehub.validation import HID_REGEX
 
 
 class DeviceSettings(ResourceSettings):
-    resource_methods = ['GET', 'POST']
+    resource_methods = ['GET']
     item_methods = ['GET', 'PATCH']
     _schema = Device
     additional_lookup = {
@@ -19,9 +19,8 @@ class DeviceSettings(ResourceSettings):
         '@type and subtype': [('@type', pymongo.DESCENDING), ('type', pymongo.DESCENDING)],
         '@type and _created': [('@type', pymongo.DESCENDING), ('_created', pymongo.DESCENDING)]
     }
-    etag_ignore_fields = ['hid', '_id', 'components', 'isUidSecured', '_created', '_updated', '_etag', 'speed'
-                                                                                                       'busClock',
-                          'labelId', 'owners', 'place', 'benchmark', 'benchmarks', 'public', '_links',
+    etag_ignore_fields = ['hid', '_id', 'components', 'isUidSecured', '_created', '_updated', '_etag', 'speed',
+                          'busClock', 'labelId', 'owners', 'place', 'benchmark', 'benchmarks', 'public', '_links',
                           'forceCreation', 'icon', 'parent']
     cache_control = 'max-age=1, must-revalidate'
     extra_response_fields = ResourceSettings.extra_response_fields + ['hid', 'pid']

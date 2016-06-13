@@ -11,7 +11,7 @@ This is the API and in-line documentation of the development version of  `Device
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    api
    modules

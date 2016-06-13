@@ -256,3 +256,20 @@ class TestStandard(TestBase):
                 component, _ = self.get(self.DEVICES, '', component_id)
                 self.assertIn('place', component)
                 self.assertIn(place_id, component['place'])
+
+
+def set_dummy_db(app):
+    """
+    To use with integration tests with clients, *erases the db* and creates a dummy user. See the code for more info.
+    """
+    with app.app_context():
+        db = app.data.driver.db
+        db.accounts.drop()  # todo only erases the 'accounts' collection
+        db.accounts.insert({
+            "password": sha256_crypt.encrypt("example"),
+            "role": "admin",
+            "defaultDatabase": "db1",
+            "token": "123",
+            "databases": ["db1", "db2"],
+            "email": "example@example.com"
+        })

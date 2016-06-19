@@ -137,7 +137,7 @@ class TestBase(TestMinimal):
 
 class TestStandard(TestBase):
     @staticmethod
-    def get_json_from_file(filename: str, directory: str = None, parse_json=True) -> dict:
+    def get_json_from_file(filename: str, directory: str = None, parse_json=True, mode='r') -> dict:
         """
 
         :type filename: str
@@ -146,7 +146,7 @@ class TestStandard(TestBase):
         """
         if directory is None:
             directory = os.path.dirname(os.path.realpath(__file__))
-        with open(os.path.abspath(os.path.join(directory, filename))) as data_file:
+        with open(os.path.abspath(os.path.join(directory, filename)), mode=mode) as data_file:
             value = json.load(data_file) if parse_json else data_file.read()
         return value
 
@@ -180,8 +180,8 @@ class TestStandard(TestBase):
     def assertLen(self, list_to_assert: list, length: int):
         self.assertEqual(len(list_to_assert), length)
 
-    def get_fixture(self, resource_name, file_name, parse_json=True):
-        return self.get_json_from_file('fixtures/{}/{}.json'.format(resource_name, file_name), None, parse_json)
+    def get_fixture(self, resource_name, file_name, parse_json=True, directory=None, extension='json', mode='r'):
+        return self.get_json_from_file('fixtures/{}/{}.{}'.format(resource_name, file_name, extension), directory, parse_json, mode)
 
     def post_fixture(self, resource_name, url, file_name):
         return self.post_and_check(url, self.get_fixture(resource_name, file_name))

@@ -1,8 +1,8 @@
 from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.device.settings import DeviceSubSettings
 from ereuse_devicehub.resources.resource import Resource
+from ereuse_devicehub.tests import TestStandard
 from ereuse_devicehub.utils import Naming
-from tests import TestStandard
 
 
 class TestResource(TestStandard):

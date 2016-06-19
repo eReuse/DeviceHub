@@ -1,6 +1,6 @@
 from time import sleep
 
-from tests import TestStandard
+from ereuse_devicehub.tests import TestStandard
 
 
 class TestEvent(TestStandard):

@@ -3,9 +3,9 @@ import os
 from pprint import pprint
 from random import choice
 
+from ereuse_devicehub.tests import TestStandard
 from ereuse_devicehub.utils import Naming
 from ereuse_devicehub.utils import NestedLookup
-from tests import TestStandard
 
 
 # noinspection PyUnresolvedReferences,PyDeprecation

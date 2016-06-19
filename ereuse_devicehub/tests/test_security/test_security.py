@@ -1,4 +1,4 @@
-from tests import TestStandard
+from ereuse_devicehub.tests import TestStandard
 
 
 class TestSecurity(TestStandard):

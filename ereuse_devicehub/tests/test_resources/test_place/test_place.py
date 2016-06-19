@@ -1,6 +1,6 @@
 import copy
 
-from tests import TestStandard
+from ereuse_devicehub.tests import TestStandard
 
 
 class TestPlace(TestStandard):

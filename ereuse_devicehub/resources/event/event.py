@@ -25,7 +25,12 @@ class Event:
 
     @staticmethod
     def get_types() -> set:
-        return Event.get_special_types() | Event.get_generic_types()
+        # todo is it dangerous to return EventWithOneDevice and EventWithDevices?
+        from .settings import Event as EventSchema
+        from ereuse_devicehub.resources.event.settings import EventWithOneDevice
+        from ereuse_devicehub.resources.event import EventWithDevices
+        remove = (EventWithOneDevice, EventWithDevices)
+        return {cls.__name__ for cls in EventSchema.subclasses() if cls not in remove}
 
     @staticmethod
     def get_generic_types() -> set:

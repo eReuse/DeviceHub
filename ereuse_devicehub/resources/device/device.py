@@ -132,7 +132,7 @@ class Device:
 
     @staticmethod
     def get_direct_subclasses():
-        return 'Peripheral', 'Monitor', 'Mobile', 'Computer', 'Component'
+        return 'Peripheral', 'Monitor', 'Mobile', 'Computer', 'Component', 'DummyDevice'
 
     @staticmethod
     def resource_types():

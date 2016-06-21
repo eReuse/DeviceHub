@@ -2,6 +2,7 @@ from eve.utils import document_etag
 from flask import current_app as app
 
 from ereuse_devicehub.resources.device.device import Device
+from ereuse_devicehub.resources.event import Event
 from ereuse_devicehub.utils import Naming
 
 
@@ -80,3 +81,24 @@ def materialize_public_in_components_update(resource: str, device: dict, origina
         if 'components' not in device:
             device['components'] = original['components']
         materialize_public_in_components(Naming.resource(original['@type']), [device])
+
+
+class MaterializeEvents:
+    """
+        Materializes some fields of the events in the affected device, benefiting searches. To keep minimum space,
+        only selected fields are materialized (which you can check in the following tuple)
+    """
+    fields = {
+        '_id', '@type', 'label', 'date', 'incidence', 'secured', 'comment', 'success', 'error', 'type', 'receiver',
+        'receiverOrganization', 'to', 'toOrganization', 'secured', 'byUser', 'geo'
+    }
+
+    @classmethod
+    def materialize_events(cls, resource: str, events: list):
+        if resource in Event.resource_types():
+            for event in events:
+                trimmed_event = {field_name: event[field_name] for field_name in cls.fields if field_name in event}
+                query = {'$push': {'events': {'$each': [trimmed_event], '$position': 0}}}
+                devices = event['device'] if 'device' in event else event['devices']
+                Device.update(devices, query)
+

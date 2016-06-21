@@ -175,15 +175,17 @@ class DeviceHubValidator(Validator):
     def _validate_modifiable(self, boolean, field, value):
         """
         Validates that a value is not modified: once the value has ben set, it cannot be changed.
-        :param boolean:
-        :param field:
-        :param value:
-        :return:
         """
         if not boolean:
             if hasattr(self, '_original_document') and self._original_document is not None \
                     and field in self._original_document and value != self._original_document[field]:
                 self._error(field, 'You cannot modify this value.')
+
+    def _validate_materialized(self, _, field, value):
+        """
+        Just to show which values are materialized. They behave like *readonly*.
+        """
+        self._validate_readonly(True, field, value)
 
     def _error(self, field, _error):
         super()._error(field, _error)

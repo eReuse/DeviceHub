@@ -22,6 +22,7 @@ class TestResource(TestStandard):
         super().setUp(settings_file, url_converters)
 
     def create_dummy_type_of_device(self):
+        # todo this method will fail if TestResource is not the **first** test executed
         Resource.create(self.dummy_device_name, Device, self.dummy_device_class, DeviceSubSettings, self.dummy_device_settings)
 
     def test_resource(self):

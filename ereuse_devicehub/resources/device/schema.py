@@ -97,7 +97,7 @@ class Device(IndividualProduct):
             'embeddable': True,
             'field': '_id'
         },
-        'readonly': True,  # Materialized
+        'materialized': True,
         'sink': 2
     }
     owners = {
@@ -110,10 +110,17 @@ class Device(IndividualProduct):
                 'field': '_id'
             }
         },
-        'readonly': True,  # Materialized
+        'materialized': True,
         'sink': 2
     }
     public = {
         'type': 'boolean',
         'default': False
+    }
+    events = {
+        'type': 'list',
+        'schema': {
+            'type': 'dict'
+        },
+        'materialized': True
     }

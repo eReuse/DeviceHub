@@ -18,8 +18,7 @@ def login():
         account = User.get({'email': request.json['email']})
         if not sha256_crypt.verify(request.json['password'], account['password']):
             raise WrongCredentials()
-        account['token'] = base64.b64encode(
-            str.encode(account['token'] + ':'))  # Framework needs ':' at the end before send it to client
+        account['token'] = User.hash_token(account['token'])
         account['_id'] = str(account['_id'])
         return jsonify(account)
     except (KeyError, TypeError):

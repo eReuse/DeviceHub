@@ -1,3 +1,5 @@
+import base64
+
 from bson import ObjectId
 from flask import current_app
 from flask import g
@@ -61,6 +63,11 @@ class User:
         if result.count == 0:
             raise CannotImportKey()
         return result.fingerprint[0]
+
+    @staticmethod
+    def hash_token(token):
+        return base64.b64encode(
+            str.encode(token + ':'))  # Framework needs ':' at the end before send it to client
 
 
 class Role:

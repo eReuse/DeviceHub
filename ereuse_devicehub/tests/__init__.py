@@ -23,8 +23,8 @@ class TestBase(TestMinimal):
         from ereuse_devicehub import default_settings as settings
         settings.MONGO_DBNAME = 'devicehubtest'
         settings.DATABASES = 'dht1', 'dht2'
-        settings.DHT1_DBNAME = self.FIRST_DB = 'dht_1'
-        settings.DHT2_DBNAME = self.SECOND_DB = 'dht_2'
+        settings.DHT1_DBNAME = 'dht1_'
+        settings.DHT2_DBNAME = 'dht2_'
         settings.LOGGER = True
         settings.GRD_DEBUG = True  # We do not want to actually fulfill GRD
         settings.APP_NAME = 'DeviceHub'
@@ -32,8 +32,11 @@ class TestBase(TestMinimal):
         settings.LOG = True
         settings.GRD = True
         settings.BASE_PATH_SHOWN_TO_GRD = 'www.example.com'
-
         self.app = DeviceHub()
+        self.in_tests = True
+        self.prepare()
+
+    def prepare(self):
         self.MONGO_DBNAME = self.app.config['MONGO_DBNAME']
         self.MONGO_HOST = self.app.config['MONGO_HOST']
         self.MONGO_PORT = self.app.config['MONGO_PORT']
@@ -57,7 +60,8 @@ class TestBase(TestMinimal):
         # When executing many tests, it seems that the cache of pymongo has not been emptied
         # And the existance of the cache is used to know if it has benn called init_app, which has not
         # So we need to call init_app from here
-        self.app.data.init_app(self.app)
+        if getattr(self, 'in_tests', False):  # We only want to do this when we are performing tests (not in DummyDB)
+            self.app.data.init_app(self.app)
         # We won't be able to close connection without this (we do not use media)
         self.app.media = {}
 
@@ -73,11 +77,16 @@ class TestBase(TestMinimal):
                 '@type': 'Account'
             }
         )
+        self.account = self.db.accounts.find_one({'email': 'a@a.a'})
+
+    def tearDown(self):
+        self.dropDB()
+        del self.app
 
     def drop_databases(self):
         self.connection.drop_database(self.MONGO_DBNAME)
-        self.connection.drop_database(self.FIRST_DB)
-        self.connection.drop_database(self.SECOND_DB)
+        for database in self.app.config['DATABASES']:
+            self.connection.drop_database(self.app.config[database.upper() + '_DBNAME'])
 
     def dropDB(self):
         self.drop_databases()
@@ -258,18 +267,3 @@ class TestStandard(TestBase):
                 self.assertIn(place_id, component['place'])
 
 
-def set_dummy_db(app):
-    """
-    To use with integration tests with clients, *erases the db* and creates a dummy user. See the code for more info.
-    """
-    with app.app_context():
-        db = app.data.driver.db
-        db.accounts.drop()  # todo only erases the 'accounts' collection
-        db.accounts.insert({
-            "password": sha256_crypt.encrypt("example"),
-            "role": "admin",
-            "defaultDatabase": "db1",
-            "token": "123",
-            "databases": ["db1", "db2"],
-            "email": "example@example.com"
-        })

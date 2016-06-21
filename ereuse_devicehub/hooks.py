@@ -84,3 +84,7 @@ def hooks(app):
     app.on_delete_item_places += avoid_deleting_if_has_event
     app.on_deleted_item_places += unset_place_in_devices
     app.on_replaced_places += update_place_in_devices
+
+    # Device materializations
+    from ereuse_devicehub.resources.device.hooks import MaterializeEvents
+    app.on_inserted += MaterializeEvents.materialize_events

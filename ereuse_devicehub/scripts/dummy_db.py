@@ -24,9 +24,9 @@ class DummyDB:
         self.test_snapshot.prepare()
         self.test_snapshot.create_dummy_user()
 
-    def create_dummy_devices(self):
+    def create_dummy_devices(self, maximum: int=None):
         self.test_snapshot.creation = self._creation
-        self.test_snapshot.test_snapshot_2015_12_09()
+        self.test_snapshot.test_snapshot_2015_12_09(maximum)
         pprint('Finished basic creation of devices.')
 
     def _creation(self, input_snapshot, *args, **kwargs):

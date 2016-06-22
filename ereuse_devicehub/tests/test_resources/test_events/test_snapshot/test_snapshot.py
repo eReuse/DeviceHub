@@ -198,15 +198,19 @@ class TestSnapshot(TestStandard):
             num_events = self.get_num_events(snapshot)
             self.creation(snapshot, num_events)
 
-    def test_snapshot_2015_12_09(self):
+    def test_snapshot_2015_12_09(self, maximum: int=None):
         this_directory = os.path.dirname(os.path.realpath(__file__))
         file_directory = os.path.join(this_directory, 'resources', '2015-12-09')
+        i = 0
         for filename in os.listdir(file_directory):
+            if maximum is not None and i >= maximum:
+                break
             if 'json' in filename:
                 pprint(filename)
                 snapshot = self.get_json_from_file(filename, file_directory)
                 num_events = self.get_num_events(snapshot)
                 self.creation(snapshot, num_events)
+                i += 1
 
     def test_benchmark(self):
         # todo add benchmark for processors (which is done in `test_erase_sectors`

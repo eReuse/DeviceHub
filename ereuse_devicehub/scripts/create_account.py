@@ -15,7 +15,7 @@ def create_account(email: str, password: str, databases: list,
     """
     Creates an account. You can call the file directly::
 
-        create_account.py b@b.b 123 ['db1'] superuser
+        create_account.py b@b.b 123 [\'db1\'] superuser
 
     :param email:
     :param password:

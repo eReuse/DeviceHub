@@ -1,6 +1,6 @@
 from pprint import pprint
 
-from ereuse_devicehub.tests.test_resources.test_events.test_snapshot.test_snapshot import TestSnapshot
+from ereuse_devicehub.tests.test_resources.test_events.test_device_event.test_snapshot import TestSnapshot
 
 
 class DummyDB:
@@ -17,6 +17,7 @@ class DummyDB:
         :func:`ereuse_devicehub.tests.TestBase.create_dummy_user`.
 
     """
+
     def __init__(self, app):
         self.app = app
         self.test_snapshot = TestSnapshot()
@@ -24,7 +25,7 @@ class DummyDB:
         self.test_snapshot.prepare()
         self.test_snapshot.create_dummy_user()
 
-    def create_dummy_devices(self, maximum: int=None):
+    def create_dummy_devices(self, maximum: int = None):
         self.test_snapshot.creation = self._creation
         self.test_snapshot.test_snapshot_2015_12_09(maximum)
         pprint('Finished basic creation of devices.')

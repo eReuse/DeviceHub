@@ -17,7 +17,7 @@ from ereuse_devicehub.error_handler import ErrorHandlers
 from ereuse_devicehub.hooks import hooks
 from ereuse_devicehub.request import RequestSignedJson
 from ereuse_devicehub.resources.account.login.settings import login
-from ereuse_devicehub.resources.event.logger.grd_logger.grd_logger import GRDLogger
+from ereuse_devicehub.resources.event.device.logger.grd_logger.grd_logger import GRDLogger
 from ereuse_devicehub.resources.resource import ResourceSettings
 from ereuse_devicehub.security.authentication import RolesAuth
 from ereuse_devicehub.static import send_device_icon

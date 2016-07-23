@@ -1,9 +1,9 @@
 import os
 
 import requests
-from settings import GRD_DOMAIN
 
-from ereuse_devicehub.resources.event.logger.grd_logger.grd_auth import GRDAuth
+from ereuse_devicehub.default_settings import GRD_DOMAIN
+from ereuse_devicehub.resources.event.device.logger.grd_logger.grd_auth import GRDAuth
 from ereuse_devicehub.security.request_auth import Auth
 from ereuse_devicehub.tests import TestStandard
 

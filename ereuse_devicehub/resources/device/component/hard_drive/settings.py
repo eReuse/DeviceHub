@@ -1,7 +1,7 @@
 from ereuse_devicehub.resources.device.benchmark_settings import BenchmarkHardDrive
 from ereuse_devicehub.resources.device.component.settings import Component, ComponentSubSettings
-from ereuse_devicehub.resources.event.erase_basic.settings import EraseBasic
-from ereuse_devicehub.resources.event.test_hard_drive.settings import TestHardDrive
+from ereuse_devicehub.resources.event.device.erase_basic.settings import EraseBasic
+from ereuse_devicehub.resources.event.device.test_hard_drive.settings import TestHardDrive
 from ereuse_devicehub.resources.schema import UnitCodes
 
 

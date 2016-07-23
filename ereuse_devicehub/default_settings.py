@@ -86,8 +86,8 @@ EVENTS_IN_GRD = 'deallocate', 'migrate', 'allocate', 'receive', 'remove', 'add',
 
 # Generation of the API (DOMAIN)
 from ereuse_devicehub.resources.device.settings import DeviceSettings
-from ereuse_devicehub.resources.event.settings import EventSettings
 from ereuse_devicehub.resources.account.settings import AccountSettings
+from ereuse_devicehub.resources.event.settings import EventSettings
 from ereuse_devicehub.resources.place.settings import PlaceSettings
 
 DOMAIN = {

@@ -9,7 +9,7 @@ from flask import current_app as app
 from validators.utils import ValidationFailure
 
 from ereuse_devicehub.resources.account.user import User
-from ereuse_devicehub.utils import Naming
+from ereuse_devicehub.utils import Naming, NestedLookup, coerce_type
 
 ALLOWED_WRITE_ROLES = 'dh_allowed_write_roles'
 DEFAULT_AUTHOR = 'dh_default_author'
@@ -23,6 +23,7 @@ class DeviceHubValidator(Validator):
     special_rules = Validator.special_rules + ('or',)
 
     def _validate(self, document, schema=None, update=False, context=None):
+        self._coerce_type(document)
         super(DeviceHubValidator, self)._validate(document, schema, update, context)
         self._validate_or(self._current)
         return len(self._errors) == 0
@@ -38,6 +39,16 @@ class DeviceHubValidator(Validator):
                 if field_names.isdisjoint(document.keys()):
                     self._error(next(iter(field_names)),
                                 'You need at least one of the following: {}'.format(field_names))
+
+    def _coerce_type(self, fields):
+        """
+         A coerce method masked in a validation one, as coerce has some bugs in Cerberus 0.96.
+
+         Warning: Do not read from @type in other validations as this method changes the value.
+         """
+        # todo move it to a coerce method when Cerberus 0.10 is out
+        if fields:
+            coerce_type(fields)
 
     def _validate_dh_if_value_require(self, condition: tuple, field: str, value):
         desired_value, fields = condition
@@ -69,8 +80,8 @@ class DeviceHubValidator(Validator):
 
             response = app.data.find_one_raw(self.resource, query)
             if response:
-                from ereuse_devicehub.resources.device.device import Device
-                device = Device.get_one(response['_id'])
+                from ereuse_devicehub.resources.device.domain import DeviceDomain
+                device = DeviceDomain.get_one(response['_id'])
                 self._error(field, json_util.dumps({'NotUnique': device}))
 
     def _validate_type_hid(self, field, value):
@@ -82,7 +93,7 @@ class DeviceHubValidator(Validator):
             - If it has a parent, ensures that the device is unique.
             - If it has not a parent, validates that the device has an user provided _id.
         """
-        from ereuse_devicehub.resources.device.device import Device
+        from ereuse_devicehub.resources.device.component.domain import ComponentDomain
         from ereuse_devicehub.resources.device.exceptions import DeviceNotFound
         try:
             self.document['hid'] = Naming.url_word(self.document['manufacturer']) + \
@@ -94,7 +105,7 @@ class DeviceHubValidator(Validator):
             if '_id' not in self.document:  # We do not validate here the unique constraint of _id
                 if 'parent' in self.document:
                     try:
-                        component = Device.get_similar_component(self.document, self.document['parent'])
+                        component = ComponentDomain.get_similar_component(self.document, self.document['parent'])
                         self._error('model', json_util.dumps({'NotUnique': component}))
                     except (KeyError, DeviceNotFound):
                         pass
@@ -192,5 +203,8 @@ class DeviceHubValidator(Validator):
         # In DeviceHub, some errors may need to check for other errors, which can cause the same error
         # being showed again. Let's remove duplicates
         # todo do this after using all the errors
-        if type(self._errors[field]) is list:
-            self._errors[field] = list(set(self._errors[field]))
+        try:
+            if type(self._errors[field]) is list:
+                self._errors[field] = list(set(self._errors[field]))
+        except TypeError as e:
+            a = 2

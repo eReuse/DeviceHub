@@ -1,4 +1,5 @@
 from ereuse_devicehub.exceptions import StandardError, SchemaError
+from ereuse_devicehub.resources.domain import ResourceNotFound
 
 
 class HidError(StandardError):
@@ -14,8 +15,8 @@ class DeviceAlreadyExists(SchemaError):
         self.message = self._id = _id
 
 
-class DeviceNotFound(StandardError):
-    status_code = 401
+class DeviceNotFound(ResourceNotFound):
+    pass
 
 
 class NoDevicesToProcess(StandardError):

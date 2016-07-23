@@ -5,7 +5,7 @@ the UN/CEFACT Common Code.
 import copy
 
 from ereuse_devicehub.resources.resource import Resource
-from ereuse_devicehub.utils import Naming, NestedLookup
+from ereuse_devicehub.utils import Naming, NestedLookup, ClassProperty
 
 
 class UnitCodes:
@@ -37,7 +37,10 @@ class RDFS(Resource):
         'teaser': False
     }
     _settings = {
-        'abstract': True
+        'prefix': None, """JSON-LD prefix to use in type. Override it to use prefix for the class."""
+        'abstract': True,
+        'attributes_to_remove': ('_settings', '_import_schemas', '_types', 'resource_types',
+                                 'type_name', 'types', 'resource_name')
     }
     _import_schemas = True
 
@@ -95,24 +98,54 @@ class RDFS(Resource):
             Extends :func:`Resource._clean` by setting @type accordingly and adding the 'allowed' property.
         """
         attributes_to_remove = tuple() if attributes_to_remove is None else attributes_to_remove
-        fields = super()._clean(attributes, attributes_to_remove + ('_settings','_import_schemas'))
+        fields = super()._clean(attributes, attributes_to_remove + cls._settings['attributes_to_remove'])
         if '_type' in fields:
             fields['@type'] = fields['_type']
             del fields['_type']
             if 'allowed' not in fields['@type']:
-                fields['@type']['allowed'] = {cls.__name__}
+                fields['@type']['allowed'] = {cls.type_name}
         else:
             fields['@type'] = copy.deepcopy(RDFS._type)
-            fields['@type']['allowed'] = {cls.__name__}
+            fields['@type']['allowed'] = {cls.type_name}
         return fields
 
+    # noinspection PyNestedDecorators
+    @ClassProperty
     @classmethod
     def resource_name(cls):
-        return Naming.resource(cls.__name__)
+        return Naming.resource(cls.type_name)
 
+    # noinspection PyNestedDecorators
+    @ClassProperty
     @classmethod
     def type_name(cls):
-        return cls.__name__
+        return Naming.new_type(cls.__name__, cls._settings['prefix'])
+
+    """The following methods are not used to build the schema"""
+
+    # noinspection PyNestedDecorators
+    @ClassProperty
+    @classmethod
+    def types(cls):
+        """
+            Obtains the resource type (e.g. Accept) of the actual class and its subclasses.
+
+            To use this method override before the attribute _settings['prefix'] and
+            optionally override _settings['force_prefix'] which defaults at True.
+
+            Read-only.
+        """
+        try:
+            return cls._types
+        except AttributeError:
+            cls._types = {_class.type_name for _class in cls.subclasses() + [cls]}
+            return cls._types
+
+    # noinspection PyNestedDecorators
+    @ClassProperty
+    @classmethod
+    def resource_types(cls):
+        return {Naming.resource(type_name) for type_name in cls.types}
 
 
 class Thing(RDFS):
@@ -131,3 +164,4 @@ class Thing(RDFS):
         'sink': -4,
         'description': 'Full long description'
     }
+

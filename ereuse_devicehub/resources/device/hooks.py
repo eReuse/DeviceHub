@@ -1,20 +1,21 @@
 from eve.utils import document_etag
 from flask import current_app as app
 
-from ereuse_devicehub.resources.device.device import Device
-from ereuse_devicehub.resources.event import Event
+from ereuse_devicehub.resources.device.domain import DeviceDomain
+from ereuse_devicehub.resources.device.schema import Device
+from ereuse_devicehub.resources.event.device.settings import DeviceEvent
 from ereuse_devicehub.utils import Naming
 
 
 def generate_etag(resource: str, items: list):
-    if resource in Device.resource_types():
+    if resource in Device.resource_types:
         for item in items:
             item['_etag'] = document_etag(item,
                                           app.config['DOMAIN'][Naming.resource(item['@type'])]['etag_ignore_fields'])
 
 
 def get_icon(resource: str, item: dict):
-    if item['@type'] in Device.get_types():
+    if item['@type'] in Device.types:
         item_type = item['type'] if 'type' in item else item['@type']
         item['icon'] = 'devices/icons/{}.svg'.format(item_type)  # The path doesn't need to be the real one
 
@@ -32,7 +33,7 @@ def post_benchmark(resource: str, devices: list):
     :param resource:
     :param devices:
     """
-    if resource in Device.resource_types():
+    if resource in Device.resource_types:
         for device in devices:
             if 'benchmark' in device:
                 device['benchmarks'] = [device['benchmark']]
@@ -40,7 +41,7 @@ def post_benchmark(resource: str, devices: list):
 
 
 def autoincrement(resource: str, devices: list):
-    if resource in Device.resource_types():
+    if resource in Device.resource_types:
         for device in devices:
             device['_id'] = str(
                 get_next_sequence())  # string makes this compatible with other systems that use custom id
@@ -62,10 +63,10 @@ def materialize_public_in_components(resource: str, devices: list):
     :param devices:
     :return:
     """
-    if resource in Device.resource_types():
+    if resource in Device.resource_types:
         for device in devices:
             if 'components' in device:
-                Device.update(device['components'], {'$set': {'public': device.get('public', False)}})
+                DeviceDomain.update_raw(device['components'], {'$set': {'public': device.get('public', False)}})
 
 
 def materialize_public_in_components_update(resource: str, device: dict, original: dict):
@@ -77,7 +78,7 @@ def materialize_public_in_components_update(resource: str, device: dict, origina
     """
     # PATCH doesn't need to include components if we are not changing them
     # We have already saved the device to the DB so we can securely modify the device dictionary
-    if original['@type'] in Device.get_types():
+    if original['@type'] in Device.types:
         if 'components' not in device:
             device['components'] = original['components']
         materialize_public_in_components(Naming.resource(original['@type']), [device])
@@ -95,10 +96,9 @@ class MaterializeEvents:
 
     @classmethod
     def materialize_events(cls, resource: str, events: list):
-        if resource in Event.resource_types():
+        if resource in DeviceEvent.resource_types:
             for event in events:
                 trimmed_event = {field_name: event[field_name] for field_name in cls.fields if field_name in event}
                 query = {'$push': {'events': {'$each': [trimmed_event], '$position': 0}}}
                 devices = event['device'] if 'device' in event else event['devices']
-                Device.update(devices, query)
-
+                DeviceDomain.update_raw(devices, query)

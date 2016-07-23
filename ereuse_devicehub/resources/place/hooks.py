@@ -1,11 +1,12 @@
-from ereuse_devicehub.resources.event.event import Event, EventNotFound
-from ereuse_devicehub.resources.place.place import CannotDeleteIfHasEvent, Place
+from ereuse_devicehub.resources.event.device.domain import DeviceEventDomain
+from ereuse_devicehub.resources.event.domain import EventNotFound
+from ereuse_devicehub.resources.place.domain import PlaceDomain, CannotDeleteIfHasEvent
 
 
 def set_place_in_devices(items: list):
     for item in items:
         if 'devices' in item:
-            Place.update_devices(set(), set(item['devices']), item['_id'])
+            PlaceDomain.update_devices(set(), set(item['devices']), item['_id'])
 
 
 def update_place_in_devices_if_places(updated_place: dict, original_place: dict):
@@ -14,16 +15,16 @@ def update_place_in_devices_if_places(updated_place: dict, original_place: dict)
 
 
 def update_place_in_devices(replaced_place: dict, original_place: dict):
-    Place.update_devices(set(original_place['devices']), set(replaced_place['devices']), replaced_place['_id'])
+    PlaceDomain.update_devices(set(original_place['devices']), set(replaced_place['devices']), replaced_place['_id'])
 
 
 def unset_place_in_devices(place):
-    Place.update_devices(set(place['devices']), set(), None)
+    PlaceDomain.update_devices(set(place['devices']), set(), None)
 
 
 def avoid_deleting_if_has_event(item):
     try:
-        Event.get_one({'place': item['_id']})
+        DeviceEventDomain.get_one({'place': item['_id']})
     except EventNotFound:
         pass
     else:

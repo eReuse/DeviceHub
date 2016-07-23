@@ -9,8 +9,8 @@ class RolesAuth(TokenAuth):
     def authorized(self, allowed_roles, resource, method):
         authorized = super(RolesAuth, self).authorized(allowed_roles, resource, method)
         if not authorized and method == 'GET':
-            from ereuse_devicehub.resources.device.device import Device
-            if resource == 'devices' or resource in Device.resource_types():
+            from ereuse_devicehub.resources.device.schema import Device
+            if resource == 'devices' or resource in Device.resource_types:
                 # We will check if the device is authorized in a hook, later
                 # We avoid requesting the device at the database twice
                 authorized = True

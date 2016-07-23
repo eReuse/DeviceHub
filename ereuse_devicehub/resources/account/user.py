@@ -1,17 +1,13 @@
 import base64
 
-from bson import ObjectId
+from bson.objectid import ObjectId
 from flask import current_app
 from flask import g
 from flask import request
 from werkzeug.http import parse_authorization_header
 
 from ereuse_devicehub.exceptions import WrongCredentials, BasicError, StandardError
-
-
-class ClassProperty(property):
-    def __get__(self, cls, owner):
-        return self.fget.__get__(None, owner)()
+from ereuse_devicehub.utils import ClassProperty
 
 
 class User:
@@ -45,7 +41,6 @@ class User:
             # Documentation access this variable
             if str(e) != 'working outside of application context':
                 raise e
-
 
     @staticmethod
     def get(account_id_or_query: ObjectId or dict):

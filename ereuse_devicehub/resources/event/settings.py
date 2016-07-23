@@ -26,12 +26,6 @@ class Event(Thing):
         'sink': -4,
         'description': 'Short comment for fast and easy reading'
     }
-    geo = {
-        'type': 'point',
-        'sink': -5,
-        'description': 'Where did it happened'
-        # 'anyof': [{'required': True}, {'dependencies': ['place']}]  # me OR places
-    }
     byUser = {
         'type': 'objectid',
         'data_relation': {
@@ -48,74 +42,6 @@ class Event(Thing):
     }
 
 
-class EventWithOneDevice(Event):
-    device = {
-        'type': 'string',
-        'data_relation': {
-            'resource': 'devices',
-            'field': '_id',
-            'embeddable': True
-        },
-        'required': True
-    }
-
-
-class EventWithDevices(Event):
-    devices = {
-        'type': 'list',
-        'schema': {
-            'type': 'string',
-            'data_relation': {
-                'resource': 'devices',
-                'field': '_id',
-                'embeddable': True
-            }
-        },
-        'required': True
-    }
-
-
-place = {
-    'type': 'objectid',
-    'data_relation': {
-        'resource': 'places',
-        'field': '_id',
-        'embeddable': True
-    },
-    'sink': 0,
-    'description': 'Where did it happened'
-}
-
-# Materialized fields
-
-"""
-For add/remove, the user supplies this info. For allocate/locate/receive, this info is
-a readonly materialization of the the components of all the computers affected, to get an easier relationship
-between component - event when the event is performed to a parent
-"""
-components = {
-    'type': 'list',
-    'schema': {
-        'type': 'string',
-        'data_relation': {
-            'resource': 'devices',
-            'field': '_id',
-            'embeddable': True
-        }
-    },
-    'description': 'Components affected by the event.'
-}
-parent = {
-    'type': 'string',
-    'data_relation': {
-        'resource': 'devices',
-        'field': '_id',
-        'embeddable': True
-    },
-    'description': 'The event triggered in this computer.'
-}
-
-
 class EventSettings(ResourceSettings):
     resource_methods = ['GET']
     _schema = Event  # We update the schema in DOMAIN
@@ -129,17 +55,3 @@ class EventSettings(ResourceSettings):
         'components': [('components', pymongo.DESCENDING)],
     }
     cache_control = 'max-age=15, must-revalidate'
-
-
-class EventSubSettings(EventSettings):
-    _schema = False
-    resource_methods = ['POST']
-    item_methods = []
-
-
-class EventSubSettingsOneDevice(EventSubSettings):
-    _schema = False
-
-
-class EventSubSettingsMultipleDevices(EventSubSettings):
-    _schema = False

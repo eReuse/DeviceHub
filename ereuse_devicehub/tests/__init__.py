@@ -3,7 +3,7 @@ import os
 from pprint import pprint
 
 import simplejson as json
-from bson import ObjectId
+from bson.objectid import ObjectId
 from eve.methods.common import parse
 from eve.tests import TestMinimal
 from flask.ext.pymongo import MongoClient
@@ -15,6 +15,7 @@ from ereuse_devicehub.utils import Naming
 
 class TestBase(TestMinimal):
     DEVICES = 'devices'
+    DEVICE_EVENT = 'events/devices'
     EVENTS = 'events'
     PLACES = 'places'
     SNAPSHOT = 'snapshot'
@@ -29,6 +30,7 @@ class TestBase(TestMinimal):
         settings.GRD_DEBUG = True  # We do not want to actually fulfill GRD
         settings.APP_NAME = 'DeviceHub'
         settings.DEBUG = True
+        settings.TESTING = True
         settings.LOG = True
         settings.GRD = True
         settings.BASE_PATH_SHOWN_TO_GRD = 'www.example.com'
@@ -190,7 +192,8 @@ class TestStandard(TestBase):
         self.assertEqual(len(list_to_assert), length)
 
     def get_fixture(self, resource_name, file_name, parse_json=True, directory=None, extension='json', mode='r'):
-        return self.get_json_from_file('fixtures/{}/{}.{}'.format(resource_name, file_name, extension), directory, parse_json, mode)
+        return self.get_json_from_file('fixtures/{}/{}.{}'.format(resource_name, file_name, extension), directory,
+                                       parse_json, mode)
 
     def post_fixture(self, resource_name, url, file_name):
         return self.post_and_check(url, self.get_fixture(resource_name, file_name))
@@ -238,12 +241,12 @@ class TestStandard(TestBase):
         One computer has no HID, and it has been Snapshotted with the option 'force_creation' to True.
         :return:
         """
-        vaio = self.post_fixture(self.SNAPSHOT, '{}/{}'.format(self.EVENTS, self.SNAPSHOT), 'vaio')
-        vostro = self.post_fixture(self.SNAPSHOT, '{}/{}'.format(self.EVENTS, self.SNAPSHOT), 'vostro')
-        xps13 = self.post_fixture(self.SNAPSHOT, '{}/{}'.format(self.EVENTS, self.SNAPSHOT), 'xps13')
+        vaio = self.post_fixture(self.SNAPSHOT, '{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), 'vaio')
+        vostro = self.post_fixture(self.SNAPSHOT, '{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), 'vostro')
+        xps13 = self.post_fixture(self.SNAPSHOT, '{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), 'xps13')
         mounted = self.get_fixture(self.SNAPSHOT, 'mounted')
         mounted['device']['forceCreation'] = True
-        mounted = self.post_and_check('{}/{}'.format(self.EVENTS, self.SNAPSHOT), mounted)
+        mounted = self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), mounted)
         return [self.get(self.EVENTS, '', event['events'][0])[0]['device'] for event in [vaio, vostro, xps13, mounted]]
 
     def device_and_place_contain_each_other(self, device_id: str, place_id: str) -> list:
@@ -265,5 +268,3 @@ class TestStandard(TestBase):
                 component, _ = self.get(self.DEVICES, '', component_id)
                 self.assertIn('place', component)
                 self.assertIn(place_id, component['place'])
-
-

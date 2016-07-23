@@ -2,6 +2,8 @@ import copy
 import inspect
 from collections import Sequence
 
+from ereuse_devicehub.utils import Naming
+
 
 class Resource:
     """
@@ -79,6 +81,7 @@ class Resource:
 
     @classmethod
     def subclasses(cls) -> list:
+        """Obtains the subclasses of the actual class, without the actual class."""
         subclasses = []
         for subclass in cls.__subclasses__():
             subclasses.append(subclass)
@@ -97,7 +100,8 @@ class Resource:
         return cls._clean(dict(vars(cls)), ())
 
     @classmethod
-    def create(cls, name: str, parent_schema: object, schema: dict, parent_resource_settings: object, resource_settings: dict):
+    def create(cls, name: str, parent_schema: object, schema: dict, parent_resource_settings: object,
+               resource_settings: dict):
         """
         Defines a new resource, setting its endpoint settings and schema.
 
@@ -141,8 +145,12 @@ class ResourceSettings(Resource):
             raise TypeError('Resource does not have any schema')
         fields = super(ResourceSettings, cls).actual_fields()
         super_resources = super(ResourceSettings, cls).superclasses(2)
-        names = [resource._schema.resource_name() for resource in reversed(super_resources) if
-                 getattr(resource, '_schema', False)]
+        # Creating the url for the resource
+        names = []
+        for resource in reversed(super_resources):
+            if getattr(resource, '_schema', False):
+                # We use directly Naming.resource to avoid the prefix
+                names.append(resource._schema._settings.get('url', Naming.resource(resource._schema.__name__)))
         fields['url'] = '/'.join(names)
         return fields
 
@@ -155,4 +163,4 @@ class ResourceSettings(Resource):
 
     @classmethod
     def resource_name(cls):
-        return cls._schema.resource_name()
+        return cls._schema.resource_name

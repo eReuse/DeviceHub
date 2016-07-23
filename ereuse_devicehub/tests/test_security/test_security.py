@@ -35,6 +35,6 @@ class TestSecurity(TestStandard):
         _, status_code = self.get(self.DEVICES, '', None, True)
         self.assert200(status_code)
         # We access to another item endpoint without credentials
-        private_event = self.get_first(self.EVENTS)
-        _, status_code = self.get(self.EVENTS, '', private_event['_id'], False)
+        private_event = self.get_first(self.DEVICE_EVENT)
+        _, status_code = self.get(self.DEVICE_EVENT, '', private_event['_id'], False)
         self.assert401(status_code)

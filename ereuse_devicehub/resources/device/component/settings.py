@@ -20,10 +20,12 @@ class Component(Device):
 
     @classmethod
     def subclasses_fields(cls):
+        from ereuse_devicehub.resources.event.device import DeviceEventDomain
         global_types = super(Component, cls).subclasses_fields()
         try:
             global_types['size']['type'] = global_types['speed']['type'] = 'number'
-            global_types['erasure']['schema']['@type']['allowed'] = {'EraseSectors', 'EraseBasic'}
+            events = {DeviceEventDomain.new_type(x) for x in ('EraseSectors', 'EraseBasic')}
+            global_types['erasure']['schema']['@type']['allowed'] = events
             union_of_benchmarks = BenchmarkHardDrive()
             union_of_benchmarks.update(BenchmarkProcessor())
             union_of_benchmarks['@type']['allowed'] = set(Benchmark.TYPES)

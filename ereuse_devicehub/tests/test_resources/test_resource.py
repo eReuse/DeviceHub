@@ -23,7 +23,8 @@ class TestResource(TestStandard):
 
     def create_dummy_type_of_device(self):
         # todo this method will fail if TestResource is not the **first** test executed
-        Resource.create(self.dummy_device_name, Device, self.dummy_device_class, DeviceSubSettings, self.dummy_device_settings)
+        Resource.create(self.dummy_device_name, Device, self.dummy_device_class, DeviceSubSettings,
+                        self.dummy_device_settings)
 
     def test_resource(self):
         """
@@ -39,9 +40,10 @@ class TestResource(TestStandard):
         self.assertDictContainsSubset(self.dummy_device_settings, settings)
         # Let's check we can perform some actions
         # Let's create a dummy device
-        dummy_device = {'serialNumber': '33', 'model': 'model1', 'manufacturer': '234', self.dummy_field: 'dummyField', '@type': self.dummy_device_name}
+        dummy_device = {'serialNumber': '33', 'model': 'model1', 'manufacturer': '234', self.dummy_field: 'dummyField',
+                        '@type': self.dummy_device_name}
         register = {'@type': 'Register', 'device': dummy_device}
-        self.post_and_check('{}/{}'.format(self.EVENTS, 'register'), register)
+        self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, 'register'), register)
         # And now without the necessary new field
         # wrong_dummy_device = dummy_device
         # del wrong_dummy_device[self.dummy_field]

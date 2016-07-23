@@ -4,14 +4,14 @@ from pprint import pprint
 from pymongo import MongoClient
 
 from ereuse_devicehub.exceptions import StandardError
-from ereuse_devicehub.resources.account.hooks import add_token, hash_password, generate_token
+from ereuse_devicehub.resources.account.hooks import hash_password, generate_token
 from ereuse_devicehub.resources.account.user import User
 
 
 def create_account(email: str, password: str, databases: list,
-                   role: str=None, name: str=None, organization: str=None, blocked: bool=False,
-                   default_database: str=None, mongo_host: str=None, mongo_port: int=None,
-                   db_name: str='dh__accounts'):
+                   role: str = None, name: str = None, organization: str = None, blocked: bool = False,
+                   default_database: str = None, mongo_host: str = None, mongo_port: int = None,
+                   db_name: str = 'dh__accounts'):
     """
     Creates an account. You can call the file directly::
 

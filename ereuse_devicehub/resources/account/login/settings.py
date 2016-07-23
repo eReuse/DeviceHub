@@ -1,5 +1,3 @@
-import base64
-
 from flask import request, jsonify
 from passlib.handlers.sha2_crypt import sha256_crypt
 

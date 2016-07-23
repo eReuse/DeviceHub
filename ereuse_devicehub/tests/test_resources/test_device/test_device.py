@@ -1,5 +1,6 @@
 from assertpy import assert_that
 
+from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.tests import TestStandard
 
 
@@ -18,8 +19,8 @@ class TestDevice(TestStandard):
         vaio, _ = self.get(self.DEVICES, '', devices[0])
         account_id = str(self.account['_id'])
         materialized = [
-            {'@type': 'Snapshot', 'secured': False, 'byUser': account_id, 'incidence': False},
-            {'@type': 'Register', 'secured': False, 'byUser': account_id, 'incidence': False},
+            {'@type': DeviceEventDomain.new_type('Snapshot'), 'secured': False, 'byUser': account_id, 'incidence': False},
+            {'@type': DeviceEventDomain.new_type('Register'), 'secured': False, 'byUser': account_id, 'incidence': False},
         ]
         fields = {'@type', '_id', 'byUser', 'incidence', 'secured'}
         self.assertIn('events', vaio)
@@ -29,6 +30,3 @@ class TestDevice(TestStandard):
             self.assertDictContainsSubset(materialized[i], event)
             assert_that(set(event.keys())).is_equal_to(fields)
             i += 1
-
-
-

@@ -6,7 +6,6 @@ from ereuse_devicehub.resources.event.device.settings import Event
 from ereuse_devicehub.resources.place.domain import PlaceDomain, NoPlaceForGivenCoordinates, \
     CoordinatesAndPlaceDoNotMatch
 from ereuse_devicehub.rest import execute_patch
-from ereuse_devicehub.utils import Naming
 
 
 def get_place(resource_name: str, events: list):

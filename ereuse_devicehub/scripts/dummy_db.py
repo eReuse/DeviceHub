@@ -1,6 +1,6 @@
 from pprint import pprint
 
-from ereuse_devicehub.tests.test_resources.test_events.test_device_event.test_snapshot import TestSnapshot
+from ereuse_devicehub.tests.test_resources.test_events.test_device_event.test_snapshot.test_snapshot import TestSnapshot
 
 
 class DummyDB:
@@ -31,4 +31,4 @@ class DummyDB:
         pprint('Finished basic creation of devices.')
 
     def _creation(self, input_snapshot, *args, **kwargs):
-        self.test_snapshot.post_and_check('events/snapshot', input_snapshot)
+        self.test_snapshot.post_and_check(self.test_snapshot.DEVICE_EVENT + '/snapshot', input_snapshot)

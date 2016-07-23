@@ -1,5 +1,4 @@
 from ereuse_devicehub.resources.device.domain import DeviceDomain
-from ereuse_devicehub.resources.device.exceptions import DeviceNotFound
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.domain import EventDomain
 

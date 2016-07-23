@@ -1,7 +1,4 @@
-import copy
-
 from ereuse_devicehub.resources.event.settings import Event, EventSettings
-from ereuse_devicehub.utils import Naming
 
 prefix = {'prefix': 'devices'}
 
@@ -14,11 +11,6 @@ class DeviceEvent(Event):
         # 'anyof': [{'required': True}, {'dependencies': ['place']}]  # me OR places
     }
 DeviceEvent._settings = dict(DeviceEvent._settings, **{'url': 'devices'}, **prefix)  # todo make this nices
-
-
-#DeviceEvent._type = copy.deepcopy(Event._type)
-#DeviceEvent._type['coerce'] = add_prefix
-
 
 class EventWithOneDevice(DeviceEvent):
     device = {

@@ -9,7 +9,7 @@ from flask import current_app as app
 from validators.utils import ValidationFailure
 
 from ereuse_devicehub.resources.account.user import User
-from ereuse_devicehub.utils import Naming, NestedLookup, coerce_type
+from ereuse_devicehub.utils import Naming, coerce_type
 
 ALLOWED_WRITE_ROLES = 'dh_allowed_write_roles'
 DEFAULT_AUTHOR = 'dh_default_author'

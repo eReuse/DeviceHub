@@ -17,8 +17,9 @@ from ereuse_devicehub.error_handler import ErrorHandlers
 from ereuse_devicehub.hooks import hooks
 from ereuse_devicehub.request import RequestSignedJson
 from ereuse_devicehub.resources.account.login.settings import login
-from ereuse_devicehub.resources.event.device.logger.grd_logger.grd_logger import GRDLogger
 from ereuse_devicehub.resources.resource import ResourceSettings
+from ereuse_devicehub.resources.submitter.grd_submitter.grd_submitter import GRDSubmitter
+from ereuse_devicehub.resources.submitter.submitter_caller import SubmitterCaller
 from ereuse_devicehub.security.authentication import RolesAuth
 from ereuse_devicehub.static import send_device_icon
 from ereuse_devicehub.utils import cache
@@ -39,10 +40,11 @@ class DeviceHub(Eve):
         self.cache.init_app(self)
         hooks(self)  # Set up hooks. You can add more hooks by doing something similar with app "hooks(app)"
         ErrorHandlers(self)
-        GRDLogger.logger = self.logger  # We need to pass the logger like this, as GRDLogger cannot access to app
         self.add_url_rule('/login', 'login', view_func=login, methods=['POST', 'OPTIONS'])
         self.add_url_rule('/devices/icons/<file_name>', view_func=send_device_icon)
         self.add_url_rule('/<db>/aggregations/<resource>/<method>', 'aggregation', view_func=aggregate_view)
+        if self.config.get('GRD', True):
+            self.grd_submitter_caller = SubmitterCaller(self, GRDSubmitter)
 
     def register_resource(self, resource: str, settings: ResourceSettings):
         """

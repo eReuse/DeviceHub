@@ -280,3 +280,4 @@ class TestSnapshot(TestStandard):
         snapshot = self.get_fixture(self.SNAPSHOT, '703b6')
         num_events = self.get_num_events(snapshot)
         self.creation(snapshot, num_events)
+        a = 3

@@ -10,6 +10,8 @@ from flask.ext.pymongo import MongoClient
 from passlib.handlers.sha2_crypt import sha256_crypt
 
 from ereuse_devicehub.flaskapp import DeviceHub
+from ereuse_devicehub.resources.submitter.grd_submitter.grd_submitter import GRDSubmitter
+from ereuse_devicehub.resources.submitter.submitter_caller import SubmitterCaller
 from ereuse_devicehub.utils import Naming
 
 
@@ -26,16 +28,15 @@ class TestBase(TestMinimal):
         settings.DATABASES = 'dht1', 'dht2'
         settings.DHT1_DBNAME = 'dht1_'
         settings.DHT2_DBNAME = 'dht2_'
-        settings.LOGGER = True
+        settings.SUBMITTER = True
         settings.GRD_DEBUG = True  # We do not want to actually fulfill GRD
         settings.APP_NAME = 'DeviceHub'
         settings.DEBUG = True
         settings.TESTING = True
         settings.LOG = True
         settings.GRD = True
-        settings.BASE_PATH_SHOWN_TO_GRD = 'www.example.com'
+        settings.BASE_PATH_SHOWN_TO_GRD = 'https://www.example.com'
         self.app = DeviceHub()
-        self.in_tests = True
         self.prepare()
 
     def prepare(self):
@@ -45,7 +46,6 @@ class TestBase(TestMinimal):
         self.DATABASES = self.app.config['DATABASES']
 
         self.connection = None
-        self.known_resource_count = 101
         self.setupDB()
 
         self.test_client = self.app.test_client()
@@ -59,13 +59,10 @@ class TestBase(TestMinimal):
         self.db = self.connection[self.MONGO_DBNAME]
         self.drop_databases()
         self.create_dummy_user()
-        # When executing many tests, it seems that the cache of pymongo has not been emptied
-        # And the existance of the cache is used to know if it has benn called init_app, which has not
-        # So we need to call init_app from here
-        if getattr(self, 'in_tests', False):  # We only want to do this when we are performing tests (not in DummyDB)
-            self.app.data.init_app(self.app)
-        # We won't be able to close connection without this (we do not use media)
-        self.app.media = {}
+        # We call the method again as we have erased the DB
+        self.app.grd_submitter_caller = SubmitterCaller(self.app, GRDSubmitter)
+        #self.app.grd_submitter_caller.token = self.app.grd_submitter_caller.prepare_user(self.app)
+        #self.app.grd_submitter_caller.process = None
 
     def create_dummy_user(self):
         self.db.accounts.insert(

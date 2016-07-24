@@ -33,3 +33,6 @@ class DataLayer(Mongo):
             return self.pymongo(resource).db[datasource].find_one(id_or_query)
         else:
             return super(DataLayer, self).find_one_raw(resource, id_or_query)
+
+    def drop_dtabases(self):
+        self.pymongo().db.dropDatabases()

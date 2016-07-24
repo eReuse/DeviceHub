@@ -3,6 +3,8 @@
 
     These settings overrides eve's default configuration, and adds new ones.
 """
+from ereuse_devicehub.resources.event.device import DeviceEventDomain
+from ereuse_devicehub.utils import Naming
 
 CLIENT = None
 """
@@ -11,8 +13,8 @@ CLIENT = None
     Example: https://www.devicetag.io
 """
 
-# Logger module
-LOGGER = False
+# Submitter module
+SUBMITTER = False
 """Activates the Logger module."""
 GRD = True  # GRD is part of logger, so in order for using GRD you need Logger
 """Activates the Logger sub-module GRD. 'LOGGER' needs to be active."""
@@ -43,8 +45,8 @@ RESOURCES_CHANGING_NUMBER = ['device', 'event', 'account', 'place', 'erase']
     See :class:`app.utils.Naming`
 """
 
-# Logger settings
-LOGGER_ACCOUNT = {
+# Submitter settings
+SUBMITTER_ACCOUNT = {
     'email': 'logger@ereuse.org',
     'password': '43fa22kaxl0',
 }
@@ -59,7 +61,7 @@ GRD_ACCOUNT = {
 X_HEADERS = ['Content-Type', 'Authorization']
 X_EXPOSE_HEADERS = ['Authorization']
 MONGO_QUERY_BLACKLIST = ['$where']
-GRD_DOMAIN = 'https://sandbox.ereuse.org/'
+GRD_DOMAIN = 'https://sandbox.ereuse.org'
 THREADS_PER_PAGE = 2
 BULK_ENABLED = False  # Some events cannot work with it todo fix
 CSRF_ENABLED = True
@@ -82,8 +84,9 @@ ALLOWED_READ_ROLES = {Role.BASIC}
 ALLOWED_ITEM_READ_ROLES = {Role.BASIC}
 
 # GRD Settings, do not change them
-EVENTS_IN_GRD = 'deallocate', 'migrate', 'allocate', 'receive', 'remove', 'add', 'register', 'locate', 'usage-proof', 'recycle'
-
+_events_in_grd = ('Deallocate', 'Migrate', 'Allocate', 'Receive',
+                  'Remove', 'Add', 'Register', 'Locate', 'UsageProof', 'Recycle')
+EVENTS_IN_GRD = [Naming.resource(DeviceEventDomain.new_type(event)) for event in _events_in_grd]
 # Generation of the API (DOMAIN)
 from ereuse_devicehub.resources.device.settings import DeviceSettings
 from ereuse_devicehub.resources.account.settings import AccountSettings

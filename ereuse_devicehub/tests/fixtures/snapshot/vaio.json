@@ -65,5 +65,6 @@
     "model": "SVD1123C5F",
     "serialNumber": "86SXQ-0000029",
     "type": "Desktop"
-  }
+  },
+  "secured": false
 }

@@ -198,7 +198,8 @@ class DeviceHubValidator(Validator):
         """
         self._validate_readonly(True, field, value)
 
-    def _error(self, field, _error):
+    # todo do this in a better way (per case, after checking the other error?)
+    """def _error(self, field, _error):
         super()._error(field, _error)
         # In DeviceHub, some errors may need to check for other errors, which can cause the same error
         # being showed again. Let's remove duplicates
@@ -208,3 +209,4 @@ class DeviceHubValidator(Validator):
                 self._errors[field] = list(set(self._errors[field]))
         except TypeError as e:
             a = 2
+    """

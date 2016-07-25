@@ -1,5 +1,5 @@
 import requests
-from flask import json, current_app
+from flask import json
 from requests import HTTPError
 
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
@@ -15,12 +15,9 @@ class Submitter:
 
         Submitter is thought to be working outside of Flask's application context, in another thread.
     """
-    logger = None  # This is set when initializing Flaskapp, and shared among submitters
-
-    def __init__(self, token: str, app, domain: str, translator: Translator, auth: Auth, debug=False):
+    def __init__(self, token: str, app: 'DeviceHub', domain: str, translator: Translator, auth: Auth, debug=False):
         """
         :param token: Token of the Submitter user in DeviceHub.
-        :param config: DeviceHub's config dictionary.
         :param domain: The destination domain or IP.
         :param translator: A translator instance.
         :param auth: An Auth instance.
@@ -33,6 +30,7 @@ class Submitter:
         self.auth = auth
         self.token = token
         self.app = app
+        self.logger = app.logger
 
     def submit(self, resource_id: str, database: str, resource_name: str):
         """
@@ -47,10 +45,7 @@ class Submitter:
         with self.app.app_context():
             event = execute_get(url, self.token)
         for translated_resource, original_resource in self.translator.translate(database, event):
-            try:
-                device_identifier = self.translator.hid_or_url(original_resource['device'])
-            except KeyError:
-                a = 3
+            device_identifier = self.translator.hid_or_url(original_resource['device'])
             submission_url = self.generate_url(device_identifier, translated_resource['@type'])
             self._post(translated_resource, submission_url)
 
@@ -65,7 +60,7 @@ class Submitter:
 
     def _post(self, resource: dict, url: str):
         if self.debug:
-            self.logger.info('GRDLogger, fake post event \n{}\n to url {}'.format(json.dumps(resource), url))
+            self.logger.info('GRDLogger: succeed FAKE post event \n{}\n to url {}'.format(json.dumps(resource), url))
         else:
             r = requests.post(url, json=resource, auth=self.auth())
             try:

@@ -10,7 +10,6 @@ from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.submitter.submitter import Submitter
 from ereuse_devicehub.resources.submitter.translator import Translator
 from ereuse_devicehub.security.request_auth import Auth
-from ereuse_devicehub.utils import get_last_exception_info
 from ereuse_devicehub.validation import HID_REGEX
 
 
@@ -18,9 +17,9 @@ class GRDSubmitter(Submitter):
     def __init__(self, token: str, app, **kwargs):
         config = app.config
         domain = config['GRD_DOMAIN']
-        translator = GRDTranslator(token, self.logger, config)
+        translator = GRDTranslator(config)
         account = config['GRD_ACCOUNT']
-        auth = Auth(config['GRD_DOMAIN'], account['username'], account['password'], 'api-token-auth/', 'Token')
+        auth = Auth(domain, account['username'], account['password'], 'api-token-auth/', 'Token')
         debug = config.get('GRD_DEBUG', False)
         super().__init__(token, app, domain, translator, auth, debug)
 
@@ -31,7 +30,7 @@ class GRDSubmitter(Submitter):
 
 
 class GRDTranslator(Translator):
-    def __init__(self, token, logger, config):
+    def __init__(self, config):
         generic_resource = {
             'url': (self.url('events'), '_id'),
             'date': (self.identity,),
@@ -77,26 +76,20 @@ class GRDTranslator(Translator):
             prefix('Recycle'): dict(),
             prefix('Migrate'): dict()
         }
-        super().__init__(token, logger, config, generic_resource, translation_dict)
+        super().__init__(config, generic_resource, translation_dict)
 
     def translate(self, database: str, event: dict) -> list:
         self.database = database
         translated = []
-        try:
-            if 'devices' in event and event['@type'] != DeviceEventDomain.new_type('Register'):
-                e = copy.deepcopy(event)
-                del e['devices']
-                for device in event['devices']:
-                    e['device'] = device
-                    translated.append((self._translate(e), copy.deepcopy(e)))
-            else:
-                translated.append((self._translate(event), event))
-        except Exception as e:
-            self.logger.error(get_last_exception_info())
-            e.ok = True
-            raise e
+        if 'devices' in event and event['@type'] != DeviceEventDomain.new_type('Register'):
+            e = copy.deepcopy(event)
+            del e['devices']
+            for device in event['devices']:
+                e['device'] = device
+                translated.append((self._translate(e), copy.deepcopy(e)))
         else:
-            return translated
+            translated.append((self._translate(event), event))
+        return translated
 
     def device(self, device: dict) -> dict:
         grd_device = {

@@ -46,6 +46,5 @@
     "hid": "sony_corporation-86sxq-0000029-svd1123c5f",
     "@type": "Computer"
   },
-  "@type": "devices:Register",
-  "incidence": false
+  "@type": "devices:Register"
 }

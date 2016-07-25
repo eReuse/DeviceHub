@@ -14,18 +14,18 @@ class SubmitterCaller:
     Prepares a submitter in a long-running daemon process, sending events through 'submit'.
     """
     token = None
-    """The token of the account submitters use to access DeviceHub."""
+    """
+        The token of the account submitters use to access DeviceHub. It is shared to avoid
+        performing login many times.
+    """
 
     def __init__(self, app: 'DeviceHub', submitter: Submitter):
         """
-
         :param submitter: The submitter class to invoke when called
         """
         self.submitter = submitter
         self.queue = Queue()
         self.process = None
-        if not self.submitter.logger:
-            self.submitter.logger = app.logger
         self.app = app
         if not self.token:  # Maybe it has been already set by another submitter (class attribute)
             self.token = self.prepare_user(app)
@@ -79,6 +79,5 @@ def _process(queue: Queue, token: str, app, submitter_class=Submitter):
         try:
             submitter.submit(*queue.get(True))  # We block ourselves waiting for something in the queue
         except Exception as e:
-            if not hasattr(e, 'ok'):
-                submitter.logger.error(get_last_exception_info())
+            submitter.logger.error(get_last_exception_info())
             raise e

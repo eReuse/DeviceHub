@@ -1,12 +1,12 @@
 import pymongo
 
+from ereuse_devicehub.resources.account.user import Role
 from ereuse_devicehub.resources.resource import ResourceSettings
-from ereuse_devicehub.validation import ALLOWED_WRITE_ROLES
-from .user import Role
-from ..schema import RDFS
+from ereuse_devicehub.resources.schema import Thing
+from ereuse_devicehub.validation.validation import ALLOWED_WRITE_ROLES
 
 
-class Account(RDFS):
+class Account(Thing):
     """
     An account represents a physical person or an organization.
     """
@@ -63,11 +63,11 @@ class Account(RDFS):
         'sink': 2
     }
     databases = {  # todo set allowed for the active databases
-        'type': 'list',
+        'type': 'databases',
         'required': True,
         ALLOWED_WRITE_ROLES: Role.MANAGERS,
         'teaser': False,
-        'sink': -4
+        'sink': -4,
     }
     defaultDatabase = {
         'type': 'string',  # todo If this is not set, the first databased in 'databases' it should be used
@@ -109,7 +109,8 @@ class AccountSettings(ResourceSettings):
 
     # Allow 'token' to be returned with POST responses
     extra_response_fields = ResourceSettings.extra_response_fields + ['token', 'email', 'role', 'active', 'name',
-                                                                      'databases']
+                                                                      'databases', 'defaultDatabase', 'organization',
+                                                                      'isOrganization']
 
     # Finally, let's add the schema definition for this endpoint.
     _schema = Account

@@ -1,10 +1,12 @@
+
 def hooks(app):
     """
         This method "ties" all the hooks DeviceHub uses with the app.
     """
-    from ereuse_devicehub.utils import GeneralHooks
-    app.on_post_GET += GeneralHooks.set_response_headers_and_cache
-    app.on_pre_GET += GeneralHooks.redirect_on_browser
+    from ereuse_devicehub.resources.hooks import set_response_headers_and_cache, redirect_on_browser, set_sameAs
+    app.on_post_GET += set_response_headers_and_cache
+    app.on_pre_GET += redirect_on_browser
+    app.on_insert += set_sameAs
 
     from ereuse_devicehub.security.hooks import project_item, project_resource, authorize_public, deny_public
     app.on_fetched_item += authorize_public

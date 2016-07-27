@@ -1,13 +1,8 @@
-import json
 import linecache
 import sys
 
 import inflection as inflection
-from flask import Response, current_app
 from flask.ext.cache import Cache
-from werkzeug.local import LocalProxy
-
-from ereuse_devicehub.exceptions import Redirect
 
 cache = Cache(config={'CACHE_TYPE': 'simple'})
 
@@ -52,6 +47,7 @@ class Naming:
             prefix = ''
         value = inflection.dasherize(inflection.underscore(string))
         # We accept any text which my be in the singular or plural number
+
         from ereuse_devicehub.default_settings import RESOURCES_CHANGING_NUMBER  # todo use default
         resources_changing_number = RESOURCES_CHANGING_NUMBER
         pluralize = value in resources_changing_number or inflection.singularize(value) in resources_changing_number
@@ -178,38 +174,6 @@ def coerce_type(fields: dict):
     NestedLookup(fields, references, NestedLookup.key_equality_factory('@type'))
     for document, ref_key in references:
         document[ref_key] = DeviceEventDomain.add_prefix(document[ref_key])
-
-
-class GeneralHooks:
-    @staticmethod
-    def redirect_on_browser(resource, request, lookup):
-        """
-        Redirects the browsers to the client webApp.
-        :param resource:
-        :param request:
-        :param lookup:
-        :return:
-        """
-        if request.accept_mimetypes.accept_html:
-            raise Redirect()
-
-    @staticmethod
-    def set_response_headers_and_cache(resource: str, request: LocalProxy, payload: Response):
-        """
-        Sets JSON Header link referring to @type
-        """
-        if (payload._status_code == 200 or payload._status_code == 304) and resource is not None:
-            data = json.loads(payload.data.decode(payload.charset))
-            resource_type = resource
-            try:
-                resource_type = data['@type']
-            except KeyError:
-                if payload._status_code == 304:
-                    payload.cache_control.max_age = current_app.config['ITEM_CACHE']
-            else:
-                # If we are here it means it is an item endpoint, not a list (resource) endpoint
-                payload.cache_control.max_age = current_app.config['ITEM_CACHE']
-            payload.headers._list.append(get_header_link(resource_type))
 
 
 def get_header_link(resource_type: str) -> ():

@@ -21,9 +21,15 @@ class TestBase(TestMinimal):
     EVENTS = 'events'
     PLACES = 'places'
     SNAPSHOT = 'snapshot'
+    ACCOUNTS = 'accounts'
 
     def setUp(self, settings_file=None, url_converters=None):
         from ereuse_devicehub import default_settings as settings
+        self.set_settings(settings)
+        self.app = DeviceHub()
+        self.prepare()
+
+    def set_settings(self, settings):
         settings.MONGO_DBNAME = 'devicehubtest'
         settings.DATABASES = 'dht1', 'dht2'
         settings.DHT1_DBNAME = 'dht1_'
@@ -36,8 +42,6 @@ class TestBase(TestMinimal):
         settings.LOG = True
         settings.GRD = True
         settings.BASE_PATH_SHOWN_TO_GRD = 'https://www.example.com'
-        self.app = DeviceHub()
-        self.prepare()
 
     def prepare(self):
         self.MONGO_DBNAME = self.app.config['MONGO_DBNAME']

@@ -19,7 +19,8 @@ setup(
         'python-gnupg>=0.3.8,<0.4',  # To use gnupg, install gpg2
         'flask-cache>=0.13.1',
         'assertpy',
-        'python-gnupg'
+        'python-gnupg',
+        'iso3166'
     ],
     include_package_data=True,
     classifiers=[

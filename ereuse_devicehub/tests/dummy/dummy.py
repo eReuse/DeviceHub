@@ -3,7 +3,6 @@ import os
 import requests
 
 from ereuse_devicehub.default_settings import GRD_DOMAIN
-from ereuse_devicehub.resources.event.device.logger.grd_logger.grd_auth import GRDAuth
 from ereuse_devicehub.security.request_auth import Auth
 from ereuse_devicehub.tests import TestStandard
 
@@ -17,7 +16,7 @@ class Dummy:
         self.auth = Auth(self.domain, self.email, self.password)
 
     def _execute(self):
-        response = requests.get('{}/api/places'.format(GRD_DOMAIN), auth=GRDAuth())
+        response = requests.get('{}/api/places'.format(GRD_DOMAIN), auth=GrdAuth())
         response.raise_for_status()
         places = response.json()['results']
         for place in places:

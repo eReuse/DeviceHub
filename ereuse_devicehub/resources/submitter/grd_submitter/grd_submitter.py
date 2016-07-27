@@ -10,7 +10,7 @@ from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.submitter.submitter import Submitter
 from ereuse_devicehub.resources.submitter.translator import Translator
 from ereuse_devicehub.security.request_auth import Auth
-from ereuse_devicehub.validation import HID_REGEX
+from ereuse_devicehub.validation.validation import HID_REGEX
 
 
 class GRDSubmitter(Submitter):

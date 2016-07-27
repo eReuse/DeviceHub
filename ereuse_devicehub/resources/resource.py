@@ -123,7 +123,7 @@ class ResourceSettings(Resource):
     # Custom defaults (apart from defined defaults in EVE's settings)
     use_default_database = False
     """Use the user's specific databases or the common default one"""
-    extra_response_fields = ['@type', 'label']
+    extra_response_fields = ['@type', 'label', 'url', 'sameAs']
     _schema = False
 
     @staticmethod
@@ -150,6 +150,11 @@ class ResourceSettings(Resource):
         for resource in reversed(super_resources):
             if getattr(resource, '_schema', False):
                 # We use directly Naming.resource to avoid the prefix
+                #from devicehub_project.resources.project.settings import ProjectSettings
+                #if resource == ProjectSettings:
+                from ereuse_devicehub.resources.place.settings import PlaceSettings
+                if resource == PlaceSettings:
+                    a =3
                 names.append(resource._schema._settings.get('url', Naming.resource(resource._schema.__name__)))
         fields['url'] = '/'.join(names)
         return fields

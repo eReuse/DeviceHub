@@ -23,7 +23,7 @@ from ereuse_devicehub.resources.submitter.submitter_caller import SubmitterCalle
 from ereuse_devicehub.security.authentication import RolesAuth
 from ereuse_devicehub.static import send_device_icon
 from ereuse_devicehub.utils import cache
-from ereuse_devicehub.validation import DeviceHubValidator
+from ereuse_devicehub.validation.validation import DeviceHubValidator
 
 
 class DeviceHub(Eve):

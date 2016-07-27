@@ -2,6 +2,7 @@ import pymongo
 
 from ereuse_devicehub.resources.resource import ResourceSettings
 from ereuse_devicehub.resources.schema import Thing
+from ereuse_devicehub.validation.coercer import Coercer
 
 
 class Event(Thing):
@@ -33,8 +34,9 @@ class Event(Thing):
             'field': '_id',
             'embeddable': True
         },
-        'readonly': True,
-        'sink': 2
+        'readonly': True,  # todo remove readonly
+        'sink': 2,
+        'coerce_with_context': Coercer.url_to_id
     }
     byOrganization = {  # Materialization of the organization that, by the time of the event, the user worked in
         'type': 'string',

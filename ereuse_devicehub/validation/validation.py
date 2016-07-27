@@ -6,27 +6,45 @@ from cerberus import errors
 from eve.io.mongo import Validator
 from eve.utils import config
 from flask import current_app as app
-from validators.utils import ValidationFailure
 
-from ereuse_devicehub.resources.account.user import User
+from ereuse_devicehub.resources.account.user import User, Role
 from ereuse_devicehub.utils import Naming, coerce_type
 
 ALLOWED_WRITE_ROLES = 'dh_allowed_write_roles'
 DEFAULT_AUTHOR = 'dh_default_author'
 IF_VALUE_REQUIRE = 'dh_if_value_require'
+COERCE_WITH_CONTEXT = 'coerce_with_context'
 
 HID_REGEX = '[\w]+-[\w]+-[\w]+'
 
 
-# noinspection PyPep8Naming
 class DeviceHubValidator(Validator):
-    special_rules = Validator.special_rules + ('or',)
+    special_rules = Validator.special_rules + ('or', COERCE_WITH_CONTEXT)
 
     def _validate(self, document, schema=None, update=False, context=None):
         self._coerce_type(document)
         super(DeviceHubValidator, self)._validate(document, schema, update, context)
         self._validate_or(self._current)
         return len(self._errors) == 0
+
+    def _validate_definition(self, definition, field, value):
+        # We recheck for null (see the overrided definition)
+        if value is None:
+            if definition.get("nullable", False) is True:
+                return
+            else:
+                self._error(field, errors.ERROR_NOT_NULLABLE)
+        if COERCE_WITH_CONTEXT in definition:
+            value = self._validate_coerce_with_context(definition['coerce_with_context'], field, value)
+        super()._validate_definition(definition, field, value)
+
+    def _validate_coerce_with_context(self, coerce, field, value):
+        """Like coerce, but adds parameters to know the context, like the field and the full document."""
+        try:
+            value = coerce(value, field, self._current, self.schema)
+        except (TypeError, ValueError):
+            self._error(field, errors.ERROR_COERCION_FAILED.format(field))
+        return value
 
     def _validate_dh_allowed_write_roles(self, roles, field, value):
         if not User.actual['role'].has_role(roles):
@@ -119,6 +137,19 @@ class DeviceHubValidator(Validator):
             self._validate_regex(HID_REGEX, field, self.document['hid'])
             self._validate_unique(True, field, self.document['hid'])
 
+    def _validate_type_databases(self, field, databases):
+        """Databases are a unique list of values (a set without 'set' for mongo/json compatibilities). Admins can only
+        create accounts within their databases."""
+        self._validate_type_list(field, databases)
+        copy = list(set(databases))
+        if databases != copy:
+            self._error(field, json_util.dumps({'DuplicatedDatabases': 'Databases are duplicated'}))
+        if User.actual['role'] < Role.SUPERUSER and not set(databases).issubset(set(User.actual['databases'])):
+            not_enough_privilege = {
+                'NotEnoughPrivilege': 'You need to have access to all databases before setting users to them.'
+            }
+            self._error(field, json_util.dumps(not_enough_privilege))
+
     def _validate_data_relation(self, data_relation, field, value):
         if not isinstance(value, dict) and not isinstance(value, list):  # todo more broad way?
             super(DeviceHubValidator, self)._validate_data_relation(data_relation, field, value)
@@ -135,15 +166,11 @@ class DeviceHubValidator(Validator):
             self._error(field, errors.ERROR_BAD_TYPE.format('natural (positive integer)'))
 
     def _validate_type_url(self, field, value):
-        try:
-            validators.url.url(value)
-        except ValidationFailure:
+        if not validators.url(value):
             self._error(field, errors.ERROR_BAD_TYPE.format('email'))
 
     def _validate_type_email(self, field, value):
-        try:
-            validators.email(value)
-        except ValidationFailure:
+        if not validators.email(value):
             self._error(field, errors.ERROR_BAD_TYPE.format('email'))
 
     def _validate_type_version(self, field, value):
@@ -210,3 +237,5 @@ class DeviceHubValidator(Validator):
         except TypeError as e:
             a = 2
     """
+
+

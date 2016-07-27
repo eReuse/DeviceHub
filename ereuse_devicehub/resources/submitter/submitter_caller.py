@@ -4,7 +4,7 @@ from eve.methods.post import post_internal
 from flask import json
 from pymongo.errors import DuplicateKeyError
 
-from ereuse_devicehub.resources.account.user import Role, User
+from ereuse_devicehub.resources.account.user import Role
 from ereuse_devicehub.resources.submitter.submitter import Submitter
 from ereuse_devicehub.utils import get_last_exception_info
 

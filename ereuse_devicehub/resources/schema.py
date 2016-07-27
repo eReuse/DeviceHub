@@ -151,12 +151,13 @@ class RDFS(Resource):
 class Thing(RDFS):
     url = {
         'type': 'url',
-        'readonly': True,
-        'teaser': False
+        'teaser': False,
+        'doc': 'The url of the resource. If passed in, the value it is moved to sameAs.'
     }
     sameAs = {
         'type': 'url',
-        'teaser': False
+        'teaser': False,
+        'readonly': True
     }
     description = {
         'type': 'string',

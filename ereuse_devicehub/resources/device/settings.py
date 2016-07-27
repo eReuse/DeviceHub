@@ -2,7 +2,7 @@ import pymongo
 
 from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.resource import ResourceSettings
-from ereuse_devicehub.validation import HID_REGEX
+from ereuse_devicehub.validation.validation import HID_REGEX
 
 
 class DeviceSettings(ResourceSettings):

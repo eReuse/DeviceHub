@@ -12,6 +12,7 @@ class DeviceEvent(Event):
     }
 DeviceEvent._settings = dict(DeviceEvent._settings, **{'url': 'devices'}, **prefix)  # todo make this nices
 
+
 class EventWithOneDevice(DeviceEvent):
     device = {
         'type': 'string',

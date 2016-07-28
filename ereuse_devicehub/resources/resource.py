@@ -149,12 +149,7 @@ class ResourceSettings(Resource):
         names = []
         for resource in reversed(super_resources):
             if getattr(resource, '_schema', False):
-                # We use directly Naming.resource to avoid the prefix
-                #from devicehub_project.resources.project.settings import ProjectSettings
-                #if resource == ProjectSettings:
-                from ereuse_devicehub.resources.place.settings import PlaceSettings
-                if resource == PlaceSettings:
-                    a =3
+                # We get the URL: first by getting settings['url'] or using the name of the class
                 names.append(resource._schema._settings.get('url', Naming.resource(resource._schema.__name__)))
         fields['url'] = '/'.join(names)
         return fields

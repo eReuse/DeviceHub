@@ -10,7 +10,11 @@ class DeviceEvent(Event):
         'description': 'Where did it happened'
         # 'anyof': [{'required': True}, {'dependencies': ['place']}]  # me OR places
     }
-DeviceEvent._settings = dict(DeviceEvent._settings, **{'url': 'devices'}, **prefix)  # todo make this nices
+
+settings = DeviceEvent._settings.copy()
+settings.update({'url': 'devices'})
+settings.update(prefix)
+DeviceEvent._settings = settings  # todo make this nice
 
 
 class EventWithOneDevice(DeviceEvent):

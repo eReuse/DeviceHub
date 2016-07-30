@@ -123,7 +123,7 @@ class ResourceSettings(Resource):
     # Custom defaults (apart from defined defaults in EVE's settings)
     use_default_database = False
     """Use the user's specific databases or the common default one"""
-    extra_response_fields = ['@type', 'label', 'url', 'sameAs']
+    extra_response_fields = ['@type', 'label', 'url', 'sameAs', 'description']
     _schema = False
 
     @staticmethod

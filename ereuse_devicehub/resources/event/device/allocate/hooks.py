@@ -1,4 +1,4 @@
-from ereuse_devicehub.resources.account.user import User
+from ereuse_devicehub.resources.account.domain import AccountDomain, UserNotFound
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device.deallocate.deallocate import AlreadyAllocated
 
@@ -33,6 +33,7 @@ def avoid_repeating_allocations(allocates: list):
 
 def set_organization(allocates: list):
     for allocate in allocates:
-        org = User.get(allocate['to']).get('organization')
-        if org is not None:
-            allocate['toOrganization'] = org
+        try:
+            allocate['toOrganization'] = AccountDomain.get_one(allocate['to']).get('organization')
+        except UserNotFound:
+            pass

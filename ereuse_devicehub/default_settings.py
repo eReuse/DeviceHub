@@ -76,7 +76,7 @@ VALIDATION_ERROR_AS_LIST = True  # We always use list to show errors
 ITEM_CACHE = 120  # We differentiate from Resource cache (Cache setting from Eve) from Item cache
 
 # Role settings
-from ereuse_devicehub.resources.account.user import Role
+from ereuse_devicehub.resources.account.role import Role
 
 ALLOWED_WRITE_ROLES = {Role.AMATEUR}
 ALLOWED_ITEM_WRITE_ROLES = {Role.AMATEUR}

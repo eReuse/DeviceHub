@@ -4,7 +4,8 @@ import string
 from flask import current_app as app
 from passlib.handlers.sha2_crypt import sha256_crypt
 
-from ereuse_devicehub.resources.account.user import User, Role
+from ereuse_devicehub.resources.account.domain import AccountDomain
+from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.rest import execute_post
 
@@ -32,7 +33,8 @@ def generate_token() -> str:
 def set_byUser(resource_name: str, items: list):
     if 'byUser' in app.config['DOMAIN'][resource_name]['schema']:
         for item in items:
-            item['byUser'] = User.actual['_id']
+            if 'byUser' not in item:
+                item['byUser'] = AccountDomain.actual['_id']
 
 
 # noinspection PyPep8Naming
@@ -43,8 +45,8 @@ def set_byOrganization(resource_name: str, items: list):
     """
     for item in items:
         if 'byOrganization' in app.config['DOMAIN'][resource_name]['schema']:
-            if 'organization' in User.actual:
-                item['byOrganization'] = User.actual['organization']
+            if 'organization' in AccountDomain.actual:
+                item['byOrganization'] = AccountDomain.actual['organization']
 
 
 def set_default_database_if_empty(accounts: list):
@@ -69,11 +71,11 @@ def _add_or_get_inactive_account_id(event, field_name, recipient_field_name):
             _id = app.data.find_one_raw('accounts',
                                         {
                                             'email': event[field_name]['email'],
-                                            'databases': {'$in': User.actual['databases']}
+                                            'databases': {'$in': AccountDomain.actual['databases']}
                                         }
                                         )['_id']
         except TypeError:  # No account
-            event[field_name]['databases'] = User.actual['databases']
+            event[field_name]['databases'] = AccountDomain.actual['databases']
             event[field_name]['active'] = False
             _id = execute_post('accounts', event[field_name])['_id']
         event[recipient_field_name] = _id

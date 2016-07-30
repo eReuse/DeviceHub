@@ -1,4 +1,4 @@
-from ereuse_devicehub.resources.account.user import Role
+from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.device.component.settings import Component
 from ereuse_devicehub.resources.device.computer.settings import Computer
 from ereuse_devicehub.resources.event.device.settings import place, EventWithOneDevice, EventSubSettingsOneDevice

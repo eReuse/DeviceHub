@@ -1,6 +1,6 @@
 import pymongo
 
-from ereuse_devicehub.resources.account.user import Role
+from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.resource import ResourceSettings
 from ereuse_devicehub.resources.schema import Thing
 from ereuse_devicehub.validation.validation import ALLOWED_WRITE_ROLES

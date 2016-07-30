@@ -3,7 +3,7 @@ from passlib.handlers.sha2_crypt import sha256_crypt
 
 from ereuse_devicehub.exceptions import WrongCredentials
 from ereuse_devicehub.flask_decorators import crossdomain
-from ereuse_devicehub.resources.account.user import User
+from ereuse_devicehub.resources.account.domain import AccountDomain, UserNotFound
 
 
 @crossdomain(origin='*', headers=['Content-Type', 'Authorization'])
@@ -13,11 +13,11 @@ def login():
     :return:
     """
     try:
-        account = User.get({'email': request.json['email']})
+        account = AccountDomain.get_one({'email': request.json['email']})
         if not sha256_crypt.verify(request.json['password'], account['password']):
             raise WrongCredentials()
-        account['token'] = User.hash_token(account['token'])
+        account['token'] = AccountDomain.hash_token(account['token'])
         account['_id'] = str(account['_id'])
         return jsonify(account)
-    except (KeyError, TypeError):
+    except (KeyError, TypeError, UserNotFound):
         raise WrongCredentials()

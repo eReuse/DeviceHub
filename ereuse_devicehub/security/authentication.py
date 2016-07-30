@@ -2,7 +2,8 @@ from eve.auth import TokenAuth
 from flask import g, current_app
 
 from ereuse_devicehub.exceptions import UnauthorizedToUseDatabase
-from ereuse_devicehub.resources.account.user import User, Role, NotADatabase
+from ereuse_devicehub.resources.account.domain import AccountDomain, NotADatabase
+from ereuse_devicehub.resources.account.role import Role
 
 
 class RolesAuth(TokenAuth):
@@ -30,11 +31,11 @@ class RolesAuth(TokenAuth):
 
         # use Eve's own db driver; no additional connections/resources are used
         has_perm = False
-        if User.actual:
+        if AccountDomain.actual:
             self._set_database()
-            if allowed_roles and User.actual['role'] >= allowed_roles[0]:
-                if not User.actual['role'].is_manager():
-                    self.set_request_auth_value(User.actual['_id'])
+            if allowed_roles and AccountDomain.actual['role'] >= allowed_roles[0]:
+                if not AccountDomain.actual['role'].is_manager():
+                    self.set_request_auth_value(AccountDomain.actual['_id'])
                 has_perm = True
             elif not allowed_roles:
                 has_perm = True
@@ -48,7 +49,7 @@ class RolesAuth(TokenAuth):
         :raises UnauthorizedToUseDatabase: If force is true this won't raise
         """
         try:
-            requested_database = User.get_requested_database()
+            requested_database = AccountDomain.get_requested_database()
         except NotADatabase as e:
             try:
                 if e.body['requested_path'] not in current_app.config['RESOURCES_NOT_USING_DATABASES'] \
@@ -57,7 +58,7 @@ class RolesAuth(TokenAuth):
             except KeyError:
                 raise e
         else:
-            if force or (requested_database in User.actual['databases'] or User.actual['role'] == Role.SUPERUSER):
+            if force or (requested_database in AccountDomain.actual['databases'] or AccountDomain.actual['role'] == Role.SUPERUSER):
                 g.auth_requested_database = requested_database
                 self.set_mongo_prefix(requested_database.replace("-", "").upper())
             else:

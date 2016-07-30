@@ -5,7 +5,7 @@ from pymongo import MongoClient
 
 from ereuse_devicehub.exceptions import StandardError
 from ereuse_devicehub.resources.account.hooks import hash_password, generate_token
-from ereuse_devicehub.resources.account.user import User
+from ereuse_devicehub.resources.account.domain import AccountDomain
 
 
 def create_account(email: str, password: str, databases: list,
@@ -60,7 +60,7 @@ def create_account(email: str, password: str, databases: list,
     hash_password([account])
     db.accounts.insert(account)
     returned_account = db.accounts.find_one({'email': email})
-    returned_account['hashed_token'] = User.hash_token(returned_account['token'])
+    returned_account['hashed_token'] = AccountDomain.hash_token(returned_account['token'])
     return returned_account
 
 

@@ -1,6 +1,6 @@
 import datetime
 
-from ereuse_devicehub.resources.account.user import User
+from ereuse_devicehub.resources.account.domain import AccountDomain, UserNotFound
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.rest import execute_post
 from ereuse_devicehub.utils import Naming
@@ -25,6 +25,7 @@ def set_organization(receives: list):
     :return:
     """
     for receive in receives:
-        org = User.get(receive['receiver']).get('organization')
-        if org is not None:
-            receive['receiverOrganization'] = org
+        try:
+            receive['receiverOrganization'] = AccountDomain.get_one(receive['receiver']).get('organization')
+        except UserNotFound:
+            pass

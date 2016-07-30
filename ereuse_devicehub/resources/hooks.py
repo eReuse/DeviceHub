@@ -7,21 +7,6 @@ from werkzeug.local import LocalProxy
 from ereuse_devicehub.exceptions import Redirect
 from ereuse_devicehub.utils import get_header_link
 
-
-# noinspection PyPep8Naming
-def set_sameAs(resource_name: str, resources: list):
-    """
-    Moves the value in the 'url' field to the 'sameAs' field, deleting 'url'.
-
-    When 'url' is set in a POST it means is the URI of another agent, which needs to be converted to our 'sameAs'. In
-    another process we will fill 'url' with our URI.
-    """
-    for resource in resources:
-        if 'url' in resource:
-            resource['sameAs'] = resource['url']
-            del resource['url']
-
-
 def redirect_on_browser(resource, request, lookup):
     """
     Redirects the browsers to the client webApp.

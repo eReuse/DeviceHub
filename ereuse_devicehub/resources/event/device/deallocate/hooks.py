@@ -1,4 +1,4 @@
-from ereuse_devicehub.resources.account.user import User
+from ereuse_devicehub.resources.account.domain import AccountDomain, UserNotFound
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 
 
@@ -11,6 +11,7 @@ def materialize_actual_owners_remove(events: list):
 
 def set_organization(deallocates: list):
     for deallocate in deallocates:
-        org = User.get(deallocate['from'])['organization']
-        if org is not None:
-            deallocate['fromOrganization'] = org
+        try:
+            deallocate['fromOrganization'] = AccountDomain.get_one(deallocate['from'])['organization']
+        except UserNotFound:
+            pass

@@ -1,14 +1,16 @@
+import copy
 from distutils import version
 
 import validators
-from bson import json_util
+from bson import json_util, ObjectId
 from cerberus import errors
 from eve.io.mongo import Validator
 from eve.utils import config
 from flask import current_app as app
 
-from ereuse_devicehub.resources.account.user import User, Role
+from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.utils import Naming, coerce_type
+from . import errors
 
 ALLOWED_WRITE_ROLES = 'dh_allowed_write_roles'
 DEFAULT_AUTHOR = 'dh_default_author'
@@ -19,7 +21,12 @@ HID_REGEX = '[\w]+-[\w]+-[\w]+'
 
 
 class DeviceHubValidator(Validator):
-    special_rules = Validator.special_rules + ('or', COERCE_WITH_CONTEXT)
+    special_rules = Validator.special_rules + ('or', COERCE_WITH_CONTEXT, 'move')
+
+    def __init__(self, schema=None, resource=None, allow_unknown=False, transparent_schema_rules=False):
+        self._validations = {}
+        """Fields that have been already validated"""
+        super().__init__(schema, resource, allow_unknown, transparent_schema_rules)
 
     def _validate(self, document, schema=None, update=False, context=None):
         self._coerce_type(document)
@@ -27,15 +34,19 @@ class DeviceHubValidator(Validator):
         self._validate_or(self._current)
         return len(self._errors) == 0
 
-    def _validate_definition(self, definition, field, value):
-        # We recheck for null (see the overrided definition)
-        if value is None:
+    def _validate_definition(self, definition, field, value, ):
+        self._validations[field] = True
+        if value is None:  # Copied from super function
             if definition.get("nullable", False) is True:
                 return
             else:
                 self._error(field, errors.ERROR_NOT_NULLABLE)
+        if 'move' in definition:
+            self._move(definition['move'], value, field, definition)
+            return  # The actual field has been moved, so there is no value any more to validate
         if COERCE_WITH_CONTEXT in definition:
             value = self._validate_coerce_with_context(definition['coerce_with_context'], field, value)
+            self.document[field] = value
         super()._validate_definition(definition, field, value)
 
     def _validate_coerce_with_context(self, coerce, field, value):
@@ -46,8 +57,22 @@ class DeviceHubValidator(Validator):
             self._error(field, errors.ERROR_COERCION_FAILED.format(field))
         return value
 
+    def _move(self, to, value, field, definition):
+        """
+        Moves one field to another one.
+
+        :param to: Destination field. It can be 'readonly', as it will be ignored.
+        """
+        self._current[to] = value
+        if self._validations.get(field) or field not in self.document:  # If the field was already validated
+            other_definition = copy.deepcopy(self.schema.get(to))  # We do not affect original definition
+            other_definition.pop('readonly', None)  # Otherwise we won't be able to 'paste' it
+            self._validate_definition(other_definition, to, value)  # As the value changed we need to re-do it
+        del self._current[field]
+
     def _validate_dh_allowed_write_roles(self, roles, field, value):
-        if not User.actual['role'].has_role(roles):
+        from ereuse_devicehub.resources.account.domain import AccountDomain
+        if not AccountDomain.actual['role'].has_role(roles):
             self._error(field, json_util.dumps({'ForbiddenToWrite': self.document}))
 
     def _validate_or(self, document):
@@ -91,16 +116,9 @@ class DeviceHubValidator(Validator):
                 id_field = config.DOMAIN[self.resource]['id_field']
                 query[id_field] = {'$ne': self._id}
 
-            # we perform the check on the native mongo driver (and not on
-            # app.data.find_one()) because in this case we don't want the usual
-            # (for eve) query injection to interfere with this validation. We
-            # are still operating within eve's mongo namespace anyway.
-
             response = app.data.find_one_raw(self.resource, query)
             if response:
-                from ereuse_devicehub.resources.device.domain import DeviceDomain
-                device = DeviceDomain.get_one(response['_id'])
-                self._error(field, json_util.dumps({'NotUnique': device}))
+                self._error(field, json_util.dumps({'NotUnique': response}))
 
     def _validate_type_hid(self, field, value):
         """
@@ -144,11 +162,24 @@ class DeviceHubValidator(Validator):
         copy = list(set(databases))
         if databases != copy:
             self._error(field, json_util.dumps({'DuplicatedDatabases': 'Databases are duplicated'}))
-        if User.actual['role'] < Role.SUPERUSER and not set(databases).issubset(set(User.actual['databases'])):
-            not_enough_privilege = {
-                'NotEnoughPrivilege': 'You need to have access to all databases before setting users to them.'
-            }
-            self._error(field, json_util.dumps(not_enough_privilege))
+        from ereuse_devicehub.resources.account.domain import AccountDomain
+        if AccountDomain.actual['role'] < Role.SUPERUSER and not set(databases).issubset(set(AccountDomain.actual['databases'])):
+            self._error(field, json_util.dumps(errors.not_enough_privilege))
+
+    def _validate_in_database(self, do: bool, field, identifier: ObjectId):
+        """
+        Validates that the input account has at least one database in common with the actual account
+        :param do: Boolean to execute the method
+        :param identifier: The identifier of the account
+        """
+        if do:
+            from ereuse_devicehub.resources.account.domain import AccountDomain, UserNotFound
+            try:
+                # We select an user with at
+                dbs = AccountDomain.actual['databases']
+                AccountDomain.get_one({'_id': ObjectId(identifier), 'databases': {'$in': dbs}})
+            except UserNotFound:
+                self._error(field, json_util.dumps(errors.not_enough_privilege))
 
     def _validate_data_relation(self, data_relation, field, value):
         if not isinstance(value, dict) and not isinstance(value, list):  # todo more broad way?
@@ -237,5 +268,3 @@ class DeviceHubValidator(Validator):
         except TypeError as e:
             a = 2
     """
-
-

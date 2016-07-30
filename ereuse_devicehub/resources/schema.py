@@ -135,11 +135,7 @@ class RDFS(Resource):
 
             Read-only.
         """
-        try:
-            return cls._types
-        except AttributeError:
-            cls._types = {_class.type_name for _class in cls.subclasses() + [cls]}
-            return cls._types
+        return {_class.type_name for _class in cls.subclasses() + [cls]}
 
     # noinspection PyNestedDecorators
     @ClassProperty

@@ -18,7 +18,7 @@ class Coercer:
         :param document:
         :return: the internal (DeviceHub) identifier of the resource. Note that ObjectId are parsed to str to mimic JSON.
         """
-        if validators.url(url):
+        if validators.url(str(url)):
             data_relation = schema[field_name]['data_relation']
             response = current_app.data.find_one_raw(data_relation['resource'], {'sameAs': url})
             if response is not None:

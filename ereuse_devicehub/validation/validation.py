@@ -10,7 +10,7 @@ from flask import current_app as app
 
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.utils import Naming, coerce_type
-from . import errors
+from . import errors as dh_errors
 
 ALLOWED_WRITE_ROLES = 'dh_allowed_write_roles'
 DEFAULT_AUTHOR = 'dh_default_author'
@@ -164,7 +164,7 @@ class DeviceHubValidator(Validator):
             self._error(field, json_util.dumps({'DuplicatedDatabases': 'Databases are duplicated'}))
         from ereuse_devicehub.resources.account.domain import AccountDomain
         if AccountDomain.actual['role'] < Role.SUPERUSER and not set(databases).issubset(set(AccountDomain.actual['databases'])):
-            self._error(field, json_util.dumps(errors.not_enough_privilege))
+            self._error(field, json_util.dumps(dh_errors.not_enough_privilege))
 
     def _validate_in_database(self, do: bool, field, identifier: ObjectId):
         """
@@ -179,7 +179,7 @@ class DeviceHubValidator(Validator):
                 dbs = AccountDomain.actual['databases']
                 AccountDomain.get_one({'_id': ObjectId(identifier), 'databases': {'$in': dbs}})
             except UserNotFound:
-                self._error(field, json_util.dumps(errors.not_enough_privilege))
+                self._error(field, json_util.dumps(dh_errors.not_enough_privilege))
 
     def _validate_data_relation(self, data_relation, field, value):
         if not isinstance(value, dict) and not isinstance(value, list):  # todo more broad way?

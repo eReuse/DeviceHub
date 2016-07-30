@@ -1,8 +1,11 @@
 import pymongo
 
+from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.resource import ResourceSettings
 from ereuse_devicehub.resources.schema import Thing
 from ereuse_devicehub.validation.coercer import Coercer
+from ereuse_devicehub.validation.validation import ALLOWED_WRITE_ROLES
+
 
 
 class Event(Thing):
@@ -34,9 +37,9 @@ class Event(Thing):
             'field': '_id',
             'embeddable': True
         },
-        'readonly': True,  # todo remove readonly
         'sink': 2,
-        'coerce_with_context': Coercer.url_to_id
+        'coerce_with_context': Coercer.url_to_id,
+        ALLOWED_WRITE_ROLES: Role.MANAGERS
     }
     byOrganization = {  # Materialization of the organization that, by the time of the event, the user worked in
         'type': 'string',

@@ -31,6 +31,7 @@ class Submitter:
         self.token = token
         self.app = app
         self.logger = app.logger
+        self.embedded = {'device': 1, 'devices': 1, 'components': 1}
 
     def submit(self, resource_id: str, database: str, resource_name: str):
         """
@@ -39,30 +40,24 @@ class Submitter:
         :param database: The database or inventory (db1...) to get the resource from.
         :param resource_name: The name of the resource.
         """
-        embedded = {'device': 1, 'devices': 1, 'components': 1}
         #path = self.config['DOMAIN'][resource_name]['url']
-        url = '{}/{}/{}{}'.format(database, 'events', resource_id, '?embedded={}'.format(json.dumps(embedded)))
+        url = '{}/{}/{}{}'.format(database, 'events', resource_id, '?embedded={}'.format(json.dumps(self.embedded)))
         with self.app.app_context():
             event = execute_get(url, self.token)
         for translated_resource, original_resource in self.translator.translate(database, event):
-            device_identifier = self.translator.hid_or_url(original_resource['device'])
-            submission_url = self.generate_url(device_identifier, translated_resource['@type'])
+            submission_url = self.generate_url(original_resource, translated_resource)
             self._post(translated_resource, submission_url)
 
-    def generate_url(self, device_identifier, event_type):
+    def generate_url(self, original_resource, translated_resource) -> str:
         """Generates the url to submit the resource to, in the external agent."""
-        url = self.domain + '/api/devices/'
-        if event_type == DeviceEventDomain.new_type('Register'):
-            url += 'register'
-        else:
-            url += '{}/{}'.format(device_identifier, Naming.resource(event_type))
-        return url
+        raise NotImplementedError()
 
-    def _post(self, resource: dict, url: str):
+    def _post(self, resource: dict, url: str, **kwargs):
+        """Sends the resource to the agent. Kwargs are sent to Request's Post"""
         if self.debug:
             self.logger.info('GRDLogger: succeed FAKE post event \n{}\n to url {}'.format(json.dumps(resource), url))
         else:
-            r = requests.post(url, json=resource, auth=self.auth())
+            r = requests.post(url, json=resource, auth=self.auth(), **kwargs)
             try:
                 r.raise_for_status()
             except HTTPError or ConnectionError:

@@ -13,11 +13,8 @@ CLIENT = None
     Example: https://www.devicetag.io
 """
 
-# Submitter module
-SUBMITTER = False
-"""Activates the Logger module."""
 GRD = True  # GRD is part of logger, so in order for using GRD you need Logger
-"""Activates the Logger sub-module GRD. 'LOGGER' needs to be active."""
+"""Activates the GRD Submitter."""
 GRD_DEBUG = False
 """Do not really send data to GRD, just print it on screen and log it in a file."""
 BASE_PATH_SHOWN_TO_GRD = None

@@ -34,7 +34,6 @@ class TestBase(TestMinimal):
         settings.DATABASES = 'dht1', 'dht2'
         settings.DHT1_DBNAME = 'dht1_'
         settings.DHT2_DBNAME = 'dht2_'
-        settings.SUBMITTER = True
         settings.GRD_DEBUG = True  # We do not want to actually fulfill GRD
         settings.APP_NAME = 'DeviceHub'
         settings.DEBUG = True

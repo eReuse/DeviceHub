@@ -10,6 +10,7 @@ from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.submitter.submitter import Submitter
 from ereuse_devicehub.resources.submitter.translator import Translator
 from ereuse_devicehub.security.request_auth import Auth
+from ereuse_devicehub.utils import Naming
 from ereuse_devicehub.validation.validation import HID_REGEX
 
 
@@ -23,10 +24,17 @@ class GRDSubmitter(Submitter):
         debug = config.get('GRD_DEBUG', False)
         super().__init__(token, app, domain, translator, auth, debug)
 
-    def generate_url(self, device_identifier, event_type):
+    def generate_url(self, original_resource, translated_resource):
+        device_identifier = self.translator.hid_or_url(original_resource['device'])
         if not re.compile(HID_REGEX).match(device_identifier):  # It is not a HID, so it is an URL
             device_identifier = quote_plus(device_identifier.replace('/', '!'))  # Adapt it to GRD needs
-        return super().generate_url(device_identifier, event_type)
+        url = self.domain + '/api/devices/'
+        event_type = translated_resource['@type']
+        if event_type == DeviceEventDomain.new_type('Register'):
+            url += 'register'
+        else:
+            url += '{}/{}'.format(device_identifier, Naming.resource(event_type))
+        return url
 
 
 class GRDTranslator(Translator):

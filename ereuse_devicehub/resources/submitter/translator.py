@@ -55,8 +55,11 @@ class Translator:
         """Obtains an url from the resource identifier.
         :param resource_name: full resource-name with the prefix, if needed it.
         """
-        def url(identifier):
-            return self._get_resource_url(identifier, resource_name)
+        def url(resource_or_identifier):
+            try:
+                return self._get_resource_url(resource_or_identifier['_id'], resource_name)
+            except TypeError:
+                return self._get_resource_url(resource_or_identifier, resource_name)
         return url
 
     def for_all(self, method):
@@ -89,3 +92,9 @@ class Translator:
         if self.config['URL_PREFIX']:
             url = '{}/{}'.format(self.config['URL_PREFIX'], url)
         return self.config['BASE_PATH_SHOWN_TO_GRD'] + '/' + url
+
+    def inner_field(self, field: str):
+        """Gets a field that is one level nested in a dict"""
+        def _inner_field(value: dict):
+            return value[field]
+        return _inner_field

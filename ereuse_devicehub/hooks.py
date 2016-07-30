@@ -60,9 +60,8 @@ def hooks(app):
     app.on_inserted_devices_deallocate += materialize_actual_owners_remove
     app.on_insert_devices_deallocate += set_organization
 
-    if app.config.get('SUBMITTER', True):
-        from ereuse_devicehub.resources.submitter.grd_submitter.hooks import submit_events_to_grd
-        app.on_inserted += submit_events_to_grd
+    from ereuse_devicehub.resources.submitter.grd_submitter.hooks import submit_events_to_grd
+    app.on_inserted += submit_events_to_grd
 
     from ereuse_devicehub.resources.account.hooks import add_token, hash_password, set_default_database_if_empty
     app.on_insert_accounts += add_token

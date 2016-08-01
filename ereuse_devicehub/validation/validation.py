@@ -99,6 +99,19 @@ class DeviceHubValidator(Validator):
             if not all(other_field in self.document.keys() for other_field in fields):
                 self._error(field, "When {} is {}, you need to send: {}".format(field, desired_value, fields))
 
+    def _get_resource(self, unique, field, value, query):
+        if unique and self.resource:
+            query[field] = value
+
+            # exclude current document
+            if self._id:
+                id_field = config.DOMAIN[self.resource]['id_field']
+                query[id_field] = {'$ne': self._id}
+
+            return app.data.find_one_raw(self.resource, query)
+        else:
+            return None
+
     def _is_value_unique(self, unique, field, value, query):
         """
         We override this method to give the ability to show the _id when unique constraint fails.
@@ -108,17 +121,9 @@ class DeviceHubValidator(Validator):
 
         We move the logic of unique in the following method.
         """
-        if unique and self.resource:
-            query[field] = value
-
-            # exclude current document
-            if self._id:
-                id_field = config.DOMAIN[self.resource]['id_field']
-                query[id_field] = {'$ne': self._id}
-
-            response = app.data.find_one_raw(self.resource, query)
-            if response:
-                self._error(field, json_util.dumps({'NotUnique': response}))
+        response = self._get_resource(unique, field, value, query)
+        if response:
+            self._error(field, json_util.dumps({'NotUnique': response}))
 
     def _validate_type_hid(self, field, value):
         """
@@ -187,8 +192,7 @@ class DeviceHubValidator(Validator):
 
     def _validate_device_id(self, validate, field, value):
         if validate and self.resource == 'computer':
-            self._validate_unique(True, field, value)
-            if len(self._errors) == 0:
+            if self._get_value(True, field, value, {}) is None:
                 self._error(field, json_util.dumps({'CannotCreateId': self.document}))
 
     def _validate_type_natural(self, field, value):
@@ -255,16 +259,3 @@ class DeviceHubValidator(Validator):
         Just to show which values are materialized. They behave like *readonly*.
         """
         self._validate_readonly(True, field, value)
-
-    # todo do this in a better way (per case, after checking the other error?)
-    """def _error(self, field, _error):
-        super()._error(field, _error)
-        # In DeviceHub, some errors may need to check for other errors, which can cause the same error
-        # being showed again. Let's remove duplicates
-        # todo do this after using all the errors
-        try:
-            if type(self._errors[field]) is list:
-                self._errors[field] = list(set(self._errors[field]))
-        except TypeError as e:
-            a = 2
-    """

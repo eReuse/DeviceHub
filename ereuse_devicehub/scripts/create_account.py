@@ -1,3 +1,4 @@
+import json
 import sys
 from pprint import pprint
 
@@ -60,13 +61,16 @@ def create_account(email: str, password: str, databases: list,
     hash_password([account])
     db.accounts.insert(account)
     returned_account = db.accounts.find_one({'email': email})
-    returned_account['hashed_token'] = AccountDomain.hash_token(returned_account['token'])
-    return returned_account
+    return returned_account, AccountDomain.hash_token(returned_account['token'])
 
 
 class UserAlreadyExists(StandardError):
     message = 'User already exists'
     code = 309
 
-
-pprint(create_account(*sys.argv[1:]))
+account, hashed_token = create_account(*sys.argv[1:])
+account['_id'] = str(account['_id'])
+print('Account:')
+print(json.dumps(account, indent=4))
+print('Hashed token for REST:')
+print(hashed_token)

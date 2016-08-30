@@ -192,7 +192,7 @@ class DeviceHubValidator(Validator):
 
     def _validate_device_id(self, validate, field, value):
         if validate and self.resource == 'computer':
-            if self._get_value(True, field, value, {}) is None:
+            if self._get_resource(True, field, value, {}) is None:
                 self._error(field, json_util.dumps({'CannotCreateId': self.document}))
 
     def _validate_type_natural(self, field, value):

@@ -1,3 +1,4 @@
+from assertpy import assert_that
 from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.device.settings import DeviceSubSettings
 from ereuse_devicehub.resources.resource import Resource
@@ -36,8 +37,8 @@ class TestResource(TestStandard):
         resource_name = Naming.resource(self.dummy_device_name)
         self.assertIn(resource_name, self.domain)
         settings = self.domain[resource_name]
-        self.assertDictContainsSubset(self.dummy_device_class, settings['schema'])
-        self.assertDictContainsSubset(self.dummy_device_settings, settings)
+        assert_that(self.dummy_device_class).is_subset_of(settings['schema'])
+        assert_that(self.dummy_device_settings).is_subset_of(settings)
         # Let's check we can perform some actions
         # Let's create a dummy device
         dummy_device = {'serialNumber': '33', 'model': 'model1', 'manufacturer': '234', self.dummy_field: 'dummyField',

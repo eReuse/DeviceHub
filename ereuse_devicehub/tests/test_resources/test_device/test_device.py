@@ -27,6 +27,6 @@ class TestDevice(TestStandard):
         i = 0
         for event in vaio['events']:
             # Order needs to be preserved
-            self.assertDictContainsSubset(materialized[i], event)
+            assert_that(materialized[i]).is_subset_of(event)
             assert_that(set(event.keys())).is_equal_to(fields)
             i += 1

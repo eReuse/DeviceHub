@@ -3,6 +3,7 @@ import os
 from pprint import pprint
 from random import choice
 
+from assertpy import assert_that
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.tests import TestStandard
 from ereuse_devicehub.utils import Naming, coerce_type
@@ -258,8 +259,8 @@ class TestSnapshot(TestStandard):
                 erasure = next((c for c in snapshot['components'] if
                                 'serialNumber' in c and c['serialNumber'] == component['serialNumber']))['erasure']
                 self.assertLen(hard_drive['erasures'], 2)
-                self.assertDictContainsSubset(erasure, hard_drive['erasures'][0])
-                self.assertDictContainsSubset(erasure, hard_drive['erasures'][1])
+                assert_that(erasure).is_subset_of(hard_drive['erasures'][0])
+                assert_that(erasure).is_subset_of(hard_drive['erasures'][1])
                 found = True
         self.assertTrue(found, 'Any component has erasures!')
 

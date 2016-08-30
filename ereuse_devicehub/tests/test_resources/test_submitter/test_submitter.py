@@ -42,7 +42,7 @@ class TestSubmitter(TestStandard):
             del resource['url']
             del resource['byUser']
             del resource['dhDate']
-            test.assertDictContainsSubset(grd_resource, resource)
+            assert_that(grd_resource).is_subset_of(resource)
             assert_that(url).is_equal_to(grd_url)
         return _mock_post
 

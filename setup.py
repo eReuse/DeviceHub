@@ -18,9 +18,20 @@ setup(
         'requests>=2.9.1,<3.0',
         'python-gnupg>=0.3.8,<0.4',  # To use gnupg, install gpg2
         'flask-cache>=0.13.1',
-        'assertpy',
         'python-gnupg',
         'iso3166'
+    ],
+    # http://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies
+    extras_require={
+        'docs': [
+            'sphinx>=1.4.6,<1.4.7',
+            'sphinxcontrib-httpdomain>=1.5'
+        ]
+    },
+    # http://setuptools.readthedocs.io/en/latest/setuptools.html#test-build-package-and-run-a-unittest-suite
+    test_suite='ereuse_devicehub.tests',
+    test_require=[
+        'assertpy'
     ],
     include_package_data=True,
     classifiers=[

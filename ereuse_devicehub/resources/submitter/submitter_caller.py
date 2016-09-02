@@ -31,12 +31,16 @@ class SubmitterCaller:
             self.token = self.prepare_user(app)
         self.prepare_process()
 
-    def submit(self, event_id: str, database: str, resource_name: str):
+    def submit(self, event_id: str, database: str, resource_name: str, *args):
         """
         Enqueues the event to be submitted through the submitter, in another thread.
+        :param event_id: The id of the event to submit. The event is searched in the database through GET.
+        :param database: The database to get the event from.
+        :param resource_name: The type of the resource in 'resource_name'format.
+        :param args: An optional and extra list of optional args to supply to the submitter.
         """
         self.prepare_process()  # We ensure the process is there, and we start it if it died
-        self.queue.put((event_id, database, resource_name))
+        self.queue.put((event_id, database, resource_name) + args)
 
     def prepare_process(self):
         """

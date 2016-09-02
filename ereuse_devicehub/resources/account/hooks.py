@@ -12,7 +12,7 @@ from ereuse_devicehub.rest import execute_post
 
 def hash_password(accounts: list):
     for account in accounts:
-        if account['active']:
+        if 'password' in account:
             account['password'] = sha256_crypt.encrypt(account['password'])
 
 

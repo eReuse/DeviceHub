@@ -26,9 +26,9 @@ class TestSubmitter(TestStandard):
         submitter._post = MagicMock()
         submitter._post.side_effect = mock_post
 
-        def _mock_submit(event_id: str, database: str, resource_name: str):
+        def _mock_submit(event_id: str, database: str, resource_name: str, *args):
             """Mocks SubmitterCaller.submit, directly calling Submitter."""
-            submitter.submit(event_id, database, resource_name)
+            submitter.submit(event_id, database, resource_name, *args)
             assert_that(submitter._post.call_count).is_equal_to(1)
 
         return _mock_submit

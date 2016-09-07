@@ -7,6 +7,7 @@ import sys
 
 import gnupg
 from eve import Eve
+from eve.endpoints import schema_collection_endpoint
 from eve.exceptions import ConfigException
 from eve.io.mongo import GridFSMediaStorage
 from eve.io.mongo import MongoJSONEncoder
@@ -24,6 +25,9 @@ from ereuse_devicehub.security.authentication import RolesAuth
 from ereuse_devicehub.static import send_device_icon
 from ereuse_devicehub.utils import cache
 from ereuse_devicehub.validation.validation import DeviceHubValidator
+from eve.render import send_response
+from flask import json
+from flask import request
 
 
 class DeviceHub(Eve):
@@ -125,3 +129,31 @@ class DeviceHub(Eve):
         envvar = 'EVE_SETTINGS'
         if os.environ.get(envvar):
             self.config.from_envvar(envvar)
+
+    def _init_schema_endpoint(self):
+        """Adds '_settings' field to every schema."""
+        super()._init_schema_endpoint()
+        self.view_functions['schema_collection'] = self._schema_endpoint
+
+    def _schema_endpoint(self):
+        """The same as 'schema_collection_endpoint', but adding '_settings' field to every schema."""
+        response = schema_collection_endpoint()
+        if request.method == 'OPTIONS':
+            return response
+        else:
+            schemas = json.loads(response.data.decode())
+            for resource_type, schema in schemas.items():
+                settings = self.config['DOMAIN'][resource_type]
+                schema['_settings'] = {
+                    'url': settings['url'],
+                    'use_default_database': settings['use_default_database']
+                }
+                try:
+                    schema['_settings']['fa'] = settings['fa']
+                except:
+                    pass
+                try:
+                    schema['_settings']['short_description'] = settings['short_description']
+                except:
+                    pass
+            return send_response(None, (schemas,))

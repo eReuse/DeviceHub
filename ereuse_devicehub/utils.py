@@ -28,35 +28,38 @@ class Naming:
         """
             :param string: String can be type, resource or python case
         """
-        return Naming._standarize(string)[0]
+        try:
+            prefix, resulting_type = Naming.pop_prefix(string)
+            prefix += Naming.RESOURCE_PREFIX
+        except IndexError:
+            prefix = ''
+            resulting_type = string
+        resulting_type = inflection.dasherize(inflection.underscore(resulting_type))
+        return prefix + (inflection.pluralize(resulting_type) if Naming._pluralize(resulting_type) else resulting_type)
 
     @staticmethod
     def python(string: str):
         """
             :param string: String can be type, resource or python case
         """
-        _, pluralize = Naming._standarize(string)
-        return inflection.underscore(inflection.singularize(string) if pluralize else string)
+        return inflection.underscore(inflection.singularize(string) if Naming._pluralize(string) else string)
 
     @staticmethod
-    def _standarize(string):
-        try:
-            prefix, string = Naming.pop_prefix(string)
-            prefix += Naming.RESOURCE_PREFIX
-        except IndexError:
-            prefix = ''
+    def _pluralize(string: str):
+        from ereuse_devicehub.default_settings import RESOURCES_CHANGING_NUMBER
         value = inflection.dasherize(inflection.underscore(string))
-        # We accept any text which my be in the singular or plural number
-
-        from ereuse_devicehub.default_settings import RESOURCES_CHANGING_NUMBER  # todo use default
-        resources_changing_number = RESOURCES_CHANGING_NUMBER
-        pluralize = value in resources_changing_number or inflection.singularize(value) in resources_changing_number
-        return prefix + (inflection.pluralize(value) if pluralize else value), pluralize
+        return value in RESOURCES_CHANGING_NUMBER or inflection.singularize(value) in RESOURCES_CHANGING_NUMBER
 
     @staticmethod
     def type(string: str):
-        _, pluralize = Naming._standarize(string)
-        return inflection.camelize(inflection.singularize(string) if pluralize else string)
+        try:
+            prefix, resulting_type = Naming.pop_prefix(string)
+            prefix += Naming.TYPE_PREFIX
+        except IndexError:
+            prefix = ''
+            resulting_type = string
+        resulting_type = inflection.singularize(resulting_type) if Naming._pluralize(resulting_type) else resulting_type
+        return prefix + inflection.camelize(resulting_type)
 
     @staticmethod
     def url_word(word: str):
@@ -71,9 +74,12 @@ class Naming:
         :throws IndexError: There is no prefix.
         :return A set with two elements: 1- the prefix, 2- the type without it.
         """
-        if ':' not in string:
-            raise IndexError()
-        return string.split(Naming.TYPE_PREFIX)
+        result = string.split(Naming.TYPE_PREFIX)
+        if len(result) == 1:
+            result = string.split(Naming.RESOURCE_PREFIX)
+            if len(result) == 1:
+                raise IndexError()
+        return result
 
     @staticmethod
     def new_type(type_name: str, prefix: str or None = None) -> str:

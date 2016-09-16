@@ -55,3 +55,5 @@ Receive.components['readonly'] = True
 
 class ReceiveSettings(EventSubSettingsMultipleDevices):
     _schema = Receive
+    fa = 'fa-cart-arrow-down'
+    short_description = 'Someone receives the devices: you, a transporter, the client...'

@@ -37,3 +37,5 @@ Deallocate.components['readonly'] = True
 
 class DeallocateSettings(EventSubSettingsMultipleDevices):
     _schema = Deallocate
+    fa = 'fa-hand-o-left'
+    short_description = 'The opposite of Allocate. Remove the ownership of the devices from someone'

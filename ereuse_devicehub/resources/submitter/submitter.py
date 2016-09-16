@@ -57,7 +57,7 @@ class Submitter:
         if self.debug:
             self.logger.info('GRDLogger: succeed FAKE post event \n{}\n to url {}'.format(json.dumps(resource), url))
         else:
-            r = requests.post(url, json=resource, auth=self.auth(), **kwargs)
+            r = requests.post(url, json=resource, auth=self.auth, **kwargs)
             try:
                 r.raise_for_status()
             except HTTPError or ConnectionError:

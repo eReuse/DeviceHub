@@ -17,3 +17,5 @@ Locate.geo['or'] = ['place']
 
 class LocateSettings(EventSubSettingsMultipleDevices):
     _schema = Locate
+    fa = 'fa-map-marker'
+    short_description = 'The devices have been placed.'

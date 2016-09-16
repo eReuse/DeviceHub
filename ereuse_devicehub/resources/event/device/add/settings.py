@@ -7,3 +7,5 @@ class Add(EventWithOneDevice):
 
 class AddSettings(EventSubSettingsOneDevice):
     _schema = Add
+    glyphicon = 'fa-plus-square-o'
+    short_description = 'Components have been added to a device'

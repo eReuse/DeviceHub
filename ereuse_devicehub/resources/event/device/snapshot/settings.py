@@ -88,3 +88,5 @@ class SnapshotSettings(EventSubSettingsOneDevice):
     _schema = Snapshot
     get_projection_blacklist = {Role.ADMIN: ('request',)}
     extra_response_fields = EventSubSettingsOneDevice.extra_response_fields + ['events']
+    fa = 'fa-camera'
+    short_description = "A fast picture of the state and key information of the computer and it's devices."

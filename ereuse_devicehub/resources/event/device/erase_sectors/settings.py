@@ -8,3 +8,4 @@ class EraseSectors(EraseBasic):
 
 class EraseSectorsSettings(EventSubSettingsOneDevice):
     _schema = EraseSectors
+    fa = 'fa-eraser'

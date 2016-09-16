@@ -60,3 +60,4 @@ class EventSettings(ResourceSettings):
         'components': [('components', pymongo.DESCENDING)],
     }
     cache_control = 'max-age=15, must-revalidate'
+    glyphicon = 'camera'

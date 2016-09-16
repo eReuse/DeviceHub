@@ -40,6 +40,8 @@ Allocate.components['readonly'] = True
 
 class AllocateSettings(EventSubSettingsMultipleDevices):
     _schema = Allocate
+    fa = 'fa-hand-o-right',
+    short_description = 'Assign the devices to someone, so that person \'owns\' the device'
 
 # Receiver OR ReceiverEmail. We need to hook this in a required field so it is always executed
 # And @type is an always required field so we can happily hook on it

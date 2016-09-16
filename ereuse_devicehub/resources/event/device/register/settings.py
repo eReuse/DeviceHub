@@ -30,3 +30,5 @@ class Register(EventWithOneDevice):
 class RegisterSettings(EventSubSettingsOneDevice):
     _schema = Register
     extra_response_fields = EventSubSettingsOneDevice.extra_response_fields + ['device', 'components']
+    fa = 'fa-plus'
+    short_description = 'The creation of a new device in the system.'

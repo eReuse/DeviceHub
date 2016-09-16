@@ -237,8 +237,20 @@ class DeviceHubValidator(Validator):
         pass
 
     def _validate_excludes(self, other_field: list, field: str, value):
+        """
+        "Field A and field B cannot have both values."
+
+        A field that is using the default value is treated as it is not using value at all. This method
+        presupposes that values cannot be None.
+        :param other_field:
+        :param field:
+        :param value:
+        :return:
+        """
         if other_field in self.document:
-            self._error(field, 'Cannot be with {} field.'.format(other_field))
+            if self.document[other_field] != self.schema[other_field].get('default', None) \
+                    and value != self.schema[field].get('default', None):
+                self._error(field, 'Cannot be with {} field.'.format(other_field))
 
     def _validate_unique_values(self, boolean, field, value):
         if boolean:

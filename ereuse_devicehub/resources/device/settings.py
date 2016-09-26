@@ -31,5 +31,5 @@ class DeviceSettings(ResourceSettings):
 
 class DeviceSubSettings(DeviceSettings):
     _schema = False
-    resource_methods = []
+    resource_methods = ['GET']
     item_methods = []

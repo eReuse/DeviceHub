@@ -156,4 +156,8 @@ class DeviceHub(Eve):
                     schema['_settings']['short_description'] = settings['short_description']
                 except:
                     pass
+                try:
+                    schema['_settings']['sink'] = settings['sink']
+                except:
+                    pass
             return send_response(None, (schemas,))

@@ -28,7 +28,8 @@
             "startingTime": "2016-02-29T13:31:28",
             "success": true
           }
-        ]
+        ],
+        "success": true
       },
       "interface": "ata",
       "model": "VBOX HARDDISK",

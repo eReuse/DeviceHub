@@ -91,7 +91,7 @@ class MaterializeEvents:
     """
     fields = {
         '_id', '@type', 'label', 'date', 'incidence', 'secured', 'comment', 'success', 'error', 'type', 'receiver',
-        'receiverOrganization', 'to', 'toOrganization', 'secured', 'byUser', 'geo'
+        'receiverOrganization', 'to', 'toOrganization', 'secured', 'byUser', 'geo', '_updated'
     }
 
     @classmethod

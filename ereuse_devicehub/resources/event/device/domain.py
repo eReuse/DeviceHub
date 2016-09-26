@@ -3,35 +3,41 @@ from ereuse_devicehub.utils import Naming
 
 
 class DeviceEventDomain(EventDomain):
-    GENERIC_TYPES = {'Ready', 'Repair', 'ToPrepare', 'ToRepair', 'ToDispose', 'Dispose', 'Free'}
-    GENERIC_TYPES_SETTINGS = {
+    GENERIC_TYPES = {
         'Ready': {
             'fa': 'fa-check',
-            'short_description': 'The devices work correctly, so they are ready to be used, sold, donated...'
+            'short_description': 'The devices work correctly, so they are ready to be used, sold, donated...',
+            'sink': -2
         },
         'Repair': {
             'fa': 'fa-chain-broken',
-            'short_description': 'The devices have been succesfully repaired'
+            'short_description': 'The devices have been succesfully repaired',
+            'sink': -1
         },
         'ToPrepare': {
             'fa': 'fa-wrench',
-            'short_description': 'The devices need some maintenance, some kind of testing or preparation... to be ready'
+            'short_description': 'The devices need some maintenance, some kind of testing or preparation... to be ready',
+            'sink': 1
         },
         'ToRepair': {
             'fa': 'fa-chain-broken',
-            'short_description': 'The devices need repairing'
+            'short_description': 'The devices need repairing',
+            'sink': 0
         },
         'ToDispose': {
             'fa': 'fa-trash-o',
             'short_description': 'The devices need to be taken for disposal.',
+            'sink': -8
         },
         'Dispose': {
             'fa': 'fa-trash-o',
-            'short_description': 'The devices have been successfully taken for disposal.'
+            'short_description': 'The devices have been successfully taken for disposal.',
+            'sink': -9
         },
         'Free': {
             'fa': 'fa-shopping-cart',
-            'short_description': ''
+            'short_description': 'The devices are available to be received for someone (sold, donated)',
+            'sink': -4
         }
     }
 

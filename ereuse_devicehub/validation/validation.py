@@ -34,19 +34,21 @@ class DeviceHubValidator(Validator):
         self._validate_or(self._current)
         return len(self._errors) == 0
 
-    def _validate_definition(self, definition, field, value, ):
+    """
+       Removes a null field (as they equal 'undefined' ones)
+    """
+    def _validate_definition(self, definition, field, value):
         self._validations[field] = True
-        if value is None:  # Copied from super function
-            if definition.get("nullable", False) is True:
-                return
-            else:
-                self._error(field, errors.ERROR_NOT_NULLABLE)
+        if value is None:
+            # We change this from Python-eve. For us, null values equal undefined fields and they are silently removed
+            del self._current[field]
+            return
         if 'move' in definition:
             self._move(definition['move'], value, field, definition)
             return  # The actual field has been moved, so there is no value any more to validate
         if COERCE_WITH_CONTEXT in definition:
             value = self._validate_coerce_with_context(definition['coerce_with_context'], field, value)
-            self.document[field] = value
+            self._current[field] = value
         super()._validate_definition(definition, field, value)
 
     def _validate_coerce_with_context(self, coerce, field, value):

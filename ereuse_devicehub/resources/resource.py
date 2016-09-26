@@ -130,13 +130,13 @@ class ResourceSettings(Resource):
     def __new__(cls) -> dict:
         fields = cls.superclasses_fields(2)  # We ignore Object, Resource
         # We make possible GET the resource (not item) /events/devices/snapshot by providing
-        # default filter if: 1. datasource is set, 2. the resource is a leaf (events/devices won't work because
-        # we cannot translate it to a @type filter easily), and 3. it is not done by the first node (devices) as it does not filter
+        # a default filter. Note that first-level resources (devices) do not use it as there is no need
+        # todo write tests for this
         if 'datasource' in fields and len(cls.superclasses(2)) > 2:
             if len(cls.sub_resources()) == 0:
                 fields['datasource']['filter'] = {'@type': cls._schema.type_name}
             else:
-                fields['datasource']['filter'] = {'@type': {'$in': cls._schema.types}}
+                fields['datasource']['filter'] = {'@type': {'$in': list(cls._schema.types)}}
         if fields['_schema']:  # We get the schema. This is a costly operation we do not want to do in actual_fields
             fields['schema'] = fields['_schema']()
         return fields

@@ -13,12 +13,9 @@ def hooks(app):
     app.on_fetched_item += project_item
     app.on_fetched_resource += project_resource
 
-    from ereuse_devicehub.resources.device.hooks import generate_etag, get_icon, get_icon_resource, autoincrement, \
-        post_benchmark, \
+    from ereuse_devicehub.resources.device.hooks import generate_etag, autoincrement, post_benchmark, \
         materialize_public_in_components, materialize_public_in_components_update
     app.on_insert += generate_etag
-    app.on_fetched_item += get_icon
-    app.on_fetched_resource += get_icon_resource
     app.on_insert += autoincrement
     app.on_insert += post_benchmark
     app.on_inserted += materialize_public_in_components

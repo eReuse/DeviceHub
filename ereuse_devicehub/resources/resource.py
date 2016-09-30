@@ -144,10 +144,7 @@ class ResourceSettings(Resource):
     @classmethod
     def actual_fields(cls):
         """
-            Gets the actual fields of the class.
-
-            The fields of a resource are the union of all the fields of its super-classes. This method generates too
-            the URL of the class.
+            Gets only the actual fields of the class (ignoring parents'), alongside with the URL.
         """
         if not hasattr(cls, '_schema'):
             raise TypeError('Resource does not have any schema')

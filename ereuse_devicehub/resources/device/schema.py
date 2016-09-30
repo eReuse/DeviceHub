@@ -52,12 +52,6 @@ class Device(IndividualProduct):
         'teaser': False
         # ALLOWED_WRITE_ROLES: Role.SUPERUSER  # For recovery purposes
     }
-    icon = {
-        'type': 'string',
-        'readonly': True,
-        'teaser': False,
-        'sink': -5
-    }
     hid = {
         'type': 'hid',
         'sink': 5,

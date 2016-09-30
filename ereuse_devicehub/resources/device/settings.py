@@ -21,12 +21,13 @@ class DeviceSettings(ResourceSettings):
     }
     etag_ignore_fields = ['hid', '_id', 'components', 'isUidSecured', '_created', '_updated', '_etag', 'speed',
                           'busClock', 'labelId', 'owners', 'place', 'benchmark', 'benchmarks', 'public', '_links',
-                          'forceCreation', 'icon', 'parent', 'events']
+                          'forceCreation', 'parent', 'events']
     cache_control = 'max-age=1, must-revalidate'
     extra_response_fields = ResourceSettings.extra_response_fields + ['hid', 'pid']
     datasource = {
         'source': 'devices'
     }
+    icon = 'devices/icons/'
 
 
 class DeviceSubSettings(DeviceSettings):

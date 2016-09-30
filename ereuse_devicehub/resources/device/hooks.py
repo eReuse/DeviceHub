@@ -1,10 +1,9 @@
-from eve.utils import document_etag
-from flask import current_app as app
-
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.event.device.settings import DeviceEvent
 from ereuse_devicehub.utils import Naming
+from eve.utils import document_etag
+from flask import current_app as app
 
 
 def generate_etag(resource: str, items: list):
@@ -12,17 +11,6 @@ def generate_etag(resource: str, items: list):
         for item in items:
             item['_etag'] = document_etag(item,
                                           app.config['DOMAIN'][Naming.resource(item['@type'])]['etag_ignore_fields'])
-
-
-def get_icon(resource: str, item: dict):
-    if item['@type'] in Device.types:
-        item_type = item['type'] if 'type' in item else item['@type']
-        item['icon'] = 'devices/icons/{}.svg'.format(item_type)  # The path doesn't need to be the real one
-
-
-def get_icon_resource(resource: str, response: dict):
-    for item in response['_items']:
-        get_icon(resource, item)
 
 
 def post_benchmark(resource: str, devices: list):

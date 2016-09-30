@@ -1,11 +1,9 @@
-from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.event.device.settings import place, EventWithOneDevice, EventSubSettingsOneDevice
 
 
 class Register(EventWithOneDevice):
     device = {
         'type': ['dict', 'string'],  # POST dict, GET str
-        'schema': Device,  # anyof causes a bug where resource is not set
         'data_relation': {
             'resource': 'devices',
             'field': '_id',

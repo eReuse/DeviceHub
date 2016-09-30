@@ -1,6 +1,5 @@
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.device.component.settings import Component
-from ereuse_devicehub.resources.device.computer.settings import Computer
 from ereuse_devicehub.resources.event.device.settings import place, EventWithOneDevice, EventSubSettingsOneDevice
 
 
@@ -12,7 +11,12 @@ class Snapshot(EventWithOneDevice):
         'type': 'boolean'
     }
     version = {
-        'type': 'version',
+        'type': 'version'
+    }
+    snapshotSoftware = {
+        'type': 'string',
+        'allowed': ['DDI', 'Scan', 'DeviceHubClient'],
+        'default': 'DDI'
     }
     events = {
         'type': 'list',  # Snapshot generates this automatically
@@ -57,13 +61,13 @@ class Snapshot(EventWithOneDevice):
     }
     device = {
         'type': 'dict',  # eve doesn't care about the type when GET values
-        'schema': Computer,
         'required': True,
         'data_relation': {
             'resource': 'devices',
             'field': '_id',
             'embeddable': True
-        }
+        },
+        'sink': 4
     }
     components = {
         'type': 'list',
@@ -82,6 +86,15 @@ class Snapshot(EventWithOneDevice):
         'type': 'dict'
     }
     place = place
+    software = {
+        'type': 'dict',
+        'schema': {
+            'productKey': {
+                'type': 'string'
+            }
+        },
+        'sink': -1
+    }
 
 
 class SnapshotSettings(EventSubSettingsOneDevice):

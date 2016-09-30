@@ -1,3 +1,4 @@
+from assertpy import assert_that
 from ereuse_devicehub.tests.test_resources.test_events.test_device_event import TestDeviceEvent
 
 
@@ -30,7 +31,33 @@ class TestLocate(TestDeviceEvent):
                 locate, _ = self.get(self.DEVICE_EVENT, '', locate['_id'])
                 self.assertIn('place', locate)
                 self.assertEqual(locate['place'], place['_id'])
+                # Let's assure that the materializations of the devices are correct
+                for device_id in self.devices_id:
+                    device, _ = self.get(self.DEVICES, '', device_id)
+                    self.assertEqual(place['_id'], device['place'])
+                    assert_that(device['events'][0]).is_subset_of(locate)
             else:
                 self.assertTrue(False)
         else:
             self.assertTrue(False)
+
+    def test_monitor(self):
+        """
+        The same as test_create_locate_with_coordiantes but with a monitor
+        """
+        locate = self.get_fixture(self.LOCATE, 'locate_with_coordinates')
+        snapshot = self.post_fixture(self.SNAPSHOT, '{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), 'monitor')
+        snapshot, _ = self.get('devices_snapshot', '', snapshot['_id'])
+        locate['devices'] = [self.get(self.DEVICES, '', snapshot['device'])[0]['_id']]
+        # Let's directly create a place
+        place = self.post_fixture(self.PLACES, self.PLACES, 'place_with_coordinates')
+        # We repeat the location. As the coordinates are in the area of the place, we can create it
+        locate = self.post_and_check(self.POST_LOCATE, locate)
+        # Let's check if locate has been assigned to the place
+        locate, _ = self.get(self.DEVICE_EVENT, '', locate['_id'])
+        self.assertIn('place', locate)
+        self.assertEqual(locate['place'], place['_id'])
+        # Let's assure that the materializations of computerMonitor are correct
+        computerMonitor, _ = self.get(self.DEVICES, '', snapshot['device'])
+        self.assertEqual(place['_id'], computerMonitor['place'])
+        assert_that(computerMonitor['events'][0]).is_subset_of(locate)

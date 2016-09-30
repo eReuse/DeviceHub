@@ -79,7 +79,8 @@ class TestSnapshot(TestStandard):
         register = events[0]
         self.assertType(DeviceEventDomain.new_type('Register'), register)
         self.assertSimilarDevice(input_snapshot['device'], register['device'])
-        self.assertSimilarDevices(input_snapshot['components'], register['components'])
+        if 'components' in input_snapshot:
+            self.assertSimilarDevices(input_snapshot['components'], register['components'])
         # We do a snapshot again. We should receive a new snapshot without any event on it.
         if do_second_time_snapshot:
             pprint("2nd time snapshot:")
@@ -281,4 +282,7 @@ class TestSnapshot(TestStandard):
         snapshot = self.get_fixture(self.SNAPSHOT, '703b6')
         num_events = self.get_num_events(snapshot)
         self.creation(snapshot, num_events)
-        a = 3
+
+    def test_computer_monitor(self):
+        snapshot = self.get_fixture(self.SNAPSHOT, 'monitor')
+        self.creation(snapshot, 1)  # Register only

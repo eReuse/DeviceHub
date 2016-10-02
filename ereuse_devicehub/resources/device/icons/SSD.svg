@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="612px" height="443.2px" viewBox="0 174.4 612 443.2" enable-background="new 0 174.4 612 443.2" xml:space="preserve">
+<path fill="#AFB6BB" d="M590,617.6H22c-12.2,0-22-9.9-22-22V196.5c0-12.2,9.9-22,22-22H590c12.2,0,22,9.9,22,22v399.1
+	C612,607.7,602.1,617.6,590,617.6z"/>
+<circle fill="#E7ECED" cx="42.2" cy="575.4" r="10.6"/>
+<circle fill="#E7ECED" cx="569.8" cy="216.6" r="10.6"/>
+<circle fill="#E7ECED" cx="569.8" cy="575.4" r="10.6"/>
+<ellipse transform="matrix(-0.4022 -0.9155 0.9155 -0.4022 98.7388 1029.7389)" fill="#48A0DC" stroke="#FFFFFF" stroke-width="2" stroke-miterlimit="10" cx="385.5" cy="482.6" rx="50" ry="78.6"/>
+<path fill="#E7ECED" d="M84.4,427.7H0V196.5c0-12.2,9.9-22,22-22h315.6l0,0C337.7,314.3,224.3,427.7,84.4,427.7z"/>
+<polygon fill="#283238" points="612,533.2 569.8,533.2 548.7,501.5 548.7,279.9 612,279.9 "/>
+<g>
+	<rect x="569.8" y="301" fill="#D3AA6E" width="42.2" height="21.1"/>
+	<rect x="569.8" y="332.7" fill="#D3AA6E" width="42.2" height="21.1"/>
+	<rect x="569.8" y="364.3" fill="#D3AA6E" width="42.2" height="21.1"/>
+	<rect x="569.8" y="396" fill="#D3AA6E" width="42.2" height="21.1"/>
+	<rect x="580.3" y="491" fill="#D3AA6E" width="31.7" height="21.1"/>
+	<rect x="569.8" y="459.3" fill="#D3AA6E" width="42.2" height="21.1"/>
+</g>
+<rect x="31.7" y="353.8" fill="#6C797A" width="21.1" height="21.1"/>
+<rect x="31.7" y="322.1" fill="#6C797A" width="21.1" height="21.1"/>
+<rect x="31.7" y="290.5" fill="#6C797A" width="21.1" height="21.1"/>
+<rect x="31.7" y="258.8" fill="#6C797A" width="21.1" height="21.1"/>
+<rect x="31.7" y="227.2" fill="#6C797A" width="21.1" height="21.1"/>
+<rect x="95" y="227.2" fill="#6C797A" width="137.2" height="21.1"/>
+<rect x="95" y="258.8" fill="#6C797A" width="105.5" height="21.1"/>
+<rect x="95" y="290.5" fill="#6C797A" width="116.1" height="21.1"/>
+<rect x="95" y="322.1" fill="#6C797A" width="42.2" height="21.1"/>
+</svg>

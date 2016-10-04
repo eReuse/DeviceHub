@@ -8,7 +8,8 @@ class Peripheral(Device):
     type = {
         'type': 'string',
         'allowed': {'Router', 'Switch', 'Printer', 'Scanner', 'MultifunctionPrinter', 'Terminal', 'HUB', 'SAI',
-                    'Keyboard', 'Mouse'}
+                    'Keyboard', 'Mouse'},
+        'required': True
     }
     manufacturer = copy.copy(Device.manufacturer)
     manufacturer['required'] = True

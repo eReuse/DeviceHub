@@ -7,7 +7,8 @@ from ereuse_devicehub.resources.device.settings import DeviceSubSettings
 class ComputerMonitor(Device):
     type = {
         'type': 'string',
-        'allowed': {'TFT', 'LCD'}
+        'allowed': {'TFT', 'LCD', 'LED', 'OLED'},
+        'required': True
     }
     inches = {
         'type': 'natural'

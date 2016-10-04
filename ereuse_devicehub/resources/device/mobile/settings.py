@@ -13,20 +13,17 @@ class Mobile(Device):
         'type': 'string',
         'unique': True
     }
+    type = {
+        'type': 'string',
+        'allowed': {'Smartphone', 'Tablet'},
+        'required': True
+    }
     manufacturer = copy.copy(Device.manufacturer)
     manufacturer['required'] = True
     serialNumber = copy.copy(Device.serialNumber)
     serialNumber['required'] = True
     model = copy.copy(Device.model)
     model['required'] = True
-
-
-class MobilePhone(Mobile):
-    pass
-
-
-class TabletComputer(Mobile):
-    pass
 
 
 class MobileSettings(DeviceSubSettings):

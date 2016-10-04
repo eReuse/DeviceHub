@@ -166,8 +166,7 @@ class DeviceHubValidator(Validator):
         """Databases are a unique list of values (a set without 'set' for mongo/json compatibilities). Admins can only
         create accounts within their databases."""
         self._validate_type_list(field, databases)
-        copy = list(set(databases))
-        if databases != copy:
+        if len(databases) != len(set(databases)):
             self._error(field, json_util.dumps({'DuplicatedDatabases': 'Databases are duplicated'}))
         from ereuse_devicehub.resources.account.domain import AccountDomain
         if AccountDomain.actual['role'] < Role.SUPERUSER and not set(databases).issubset(set(AccountDomain.actual['databases'])):

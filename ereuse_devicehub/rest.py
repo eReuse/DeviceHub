@@ -1,10 +1,10 @@
 import json
 
+from ereuse_devicehub.exceptions import InnerRequestError
+from eve.methods.delete import deleteitem_internal
 from eve.methods.patch import patch_internal
 from eve.methods.post import post_internal
 from flask import request, current_app
-
-from ereuse_devicehub.exceptions import InnerRequestError
 
 
 def execute_post(resource: str, payload: dict):
@@ -31,3 +31,9 @@ def execute_patch(resource: str, payload: dict, identifier):
     if response[3] != 200:  # statusCode
         raise InnerRequestError(response[3], response[0])
     return response[0]
+
+
+def execute_delete(resource: str, identifier):
+    _, _, _, status = deleteitem_internal(resource, **{'_id': str(identifier)})
+    if status != 204:
+        raise InnerRequestError(status, {})

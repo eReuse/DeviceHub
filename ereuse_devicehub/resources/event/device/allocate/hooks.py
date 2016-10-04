@@ -1,3 +1,4 @@
+import pymongo
 from ereuse_devicehub.resources.account.domain import AccountDomain, UserNotFound
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device.deallocate.deallocate import AlreadyAllocated
@@ -34,6 +35,13 @@ def avoid_repeating_allocations(allocates: list):
 def set_organization(allocates: list):
     for allocate in allocates:
         try:
-            allocate['toOrganization'] = AccountDomain.get_one(allocate['to']).get('organization')
-        except UserNotFound:
+            allocate['toOrganization'] = AccountDomain.get_one(allocate['to'])['organization']
+        except (UserNotFound, KeyError):
             pass
+
+
+def re_materialize_owners(_, event: dict):
+    """Deleting an Allocate / deallocate requires """
+    if event.get('@type') in ('devices:Allocate', 'devices:Deallocate'):
+        from ereuse_devicehub.resources.event.device.allocate.allocate import materialize_owners
+        materialize_owners(event['devices'])

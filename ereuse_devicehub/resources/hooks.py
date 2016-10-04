@@ -4,7 +4,7 @@ from flask import current_app
 from requests import Response
 from werkzeug.local import LocalProxy
 
-from ereuse_devicehub.exceptions import Redirect
+from ereuse_devicehub.exceptions import RedirectToClient
 from ereuse_devicehub.utils import get_header_link
 
 def redirect_on_browser(resource, request, lookup):
@@ -16,7 +16,7 @@ def redirect_on_browser(resource, request, lookup):
     :return:
     """
     if request.accept_mimetypes.accept_html:
-        raise Redirect()
+        raise RedirectToClient()
 
 
 def set_response_headers_and_cache(resource: str, request: LocalProxy, payload: Response):

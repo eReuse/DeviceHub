@@ -49,6 +49,7 @@ class Event(Thing):
 
 class EventSettings(ResourceSettings):
     resource_methods = ['GET']
+    item_methods = ['GET', 'DELETE']
     _schema = Event  # We update the schema in DOMAIN
     datasource = {
         'source': 'events',

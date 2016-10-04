@@ -7,7 +7,7 @@ from ereuse_devicehub.validation.validation import HID_REGEX
 
 class DeviceSettings(ResourceSettings):
     resource_methods = ['GET']
-    item_methods = ['GET', 'PATCH']
+    item_methods = ['GET', 'PATCH', 'DELETE']
     _schema = Device
     additional_lookup = {
         'field': 'hid',
@@ -33,4 +33,4 @@ class DeviceSettings(ResourceSettings):
 class DeviceSubSettings(DeviceSettings):
     _schema = False
     resource_methods = ['GET']
-    item_methods = []
+    item_methods = ['DELETE']

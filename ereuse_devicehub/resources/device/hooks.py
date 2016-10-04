@@ -1,10 +1,12 @@
-from eve.utils import document_etag
-from flask import current_app as app
-
+from ereuse_devicehub.exceptions import RequestAnother
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.schema import Device
+from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.settings import DeviceEvent
+from ereuse_devicehub.rest import execute_delete
 from ereuse_devicehub.utils import Naming
+from eve.utils import document_etag
+from flask import current_app as app
 
 
 def generate_etag(resource: str, items: list):
@@ -12,17 +14,6 @@ def generate_etag(resource: str, items: list):
         for item in items:
             item['_etag'] = document_etag(item,
                                           app.config['DOMAIN'][Naming.resource(item['@type'])]['etag_ignore_fields'])
-
-
-def get_icon(resource: str, item: dict):
-    if item['@type'] in Device.types:
-        item_type = item['type'] if 'type' in item else item['@type']
-        item['icon'] = 'devices/icons/{}.svg'.format(item_type)  # The path doesn't need to be the real one
-
-
-def get_icon_resource(resource: str, response: dict):
-    for item in response['_items']:
-        get_icon(resource, item)
 
 
 def post_benchmark(resource: str, devices: list):
@@ -65,7 +56,7 @@ def materialize_public_in_components(resource: str, devices: list):
     """
     if resource in Device.resource_types:
         for device in devices:
-            if 'components' in device:
+            if device.get('components'):  # If empty do not try to execute
                 DeviceDomain.update_raw(device['components'], {'$set': {'public': device.get('public', False)}})
 
 
@@ -103,3 +94,21 @@ class MaterializeEvents:
                 devices = event['device'] if 'device' in event else event['devices']
                 DeviceDomain.update_raw(devices, query)
                 DeviceDomain.update_raw(event.get('components', []), query)
+
+    @classmethod
+    def dematerialize_event(cls, resource: str, event: dict):
+        if event.get('@type') in DeviceEvent.types:
+            device = [event['device']] if 'device' in event else []
+            for device_id in event.get('devices', []) + event.get('components', []) + device:
+                DeviceDomain.update_raw(device_id, {'$pull': {'events': {'_id': event['_id']}}})
+
+
+def redirect_to_first_snapshot(resource, request, lookup):
+    """
+    DELETE /device should be an internal method, but it is open to redirect to the door that is going to effictevely
+    delete the device; this is the first Snapshot that made the Register that made the device.
+    """
+    if resource in Device.resource_types:
+        snapshot_id = str(DeviceEventDomain.get_first_snapshot(lookup['_id'])['_id'])
+        execute_delete(Naming.resource('devices:Snapshot'), snapshot_id)
+        raise RequestAnother('', 204)

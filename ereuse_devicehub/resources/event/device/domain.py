@@ -1,3 +1,4 @@
+import pymongo
 from ereuse_devicehub.resources.event.domain import EventDomain
 from ereuse_devicehub.utils import Naming
 
@@ -58,3 +59,8 @@ class DeviceEventDomain(EventDomain):
     def new_type(type_name):
         from ereuse_devicehub.resources.event.device.settings import DeviceEvent
         return Naming.new_type(type_name, DeviceEvent._settings['prefix'])
+
+    @staticmethod
+    def get_first_snapshot(device_id: str):
+        return DeviceEventDomain.get_one(
+            {'$query': {'device': device_id, '@type': 'devices:Snapshot'}, '$orderby': {'_created': pymongo.ASCENDING}})

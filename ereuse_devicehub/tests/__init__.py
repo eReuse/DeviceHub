@@ -3,16 +3,16 @@ import os
 from pprint import pprint
 
 import simplejson as json
+from assertpy import assert_that
 from bson.objectid import ObjectId
-from eve.methods.common import parse
-from eve.tests import TestMinimal
-from flask.ext.pymongo import MongoClient
-from passlib.handlers.sha2_crypt import sha256_crypt
-
 from ereuse_devicehub.flaskapp import DeviceHub
 from ereuse_devicehub.resources.submitter.grd_submitter.grd_submitter import GRDSubmitter
 from ereuse_devicehub.resources.submitter.submitter_caller import SubmitterCaller
 from ereuse_devicehub.utils import Naming
+from eve.methods.common import parse
+from eve.tests import TestMinimal
+from flask.ext.pymongo import MongoClient
+from passlib.handlers.sha2_crypt import sha256_crypt
 
 
 class TestBase(TestMinimal):
@@ -64,8 +64,8 @@ class TestBase(TestMinimal):
         self.create_dummy_user()
         # We call the method again as we have erased the DB
         self.app.grd_submitter_caller = SubmitterCaller(self.app, GRDSubmitter)
-        #self.app.grd_submitter_caller.token = self.app.grd_submitter_caller.prepare_user(self.app)
-        #self.app.grd_submitter_caller.process = None
+        # self.app.grd_submitter_caller.token = self.app.grd_submitter_caller.prepare_user(self.app)
+        # self.app.grd_submitter_caller.process = None
 
     def create_dummy_user(self):
         self.db.accounts.insert(
@@ -144,6 +144,9 @@ class TestBase(TestMinimal):
 
     def _login(self) -> str:
         return super(TestBase, self).post('/login', {"email": "a@a.a", "password": "1234"})[0]['token']
+
+    def assert308(self, status):
+        self.assertEqual(status, 308)
 
 
 class TestStandard(TestBase):
@@ -231,7 +234,7 @@ class TestStandard(TestBase):
 
     def delete_and_check(self, url):
         response, status_code = self.delete(url)
-        self.assert200(status_code)
+        self.assert204(status_code)
         return response
 
     def get_fixtures_computers(self) -> list:
@@ -262,9 +265,16 @@ class TestStandard(TestBase):
         self.assertIn(device_id, place['devices'])
         device, _ = self.get(self.DEVICES, '', device_id)
         self.assertIn('place', device)
-        self.assertIn(place_id, device['place'])
-        if 'components' in device:
-            for component_id in device['components']:
-                component, _ = self.get(self.DEVICES, '', component_id)
-                self.assertIn('place', component)
-                self.assertIn(place_id, component['place'])
+        self.assertEqual(place_id, device['place'])
+        for component_id in device.get('components', []):
+            component, _ = self.get(self.DEVICES, '', component_id)
+            self.assertIn('place', component)
+            self.assertEqual(component['place'], place_id)
+
+    def devices_do_not_contain_places(self, device_id: str) -> list:
+        """ The opposite of `device_and_place_contain_each_other`."""
+        device, _ = self.get(self.DEVICES, '', device_id)
+        assert_that(device).does_not_contain('place')
+        for component_id in device.get('components', []):
+            component, _ = self.get(self.DEVICES, '', component_id)
+            assert_that(component).does_not_contain('place')

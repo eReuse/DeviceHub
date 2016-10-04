@@ -281,7 +281,60 @@ class TestSnapshot(TestStandard):
         """
         snapshot = self.get_fixture(self.SNAPSHOT, '703b6')
         num_events = self.get_num_events(snapshot)
-        self.creation(snapshot, num_events)
+        return self.creation(snapshot, num_events)
+
+    def test_703b6_delete(self):
+        """
+        Tests deleting a full device, ensuring related events and components are deleted.
+        """
+        device_id = self.test_703b6()
+        device, _ = self.get(self.DEVICES, '', device_id)
+        snapshot, first_snapshot, register = (self.get(self.EVENTS, '', event['_id'])[0] for event in device['events'])
+        register, erase, test = (self.get(self.EVENTS, '', event_id)[0] for event_id in
+                                 self.get(self.EVENTS, '', first_snapshot['_id'])[0]['events'])
+        # Let's try deleting NOT the Snapshot that created the device
+        self.delete_and_check(self.DEVICE_EVENT + '/snapshot/' + snapshot['_id'])
+        _, status = self.get(self.EVENTS, '', snapshot['_id'])
+        self.assert404(status)
+        # We can still get the device, as the device was created with the *first* snapshot (that called Register)
+        _, status = self.get(self.DEVICES, '', device_id)
+        self.assert200(status)
+        # The same for any other event that was not generated because of this snapshot
+        _, status = self.get(self.EVENTS, '', test['_id'])
+        self.assert200(status)
+        # Or any component
+        _, status = self.get(self.DEVICES, '', device['components'][0])
+        self.assert200(status)
+
+        # Let's add again a new snapshot
+        # Note that this will produce a Remove event as there are no components
+        new_snapshot = self.post_snapshot({'@type': 'Snapshot', 'device': device})
+        new_remove, status = self.get(self.EVENTS, '', new_snapshot['events'][0])
+        self.assert200(status)
+
+        # Now let's delete the device
+        self.delete_and_check(self.DEVICES + '/' + device_id)
+        # The first Snapshot should have deleted all events that were generated from it
+        _, status = self.get(self.EVENTS, '', test['_id'])
+        self.assert404(status)
+        _, status = self.get(self.EVENTS, '', erase['_id'])
+        self.assert404(status)
+        _, status = self.get(self.EVENTS, '', register['_id'])
+        self.assert404(status)
+
+        # Deleting the register event should have led to deleting the device,
+        _, status = self.get(self.DEVICES, '', device_id)
+        self.assert404(status)
+        # ...all the components that were created in that Register,
+        for component_id in device:
+            _, status = self.get(self.DEVICES, '', component_id)
+            self.assert404(status)
+        # ...and finally the new snapshot we created...
+        _, status = self.get(self.EVENTS, '', new_snapshot['_id'])
+        self.assert404(status)
+        # ...with the Remove it triggered
+        _, status = self.get(self.EVENTS, '', new_remove['_id'])
+        self.assert404(status)
 
     def test_computer_monitor(self):
         snapshot = self.get_fixture(self.SNAPSHOT, 'monitor')

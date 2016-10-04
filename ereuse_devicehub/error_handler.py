@@ -1,7 +1,7 @@
 from flask import Response, redirect as flask_redirect, request
 from flask.json import jsonify
 
-from ereuse_devicehub.exceptions import BasicError, Redirect
+from ereuse_devicehub.exceptions import BasicError, RedirectToClient, RequestAnother
 from ereuse_devicehub.flask_decorators import crossdomain
 from ereuse_devicehub.utils import get_header_link
 
@@ -24,9 +24,9 @@ class ErrorHandlers:
             response.status_code = error.status_code
             return response
 
-        @app.errorhandler(Redirect)
+        @app.errorhandler(RedirectToClient)
         @crossdomain(origin='*', headers=['Content-Type', 'Authorization'])
-        def redirect(error: Redirect) -> Response:
+        def redirect(error: RedirectToClient) -> Response:
             """
                 For Redirect exceptions, performs a redirection to the client.
             """

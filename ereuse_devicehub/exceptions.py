@@ -71,8 +71,14 @@ class WrongCredentials(StandardError):
     message = 'There is not an user with the matching username/password'
 
 
-class Redirect(Exception):
+class RedirectToClient(Exception):
     """
     An exception that forces a redirection to the client.
     """
     pass
+
+
+class RequestAnother(BasicError):
+    """Redirects to DELETE Snapshot"""
+
+

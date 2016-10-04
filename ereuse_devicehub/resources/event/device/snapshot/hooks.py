@@ -1,3 +1,8 @@
+from ereuse_devicehub.exceptions import InnerRequestError
+from ereuse_devicehub.resources.event.device import DeviceEventDomain
+from ereuse_devicehub.resources.event.domain import EventNotFound
+from ereuse_devicehub.rest import execute_delete
+from ereuse_devicehub.utils import Naming
 from flask import current_app as app
 from flask import request, g
 
@@ -47,3 +52,22 @@ def set_secured(snapshots: list):
     """
     for snapshot in snapshots:
         snapshot['secured'] = g.trusted_json
+
+
+def delete_events(resource_name: str, snapshot: dict):
+    """
+    Deletes the events that were created with the snapshot.
+    """
+    if snapshot.get('@type') == 'devices:Snapshot':
+        for event_id in snapshot['events']:
+            try:
+                # If the first event is Register, erasing the device will erase the rest of events
+                event = DeviceEventDomain.get_one(event_id)
+            except EventNotFound:
+                pass
+            else:
+                try:
+                    execute_delete(Naming.resource(event['@type']), event['_id'])
+                except InnerRequestError as e:
+                    if e.status_code != 404:
+                        raise e

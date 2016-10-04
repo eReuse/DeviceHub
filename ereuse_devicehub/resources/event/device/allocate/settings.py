@@ -42,6 +42,7 @@ class AllocateSettings(EventSubSettingsMultipleDevices):
     _schema = Allocate
     fa = 'fa-hand-o-right'
     sink = -5
+    extra_response_fields = EventSubSettingsMultipleDevices.extra_response_fields + ['to']
     short_description = 'Assign the devices to someone, so that person \'owns\' the device'
 
 # Receiver OR ReceiverEmail. We need to hook this in a required field so it is always executed

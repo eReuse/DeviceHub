@@ -93,7 +93,7 @@ class DeviceEventSettings(EventSettings):
 class EventSubSettings(DeviceEventSettings):
     _schema = False
     resource_methods = ['POST']
-    item_methods = ['GET']
+    item_methods = ['GET', 'DELETE']
 
 
 class EventSubSettingsOneDevice(EventSubSettings):

@@ -33,3 +33,4 @@ class EraseBasicSettings(EventSubSettingsOneDevice):
     _schema = EraseBasic
     fa = 'fa-eraser'
     short_description = 'Fast erasure of the HardDrive'
+    item_methods = ['GET']

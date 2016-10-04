@@ -39,4 +39,5 @@ class DeallocateSettings(EventSubSettingsMultipleDevices):
     _schema = Deallocate
     fa = 'fa-hand-o-left'
     sink = -6
+    extra_response_fields = EventSubSettingsMultipleDevices.extra_response_fields + ['from']
     short_description = 'The opposite of Allocate. Remove the ownership of the devices from someone'

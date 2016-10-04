@@ -1,9 +1,8 @@
 from bson.objectid import ObjectId
-from flask import current_app
-
 from ereuse_devicehub.exceptions import StandardError
 from ereuse_devicehub.resources.resource import ResourceSettings
 from ereuse_devicehub.utils import ClassProperty
+from flask import current_app
 
 
 class Domain:
@@ -39,10 +38,21 @@ class Domain:
         Sets the properties of a resource using directly the database layer.
         :param ids:
         :param operation: MongoDB update query.
+        :return The number of files edited in total
         """
         resources_id = [ids] if type(ids) is str or type(ids) is ObjectId else ids
+        count = 0
         for resource_id in resources_id:
-            current_app.data.driver.db[cls.source].update_one({'_id': resource_id}, operation)
+            count += current_app.data.driver.db[cls.source].update_one({'_id': resource_id}, operation).modified_count
+        return count
+
+    @classmethod
+    def update_many_raw(cls, filter, operation):
+        return current_app.data.driver.db[cls.source].update_many(filter, operation)
+
+    @classmethod
+    def delete(cls, query):
+        return current_app.data.driver.db[cls.source].delete_one(query)
 
     # noinspection PyNestedDecorators
     @ClassProperty

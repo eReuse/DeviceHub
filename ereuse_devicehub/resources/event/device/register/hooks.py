@@ -1,12 +1,12 @@
 from bson import json_util
-from eve.methods.delete import deleteitem_internal
-from flask import current_app as app
-
 from ereuse_devicehub.exceptions import InnerRequestError
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
+from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.exceptions import DeviceNotFound, NoDevicesToProcess
-from ereuse_devicehub.rest import execute_post
+from ereuse_devicehub.rest import execute_post, execute_delete
 from ereuse_devicehub.utils import Naming
+from eve.methods.delete import deleteitem_internal
+from flask import current_app as app
 
 
 def post_devices(registers: list):
@@ -111,17 +111,7 @@ def _abort(log, e: Exception = NoDevicesToProcess()):
     raise e
 
 
-"""
-def materialize_actual_owners_set(registers: list):
-    Initializes the ownership materialized list of a device with the ownership set in the Register.
-
-    This needs to be executed after 'add_or_get_inactive_account'.
-    :param events:
-    :return:
-    for event in registers:
-        if 'owner' in event:
-            properties = {'owner': event['owner']}
-            Device.set_properties_internal(event['owner'], properties)
-            for component in event.get('components', []):
-                Device.set_properties_internal(component, properties)
-"""
+def delete_device(resource_name: str, register):
+    if register.get('@type') == 'devices:Register':
+        for device_id in [register['device']] + register.get('components', []):
+            execute_delete(Naming.resource(DeviceDomain.get_one(device_id)['@type']), device_id)

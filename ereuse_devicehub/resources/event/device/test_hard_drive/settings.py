@@ -38,3 +38,4 @@ class TestHardDriveSettings(EventSubSettingsOneDevice):
     _schema = TestHardDrive
     fa = 'fa-flask'
     short_description = 'A test of the health of the hard drive'
+    item_methods = ['GET']

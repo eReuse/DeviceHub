@@ -77,6 +77,7 @@ def _add_or_get_inactive_account_id(event, field_name, recipient_field_name):
         except TypeError:  # No account
             event[field_name]['databases'] = AccountDomain.actual['databases']
             event[field_name]['active'] = False
+            event[field_name]['@type'] = 'Account'
             _id = execute_post('accounts', event[field_name])['_id']
         event[recipient_field_name] = _id
         del event[field_name]

@@ -10,10 +10,24 @@ class TestLocate(TestDeviceEvent):
         locate = self.get_fixture(self.LOCATE, 'locate')
         locate['place'] = self.place['_id']
         locate['devices'] = self.devices_id
-        self.post_and_check(self.POST_LOCATE, locate)
+        locate = self.post_and_check(self.POST_LOCATE, locate)
         # Let's check the place has been correctly materialized in the devices
         for device_id in self.devices_id:
             self.device_and_place_contain_each_other(device_id, self.place['_id'])
+        return locate
+
+    def test_delete(self):
+        locate = self.test_create_locate_with_place()
+        self.delete_and_check(self.POST_LOCATE + '/' + locate['_id'])
+        _, status = self.get(self.LOCATE, '', locate['_id'])
+        self.assert404(status)
+        # let's check the place has been de-materialized in the devices
+        for device_id in self.devices_id:
+            self.devices_do_not_contain_places(device_id)
+        # Let's check locate has been de-materialized in the devices
+        for device_id in self.devices_id:
+            device, _ = self.get(self.DEVICES, '', device_id)
+            assert_that(device['events']).extracting('_id').does_not_contain(locate['_id'])
 
     def test_create_locate_with_coordinates(self):
         # Let's create a location with coordinates without a place that contains them. It will give us error.

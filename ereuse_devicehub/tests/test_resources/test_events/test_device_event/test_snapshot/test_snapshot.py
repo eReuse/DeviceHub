@@ -289,7 +289,9 @@ class TestSnapshot(TestStandard):
         """
         device_id = self.test_703b6()
         device, _ = self.get(self.DEVICES, '', device_id)
-        snapshot, first_snapshot, register = (self.get(self.EVENTS, '', event['_id'])[0] for event in device['events'])
+        # The materialization keeps events of the device and its components, we only get test_hd as an event
+        # for a component, to try with it later; let's ignore the rest of events from components
+        snapshot, test_hd, _, first_snapshot, _, _, register = (self.get(self.EVENTS, '', event['_id'])[0] for event in device['events'])
         register, erase, test = (self.get(self.EVENTS, '', event_id)[0] for event_id in
                                  self.get(self.EVENTS, '', first_snapshot['_id'])[0]['events'])
         # Let's try deleting NOT the Snapshot that created the device
@@ -332,8 +334,11 @@ class TestSnapshot(TestStandard):
         # ...and finally the new snapshot we created...
         _, status = self.get(self.EVENTS, '', new_snapshot['_id'])
         self.assert404(status)
-        # ...with the Remove it triggered
+        # ...with the Remove it triggered...
         _, status = self.get(self.EVENTS, '', new_remove['_id'])
+        self.assert404(status)
+        # ...and the events of the components
+        _, status = self.get(self.EVENTS, '', test_hd['_id'])
         self.assert404(status)
 
     def test_computer_monitor(self):

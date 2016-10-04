@@ -91,7 +91,9 @@ class MaterializeEvents:
             for event in events:
                 trimmed_event = {field_name: event[field_name] for field_name in cls.fields if field_name in event}
                 query = {'$push': {'events': {'$each': [trimmed_event], '$position': 0}}}
-                devices = event['device'] if 'device' in event else event['devices']
+                devices = [event['device']] if 'device' in event else event['devices']
+                if 'parent' in event:  # Let's materialize the events (test, erasure...) of the component to the parent
+                    devices.append(event['parent'])
                 DeviceDomain.update_raw(devices, query)
                 DeviceDomain.update_raw(event.get('components', []), query)
 
@@ -99,7 +101,8 @@ class MaterializeEvents:
     def dematerialize_event(cls, resource: str, event: dict):
         if event.get('@type') in DeviceEvent.types:
             device = [event['device']] if 'device' in event else []
-            for device_id in event.get('devices', []) + event.get('components', []) + device:
+            parent = [event['parent']] if 'parent' in device else []
+            for device_id in event.get('devices', []) + event.get('components', []) + device + parent:
                 DeviceDomain.update_raw(device_id, {'$pull': {'events': {'_id': event['_id']}}})
 
 

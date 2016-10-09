@@ -64,7 +64,9 @@ BULK_ENABLED = False  # Some events cannot work with it todo fix
 CSRF_ENABLED = True
 IF_MATCH = False  # We do not need concurrency control for PUT (if true, we need to provide an etag (include it in x-headers!))
 XML = False  # Will probably cause bugs
-CACHE_CONTROL = 'no-cache'  # https://www.mnot.net/cache_docs/ Cache is set per resource.
+# 12 hours of cache for /schema, resources have their own cache in their ResourceSettings
+# See https://www.mnot.net/cache_docs/ for more info with cache
+CACHE_CONTROL = 'private, max-age=' + str(60 * 60 * 12)
 PAGINATION_DEFAULT = 30
 PAGINATION_LIMIT = 100
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'

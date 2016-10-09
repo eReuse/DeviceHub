@@ -125,6 +125,7 @@ class ResourceSettings(Resource):
     """Use the user's specific databases or the common default one"""
     extra_response_fields = ['@type', 'label', 'url', 'sameAs', 'description']
     _schema = False
+    cache_control = 'max-age=3, must-revalidate'
 
     @staticmethod
     def __new__(cls) -> dict:

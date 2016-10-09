@@ -87,8 +87,8 @@ class TestBase(TestMinimal):
 
     def drop_databases(self):
         self.connection.drop_database(self.MONGO_DBNAME)
-        for database in self.app.config['DATABASES']:
-            self.connection.drop_database(self.app.config[database.upper() + '_DBNAME'])
+        for database in self.DATABASES:
+            self.connection.drop_database(self.app.config[database.upper().replace('-', '') + '_DBNAME'])
 
     def dropDB(self):
         self.drop_databases()

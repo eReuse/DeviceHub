@@ -104,7 +104,9 @@ class Naming:
                 "@type": "projects:Accept"  // it is an event from a project
                 "@type": "Accept"  // it is an event from a device
         """
-        prefix = (prefix + ':') if prefix is not None else ''
+        if Naming.TYPE_PREFIX in type_name:
+            raise TypeError('Cannot create new type: type {} is already prefixed.'.format(type_name))
+        prefix = (prefix + Naming.TYPE_PREFIX) if prefix is not None else ''
         return prefix + type_name
 
 

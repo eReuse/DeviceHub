@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from ereuse_devicehub.exceptions import InnerRequestError
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.domain import EventNotFound
@@ -19,6 +21,8 @@ def on_insert_snapshot(items):
         item['device'] = item['device']['_id']
         item['components'] = [component['_id'] for component in item['components']]
         item['unsecured'] = snapshot.unsecured
+        from ereuse_devicehub.resources.hooks import set_date
+        set_date(None, items)  # Let's get the time AFTER creating the other events
 
 
 def save_request(items):

@@ -94,3 +94,6 @@ def hooks(app):
     app.on_inserted += MaterializeEvents.materialize_events
     app.on_delete_item += MaterializeEvents.dematerialize_event
     app.on_pre_DELETE += redirect_to_first_snapshot
+
+    from ereuse_devicehub.resources.hooks import set_date
+    app.on_insert += set_date

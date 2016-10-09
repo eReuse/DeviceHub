@@ -42,6 +42,8 @@ def post_devices(registers: list):
                     log)  # If we have not POST neither any component and any device there is no reason for register to exist
             if 'new' in caller_device:
                 set_components(register)
+    from ereuse_devicehub.resources.hooks import set_date
+    set_date(None, registers)  # Let's get the time AFTER creating the devices
 
 
 # noinspection PyUnboundLocalVariable

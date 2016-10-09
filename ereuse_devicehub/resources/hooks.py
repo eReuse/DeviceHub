@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from flask import current_app
 from requests import Response
@@ -35,3 +36,9 @@ def set_response_headers_and_cache(resource: str, request: LocalProxy, payload: 
             # If we are here it means it is an item endpoint, not a list (resource) endpoint
             payload.cache_control.max_age = current_app.config['ITEM_CACHE']
         payload.headers._list.append(get_header_link(resource_type))
+
+
+def set_date(_, resources: dict):
+    """Eve's date is not precise enough (up to seconds) for massive insertion of resources."""
+    for resource in resources:
+        resource['_created'] = resource['_updated'] = datetime.utcnow()

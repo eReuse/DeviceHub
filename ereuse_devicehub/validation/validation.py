@@ -21,6 +21,7 @@ HID_REGEX = '[\w]+-[\w]+-[\w]+'
 
 
 class DeviceHubValidator(Validator):
+    SCALE_AD = ['A', 'B', 'C', 'D']
     special_rules = Validator.special_rules + ('or', COERCE_WITH_CONTEXT, 'move')
 
     def __init__(self, schema=None, resource=None, allow_unknown=False, transparent_schema_rules=False):

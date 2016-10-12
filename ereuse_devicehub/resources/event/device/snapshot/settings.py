@@ -1,4 +1,5 @@
 from ereuse_devicehub.resources.account.role import Role
+from ereuse_devicehub.resources.condition import condition
 from ereuse_devicehub.resources.device.component.settings import Component
 from ereuse_devicehub.resources.event.device.settings import place, EventWithOneDevice, EventSubSettingsOneDevice
 
@@ -94,6 +95,12 @@ class Snapshot(EventWithOneDevice):
             }
         },
         'sink': -1
+    }
+    condition = {
+        'type': 'dict',
+        'schema': condition,
+        'sink': 1,
+        'teaser': True
     }
 
 

@@ -27,7 +27,7 @@ class DummyDB:
 
     def create_dummy_devices(self, maximum: int = None):
         self.test_snapshot.creation = self._creation
-        self.test_snapshot.test_snapshot_2015_12_09(maximum)
+        self.test_snapshot.test_condition(maximum)
         self.test_snapshot.post_snapshot(self.test_snapshot.get_fixture(self.test_snapshot.SNAPSHOT, 'erase_sectors'))
         self.test_snapshot.post_snapshot(self.test_snapshot.get_fixture(self.test_snapshot.SNAPSHOT,
                                                                         'erase_sectors_steps'))

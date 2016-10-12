@@ -201,7 +201,7 @@ class TestSnapshot(TestStandard):
             num_events = self.get_num_events(snapshot)
             self.creation(snapshot, num_events)
 
-    def test_snapshot_2015_12_09(self, maximum: int = None):
+    def test_snapshot_2015_12_09(self, maximum: int = None, extra_fields_snapshot: dict = None):
         this_directory = os.path.dirname(os.path.realpath(__file__))
         file_directory = os.path.join(this_directory, 'resources', '2015-12-09')
         i = 0
@@ -209,8 +209,8 @@ class TestSnapshot(TestStandard):
             if maximum is not None and i >= maximum:
                 break
             if 'json' in filename:
-                pprint(filename)
                 snapshot = self.get_json_from_file(filename, file_directory)
+                snapshot.update(extra_fields_snapshot or {})
                 num_events = self.get_num_events(snapshot)
                 self.creation(snapshot, num_events)
                 i += 1
@@ -344,3 +344,10 @@ class TestSnapshot(TestStandard):
     def test_computer_monitor(self):
         snapshot = self.get_fixture(self.SNAPSHOT, 'monitor')
         self.creation(snapshot, 1)  # Register only
+
+    def test_condition(self, maximum: int = None):
+        condition = {
+            'appearance': 'A',
+            'functional': 'C'
+        }
+        self.test_snapshot_2015_12_09(maximum or 5, {'condition': condition})

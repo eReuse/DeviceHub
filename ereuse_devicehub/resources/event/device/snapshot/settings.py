@@ -12,7 +12,8 @@ class Snapshot(EventWithOneDevice):
         'type': 'boolean'
     }
     version = {
-        'type': 'version'
+        'type': 'version',
+        'teaser': False
     }
     snapshotSoftware = {
         'type': 'string',
@@ -81,10 +82,12 @@ class Snapshot(EventWithOneDevice):
                 'embeddable': True
             }
         },
-        'default': []
+        'default': [],
+        'teaser': False
     }
     debug = {
-        'type': 'dict'
+        'type': 'dict',
+        'teaser': False
     }
     place = place
     software = {

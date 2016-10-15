@@ -73,7 +73,8 @@ components = {
             'embeddable': True
         }
     },
-    'description': 'Components affected by the event.'
+    'description': 'Components affected by the event.',
+    'teaser': False
 }
 parent = {
     'type': 'string',

@@ -33,4 +33,4 @@ class DeviceSettings(ResourceSettings):
 class DeviceSubSettings(DeviceSettings):
     _schema = False
     resource_methods = ['GET']
-    item_methods = ['DELETE']
+    item_methods = ['DELETE', 'GET']

@@ -347,7 +347,7 @@ class TestSnapshot(TestStandard):
 
     def test_condition(self, maximum: int = None):
         condition = {
-            'appearance': 'A',
-            'functional': 'C'
+            'appearance': {'general': 'A'},
+            'functionality': {'general': 'C'}
         }
         self.test_snapshot_2015_12_09(maximum or 5, {'condition': condition})

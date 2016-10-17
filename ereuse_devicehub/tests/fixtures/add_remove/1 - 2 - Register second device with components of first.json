@@ -1,0 +1,26 @@
+{
+  "device": {
+    "manufacturer": "p2m",
+    "serialNumber": "p2s",
+    "@type": "Computer",
+    "type": "Microtower",
+    "model": "model2"
+  },
+  "secured": false,
+  "@type": "Snapshot",
+  "components": [
+    {
+      "manufacturer": "p2c1m",
+      "serialNumber": "p2c2s",
+      "@type": "Motherboard"
+    },
+    {
+      "manufacturer": "p1c2m",
+      "serialNumber": "p1c2s",
+      "model": "processor1",
+      "speed": 1.23,
+      "numberOfCores": 2,
+      "@type": "Processor"
+    }
+  ]
+}

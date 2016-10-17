@@ -49,7 +49,10 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+docs/modules
 
 # Logs
 logs/**
-docs/**
+
+/app.py
+/settings.py

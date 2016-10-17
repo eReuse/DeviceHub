@@ -1,0 +1,11 @@
+{
+  "@type": "Snapshot",
+  "comment": "all ok",
+  "device": {
+    "@type": "ComputerMonitor",
+    "manufacturer": "Fake manufacturer",
+    "model": "Fake model",
+    "serialNumber": "Fake Serial Number",
+    "type": "TFT"
+  }
+}

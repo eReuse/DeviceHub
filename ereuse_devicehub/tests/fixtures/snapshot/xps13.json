@@ -1,0 +1,66 @@
+{
+  "@type": "Snapshot",
+  "components": [
+    {
+      "@type": "Processor",
+      "address": "64",
+      "manufacturer": "Intel Corp.",
+      "model": "Intel(R) Core(TM) i7-4500U CPU @ 1.80GHz",
+      "numberOfCores": "2",
+      "serialNumber": "To Be Filled By O.E.M.",
+      "speed": 2.394
+    },
+    {
+      "@type": "RamModule",
+      "interface": "DDR3",
+      "serialNumber": "15723A13",
+      "size": 8192,
+      "speed": 1066.0
+    },
+    {
+      "@type": "HardDrive",
+      "interface": "ata",
+      "model": "LITEONIT LMT-256",
+      "serialNumber": "T32ASF22299323",
+      "size": 244198.3359375
+    },
+    {
+      "@type": "GraphicCard",
+      "manufacturer": "Intel Corporation",
+      "model": "Haswell-ULT Integrated Graphics Controller"
+    },
+    {
+      "@type": "Motherboard",
+      "manufacturer": "Dell Inc.",
+      "serialNumber": ".32XFSL2.              ."
+    },
+    {
+      "@type": "NetworkAdapter",
+      "manufacturer": "Intel Corporation",
+      "model": "Wireless 7260",
+      "serialNumber": "7c:7b:92:2b:6f:a2"
+    },
+    {
+      "@type": "NetworkAdapter",
+      "serialNumber": "6c:d4:6f:8f:23:7e"
+    },
+    {
+      "@type": "SoundCard",
+      "manufacturer": "Intel Corporation",
+      "model": "Intel Corporation"
+    },
+    {
+      "@type": "SoundCard",
+      "manufacturer": "Intel Corporation",
+      "model": "Lynx Point-LP HD Audio Controller"
+    }
+  ],
+  "device": {
+    "@type": "Computer",
+    "label": "",
+    "manufacturer": "Dell Inc.",
+    "model": "XPS13 942",
+    "serialNumber": "E3XCAS",
+    "type": "Desktop"
+  }
+}

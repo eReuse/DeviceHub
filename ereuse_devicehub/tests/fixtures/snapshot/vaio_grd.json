@@ -1,0 +1,50 @@
+{
+  "components": [
+    {
+      "url": "https://www.example.com/dht1/devices/2",
+      "@type": "Processor"
+    },
+    {
+      "url": "https://www.example.com/dht1/devices/3",
+      "@type": "RamModule"
+    },
+    {
+      "url": "https://www.example.com/dht1/devices/4",
+      "@type": "HardDrive"
+    },
+    {
+      "url": "https://www.example.com/dht1/devices/5",
+      "hid": "toshiba-43asdf22-toshiba_thnsns12",
+      "@type": "HardDrive"
+    },
+    {
+      "url": "https://www.example.com/dht1/devices/6",
+      "@type": "GraphicCard"
+    },
+    {
+      "url": "https://www.example.com/dht1/devices/7",
+      "@type": "Motherboard"
+    },
+    {
+      "url": "https://www.example.com/dht1/devices/8",
+      "hid": "intel_corporation-c8_f7_f3_1f_8f_1f-centrino_advanced-n_6235",
+      "@type": "NetworkAdapter"
+    },
+    {
+      "url": "https://www.example.com/dht1/devices/9",
+      "hid": "realtek_semiconductor_co_ltd-3d_08_73_52_2f_a9-rtl8111_8168_8411_pci_express_gigabit_ethernet_controller",
+      "@type": "NetworkAdapter"
+    },
+    {
+      "url": "https://www.example.com/dht1/devices/10",
+      "@type": "SoundCard"
+    }
+  ],
+  "secured": false,
+  "device": {
+    "url": "https://www.example.com/dht1/devices/1",
+    "hid": "sony_corporation-86sxq-0000029-svd1123c5f",
+    "@type": "Computer"
+  },
+  "@type": "devices:Register"
+}

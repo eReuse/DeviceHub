@@ -1,4 +1,4 @@
-from app.app import app
+from flask import current_app as app
 
 
 class RePostUsingLabel:
@@ -24,4 +24,3 @@ class RePostUsingLabel:
     def drop(cls):
         cls.db.events.drop()
         cls.db.devices.drop()
-

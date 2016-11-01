@@ -91,8 +91,9 @@ class AccountSettings(ResourceSettings):
     # the standard account entry point is defined as
     # '/accounts/<ObjectId>'. We define  an additional read-only entry
     # point accessible at '/accounts/<username>'.
+    # Note that this regex is weak; it will accept more string that are not emails, which is fine; it is fast.
     additional_lookup = {
-        'url': 'regex("[\w]+")',
+        'url': 'regex("[^@]+@[^@]+\.[^@]+")',
         'field': 'email',
     }
     # 'public_methods': ['POST'],  # Everyone can create an account, which will be blocked (not active)

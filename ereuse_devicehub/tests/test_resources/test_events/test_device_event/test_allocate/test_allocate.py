@@ -43,7 +43,7 @@ class TestAllocate(TestDeviceEvent):
         allocate_a = self.test_create_allocate_with_place()
         allocate_b = self.get_fixture('allocate', 'allocate')
         allocate_b['devices'] = self.devices_id
-        allocate_b['unregisteredTo'] = {'email': 'b@b.com'}
+        allocate_b['to'] = {'email': 'b@b.com'}
         allocate_b = self.post_and_check(self.DEVICE_EVENT + '/allocate', allocate_b)
         deallocate_a = {'@type': 'devices:Deallocate', 'from': allocate_a['to'], 'devices': self.devices_id}
         deallocate_a = self.post_and_check(self.DEVICE_EVENT + '/deallocate', deallocate_a)

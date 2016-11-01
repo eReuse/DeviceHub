@@ -1,13 +1,12 @@
 import random
 import string
 
-from flask import current_app as app
-from passlib.handlers.sha2_crypt import sha256_crypt
-
-from ereuse_devicehub.resources.account.domain import AccountDomain
+from ereuse_devicehub.resources.account.domain import AccountDomain, UserNotFound
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.rest import execute_post
+from flask import current_app as app
+from passlib.handlers.sha2_crypt import sha256_crypt
 
 
 def hash_password(accounts: list):
@@ -55,29 +54,35 @@ def set_default_database_if_empty(accounts: list):
             account['defaultDatabase'] = account['databases'][0]
 
 
-def add_or_get_inactive_account(events: list):
-    # todo if register we need to make sure that user does not add the account again another time (usability?)
+def add_or_get_inactive_account_receive(events: list):
     for event in events:
-        if event['@type'] == DeviceEventDomain.new_type('Receive'):
-            _add_or_get_inactive_account_id(event, 'unregisteredReceiver', 'receiver')
-        elif event['@type'] == DeviceEventDomain.new_type('Allocate'):
-            _add_or_get_inactive_account_id(event, 'unregisteredTo', 'to')
+        _add_or_get_inactive_account_id(event, 'receiver')
 
 
-def _add_or_get_inactive_account_id(event, field_name, recipient_field_name):
-    if field_name in event:
+def add_or_get_inactive_account_allocate(events: list):
+    for event in events:
+        _add_or_get_inactive_account_id(event, 'to')
+
+
+def add_or_get_inactive_account_snapshot(events: list):
+    for event in events:
+        _add_or_get_inactive_account_id(event, 'from')
+
+
+def _add_or_get_inactive_account_id(event, field_name):
+    """
+    We need to execute after insert and insert_resource.
+    """
+    if field_name in event and type(event[field_name]) is dict:
         try:
             # We look for just accounts that share our database
-            _id = app.data.find_one_raw('accounts',
-                                        {
-                                            'email': event[field_name]['email'],
-                                            'databases': {'$in': AccountDomain.actual['databases']}
-                                        }
-                                        )['_id']
-        except TypeError:  # No account
+            _id = AccountDomain.get_one({
+                'email': event[field_name]['email'],
+                'databases': {'$in': AccountDomain.actual['databases']}
+            })['_id']
+        except UserNotFound:
             event[field_name]['databases'] = [AccountDomain.get_requested_database()]
             event[field_name]['active'] = False
             event[field_name]['@type'] = 'Account'
             _id = execute_post('accounts', event[field_name])['_id']
-        event[recipient_field_name] = _id
-        del event[field_name]
+        event[field_name] = _id

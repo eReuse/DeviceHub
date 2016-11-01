@@ -4,6 +4,7 @@ from pprint import pprint
 from random import choice
 
 from assertpy import assert_that
+from bson import objectid
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.tests import TestStandard
 from ereuse_devicehub.utils import Naming, coerce_type
@@ -291,7 +292,8 @@ class TestSnapshot(TestStandard):
         device, _ = self.get(self.DEVICES, '', device_id)
         # The materialization keeps events of the device and its components, we only get test_hd as an event
         # for a component, to try with it later; let's ignore the rest of events from components
-        snapshot, test_hd, _, first_snapshot, _, _, register = (self.get(self.EVENTS, '', event['_id'])[0] for event in device['events'])
+        snapshot, test_hd, _, first_snapshot, _, _, register = (self.get(self.EVENTS, '', event['_id'])[0] for event in
+                                                                device['events'])
         register, erase, test = (self.get(self.EVENTS, '', event_id)[0] for event_id in
                                  self.get(self.EVENTS, '', first_snapshot['_id'])[0]['events'])
         # Let's try deleting NOT the Snapshot that created the device
@@ -351,3 +353,42 @@ class TestSnapshot(TestStandard):
             'functionality': {'general': 'C'}
         }
         self.test_snapshot_2015_12_09(maximum or 5, {'condition': condition})
+
+    def _test_giver(self, snapshot, account_email):
+        device_id = self.creation(snapshot, 2, False)
+        account, status = self.get(self.ACCOUNTS, '', account_email)
+        self.assert200(status)
+        # Let's see that the materialized snapshot contains the event
+        device, _ = self.get(self.DEVICES, '', device_id)
+        for event in device['events']:
+            if event['@type'] == 'Snapshot':
+                assert_that(event).contains_key('receiver')
+                assert_that(event['from']).is_equal_to(account['_id'])
+                assert_that(event['from']).is_type_of(objectid)
+
+    def test_from_registered(self):
+        """
+            Tests that 'from' is set to the event.
+        """
+        snapshot = self.get_fixture(self.SNAPSHOT, 'vostro')
+        account = {'email': 'r@r.com', 'name': 'R Registered', 'organization': 'R ORG', '@type': 'Account',
+                   'databases': ['db1']}
+        account = self.post_and_check(self.ACCOUNTS, account)
+        snapshot['from'] = account['_id']
+        self._test_giver(snapshot, 'r@r.com')
+
+    def test_from_unregistered(self):
+        """
+            Tests that 'unregisteredFrom' is set to the event.
+        """
+        snapshot = self.get_fixture(self.SNAPSHOT, 'vostro')
+        snapshot['from'] = {
+            'email': 'r@r.com',
+            'name': 'R Unregistered',
+            'organization': 'R ORG'
+        }
+        self._test_giver(snapshot, 'r@r.com')
+
+    def test_nice(self):
+        snapshot = self.get_fixture(self.SNAPSHOT, 'nice')
+        self.creation(snapshot, self.get_num_events(snapshot))

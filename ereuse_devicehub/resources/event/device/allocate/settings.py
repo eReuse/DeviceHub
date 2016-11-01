@@ -7,26 +7,16 @@ from ereuse_devicehub.resources.event.device.settings import components, EventWi
 
 class Allocate(EventWithDevices):
     to = {
-        'type': 'objectid',
+        'type': ['objectid', 'dict', 'string'],  # We should not add string but it does not work otherwise...
         'data_relation': {
             'resource': 'accounts',
             'field': '_id',
             'embeddable': True,
         },
-        'excludes': 'unregisteredTo',
-        'or': ['unregisteredTo'],
-        'sink': 2
-    }
-    unregisteredTo = {
-        'type': 'dict',
         'schema': unregistered_user,
+        'get_from_data_relation_or_create': 'email',
+        'required': True,
         'sink': 2
-    }
-    undefinedDate = {
-        'type': 'boolean',
-        'default': False,
-        'excludes': 'date',
-        'description': 'Check this to say: "This owner possessed the device for an undetermined amount of time".'
     }
     toOrganization = {  # Materialization of the organization that, by the time of the allocation, the user worked in
         'type': 'string',

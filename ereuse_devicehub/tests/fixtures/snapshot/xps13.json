@@ -7,7 +7,7 @@
       "manufacturer": "Intel Corp.",
       "model": "Intel(R) Core(TM) i7-4500U CPU @ 1.80GHz",
       "numberOfCores": "2",
-      "serialNumber": "To Be Filled By O.E.M.",
+      "serialNumber": "FXXZQ4",
       "speed": 2.394
     },
     {
@@ -32,7 +32,7 @@
     {
       "@type": "Motherboard",
       "manufacturer": "Dell Inc.",
-      "serialNumber": ".32XFSL2.              ."
+      "serialNumber": "2FDS.ASDX"
     },
     {
       "@type": "NetworkAdapter",
@@ -57,7 +57,6 @@
   ],
   "device": {
     "@type": "Computer",
-    "label": "",
     "manufacturer": "Dell Inc.",
     "model": "XPS13 942",
     "serialNumber": "E3XCAS",

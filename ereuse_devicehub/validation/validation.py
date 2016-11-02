@@ -3,6 +3,7 @@ from distutils import version
 
 import validators
 from bson import json_util, ObjectId
+from bson.errors import InvalidId
 from cerberus import errors
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.utils import Naming, coerce_type
@@ -231,7 +232,16 @@ class DeviceHubValidator(Validator):
         pass
 
     def _validate_get_from_data_relation_or_create(self, nothing, field, value):
-        pass
+        """
+        Python-eve is incapable of serializing to objectid when type==[objectid, dict], rejecting the entering string.
+        To make it work we add [objectid, dict, string] so the entering string is accepted and then we perform
+        the conversion ourselves here.
+        """
+        if type(value) is not dict:
+            try:
+                self._current[field] = ObjectId(value)
+            except InvalidId as error:
+                self._error(field, str(error))
 
     def _validate_label(self, nothing, field, value):
         pass

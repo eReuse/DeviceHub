@@ -77,8 +77,7 @@ def _add_or_get_inactive_account_id(event, field_name):
         try:
             # We look for just accounts that share our database
             _id = AccountDomain.get_one({
-                'email': event[field_name]['email'],
-                'databases': {'$in': AccountDomain.actual['databases']}
+                'email': event[field_name]['email'] # 'databases': {'$in': AccountDomain.actual['databases']} todo review this
             })['_id']
         except UserNotFound:
             event[field_name]['databases'] = [AccountDomain.get_requested_database()]

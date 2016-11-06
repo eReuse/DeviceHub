@@ -7,8 +7,8 @@ from eve.methods.post import post_internal
 from flask import request, current_app
 
 
-def execute_post(resource: str, payload: dict):
-    response = post_internal(resource, payload)
+def execute_post(resource: str, payload: dict, skip_validation=False):
+    response = post_internal(resource, payload, skip_validation)
     if response[3] != 201:  # statusCode
         raise InnerRequestError(response[3], response[0])
     return response[0]  # Actual data

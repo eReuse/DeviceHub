@@ -3,13 +3,14 @@ from distutils import version
 
 import validators
 from bson import json_util, ObjectId
+from bson.errors import InvalidId
 from cerberus import errors
+from ereuse_devicehub.resources.account.role import Role
+from ereuse_devicehub.utils import Naming, coerce_type
 from eve.io.mongo import Validator
 from eve.utils import config
 from flask import current_app as app
 
-from ereuse_devicehub.resources.account.role import Role
-from ereuse_devicehub.utils import Naming, coerce_type
 from . import errors as dh_errors
 
 ALLOWED_WRITE_ROLES = 'dh_allowed_write_roles'
@@ -38,6 +39,7 @@ class DeviceHubValidator(Validator):
     """
        Removes a null field (as they equal 'undefined' ones)
     """
+
     def _validate_definition(self, definition, field, value):
         self._validations[field] = True
         if value is None:
@@ -170,7 +172,8 @@ class DeviceHubValidator(Validator):
         if len(databases) != len(set(databases)):
             self._error(field, json_util.dumps({'DuplicatedDatabases': 'Databases are duplicated'}))
         from ereuse_devicehub.resources.account.domain import AccountDomain
-        if AccountDomain.actual['role'] < Role.SUPERUSER and not set(databases).issubset(set(AccountDomain.actual['databases'])):
+        if AccountDomain.actual['role'] < Role.SUPERUSER and not set(databases).issubset(
+                set(AccountDomain.actual['databases'])):
             self._error(field, json_util.dumps(dh_errors.not_enough_privilege))
 
     def _validate_in_database(self, do: bool, field, identifier: ObjectId):
@@ -226,6 +229,21 @@ class DeviceHubValidator(Validator):
         pass
 
     def _validate_doc(self, nothing, field, value):
+        pass
+
+    def _validate_get_from_data_relation_or_create(self, nothing, field, value):
+        """
+        Python-eve is incapable of serializing to objectid when type==[objectid, dict], rejecting the entering string.
+        To make it work we add [objectid, dict, string] so the entering string is accepted and then we perform
+        the conversion ourselves here.
+        """
+        if type(value) is not dict:
+            try:
+                self._current[field] = ObjectId(value)
+            except InvalidId as error:
+                self._error(field, str(error))
+
+    def _validate_label(self, nothing, field, value):
         pass
 
     @staticmethod

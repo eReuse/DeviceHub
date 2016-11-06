@@ -1,4 +1,7 @@
+import copy
+
 from ereuse_devicehub.resources.account.role import Role
+from ereuse_devicehub.resources.account.settings import unregistered_user
 from ereuse_devicehub.resources.condition import condition
 from ereuse_devicehub.resources.device.component.settings import Component
 from ereuse_devicehub.resources.event.device.settings import place, EventWithOneDevice, EventSubSettingsOneDevice
@@ -89,7 +92,9 @@ class Snapshot(EventWithOneDevice):
         'type': 'dict',
         'teaser': False
     }
-    place = place
+    place = copy.deepcopy(place)
+    place['description'] = 'Place the devices to an existing location.'
+    place['label'] = 'Place where the devices are saved'
     software = {
         'type': 'dict',
         'schema': {
@@ -105,6 +110,26 @@ class Snapshot(EventWithOneDevice):
         'sink': 1,
         'teaser': True
     }
+    _from = {
+        'type': ['objectid', 'dict', 'string'],  # We should not add string but it does not work otherwise...
+        'data_relation': {
+            'resource': 'accounts',
+            'field': '_id',
+            'embeddable': True,
+        },
+        'get_from_data_relation_or_create': 'email',
+        'schema': unregistered_user,
+        'sink': 2,
+        'label': 'E-mail of the giver',
+        'description': 'The e-mail of the person or organization that gave the devices. You cannot change this later.'
+    }
+
+    @classmethod
+    def _clean(cls, attributes: dict, attributes_to_remove: tuple = None) -> dict:
+        full_dict = super(Snapshot, cls)._clean(attributes, attributes_to_remove)
+        full_dict['from'] = full_dict['_from']
+        del full_dict['_from']
+        return full_dict
 
 
 class SnapshotSettings(EventSubSettingsOneDevice):

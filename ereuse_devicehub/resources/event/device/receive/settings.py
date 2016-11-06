@@ -7,19 +7,15 @@ from ereuse_devicehub.resources.event.device.settings import place, components, 
 
 class Receive(EventWithDevices):
     receiver = {
-        'type': 'objectid',
+        'type': ['objectid', 'dict', 'string'],  # We should not add string but it does not work otherwise...
         'data_relation': {
             'resource': 'accounts',
             'field': '_id',
             'embeddable': True,
         },
-        'excludes': 'unregisteredReceiver',
-        'or': ['unregisteredReceiver'],
-        'sink': 2
-    }
-    unregisteredReceiver = {
-        'type': 'dict',
         'schema': unregistered_user,
+        'get_from_data_relation_or_create': 'email',
+        'required': True,
         'sink': 2
     }
     acceptedConditions = {

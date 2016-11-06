@@ -1,0 +1,144 @@
+{
+  "@type": "Snapshot",
+  "comment": "The computer has small scratches.",
+  "condition": {
+    "appearance": {
+      "general": "B"
+    },
+    "functionality": {
+      "general": "A"
+    }
+  },
+  "components": [
+    {
+      "@type": "GraphicCard",
+      "manufacturer": "NVIDIA Corporation",
+      "memory": 256.0,
+      "model": "GT218M [GeForce 310M]"
+    },
+    {
+      "@type": "HardDrive",
+      "interface": "ata",
+      "manufacturer": "Western Digital",
+      "model": "WDC WD5000BEKT-7",
+      "serialNumber": "AH-ASDGA2222",
+      "size": 476940.0234375,
+      "test": {
+        "lifetime": 43,
+        "status": "Completed without error",
+        "type": "Short offline",
+        "@type": "TestHardDrive",
+        "error": false
+      },
+      "benchmark": {
+        "@type": "BenchmarkHardDrive",
+        "readingSpeed": 55.6,
+        "writingSpeed": 19.9
+      },
+      "erasure": {
+        "@type": "EraseBasic",
+        "cleanWithZeros": false,
+        "endingTime": "2016-02-29T17:46:08",
+        "secureRandomSteps": 0,
+        "startingTime": "2016-02-29T18:21:35",
+        "steps": [
+          {
+            "@type": "Random",
+            "endingTime": "2016-02-29T17:46:08",
+            "startingTime": "2016-02-29T18:02:21",
+            "success": true
+          },
+          {
+            "@type": "Random",
+            "endingTime": "2016-02-29T18:02:22",
+            "startingTime": "2016-02-29T18:21:35",
+            "success": true
+          }
+        ],
+        "success": true
+      }
+    },
+    {
+      "@type": "RamModule",
+      "interface": "DDR3",
+      "manufacturer": "Undefined",
+      "serialNumber": "JGFS22",
+      "size": 4096,
+      "speed": 1066.0
+    },
+    {
+      "@type": "RamModule",
+      "interface": "DDR3",
+      "manufacturer": "Undefined",
+      "serialNumber": "SDFG33",
+      "size": 4096,
+      "speed": 1066.0
+    },
+    {
+      "@type": "Motherboard",
+      "connectors": {
+        "firewire": 0,
+        "pcmcia": 0,
+        "serial": 0,
+        "usb": 3
+      },
+      "manufacturer": "Dell Inc.",
+      "model": "07JC8T",
+      "serialNumber": "4GDS8GHX",
+      "totalSlots": 2,
+      "usedSlots": 2
+    },
+    {
+      "@type": "NetworkAdapter",
+      "manufacturer": "Broadcom Corporation",
+      "model": "BCM43224 802.11a/b/g/n"
+    },
+    {
+      "@type": "NetworkAdapter",
+      "manufacturer": "Realtek Semiconductor Co., Ltd.",
+      "model": "RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller",
+      "serialNumber": "3b:3b:3b:3b:3b:3b",
+      "speed": 1000
+    },
+    {
+      "@type": "NetworkAdapter",
+      "serialNumber": "64:3b:29:3b:3b:3b"
+    },
+    {
+      "@type": "NetworkAdapter",
+      "serialNumber": "3d:32:f9:f0:f3:42"
+    },
+    {
+      "@type": "OpticalDrive",
+      "description": "DVD-RAM writer",
+      "manufacturer": "TSSTcorp",
+      "model": "DVD+-RW TS-U633F"
+    },
+    {
+      "@type": "Processor",
+      "address": 64,
+      "manufacturer": "Intel Corp.",
+      "model": "Intel(R) Core(TM) i5 CPU M 520 @ 2.40GHz",
+      "numberOfCores": 2,
+      "speed": 2.394
+    },
+    {
+      "@type": "SoundCard",
+      "manufacturer": "NVIDIA Corporation",
+      "model": "High Definition Audio Controller"
+    },
+    {
+      "@type": "SoundCard",
+      "manufacturer": "Intel Corporation",
+      "model": "5 Series/3400 Series Chipset High Definition Audio"
+    }
+  ],
+  "device": {
+    "@type": "Computer",
+    "manufacturer": "Dell Inc.",
+    "model": "Vostro 3300",
+    "serialNumber": "2SMAQF",
+    "type": "Laptop"
+  },
+  "label": "1a"
+}

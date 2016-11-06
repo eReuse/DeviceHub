@@ -32,7 +32,7 @@ def hooks(app):
     from ereuse_devicehub.resources.event.device.hooks import get_place, materialize_components, materialize_parent, \
         set_place, unset_place, delete_events_in_device, remove_from_other_events
     app.on_insert += get_place
-    app.on_insert += set_place
+    app.on_inserted += set_place
     app.on_delete_item += unset_place
     app.on_insert += materialize_components
     app.on_insert += materialize_parent
@@ -50,11 +50,12 @@ def hooks(app):
     from ereuse_devicehub.resources.event.device.remove.hooks import remove_components
     app.on_inserted_devices_remove += remove_components
 
-    from ereuse_devicehub.resources.account.hooks import set_byUser, add_or_get_inactive_account, set_byOrganization
+    from ereuse_devicehub.resources.account.hooks import set_byUser, set_byOrganization, \
+        add_or_get_inactive_account_allocate, add_or_get_inactive_account_receive, add_or_get_inactive_account_snapshot
     app.on_insert += set_byUser
-    app.on_insert_devices_receive += add_or_get_inactive_account  # We need to execute after insert and insert_resource as it
-    app.on_insert_devices_register += add_or_get_inactive_account  # deletes the 'unregistered...'
-    app.on_insert_devices_allocate += add_or_get_inactive_account
+    app.on_insert_devices_receive += add_or_get_inactive_account_receive
+    app.on_insert_devices_allocate += add_or_get_inactive_account_allocate
+    app.on_insert_devices_snapshot += add_or_get_inactive_account_snapshot
     app.on_insert += set_byOrganization
 
     from ereuse_devicehub.resources.event.device.allocate.hooks import avoid_repeating_allocations, \

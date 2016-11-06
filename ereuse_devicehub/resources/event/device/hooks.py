@@ -76,14 +76,17 @@ def set_place(resource_name: str, events: list):
         for event in events:
             if 'place' in event:
                 place = PlaceDomain.get_one(event['place'])
-                execute_patch('places', {'devices': list(set(place['devices'] + event['devices']))}, event['place'])
+                device = [event['device']] if 'device' in event else []
+                execute_patch('places', {'devices': list(set(place['devices'] + event.get('devices', []) + device))}, event['place'])
 
 
 def unset_place(resource_name: str, event: dict):
     if resource_name in Event.resource_types:
         if 'place' in event:
             place = PlaceDomain.get_one(event['place'])
-            execute_patch('places', {'devices': list(set(place['devices']) - set(event['devices']))}, event['place'])
+            device = [event['device']] if 'device' in event else []
+            devices = event.get('devices', []) + device
+            execute_patch('places', {'devices': list(set(place['devices']) - set(devices))}, event['place'])
 
 
 def delete_events_in_device(resource_name: str, device: dict):

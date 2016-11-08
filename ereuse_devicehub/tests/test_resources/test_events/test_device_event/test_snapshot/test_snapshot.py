@@ -392,3 +392,19 @@ class TestSnapshot(TestStandard):
     def test_nice(self):
         snapshot = self.get_fixture(self.SNAPSHOT, 'nice')
         self.creation(snapshot, self.get_num_events(snapshot))
+
+    def test_703b6_place_account(self):
+        """
+        Tests that the account and place in snapshot are correctly created.
+        """
+        snapshot = self.get_fixture(self.SNAPSHOT, '703b6')
+        snapshot['from'] = {
+            'email': 'hello@hello.com'
+        }
+        snapshot['place'] = self.post_and_check(self.PLACES, self.get_fixture(self.PLACES, 'place'))['_id']
+        num_events = self.get_num_events(snapshot)
+        device_id = self.creation(snapshot, num_events)
+        device, _ = self.get(self.DEVICES, '', device_id)
+        assert_that(device['place']).is_equal_to(snapshot['place'])
+        account, status = self.get(self.ACCOUNTS, '', 'hello@hello.com')
+        self.assert200(status)

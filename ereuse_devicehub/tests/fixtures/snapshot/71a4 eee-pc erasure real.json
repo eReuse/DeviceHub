@@ -1,0 +1,118 @@
+{
+    "@type": "Snapshot", 
+    "components": [
+        {
+            "@type": "GraphicCard", 
+            "manufacturer": "Intel Corporation", 
+            "memory": 256.0, 
+            "model": "Mobile 945GSE Express Integrated Graphics Controller"
+        }, 
+        {
+            "@type": "GraphicCard", 
+            "manufacturer": "Intel Corporation", 
+            "model": "Mobile 945GM/GMS/GME, 943/940GML Express Integrated Graphics Controller"
+        }, 
+        {
+            "@type": "HardDrive", 
+            "benchmark": {
+                "@type": "BenchmarkHardDrive", 
+                "readingSpeed": 63.3, 
+                "writingSpeed": 19.7
+            }, 
+            "erasure": {
+                "@type": "EraseBasic", 
+                "cleanWithZeros": false, 
+                "endingTime": "2016-11-05T20:55:39", 
+                "secureRandomSteps": 0, 
+                "startingTime": "2016-11-05T20:04:34", 
+                "steps": [
+                    {
+                        "@type": "Random", 
+                        "endingTime": "2016-11-05T20:55:39", 
+                        "startingTime": "2016-11-05T20:55:39", 
+                        "success": true
+                    }
+                ], 
+                "success": true
+            }, 
+            "interface": "ata", 
+            "manufacturer": "Seagate", 
+            "model": "ST9160310AS", 
+            "serialNumber": "5SV1W0WF", 
+            "size": 152627.8359375, 
+            "test": {
+                "@type": "TestHardDrive", 
+                "error": false, 
+                "firstError": null, 
+                "lifetime": 2069, 
+                "status": "Completed without error", 
+                "type": "Short offline"
+            }
+        }, 
+        {
+            "@type": "RamModule", 
+            "interface": "SDRAM", 
+            "manufacturer": "Manufacturer0", 
+            "size": 2048
+        }, 
+        {
+            "@type": "Motherboard", 
+            "connectors": {
+                "firewire": 0, 
+                "pcmcia": 0, 
+                "serial": 0, 
+                "usb": 5
+            }, 
+            "manufacturer": "ASUSTeK Computer INC.", 
+            "model": "1000H", 
+            "serialNumber": "EeePC-0123456789", 
+            "totalSlots": 1, 
+            "usedSlots": 1
+        }, 
+        {
+            "@type": "NetworkAdapter", 
+            "manufacturer": "Qualcomm Atheros", 
+            "model": "AR8121/AR8113/AR8114 Gigabit or Fast Ethernet", 
+            "serialNumber": "00:23:54:8d:be:66", 
+            "speed": 100
+        }, 
+        {
+            "@type": "NetworkAdapter", 
+            "manufacturer": "Ralink corp.", 
+            "model": "RT2790 Wireless 802.11n 1T/2R PCIe", 
+            "serialNumber": "00:15:af:dc:44:eb"
+        }, 
+        {
+            "@type": "Processor", 
+            "benchmark": {
+                "@type": "BenchmarkProcessor", 
+                "score": 6384.06
+            }, 
+            "manufacturer": "Intel Corp.", 
+            "model": "Intel(R) Atom(TM) CPU N270 @ 1.60GHz", 
+            "numberOfCores": 1, 
+            "speed": 1.6
+        }, 
+        {
+            "@type": "SoundCard", 
+            "manufacturer": "Intel Corporation", 
+            "model": "NM10/ICH7 Family High Definition Audio Controller"
+        }
+    ], 
+    "condition": {
+        "appearance": {
+            "general": "B"
+        }, 
+        "functionality": {
+            "general": "B"
+        }
+    }, 
+    "device": {
+        "@type": "Computer", 
+        "manufacturer": "ASUSTeK Computer INC.", 
+        "model": "1000H", 
+        "serialNumber": "8BOAAQ191999", 
+        "type": "Netbook"
+    }, 
+    "version": "7.1a4"
+}

@@ -408,3 +408,11 @@ class TestSnapshot(TestStandard):
         assert_that(device['place']).is_equal_to(snapshot['place'])
         account, status = self.get(self.ACCOUNTS, '', 'hello@hello.com')
         self.assert200(status)
+
+    def test_71a4_eepc_erasure_real(self):
+        """
+        Tests a device generated with DeviceInventoroy version 7.0.3 beta 6
+        """
+        snapshot = self.get_fixture(self.SNAPSHOT, '71a4 eee-pc erasure real')
+        num_events = self.get_num_events(snapshot)
+        return self.creation(snapshot, num_events)

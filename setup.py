@@ -24,7 +24,7 @@ setup(
     # http://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies
     extras_require={
         'docs': [
-            'sphinx>=1.4.6,<1.4.7',
+            'sphinx>=1.4.7',
             'sphinxcontrib-httpdomain>=1.5'
         ]
     },

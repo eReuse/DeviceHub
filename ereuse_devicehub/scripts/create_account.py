@@ -68,6 +68,7 @@ class UserAlreadyExists(StandardError):
     message = 'User already exists'
     code = 309
 
+# comment this for autodoc to work. todo Why does it fail?
 account, hashed_token = create_account(*sys.argv[1:])
 account['_id'] = str(account['_id'])
 print('Account:')

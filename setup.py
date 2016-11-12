@@ -2,14 +2,13 @@ from setuptools import setup, find_packages
 
 setup(
     name='eReuse-DeviceHub',
-    version='0.1',
-    packages=find_packages(),
+    version='0.1.1',
+    packages=find_packages(exclude=('contrib', 'docs', 'scripts')),
     url='https://github.com/eReuse/DeviceHub',
     license='AGPLv3 License',
-    author='eReuse team',
+    author='eReuse.org team',
     author_email='x.bustamante@ereuse.org',
-    description='The DeviceHub is a Device Management System (DMS) created under the project eReuse. Its purpose is to '
-                'offer a way for donors and receivers to efficiently manage the reuse process ensuring final recycling.',
+    description='DeviceHub is a system to manage devices focused in reusing them. ',
     install_requires=[
         'inflection>=0.3.1,<0.4',
         'eve>=0.6.3,<7.0',
@@ -21,6 +20,7 @@ setup(
         'python-gnupg',
         'iso3166'
     ],
+    keywords='eReuse.org DeviceHub devices devicehub reuse recycle it asset management',
     # http://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies
     extras_require={
         'docs': [
@@ -46,6 +46,6 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Topic :: Office/Business',
         'Topic :: Internet :: WWW/HTTP',
-        'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+        'Topic :: Internet :: WWW/HTTP :: Dynamic Content'
     ]
 )

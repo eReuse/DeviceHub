@@ -34,8 +34,9 @@ def post_benchmark(resource: str, devices: list):
 def autoincrement(resource: str, devices: list):
     if resource in Device.resource_types:
         for device in devices:
-            device['_id'] = str(
-                get_next_sequence())  # string makes this compatible with other systems that use custom id
+            if '_id' not in device:
+                # string makes this compatible with other systems that use custom id
+                device['_id'] = str(get_next_sequence())
 
 
 def get_next_sequence():

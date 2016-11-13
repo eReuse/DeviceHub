@@ -196,7 +196,9 @@ class DeviceHubValidator(Validator):
             super(DeviceHubValidator, self)._validate_data_relation(data_relation, field, value)
 
     def _validate_device_id(self, validate, field, value):
-        if validate and self.resource == 'computer':
+        from ereuse_devicehub.resources.account.domain import AccountDomain
+        if validate and self.resource == 'computer' and AccountDomain.actual['role'] < Role(Role.SUPERUSER):
+            # Superusers can create devices setting the _id, for example when importing devices
             if self._get_resource(True, field, value, {}) is None:
                 self._error(field, json_util.dumps({'CannotCreateId': self.document}))
 

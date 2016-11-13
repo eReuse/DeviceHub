@@ -16,7 +16,7 @@ def on_insert_snapshot(items):
         if 'label' in item:
             item['device']['labelId'] = item['label']  # todo as we do not update the values of a device,
         # todo we will never udpate, thus materializing new label ids
-        snapshot = Snapshot(item['device'], item['components'])
+        snapshot = Snapshot(item['device'], item['components'], item.get('created'))
         item['events'] = [new_events['_id'] for new_events in snapshot.execute()]
         item['device'] = item['device']['_id']
         item['components'] = [component['_id'] for component in item['components']]

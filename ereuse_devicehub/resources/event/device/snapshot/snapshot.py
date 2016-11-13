@@ -10,13 +10,14 @@ from .event_processor import EventProcessor
 
 
 class Snapshot:
-    def __init__(self, device: dict, components: list):
+    def __init__(self, device: dict, components: list, created=None):
         self.events = EventProcessor()
         self.device = device
         self.components = components
         self.unsecured = []
         self.test_hard_drives = g.snapshot_test_hard_drives = []
         self.erasures = g.snapshot_basic_erasures = []
+        self.created = created
 
     def execute(self):
         event_log = []
@@ -71,6 +72,7 @@ class Snapshot:
                 'device': self.device,
                 'components': self.components
             }
+            self.set_created_conditionally(register)
             event_log.append(execute_post(Naming.resource(register['@type']), register))
         except NoDevicesToProcess:  # As it is a custom exception we throw, it keeps being an exception through post_internal
             pass
@@ -94,5 +96,10 @@ class Snapshot:
     def exec_hard_drive_events(self, event_log, events):
         for i, event in events:
             event['device'] = self.components[i]['_id']
+            self.set_created_conditionally(event)
             event_log.append(execute_post(Naming.resource(event['@type']), event))
             event.update(event_log[-1])
+
+    def set_created_conditionally(self, resource):
+        if self.created:
+            resource['created'] = self.created

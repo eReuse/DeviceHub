@@ -43,6 +43,9 @@ class RDFS(Resource):
                                  'type_name', 'types', 'resource_name')
     }
     _import_schemas = True
+    created = {
+        'type': 'datetime'
+    }
 
     @classmethod
     def actual_fields(cls):

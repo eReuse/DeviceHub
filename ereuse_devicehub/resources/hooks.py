@@ -38,7 +38,11 @@ def set_response_headers_and_cache(resource: str, request: LocalProxy, payload: 
         payload.headers._list.append(get_header_link(resource_type))
 
 
-def set_date(_, resources: dict):
+def set_date(name: str, resources: dict):
     """Eve's date is not precise enough (up to seconds) for massive insertion of resources."""
     for resource in resources:
-        resource['_created'] = resource['_updated'] = datetime.utcnow()
+        if name != 'devices_snapshot' and name != 'devices_register':
+            # Snapshot and Register will call this method on it's right time, setting name to None
+            resource['_created'] = resource['_updated'] = resource.pop('created', datetime.utcnow())
+
+

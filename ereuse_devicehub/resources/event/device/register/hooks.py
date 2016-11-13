@@ -27,14 +27,14 @@ def post_devices(registers: list):
     log = []
     for register in registers:
         caller_device = register['device']  # Keep the reference from where register['device'] points to
-        _execute_register(caller_device, log)
+        _execute_register(caller_device, log, register.get('created'))
         register['device'] = caller_device['_id']  # Change the reference of register['device'], but not caller_device
         if 'components' in register:
             caller_components = register['components']
             register['components'] = []
             for component in caller_components:
                 component['parent'] = caller_device['_id']
-                _execute_register(component, log)
+                _execute_register(component, log, register.get('created'))
                 if 'new' in component:  # todo put new in g., don't use device
                     register['components'].append(component['_id'])
             if not register['components'] and 'new' not in caller_device:
@@ -47,15 +47,18 @@ def post_devices(registers: list):
 
 
 # noinspection PyUnboundLocalVariable
-def _execute_register(device: dict, log: list, force_new=False):
+def _execute_register(device: dict, log: list, created, force_new=False):
     """
 
     :param device:
     :param log:
     :param force_new: Raises exception if the device is not new. Debugging parameter.
+    :param _created: Set the _created value to be the same for the device as for the register
     """
     device['hid'] = 'dummy'
     try:
+        if created:
+            device['created'] = created
         db_device = execute_post(Naming.resource(device['@type']), device)
     except InnerRequestError as e:
         if force_new:

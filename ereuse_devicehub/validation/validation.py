@@ -32,20 +32,23 @@ class DeviceHubValidator(Validator):
 
     def _validate(self, document, schema=None, update=False, context=None):
         self._coerce_type(document)
+        self._remove_none(document)
         super(DeviceHubValidator, self)._validate(document, schema, update, context)
         self._validate_or(self._current)
         return len(self._errors) == 0
 
-    """
-       Removes a null field (as they equal 'undefined' ones)
-    """
+    @staticmethod
+    def _remove_none(document):
+        for field in [f for f in document]:
+            if document[field] is None:
+                del document[field]
 
     def _validate_definition(self, definition, field, value):
+        """
+           Extends _validate_definition by:
+           - Removing the null fields, as they equal 'undefined'.
+        """
         self._validations[field] = True
-        if value is None:
-            # We change this from Python-eve. For us, null values equal undefined fields and they are silently removed
-            del self._current[field]
-            return
         if 'move' in definition:
             self._move(definition['move'], value, field, definition)
             return  # The actual field has been moved, so there is no value any more to validate

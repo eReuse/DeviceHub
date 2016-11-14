@@ -416,7 +416,7 @@ class TestSnapshot(TestStandard):
         """
         snapshot = self.get_fixture(self.SNAPSHOT, '71a4 eee-pc erasure real')
         num_events = self.get_num_events(snapshot)
-        return
+        return self.creation(snapshot, num_events)
 
     def test_import(self):
         snapshot = self.get_fixture(self.SNAPSHOT, '703b6')
@@ -440,3 +440,19 @@ class TestSnapshot(TestStandard):
         device, _ = self.get(self.DEVICES, '', device_id)
         assert_that(device['_created']).is_equal_to('2013-04-02T20:40:20')
         assert_that(device['_updated']).is_equal_to('2013-04-02T20:40:20')
+
+    def test_none(self):
+        snapshot = self.get_fixture(self.SNAPSHOT, '71a4 eee-pc erasure real')
+        # Let's set one random (non hid) value to None
+        snapshot['components'][0]['memory'] = None
+        # Let's set a value needed for HID to none
+        snapshot['components'][1]['serialNumber'] = None
+        # And a HID for the device
+        # Note that we will need to force creation for the device as we won't be able to generate HID
+        snapshot['device']['model'] = None
+        _, status = self.post('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), snapshot)
+        self.assert422(status)
+        snapshot['device']['forceCreation'] = True
+        # We do not call self._creation as self.seem_equal is going to fail due to the Nones
+        _, status = self.post('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), snapshot)
+        self.assert201(status)

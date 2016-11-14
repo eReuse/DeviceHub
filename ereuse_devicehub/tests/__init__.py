@@ -6,6 +6,7 @@ import simplejson as json
 from assertpy import assert_that
 from bson.objectid import ObjectId
 from ereuse_devicehub.flaskapp import DeviceHub
+from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.submitter.grd_submitter.grd_submitter import GRDSubmitter
 from ereuse_devicehub.resources.submitter.submitter_caller import SubmitterCaller
 from ereuse_devicehub.utils import Naming
@@ -72,7 +73,7 @@ class TestBase(TestMinimal):
             {
                 'email': "a@a.a",
                 'password': sha256_crypt.encrypt('1234'),
-                'role': 'superuser',
+                'role': 'admin',
                 'token': 'NOFATDNNUB',
                 'databases': self.app.config['DATABASES'],
                 'defaultDatabase': self.app.config['DATABASES'][0],
@@ -278,3 +279,7 @@ class TestStandard(TestBase):
         for component_id in device.get('components', []):
             component, _ = self.get(self.DEVICES, '', component_id)
             assert_that(component).does_not_contain('place')
+
+    def set_superuser(self):
+        with self.app.app_context():
+            AccountDomain.update_raw(self.account['_id'], {'$set': {'role': 'superuser'}})

@@ -172,24 +172,9 @@ class DeviceHubValidator(Validator):
         if len(databases) != len(set(databases)):
             self._error(field, json_util.dumps({'DuplicatedDatabases': 'Databases are duplicated'}))
         from ereuse_devicehub.resources.account.domain import AccountDomain
-        if AccountDomain.actual['role'] < Role.SUPERUSER and not set(databases).issubset(
-                set(AccountDomain.actual['databases'])):
+        if AccountDomain.actual['role'] < Role.SUPERUSER and \
+                not set(databases).issubset(set(AccountDomain.actual['databases'])):
             self._error(field, json_util.dumps(dh_errors.not_enough_privilege))
-
-    def _validate_in_database(self, do: bool, field, identifier: ObjectId):
-        """
-        Validates that the input account has at least one database in common with the actual account
-        :param do: Boolean to execute the method
-        :param identifier: The identifier of the account
-        """
-        if do:
-            from ereuse_devicehub.resources.account.domain import AccountDomain, UserNotFound
-            try:
-                # We select an user with at
-                dbs = AccountDomain.actual['databases']
-                AccountDomain.get_one({'_id': ObjectId(identifier), 'databases': {'$in': dbs}})
-            except UserNotFound:
-                self._error(field, json_util.dumps(dh_errors.not_enough_privilege))
 
     def _validate_data_relation(self, data_relation, field, value):
         if not isinstance(value, dict) and not isinstance(value, list):  # todo more broad way?

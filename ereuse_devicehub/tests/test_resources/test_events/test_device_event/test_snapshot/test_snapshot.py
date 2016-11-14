@@ -5,6 +5,7 @@ from random import choice
 
 from assertpy import assert_that
 from bson import objectid
+from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.tests import TestStandard
 from ereuse_devicehub.utils import Naming, coerce_type
@@ -372,7 +373,7 @@ class TestSnapshot(TestStandard):
         """
         snapshot = self.get_fixture(self.SNAPSHOT, 'vostro')
         account = {'email': 'r@r.com', 'name': 'R Registered', 'organization': 'R ORG', '@type': 'Account',
-                   'databases': ['db1']}
+                   'databases': ['dht1']}
         account = self.post_and_check(self.ACCOUNTS, account)
         snapshot['from'] = account['_id']
         self._test_giver(snapshot, 'r@r.com')
@@ -415,4 +416,27 @@ class TestSnapshot(TestStandard):
         """
         snapshot = self.get_fixture(self.SNAPSHOT, '71a4 eee-pc erasure real')
         num_events = self.get_num_events(snapshot)
-        return self.creation(snapshot, num_events)
+        return
+
+    def test_import(self):
+        snapshot = self.get_fixture(self.SNAPSHOT, '703b6')
+        # Import a device means manually setting the _id and created (which is going to be _created and _updated)
+        snapshot['device']['_id'] = '123456789'
+        snapshot['created'] = '2013-04-02T20:40:20'
+        num_events = self.get_num_events(snapshot)
+        _, status = self.post('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), snapshot)
+        # Only 'superuser' accounts can do so
+        self.assert422(status)
+        # Let's make account a superuser so it can arbitrary set both fields
+        self.set_superuser()
+        device_id = self.creation(snapshot, num_events)
+        # Let's check that created and the id have been set correctly
+        # Any event that we created from this snapshot should have the same date
+        register = self.get_first(self.EVENTS)
+        assert_that(register['_created']).is_equal_to('2013-04-02T20:40:20')
+        assert_that(register['_updated']).is_equal_to('2013-04-02T20:40:20')
+        assert_that(register['device']).is_equal_to('123456789')
+        # And the same for the device
+        device, _ = self.get(self.DEVICES, '', device_id)
+        assert_that(device['_created']).is_equal_to('2013-04-02T20:40:20')
+        assert_that(device['_updated']).is_equal_to('2013-04-02T20:40:20')

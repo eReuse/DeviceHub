@@ -456,3 +456,18 @@ class TestSnapshot(TestStandard):
         # We do not call self._creation as self.seem_equal is going to fail due to the Nones
         _, status = self.post('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), snapshot)
         self.assert201(status)
+
+    def test_import_device(self):
+        self.set_superuser()
+        snapshot = self.get_fixture(self.SNAPSHOT, 'import')
+        self.creation(snapshot, self.get_num_events(snapshot))
+
+    def test_import_no_serial_number(self):
+        """
+        Only superusers should be able to insert devices without satisfying the 'requeriments'.
+        """
+        snapshot = self.get_fixture(self.SNAPSHOT, 'import-no-sn')
+        _, status = self.post('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), snapshot)
+        self.assert422(status)
+        self.set_superuser()
+        self.creation(snapshot, self.get_num_events(snapshot))

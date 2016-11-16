@@ -1,0 +1,28 @@
+{
+  "@type": "Snapshot",
+  "components": [
+    {
+      "@type": "GraphicCard",
+      "model": "Silicon Integrated Systems [SiS] 661\/741\/760 PCI\/AGP or 662\/761Gx PCIE VGA Display Adapter"
+    },
+    {
+      "@type": "Processor",
+      "model": "Intel(R) Pentium(R) 4 CPU 2.80GHz",
+      "manufacturer": "GenuineIntel",
+      "numberOfCores": "1"
+    }
+  ],
+  "label": "73464",
+  "version": "6.0.0",
+  "snapshotSoftware": "DDI",
+  "created": "2014-08-21T10:47:03",
+  "device": {
+    "@type": "Computer",
+    "type": "Desktop",
+    "manufacturer": "FUJITSU SIEMENS",
+    "model": "SCENIC P \/ SCENICO P",
+    "serialNumber": "YBCL124948",
+    "_id": "5374",
+    "pid": "GEN22CLI0164"
+  }
+}

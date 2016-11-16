@@ -281,3 +281,12 @@ class DeviceHubValidator(Validator):
         Just to show which values are materialized. They behave like *readonly*.
         """
         self._validate_readonly(True, field, value)
+
+    def _validate_required_fields(self, document):
+        """
+            Superusers can avoid such restrictions. For example, when importing.
+        """
+        from ereuse_devicehub.resources.account.domain import AccountDomain
+        if AccountDomain.actual['role'] < Role(Role.SUPERUSER):
+            super(DeviceHubValidator, self)._validate_required_fields(document)
+

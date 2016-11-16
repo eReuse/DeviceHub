@@ -1,0 +1,37 @@
+{
+  "@type": "Snapshot",
+  "components": [
+    {
+      "@type": "HardDrive",
+      "serialNumber": "9LS2LZD9",
+      "size": "149"
+    },
+    {
+      "@type": "GraphicCard",
+      "model": "ATI Technologies Inc RV380 [Radeon X600 (PCIE)]"
+    },
+    {
+      "@type": "GraphicCard",
+      "model": "ATI Technologies Inc RV380 [Radeon X600]"
+    },
+    {
+      "@type": "Processor",
+      "model": "Intel(R) Pentium(R) D CPU 3.00GHz",
+      "manufacturer": "GenuineIntel",
+      "numberOfCores": "2"
+    }
+  ],
+  "label": "43635",
+  "version": "6.0.0",
+  "snapshotSoftware": "DDI",
+  "created": "2016-01-14T09:49:41",
+  "device": {
+    "@type": "Computer",
+    "type": "Desktop",
+    "manufacturer": "Dell Inc.",
+    "model": "OptiPlex GX620",
+    "serialNumber": "FTVSL2J",
+    "_id": "6609",
+    "pid": "and1worvsl2j"
+  }
+}

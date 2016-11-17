@@ -68,10 +68,12 @@ class UserAlreadyExists(StandardError):
     message = 'User already exists'
     code = 309
 
-# comment this for autodoc to work. todo Why does it fail?
-account, hashed_token = create_account(*sys.argv[1:])
-account['_id'] = str(account['_id'])
-print('Account:')
-print(json.dumps(account, indent=4))
-print('Hashed token for REST:')
-print(hashed_token)
+
+if __name__ == '__main__':
+    # comment this for autodoc to work. todo Why does it fail?
+    account, hashed_token = create_account(*sys.argv[1:])
+    account['_id'] = str(account['_id'])
+    print('Account:')
+    print(json.dumps(account, indent=4))
+    print('Hashed token for REST:')
+    print(hashed_token)

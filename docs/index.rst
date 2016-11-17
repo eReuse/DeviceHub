@@ -15,6 +15,7 @@ Contents:
 ..  toctree::
     :maxdepth: 1
 
+    vocabulary
     api
     modules
     manual-testing

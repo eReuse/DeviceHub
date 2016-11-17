@@ -1,6 +1,6 @@
 import copy
 
-from ereuse_devicehub.resources.account.settings import unregistered_user
+from ereuse_devicehub.resources.account.settings import unregistered_user, unregistered_user_doc
 from ereuse_devicehub.resources.event.device.settings import place, components, EventWithDevices, \
     EventSubSettingsMultipleDevices
 
@@ -16,7 +16,8 @@ class Receive(EventWithDevices):
         'schema': unregistered_user,
         'get_from_data_relation_or_create': 'email',
         'required': True,
-        'sink': 2
+        'sink': 2,
+        'doc': 'The user that receives it. ' + unregistered_user_doc
     }
     acceptedConditions = {
         'type': 'boolean',
@@ -33,9 +34,11 @@ class Receive(EventWithDevices):
         'default': False,
         'description': 'Allocates to the user'
     }
-    receiverOrganization = {  # Materialization of the organization that, by the time of the receive, the user worked in
+    receiverOrganization = {
         'type': 'string',
-        'readonly': True
+        'readonly': True,
+        'materialized': True,
+        'doc': 'Materialization of the organization that, by the time of the receive, the user worked in.'
     }
     place = place
     components = copy.deepcopy(components)

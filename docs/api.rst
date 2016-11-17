@@ -5,16 +5,9 @@ DeviceHub uses `Python-Eve <http://python-eve.org>`_, which exposes a full API.
 The system is RESTFUL using HATEOAS, partially extends Schema.org, and uses a very limited (for now)
 subset of JSON-LD. We use '@type' to set a type of object and '_id' to identify it.
 
-In DeviceHub there are four main resources:
-
-- :ref:`device`
-- Event
-- Place
-- Account
-
 The main resource are devices. However, you do not perform operations directly against them (there is no ``POST /device``),
 as you use an Event to do so (you only ``GET /devices``). For example, to upload information of devices with tests, erasures, etcetera, use
-the event ``POST /snapshot`` (:ref:`snapshot`).
+the event ``POST /snapshot`` (:ref:`devices-snapshot`).
 
 Login
 -----
@@ -94,9 +87,9 @@ _____________
 The following list describes the details of every endpoint in DeviceHub:
 
 .. toctree::
-:maxdepth: 4
+   :maxdepth: 4
 
-       api-endpoints
+   api-endpoints
 
 Errors
 ______
@@ -224,41 +217,3 @@ The following example shows two things, first the structure when GET collection 
       ]
     }
 
-.. _device:
-
-Device
-------
-
-Device is a meticulously chosen word by its generic definition, which represents our purpose to be able to reuse almost
-anything, although we start with a subset of electronic devices. Some devices can have inner devices called components.
-The relationship is recursive: as components are devices that can have inner components, too. For example, both a
-computer and a graphic card are devices, and the transistors of a graphic card are devices. Although designed as
-an infinite recursive, the agents in eReuse.org only support one layer of recursivity: this is Computer --> GraphicCard,
-but not then GraphicCard --> transistor.
-
-Device partly extends IndividualProduct, from Schema.org. The result is a class describing physical characteristics from a
-device (width, weight...), identifiers (serial number, HID, synthetic identifier, URL...), and other metadata
-(model, manufacturer name...). Device is extended by:
-
-- `ComputerMonitor <http://www.productontology.org/id/Computer_monitor>`_: includes any display such as TFT, LED, OLED or LCD screens. Although actual recorded information is the inches,
-  future work is adding resolution, colour scheme, and other specific related information.
-- `Mobile <http://www.productontology.org/id/Mobile_phone>`_ (no equivalent in product ontology): smartphones and tablets, for which we can record the IMEI and MEID.
-  Mobile is extended by MobilePhone and TabletComputer.
-- `Computer <http://www.productontology.org/id/Computer>`_: Desktop, Laptop, Netbook,
-  Server and Microtower.
-- `Peripheral <http://www.productontology.org/id/Peripheral>`_: a wildcard for any “device that is used to put information into or get information out of the computer”, which does not fit in any other subclass and does not have specific characteristics that should be
-  recorded in an own specialized subclass. Actual types of peripherals accepted are Router, Switch, Printer, Scanner,
-  Multifunction printer, Terminal, HUB, SAI, Keyboard and Mouse.
-- `Component <https://www.productontology.org/id/Electronic_component>`_: devices that are part of other devices:
-
-  - `GraphicCard <http://www.productontology.org/id/Graphic_Card>`_. Future work is to incorporate, or to link to existing benchmarks about the model of graphic card.
-  - `HardDrive <http://www.productontology.org/id/Hard_drive>`_. We collect different tests and benchmarks.
-  - `Motherboard <http://www.productontology.org/id/Motherboard>`_. We collect the types and number of connectors the motherboard has.
-  - `NetworkAdapter <http://www.productontology.org/id/Network_interface_controller>`_ (from Network Interface Controller), using the MAC Address as the identifier when creating the HID.
-  - `OpticalDrive <http://www.productontology.org/id/optical_drive>`_: CD, DVD, HD-DVD and Blu-ray readers and recorders.
-  - `Processor <http://www.productontology.org/id/Computer_processor>`_ (from Computer Processor): as an abbreviation of Central Process Unit (CPU).
-  - `RamModule <http://www.productontology.org/id/Random-access_memory>`_ (from Random Access Memory).
-  - `SoundCard <http://www.productontology.org/id/Sound_card>`_.
-
-You can `download the JSON Schema with the specification of the different devices (among other resources) <https://api.devicetag.io/schema>`_,
-note that you can `get here <https://github.com/eReuse/DeviceHub/blob/master/ereuse_devicehub/resources/schema.py>`_ the reference for the unit codes.

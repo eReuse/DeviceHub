@@ -139,3 +139,7 @@ unregistered_user = {
     'organization': Account.organization,
     'isOrganization': Account.isOrganization
 }
+unregistered_user_doc = 'It can be a reference to an account, or a basic account object. ' \
+                        + 'The object has to contain at least an e-mail. If the e-mail does ' \
+                        + 'not match to an existing one, an account is created. If the e-mail exists, ' \
+                        + 'that account is used, and the rest of the data (name, org...) is discarded.'

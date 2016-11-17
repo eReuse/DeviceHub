@@ -1,7 +1,7 @@
 import copy
 
 from ereuse_devicehub.resources.account.role import Role
-from ereuse_devicehub.resources.account.settings import unregistered_user
+from ereuse_devicehub.resources.account.settings import unregistered_user, unregistered_user_doc
 from ereuse_devicehub.resources.condition import condition
 from ereuse_devicehub.resources.device.component.settings import Component
 from ereuse_devicehub.resources.event.device.settings import place, EventWithOneDevice, EventSubSettingsOneDevice
@@ -121,7 +121,8 @@ class Snapshot(EventWithOneDevice):
         'schema': unregistered_user,
         'sink': 2,
         'label': 'E-mail of the giver',
-        'description': 'The e-mail of the person or organization that gave the devices. You cannot change this later.'
+        'description': 'The e-mail of the person or organization that gave the devices. You cannot change this later.',
+        'doc': unregistered_user_doc
     }
 
     @classmethod

@@ -1,6 +1,6 @@
 import copy
 
-from ereuse_devicehub.resources.account.settings import unregistered_user
+from ereuse_devicehub.resources.account.settings import unregistered_user, unregistered_user_doc
 from ereuse_devicehub.resources.event.device.settings import components, EventWithDevices, \
     EventSubSettingsMultipleDevices
 
@@ -14,13 +14,16 @@ class Allocate(EventWithDevices):
             'embeddable': True,
         },
         'schema': unregistered_user,
+        'doc': 'The user the devices are allocated to. ' + unregistered_user_doc,
         'get_from_data_relation_or_create': 'email',
         'required': True,
         'sink': 2
     }
-    toOrganization = {  # Materialization of the organization that, by the time of the allocation, the user worked in
+    toOrganization = {
         'type': 'string',
-        'readonly': True
+        'readonly': True,
+        'materialized': True,
+        'doc': 'Materialization of the organization that, by the time of the allocation, the user worked in.'
     }
     components = copy.deepcopy(components)
 

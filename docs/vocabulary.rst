@@ -5,7 +5,7 @@ Vocabulary
 In DeviceHub there are four main resources:
 
 - :ref:`device`
-- Event
+- :ref:`event`
 - Place
 - Account
 

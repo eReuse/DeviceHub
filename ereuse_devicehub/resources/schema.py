@@ -4,6 +4,7 @@ the UN/CEFACT Common Code.
 """
 import copy
 
+from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.resource import Resource
 from ereuse_devicehub.utils import Naming, NestedLookup, ClassProperty
 
@@ -44,7 +45,10 @@ class RDFS(Resource):
     }
     _import_schemas = True
     created = {
-        'type': 'datetime'
+        'type': 'datetime',
+        'dh_allowed_write_roles': Role.SUPERUSER,
+        'writeonly': True,
+        'doc': 'Sets the _created and _updated, thought to be used in imports.'
     }
 
     @classmethod

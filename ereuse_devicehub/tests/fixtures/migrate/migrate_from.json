@@ -1,0 +1,5 @@
+{
+  "@type": "devices:Migrate",
+  "label": "Migrate to db2",
+  "comment": "Comment"
+}

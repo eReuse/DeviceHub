@@ -1,5 +1,5 @@
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
-from ereuse_devicehub.rest import execute_post
+from ereuse_devicehub.rest import execute_post_internal
 from ereuse_devicehub.utils import Naming
 
 
@@ -39,7 +39,7 @@ class EventProcessor:
         for event_name, common_reference_dict in self.events.items():
             for reference, unique in common_reference_dict.items():
                 device = self.references[reference]
-                log.append(execute_post(Naming.resource(event_name), {
+                log.append(execute_post_internal(Naming.resource(event_name), {
                     '@type': event_name,
                     'device': device['_id'],
                     'components': [str(x['_id']) for x in unique]

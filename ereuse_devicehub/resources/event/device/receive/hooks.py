@@ -2,7 +2,7 @@ import datetime
 
 from ereuse_devicehub.resources.account.domain import AccountDomain, UserNotFound
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
-from ereuse_devicehub.rest import execute_post
+from ereuse_devicehub.rest import execute_post_internal
 from ereuse_devicehub.utils import Naming
 
 
@@ -10,7 +10,7 @@ def transfer_property(receives: list):
     for receive in receives:
         if receive['automaticallyAllocate']:
             allocate_type = DeviceEventDomain.new_type('Allocate')
-            a = execute_post(Naming.resource(allocate_type), {
+            a = execute_post_internal(Naming.resource(allocate_type), {
                 '@type': allocate_type,
                 'to': receive['receiver'],
                 'devices': receive['devices']

@@ -1,5 +1,5 @@
-from ereuse_devicehub.tests.test_resources.test_events import TestEvent
+from ereuse_devicehub.tests.test_resources.test_events import TestEventWithPredefinedDevices
 
 
-class TestDeviceEvent(TestEvent):
+class TestDeviceEvent(TestEventWithPredefinedDevices):
     pass

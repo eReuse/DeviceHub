@@ -196,8 +196,8 @@ class DeviceHubValidator(Validator):
             self._error(field, errors.ERROR_BAD_TYPE.format('natural (positive integer)'))
 
     def _validate_type_url(self, field, value):
-        if not validators.url(value):
-            self._error(field, errors.ERROR_BAD_TYPE.format('email'))
+        if not validators.url(value) and 'localhost' not in value:
+            self._error(field, errors.ERROR_BAD_TYPE.format('url'))
 
     def _validate_type_email(self, field, value):
         if not validators.email(value):

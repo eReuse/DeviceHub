@@ -17,9 +17,9 @@ GRD = True  # GRD is part of logger, so in order for using GRD you need Logger
 """Activates the GRD Submitter."""
 GRD_DEBUG = False
 """Do not really send data to GRD, just print it on screen and log it in a file."""
-BASE_PATH_SHOWN_TO_GRD = None
+BASE_PATH = 'http://www.example.com'
 """
-    The base URL shown to GRD when submitting data. It is supposed to be the base URL that this DeviceHub listents on.
+    This is the URL showed to other agents, like GRD or other DeviceTags, DO NOT CHANGE IT AFTER FIRST USE.
     Add final trailing slash.
     Example: https://api.devicetag.io/
 """

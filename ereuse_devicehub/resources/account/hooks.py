@@ -4,7 +4,7 @@ import string
 from ereuse_devicehub.resources.account.domain import AccountDomain, UserNotFound
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
-from ereuse_devicehub.rest import execute_post
+from ereuse_devicehub.rest import execute_post_internal
 from flask import current_app as app
 from passlib.handlers.sha2_crypt import sha256_crypt
 
@@ -83,5 +83,5 @@ def _add_or_get_inactive_account_id(event, field_name):
             event[field_name]['databases'] = [AccountDomain.get_requested_database()]
             event[field_name]['active'] = False
             event[field_name]['@type'] = 'Account'
-            _id = execute_post('accounts', event[field_name], True)['_id']
+            _id = execute_post_internal('accounts', event[field_name], True)['_id']
         event[field_name] = _id

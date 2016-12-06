@@ -59,17 +59,9 @@ class RolesAuth(TokenAuth):
                 raise e
         else:
             if force or (requested_database in AccountDomain.actual['databases'] or AccountDomain.actual['role'] == Role.SUPERUSER):
-                g.auth_requested_database = requested_database
                 self.set_mongo_prefix(requested_database.replace("-", "").upper())
             else:
                 raise UnauthorizedToUseDatabase()
-
-    @staticmethod
-    def get_requested_database_for_uri() -> str:
-        try:
-            return g.auth_requested_database + '/'
-        except KeyError:
-            return ''
 
     @staticmethod
     def set_needs_to_be_public(value: bool = True):

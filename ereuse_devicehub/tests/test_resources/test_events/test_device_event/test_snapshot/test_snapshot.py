@@ -5,14 +5,13 @@ from random import choice
 
 from assertpy import assert_that
 from bson import objectid
-from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
-from ereuse_devicehub.tests import TestStandard
+from ereuse_devicehub.tests.test_resources.test_events import TestEvent
 from ereuse_devicehub.utils import Naming, coerce_type
 from ereuse_devicehub.utils import NestedLookup
 
 
-class TestSnapshot(TestStandard):
+class TestSnapshot(TestEvent):
     DUMMY_DEVICES = (
         '1_1_Register_one_device_with_components',
         '1 - 2 - Register second device with components of first',
@@ -23,43 +22,6 @@ class TestSnapshot(TestStandard):
         'vostro', 'vaio', 'xps13'
     )
     RESOURCES_PATH = 'test_events/test_snapshot/resources/'
-
-    def assertSimilarDevice(self, input_device: dict or str, created_device: dict or str):
-        """
-        Checks that the createdDevice is the same as the input one, removing computed values as hid... It uses etag.
-        :param input_device Input device needs all the float values to have, by default, ".0", or it won't work
-        """
-        # todo make sure .0 doesn't crush in real program
-        parsed_device = self.parse_device(input_device)
-        with self.app.app_context():
-            from ereuse_devicehub.resources.device.domain import DeviceDomain
-            self.assertTrue(
-                DeviceDomain.seem_equal(self.full(self.DEVICES, parsed_device),
-                                        self.full(self.DEVICES, created_device)))
-
-    def assertSimilarDevices(self, input_devices: list, created_devices: list, same_amount_of_devices=False):
-        """
-        Every created_device device must seem equal (same fields, except computed ones as hid...) as one of the input devices.
-
-        There must be one input device per created device.
-        :param input_devices:
-        :param created_devices:
-        :param same_amount_of_devices: bool Force to both lists to have the same amount of devices
-        :return:
-        """
-        if same_amount_of_devices:
-            self.assertEqual(len(input_devices), len(created_devices))
-        for created_device in created_devices:
-            found = False
-            i = 0
-            while not found and i < len(input_devices):
-                try:
-                    self.assertSimilarDevice(input_devices[i], created_device)
-                    found = True
-                except AssertionError:
-                    pass
-                i += 1
-            self.assertTrue(found)
 
     def post_snapshot(self, input_snapshot):
         return self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), input_snapshot)

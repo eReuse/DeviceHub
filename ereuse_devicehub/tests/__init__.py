@@ -32,7 +32,7 @@ class TestBase(TestMinimal):
 
     def set_settings(self, settings):
         settings.MONGO_DBNAME = 'devicehubtest'
-        settings.DATABASES = 'dht1', 'dht2'
+        settings.DATABASES = 'dht1', 'dht2'  # Some tests use 2 databases
         settings.DHT1_DBNAME = 'dht1_'
         settings.DHT2_DBNAME = 'dht2_'
         settings.GRD_DEBUG = True  # We do not want to actually fulfill GRD
@@ -40,8 +40,11 @@ class TestBase(TestMinimal):
         settings.DEBUG = True
         settings.TESTING = True
         settings.LOG = True
-        settings.GRD = True
-        settings.BASE_PATH_SHOWN_TO_GRD = 'https://www.example.com'
+        settings.GRD = False
+        settings.BASE_PATH = 'https://www.example.com'
+        settings.AGENT_ACCOUNTS = {
+            'self': ('self@ereuse.org', '12345')
+        }
 
     def prepare(self):
         self.MONGO_DBNAME = self.app.config['MONGO_DBNAME']
@@ -63,6 +66,7 @@ class TestBase(TestMinimal):
         self.db = self.connection[self.MONGO_DBNAME]
         self.drop_databases()
         self.create_dummy_user()
+        self.create_self_machine_account()
         # We call the method again as we have erased the DB
         self.app.grd_submitter_caller = SubmitterCaller(self.app, GRDSubmitter)
         # self.app.grd_submitter_caller.token = self.app.grd_submitter_caller.prepare_user(self.app)
@@ -72,7 +76,7 @@ class TestBase(TestMinimal):
         self.db.accounts.insert(
             {
                 'email': "a@a.a",
-                'password': sha256_crypt.encrypt('1234'),
+                'password': AccountDomain.encrypt_password('1234'),
                 'role': 'admin',
                 'token': 'NOFATDNNUB',
                 'databases': self.app.config['DATABASES'],
@@ -81,6 +85,19 @@ class TestBase(TestMinimal):
             }
         )
         self.account = self.db.accounts.find_one({'email': 'a@a.a'})
+
+    def create_self_machine_account(self):
+        email, password = self.app.config['AGENT_ACCOUNTS']['self']
+        self.db.accounts.insert(
+            {
+                'role': 'superuser',
+                'token': 'QYADFBPNZZDFJEWAFGGF',
+                'databases': self.app.config['DATABASES'],
+                '@type': 'Account',
+                'email': email,
+                'password': AccountDomain.encrypt_password(password)
+            }
+        )
 
     def tearDown(self):
         self.dropDB()
@@ -104,43 +121,50 @@ class TestBase(TestMinimal):
         else:
             return self.app.config['DATABASES'][0]
 
-    def get(self, resource, query='', item=None, authorize=True):
+    def get(self, resource, query='', item=None, authorize=True, database=None):
         if resource in self.domain:
             resource = self.domain[resource]['url']
         if item:
             request = '/%s/%s%s' % (resource, item, query)
         else:
             request = '/%s%s' % (resource, query)
-        environ_base = {'HTTP_AUTHORIZATION': 'Basic ' + self.token} if authorize else {}
-        r = self.test_client.get(self.select_database(resource) + request, environ_base=environ_base)
+        database = database or self.select_database(resource)
+        return self._get(database + request, self.token if authorize else None)
+
+    def _get(self, url, token=None):
+        environ_base = {'HTTP_AUTHORIZATION': 'Basic ' + token} if token else {}
+        r = self.test_client.get(url, environ_base=environ_base)
         return self.parse_response(r)
 
     def post(self, url, data, headers=None, content_type='application/json'):
         full_url = self.select_database(url) + '/' + url
-        if headers is None:
-            headers = []
-        full_headers = headers + [self.auth_header]
+        headers = headers or []
+        return self._post(full_url, data, self.token, headers, content_type)
+
+    def _post(self, url, data, token, headers=None, content_type='application/json'):
+        headers = headers or []
+        headers.append(('authorization', 'Basic ' + token))
         if type(data) is str:
-            # todo this is part of super.post, the only modification is that it does not json.dumps()
-            full_headers.append(('Content-Type', content_type))
-            r = self.test_client.post(full_url, data=data, headers=full_headers)
+            headers.append(('Content-Type', content_type))
+            r = self.test_client.post(url, data=data, headers=headers)
             return self.parse_response(r)
-        else:
-            return super(TestBase, self).post(full_url, data, full_headers, content_type)
+        return super(TestBase, self).post(url, data, headers, content_type)
 
     def patch(self, url, data, headers=None):
-        if headers is None:
-            headers = []
-        return super(TestBase, self).patch(self.select_database(url) + '/' + url, data, headers + [self.auth_header])
+        headers = headers or []
+        return self._patch(self.select_database(url) + '/' + url, data, self.token, headers)
+
+    def _patch(self, url, data, token, headers=None):
+        headers = headers or []
+        headers.append(('authorization', 'Basic ' + token))
+        return super(TestBase, self).patch(url, data, headers)
 
     def put(self, url, data, headers=None):
-        if headers is None:
-            headers = []
+        headers = headers or []
         return super(TestBase, self).put(self.select_database(url) + '/' + url, data, headers + [self.auth_header])
 
     def delete(self, url, headers=None):
-        if headers is None:
-            headers = []
+        headers = headers or []
         return super(TestBase, self).delete(self.select_database(url) + '/' + url, headers + [self.auth_header])
 
     def _login(self) -> str:

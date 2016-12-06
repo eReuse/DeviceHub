@@ -51,6 +51,12 @@ class Domain:
         return current_app.data.driver.db[cls.source].update_many(filter, operation)
 
     @classmethod
+    def update_one_raw(cls, resource_id: str or ObjectId, operation):
+        count = current_app.data.driver.db[cls.source].update_one({'_id': resource_id}, operation).modified_count
+        if count == 0:
+            raise ResourceNotFound('The resource cannot be updated as it is not found.')
+
+    @classmethod
     def delete(cls, query):
         return current_app.data.driver.db[cls.source].delete_one(query)
 

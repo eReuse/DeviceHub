@@ -3,7 +3,7 @@ from ereuse_devicehub.exceptions import InnerRequestError
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.exceptions import DeviceNotFound, NoDevicesToProcess
-from ereuse_devicehub.rest import execute_post, execute_delete
+from ereuse_devicehub.rest import execute_post_internal, execute_delete
 from ereuse_devicehub.utils import Naming
 from eve.methods.delete import deleteitem_internal
 from flask import current_app as app
@@ -59,7 +59,7 @@ def _execute_register(device: dict, log: list, created, force_new=False):
     try:
         if created:
             device['created'] = created
-        db_device = execute_post(Naming.resource(device['@type']), device)
+        db_device = execute_post_internal(Naming.resource(device['@type']), device)
     except InnerRequestError as e:
         if force_new:
             raise e

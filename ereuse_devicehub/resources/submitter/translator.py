@@ -91,7 +91,7 @@ class Translator:
     def _parse_url(self, url):
         if self.config['URL_PREFIX']:
             url = '{}/{}'.format(self.config['URL_PREFIX'], url)
-        return self.config['BASE_PATH_SHOWN_TO_GRD'] + '/' + url
+        return self.config['BASE_PATH'] + '/' + url
 
     def inner_field(self, field: str):
         """Gets a field that is one level nested in a dict"""

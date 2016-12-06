@@ -6,12 +6,6 @@ import os
 import sys
 
 import gnupg
-from eve import Eve
-from eve.endpoints import schema_collection_endpoint
-from eve.exceptions import ConfigException
-from eve.io.mongo import GridFSMediaStorage
-from eve.io.mongo import MongoJSONEncoder
-
 from ereuse_devicehub.aggregation.settings import aggregate_view
 from ereuse_devicehub.data_layer import DataLayer
 from ereuse_devicehub.error_handler import ErrorHandlers
@@ -23,8 +17,14 @@ from ereuse_devicehub.resources.submitter.grd_submitter.grd_submitter import GRD
 from ereuse_devicehub.resources.submitter.submitter_caller import SubmitterCaller
 from ereuse_devicehub.security.authentication import RolesAuth
 from ereuse_devicehub.static import send_device_icon
+from ereuse_devicehub.url_parse import UrlParse
 from ereuse_devicehub.utils import cache
 from ereuse_devicehub.validation.validation import DeviceHubValidator
+from eve import Eve
+from eve.endpoints import schema_collection_endpoint
+from eve.exceptions import ConfigException
+from eve.io.mongo import GridFSMediaStorage
+from eve.io.mongo import MongoJSONEncoder
 from eve.render import send_response
 from flask import json
 from flask import request
@@ -33,7 +33,7 @@ from flask import request
 class DeviceHub(Eve):
     def __init__(self, import_name=__package__, settings='settings.py', validator=DeviceHubValidator, data=DataLayer,
                  auth=RolesAuth, redis=None, url_converters=None, json_encoder=None, media=GridFSMediaStorage,
-                 **kwargs):
+                 url_parse=UrlParse, **kwargs):
         kwargs.setdefault('static_url_path', '/static')
         super().__init__(import_name, settings, validator, data, auth, redis, url_converters, json_encoder, media,
                          **kwargs)
@@ -42,6 +42,7 @@ class DeviceHub(Eve):
         self.gpg = gnupg.GPG()
         self.cache = cache
         self.cache.init_app(self)
+        self.url_parse = url_parse()
         hooks(self)  # Set up hooks. You can add more hooks by doing something similar with app "hooks(app)"
         ErrorHandlers(self)
         self.add_url_rule('/login', 'login', view_func=login, methods=['POST', 'OPTIONS'])

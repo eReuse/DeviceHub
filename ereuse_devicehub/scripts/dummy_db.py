@@ -24,6 +24,7 @@ class DummyDB:
         self.test_snapshot.app = self.app
         self.test_snapshot.prepare()
         self.test_snapshot.create_dummy_user()
+        self.test_snapshot.create_self_machine_account()
 
     def create_dummy_devices(self, maximum: int = None):
         self.test_snapshot.creation = self._creation

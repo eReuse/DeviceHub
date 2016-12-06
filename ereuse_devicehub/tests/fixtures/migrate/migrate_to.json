@@ -1,0 +1,9 @@
+{
+  "@type": "devices:Migrate",
+  "label": "Migrate to db2",
+  "to": {
+    "baseUrl": "http://localhost/",
+    "database": ""
+  },
+  "comment": "Comment"
+}

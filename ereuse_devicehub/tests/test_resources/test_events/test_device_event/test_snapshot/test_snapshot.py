@@ -55,11 +55,11 @@ class TestSnapshot(TestEvent):
 
     def add_remove(self, input_snapshot):
         component = choice(input_snapshot['components'])
-        found = False
-        while not found:
+        while True:
             ignore_fields = self.app.config['DOMAIN'][Naming.resource(component['@type'])]['etag_ignore_fields']
             key = choice(list(component.keys()))
-            found = key not in ignore_fields
+            if key not in ignore_fields:
+                break
         if type(component[key]) is int or type(component[key]) is float:
             component[key] += 10
         elif type(component[key]) is str:

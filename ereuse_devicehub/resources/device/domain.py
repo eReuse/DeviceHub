@@ -42,10 +42,9 @@ class DeviceDomain(Domain):
         """
         difference = []
         for x in list_to_remove_devices_from:
-            found = False
             for y in checking_list:
                 if cls.seem_equal(x, y):
-                    found = True
-            if not found:
+                    break
+            else:
                 difference.append(x)
         return difference

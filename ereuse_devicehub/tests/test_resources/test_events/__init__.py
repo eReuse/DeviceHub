@@ -30,16 +30,14 @@ class TestEvent(TestStandard):
         if same_amount_of_devices:
             self.assertEqual(len(input_devices), len(created_devices))
         for created_device in created_devices:
-            found = False
-            i = 0
-            while not found and i < len(input_devices):
+            for input_device in input_devices:
                 try:
-                    self.assertSimilarDevice(input_devices[i], created_device)
-                    found = True
+                    self.assertSimilarDevice(input_device, created_device)
+                    break
                 except AssertionError:
                     pass
-                i += 1
-            self.assertTrue(found)
+            else:
+                self.assertTrue(False)  # Not found
 
 
 class TestEventWithPredefinedDevices(TestEvent):

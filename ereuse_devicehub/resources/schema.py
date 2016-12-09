@@ -159,9 +159,9 @@ class Thing(RDFS):
         'move': 'sameAs'
     }
     sameAs = {
-        'type': 'url',
+        'type': 'list',
         'teaser': False,
-        'readonly': True,
+        #'readonly': True, todo should be readonly
         'unique': True,
     }
     description = {

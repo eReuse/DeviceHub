@@ -2,7 +2,7 @@
   "@type": "devices:Migrate",
   "label": "Migrate to db2",
   "to": {
-    "baseUrl": "http://localhost/",
+    "baseUrl": "https://devicehub.ereuse.org/",
     "database": ""
   },
   "comment": "Comment"

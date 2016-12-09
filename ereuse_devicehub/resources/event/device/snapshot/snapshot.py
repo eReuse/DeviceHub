@@ -38,7 +38,7 @@ class Snapshot:
         :param device: The device must have an hid
         :param new_parent:
         """
-        if 'new' not in device:
+        if not device['new']:
             try:
                 old_parent = ComponentDomain.get_parent(device['_id'])
             except DeviceNotFound:  # The component exists but had no parent device, until now
@@ -47,8 +47,6 @@ class Snapshot:
                 if not DeviceDomain.seem_equal(old_parent, new_parent):
                     self.events.append_remove(device, old_parent)
                     self.events.append_add(device, new_parent)
-        else:
-            del device['new']
 
     def _remove_nonexistent_components(self):
         """

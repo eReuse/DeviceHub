@@ -41,7 +41,6 @@ class TestBase(TestMinimal):
         settings.TESTING = True
         settings.LOG = True
         settings.GRD = False
-        settings.BASE_PATH = 'https://www.example.com'
         settings.AGENT_ACCOUNTS = {
             'self': ('self@ereuse.org', '12345')
         }

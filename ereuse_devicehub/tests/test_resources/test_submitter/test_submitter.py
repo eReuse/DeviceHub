@@ -22,7 +22,7 @@ class TestSubmitter(TestStandard):
         :return:
         """
 
-        submitter = submitter_class(token, app)
+        submitter = submitter_class(app, token)
         submitter._post = MagicMock()
         submitter._post.side_effect = mock_post
 

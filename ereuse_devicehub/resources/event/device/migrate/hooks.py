@@ -1,15 +1,25 @@
 import pymongo
 from ereuse_devicehub.exceptions import SchemaError, InnerRequestError
+from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.device.component.settings import Component
+from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
-from ereuse_devicehub.resources.event.device.migrate.migrate import DeviceHasMigrated, MigrateSubmit
+from ereuse_devicehub.resources.event.device.migrate.migrate import DeviceHasMigrated, MigrateSubmitter, \
+    MigrateTranslator
 from ereuse_devicehub.resources.event.device.migrate.migrate_creator import MigrateCreator
 from ereuse_devicehub.resources.event.device.migrate.settings import Migrate
 from ereuse_devicehub.resources.event.domain import EventNotFound
 from ereuse_devicehub.resources.place.domain import PlaceDomain
 from ereuse_devicehub.resources.place.settings import Place
 from ereuse_devicehub.rest import execute_delete, execute_patch
+from ereuse_devicehub.security.request_auth import AgentAuth
 from ereuse_devicehub.utils import Naming
+from flask import Response
+from flask import current_app
+from flask import g
+from flask import json
+
+MIGRATE_RETURNED_SAME_AS = 'migrate_returned_same_as'
 
 
 def submit_migrate(migrates: dict):
@@ -20,19 +30,40 @@ def submit_migrate(migrates: dict):
     """
     for migrate in migrates:
         if 'to' in migrate:
-            submitter = MigrateSubmit(migrate['to'], migrate['devices'], migrate['_links']['self']['href'],
-                                      migrate.get('label'), migrate.get('comment'))
+            auth = AgentAuth(migrate['to']['baseUrl'])
+            submitter = MigrateSubmitter(current_app, MigrateTranslator(current_app.config), auth=auth)
             try:
-                migrate['to']['url'] = submitter.execute()
+                response, *_ = submitter.submit(migrate, AccountDomain.get_requested_database())
+                migrate['to']['url'] = migrate['to']['baseUrl'] + response['_links']['self']['href']
+                _update_same_as(response['returnedSameAs'])
             except InnerRequestError as e:
                 execute_delete(Migrate.resource_name, migrate['_id'])
                 raise e
             else:
+                _remove_devices_from_places(migrate)
                 update = {'$set': {'to.url': migrate['to']['url'], 'devices': [_id for _id in migrate['devices']]}}
                 DeviceEventDomain.update_one_raw(migrate['_id'], update)
 
 
-def create_migrate(migrates: dict):
+def _remove_devices_from_places(migrate):
+    """Removes the devices of the migrate from their place"""
+    for device in migrate:
+        if 'place' in device:
+            place = PlaceDomain.get_one(device['place'])
+            devices = set(place['devices'])
+            devices.remove(device['_id'])
+            execute_patch('places', {'@type': 'Place', 'devices': list(devices)}, place['_id'])
+
+
+def _update_same_as(returned_same_as: dict):
+    for url, same_as in returned_same_as.items():
+        _id = url.split('/')[-1]
+        device = DeviceDomain.get_one({'_id': _id})
+        same_as = set(device.get('sameAs', [])) | set(same_as)
+        DeviceDomain.update_one_raw(_id, {'$set': {'sameAs': list(same_as)}})
+
+
+def create_migrate(migrates: list):
     """
     Manages the creation of a Migrate event, like doing so for the devices.
     Heavily inspired by the hook 'on_insert_snapshot', uses the same idea on a group of devices.
@@ -41,6 +72,7 @@ def create_migrate(migrates: dict):
     try:
         for migrate in migrates:
             if 'from' in migrate:
+                setattr(g, MIGRATE_RETURNED_SAME_AS, dict())
                 devices_id = []
                 migrate['components'] = []
                 for device in migrate['devices']:
@@ -52,6 +84,8 @@ def create_migrate(migrates: dict):
                     migrate['events'] = [new_events['_id'] for new_events in events]
                     devices_id.append(device['_id'])
                     migrate['components'] += [component['_id'] for component in creator.components]
+                    migrate['unsecured'] = creator.unsecured
+                    getattr(g, MIGRATE_RETURNED_SAME_AS).update(creator.returned_same_as)
                 from ereuse_devicehub.resources.hooks import set_date
                 set_date(None, migrates)
                 migrate['devices'] = devices_id
@@ -60,6 +94,17 @@ def create_migrate(migrates: dict):
             # Could result in 404 (ex: delete an 'Add' after deleting 'Register' of the same device)
             execute_delete(Naming.resource(event['@type']), event['_id'])
         raise e
+
+
+def return_same_as(_, payload: Response):
+    """
+    Sets JSON Header link referring to @type
+    """
+    if (payload._status_code == 201) and hasattr(g, MIGRATE_RETURNED_SAME_AS):
+        data = json.loads(payload.data.decode(payload.charset))
+        data['returnedSameAs'] = getattr(g, MIGRATE_RETURNED_SAME_AS)
+        delattr(g, MIGRATE_RETURNED_SAME_AS)
+        payload.data = json.dumps(data)
 
 
 def check_migrate_insert(_, resources: list):

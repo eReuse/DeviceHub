@@ -3,6 +3,7 @@ from ereuse_devicehub.exceptions import InnerRequestError
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.exceptions import DeviceNotFound, NoDevicesToProcess
+from ereuse_devicehub.resources.event.device.register.settings import Register
 from ereuse_devicehub.rest import execute_post_internal, execute_delete
 from ereuse_devicehub.utils import Naming
 from eve.methods.delete import deleteitem_internal
@@ -14,55 +15,62 @@ def post_devices(registers: list):
     Main function for Register. For the given devices, POST the new ones.
 
     If there is an unexpected error (device has a bad field, for example), it undoes all posted devices. In db terms,
-        the commit is all the registers.
+    the commit is all the registers.
 
     If the function is called by post_internal(), as the method keeps the reference of the passed in devices, the
-        caller will see how their devices are replaced by the db versions, plus a 'new' property acting as a flag
-        to indicate if the device is new or not.
+    caller will see how their devices are replaced by the db versions, plus a 'new' property acting as a flag
+    to indicate if the device is new or not.
 
-    :type registers: list
-    :raises InnerRequestError: for any error provoked by a failure in the POST of a device (except if the device already
+    :raise InnerRequestError: for any error provoked by a failure in the POST of a device (except if the device already
         existed). It carries the original error sent by the POST.
+    :raise NoDevicesToProcess: Raised to avoid creating empty registers, that actually did not POST any device
     """
     log = []
-    for register in registers:
-        caller_device = register['device']  # Keep the reference from where register['device'] points to
-        _execute_register(caller_device, log, register.get('created'))
-        register['device'] = caller_device['_id']  # Change the reference of register['device'], but not caller_device
-        if 'components' in register:
-            caller_components = register['components']
-            register['components'] = []
-            for component in caller_components:
-                component['parent'] = caller_device['_id']
-                _execute_register(component, log, register.get('created'))
-                if 'new' in component:  # todo put new in g., don't use device
-                    register['components'].append(component['_id'])
-            if not register['components'] and 'new' not in caller_device:
-                _abort(
-                    log)  # If we have not POST neither any component and any device there is no reason for register to exist
-            if 'new' in caller_device:
-                set_components(register)
-    from ereuse_devicehub.resources.hooks import set_date
-    set_date(None, registers)  # Let's get the time AFTER creating the devices
+    try:
+        for register in registers:
+            caller_device = register['device']  # Keep the reference from where register['device'] points to
+            _execute_register(caller_device, register.get('created'), log)
+            register['device'] = caller_device['_id']
+            if 'components' in register:
+                caller_components = register['components']
+                register['components'] = []
+                for component in caller_components:
+                    component['parent'] = caller_device['_id']
+                    _execute_register(component, register.get('created'), log)
+                    if component['new']:  # todo put new in g., don't use device
+                        register['components'].append(component['_id'])
+                if caller_device['new']:
+                    set_components(register)
+                elif not register['components']:
+                    raise NoDevicesToProcess()
+    except Exception as e:
+        for device in reversed(log):  # Rollback
+            deleteitem_internal(Naming.resource(device['@type']), device)
+        raise e
+    else:
+        from ereuse_devicehub.resources.hooks import set_date
+        set_date(None, registers)  # Let's get the time AFTER creating the devices
 
 
-# noinspection PyUnboundLocalVariable
-def _execute_register(device: dict, log: list, created, force_new=False):
+def _execute_register(device: dict, created: str, log: list):
     """
+    Tries to POST the device and updates the `device` dict with the resource from the database; if the device could
+    not be uploaded the `device` param will contain the database version of the device, not the inputting one. This is
+    because the majority of the information of a device is immutable (in concrete the fields used to compute
+    the ETAG).
 
-    :param device:
-    :param log:
-    :param force_new: Raises exception if the device is not new. Debugging parameter.
-    :param _created: Set the _created value to be the same for the device as for the register
+    :param device: Inputting device. It is replaced (keeping the reference) with the db version.
+    :param created: Set the _created value to be the same for the device as for the register
+    :param log: A log where to append the resulting device if execute_register has been successful
+    :raise InnerRequestError: any internal error in the POST that is not about the device already existing.
     """
     device['hid'] = 'dummy'
+    new = True
     try:
         if created:
             device['created'] = created
         db_device = execute_post_internal(Naming.resource(device['@type']), device)
     except InnerRequestError as e:
-        if force_new:
-            raise e
         new = False
         try:
             db_device = _get_existing_device(e)
@@ -70,18 +78,17 @@ def _execute_register(device: dict, log: list, created, force_new=False):
             device['_id'] = db_device['_id']
             ComponentDomain.benchmark(device)
         except DeviceNotFound:
-            _abort(log, e)
+            raise e
     else:
         log.append(db_device)
-        new = True
     device.clear()
-    device.update(
-        db_device)  # We do not assign so we preserve the reference todo db_device just have extra_post_fields, not all fields of device
-    if new:
-        device['new'] = new
+    device.update(db_device)
+    device['new'] = new  # Note that the device is 'cleared' before
+    return db_device
 
 
-def _get_existing_device(e):
+def _get_existing_device(e: InnerRequestError) -> dict:
+    """Gets the device from a special formatted cerberus error."""
     device = None
     for field in 'hid', '_id', 'model':  # unique fields
         if field in e.body['_issues']:
@@ -93,7 +100,7 @@ def _get_existing_device(e):
                         pass
                     else:
                         break
-            except (ValueError, KeyError):  # it can be an unique field but the
+            except (ValueError, KeyError):
                 raise DeviceNotFound()
     if not device:
         raise DeviceNotFound()
@@ -101,22 +108,14 @@ def _get_existing_device(e):
 
 
 def set_components(register):
-    """
-    Sets the new devices to the materialized attribute 'components' of the parent device.
-    """
+    """Sets the new devices to the materialized attribute 'components' of the parent device."""
     app.data.driver.db['devices'].update(
         {'_id': register['device']},
         {'$set': {'components': register['components']}}
     )
 
 
-def _abort(log, e: Exception = NoDevicesToProcess()):
-    for device in reversed(log):
-        deleteitem_internal(Naming.resource(device['@type']), device)
-    raise e
-
-
-def delete_device(resource_name: str, register):
-    if register.get('@type') == 'devices:Register':
+def delete_device(_, register):
+    if register.get('@type') == Register.type_name:
         for device_id in [register['device']] + register.get('components', []):
             execute_delete(Naming.resource(DeviceDomain.get_one(device_id)['@type']), device_id)

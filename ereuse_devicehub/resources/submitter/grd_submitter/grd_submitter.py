@@ -5,24 +5,24 @@ import copy
 import re
 from urllib.parse import quote_plus
 
-
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
-from ereuse_devicehub.resources.submitter.submitter import Submitter
+from ereuse_devicehub.resources.submitter.submitter import ThreadedSubmitter
 from ereuse_devicehub.resources.submitter.translator import Translator
 from ereuse_devicehub.security.request_auth import Auth
 from ereuse_devicehub.utils import Naming
 from ereuse_devicehub.validation.validation import HID_REGEX
 
 
-class GRDSubmitter(Submitter):
-    def __init__(self, token: str, app, **kwargs):
+class GRDSubmitter(ThreadedSubmitter):
+    def __init__(self, app: 'DeviceHub', translator: Translator = None, auth: Auth = None, debug=False,
+                 domain=None, token=None, **kwargs):
         config = app.config
-        domain = config['GRD_DOMAIN']
-        translator = GRDTranslator(config)
+        domain = domain or config['GRD_DOMAIN']
+        translator = translator or GRDTranslator(config)
         account = config['GRD_ACCOUNT']
-        auth = Auth(domain, account['username'], account['password'], 'api-token-auth/', 'Token')
-        debug = config.get('GRD_DEBUG', False)
-        super().__init__(token, app, domain, translator, auth, debug)
+        auth = auth or Auth(domain, account['username'], account['password'], 'api-token-auth/', 'Token')
+        debug = debug if debug is not None else config.get('GRD_DEBUG', False)
+        super().__init__(app, translator, auth, debug, domain, token, **kwargs)
 
     def generate_url(self, original_resource, translated_resource):
         device_identifier = self.translator.hid_or_url(original_resource['device'])
@@ -86,17 +86,17 @@ class GRDTranslator(Translator):
         }
         super().__init__(config, generic_resource, translation_dict)
 
-    def translate(self, database: str, event: dict) -> list:
+    def translate(self, resource: dict, database: str = None) -> list:
         self.database = database
         translated = []
-        if 'devices' in event and event['@type'] != DeviceEventDomain.new_type('Register'):
-            e = copy.deepcopy(event)
+        if 'devices' in resource and resource['@type'] != DeviceEventDomain.new_type('Register'):
+            e = copy.deepcopy(resource)
             del e['devices']
-            for device in event['devices']:
+            for device in resource['devices']:
                 e['device'] = device
                 translated.append((self._translate(e), copy.deepcopy(e)))
         else:
-            translated.append((self._translate(event), event))
+            translated.append((self._translate(resource), resource))
         return translated
 
     def device(self, device: dict) -> dict:
@@ -109,4 +109,3 @@ class GRDTranslator(Translator):
         if 'hid' in device:
             grd_device['hid'] = device['hid']
         return super().device(grd_device)
-

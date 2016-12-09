@@ -52,9 +52,10 @@ class Domain:
 
     @classmethod
     def update_one_raw(cls, resource_id: str or ObjectId, operation):
-        count = current_app.data.driver.db[cls.source].update_one({'_id': resource_id}, operation).modified_count
+        count = current_app.data.driver.db[cls.source].update_one({'_id': resource_id}, operation).matched_count
         if count == 0:
-            raise ResourceNotFound('The resource cannot be updated as it is not found.')
+            name = cls.resource_settings._schema.type_name
+            raise ResourceNotFound('{} {} cannot be updated as it is not found.'.format(name, resource_id))
 
     @classmethod
     def delete(cls, query):
@@ -68,6 +69,17 @@ class Domain:
             return cls.resource_settings.datasource['source']
         except AttributeError:
             raise AttributeError('Make sure resource_settings points to the correct subclass of ResourceSettings.')
+
+    @classmethod
+    def path_for(cls, database: str, identifier: str or ObjectId or int) -> str:
+        """Returns the resource path for a given identifier."""
+        path = current_app.config['DOMAIN'][cls.resource_settings.resource_name()]['url']
+        return '{}/{}/{}'.format(database, path, str(identifier))
+
+    @classmethod
+    def url_agent_for(cls, database: str, identifier: str or ObjectId or int):
+        """Returns the resource full url as seen for other agents."""
+        return '{}/{}'.format(current_app.config['BASE_URL_FOR_AGENTS'], cls.path_for(database, identifier))
 
 
 class ResourceNotFound(StandardError):

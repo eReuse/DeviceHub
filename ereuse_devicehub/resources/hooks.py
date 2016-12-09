@@ -1,7 +1,6 @@
-import json
 from datetime import datetime
 
-from flask import current_app
+from flask import current_app, json
 from requests import Response
 from werkzeug.local import LocalProxy
 

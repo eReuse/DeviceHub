@@ -13,7 +13,7 @@ def hooks(app):
     app.on_fetched_resource += project_resource
 
     from ereuse_devicehub.resources.event.device.migrate.hooks import check_migrate, create_migrate, submit_migrate, \
-        check_migrate_insert, check_migrate_update, remove_devices_from_place
+        check_migrate_insert, check_migrate_update, remove_devices_from_place, return_same_as
     app.on_insert += check_migrate_insert
     app.on_delete_item += check_migrate
     app.on_update += check_migrate_update
@@ -21,6 +21,7 @@ def hooks(app):
     app.on_inserted_devices_migrate += submit_migrate
     app.on_insert_devices_migrate += create_migrate
     app.on_inserted_devices_migrate += remove_devices_from_place
+    app.on_post_POST_devices_migrate += return_same_as
 
     from ereuse_devicehub.resources.device.hooks import generate_etag, autoincrement, post_benchmark, \
         materialize_public_in_components, materialize_public_in_components_update

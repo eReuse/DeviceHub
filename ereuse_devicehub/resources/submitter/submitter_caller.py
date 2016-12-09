@@ -5,7 +5,7 @@ from flask import json
 from pymongo.errors import DuplicateKeyError
 
 from ereuse_devicehub.resources.account.role import Role
-from ereuse_devicehub.resources.submitter.submitter import Submitter
+from ereuse_devicehub.resources.submitter.submitter import ThreadedSubmitter
 from ereuse_devicehub.utils import get_last_exception_info
 
 
@@ -19,7 +19,7 @@ class SubmitterCaller:
         performing login many times.
     """
 
-    def __init__(self, app: 'DeviceHub', submitter: Submitter):
+    def __init__(self, app: 'DeviceHub', submitter: ThreadedSubmitter):
         """
         :param submitter: The submitter class to invoke when called
         """
@@ -70,7 +70,7 @@ class SubmitterCaller:
         return js['token']
 
 
-def _process(queue: Queue, token: str, app, submitter_class=Submitter):
+def _process(queue: Queue, token: str, app, submitter_class=ThreadedSubmitter):
     """
         A representation of a separate process.
         It's a for_all: It blocks waiting for events to log, and when there is an event, it invokes the submitter.
@@ -78,7 +78,7 @@ def _process(queue: Queue, token: str, app, submitter_class=Submitter):
     :param token: The token of the DeviceHub user Submitter is going to use to get data.
     :param submitter_class: The Submitter *class* to instantiate and use.
     """
-    submitter = submitter_class(token, app)
+    submitter = submitter_class(app, token)
     while True:
         try:
             submitter.submit(*queue.get(True))  # We block ourselves waiting for something in the queue

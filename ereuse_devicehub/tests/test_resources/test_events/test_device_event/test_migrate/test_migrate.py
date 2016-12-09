@@ -1,5 +1,3 @@
-import random
-
 from assertpy import assert_that
 from ereuse_devicehub.resources.event.device.migrate.settings import Migrate
 from ereuse_devicehub.resources.event.device.register.settings import Register
@@ -72,10 +70,10 @@ class TestMigrate(TestDeviceEvent):
         allocate['devices'] = self.devices_id
         _, status = self.post(self.DEVICE_EVENT + '/allocate', allocate)
         self.assert422(status)
-        # Let's get one device of db1 to use later
-        choice = random.choice(self.devices_id)
-        print('Device chosen: ' + choice)
-        device_db1, _ = self.get(self.DEVICES, '', choice)
+        # Let's get the devices in the actual state to use later
+        devices_in_db1 = [self.get(self.DEVICES, '', device_id)[0] for device_id in self.devices_id]
+        number_devices_in_db1 = len(self.get(self.DEVICES)[0])
+
         # Let's perform the same but in db2
         # Note that we will need to create the place in db2
         place = self.get_fixture(self.PLACES, 'place')
@@ -87,24 +85,34 @@ class TestMigrate(TestDeviceEvent):
         fixture_migrate_to = self.get_fixture('migrate', 'migrate_to')
         fixture_migrate_to['to']['database'] = self.db1
         fixture_migrate_to['devices'] = self.devices_id
+        fixture_migrate_to['label'] = 'Migrate back to db1'
         url = '{}/{}/{}'.format(self.db2, self.DEVICE_EVENT, self.MIGRATE)
         migrate_db2_to_db1, status = self._post(url, fixture_migrate_to, self.token_b)
+        self.assert201(status)
         migrate_db2_to_db1, _ = self._get('{}/{}/{}'.format(self.db2, self.EVENTS, migrate_db2_to_db1['_id']),
                                           self.token_b)
-        self.assert201(status)
         del fixture_migrate_to['to']  # to contains a new field
         assert_that(fixture_migrate_to).is_subset_of(migrate_db2_to_db1)
         assert_that(migrate_db2_to_db1['to']['url']).contains(migrate_db2_to_db1['to']['baseUrl'])
-        # Let's check that the device in db1 only has one more event: the migrate (no Add, Register...)
-        device_db1_after_migrate, _ = self.get(self.DEVICES, '?embedded={"events":1}', device_db1['_id'])
-        assert_that(device_db1_after_migrate['events']).is_length(len(device_db1['events']) + 1)
-        # The last event is the resulting migrate (the one with 'from') executed in db1 by migrate_db2_to_db1
-        migrate_from_db2, _ = self._get(migrate_db2_to_db1['to']['url'], self.token)
-        assert_that(device_db1_after_migrate['events'][0]['_id']).is_equal_to(migrate_from_db2['_id'])
-        # The one before is the migrate with 'to' called in db1 migrate_db1_to_db2
-        assert_that(device_db1_after_migrate['events'][1]['_id']).is_equal_to(migrate_db1_to_db2['_id'])
-        # And the first event is always a register
-        assert_that(device_db1_after_migrate['events'][-1]['@type']).is_equal_to(Register.type_name)
+        # Let's check that the devices in db1 only have one more event: the migrate (no Add, Register...)
+        for device in devices_in_db1:
+            device_db1_after_migrate, _ = self.get(self.DEVICES, '?embedded={"events":1}', device['_id'])
+            assert_that(device_db1_after_migrate['events']).is_length(len(device['events']) + 1)
+            # The last event is the resulting migrate (the one with 'from') executed in db1 by migrate_db2_to_db1
+            migrate_from_db2, _ = self._get(migrate_db2_to_db1['to']['url'], self.token)
+            assert_that(device_db1_after_migrate['events'][0]['_id']).is_equal_to(migrate_from_db2['_id'])
+            # The one before is the migrate with 'to' called in db1 migrate_db1_to_db2
+            assert_that(device_db1_after_migrate['events'][1]['_id']).is_equal_to(migrate_db1_to_db2['_id'])
+            # And the first event is always a register
+            assert_that(device_db1_after_migrate['events'][-1]['@type']).is_equal_to(Register.type_name)
+        # Let's check that there are exactly the same number of devices now than before, and in db2
+        # Note that the system can create a new device if there is no HID, but by issuing the URL
+        # with the device, the system should be able to identify a device with the `URL in sameAs`
+        number_devices_in_db1_after = len(self.get(self.DEVICES)[0])
+        assert_that(number_devices_in_db1).is_equal_to(number_devices_in_db1_after)
+        number_devices_in_db2 = len(self.get(self.DEVICES, '', None, True, self.db2)[0])
+        assert_that(number_devices_in_db1).is_equal_to(number_devices_in_db2)
+
         # Finally, let's perform an event with the devices in db1
         _, status = self.patch('{}/{}'.format(self.PLACES, self.place['_id']), patched_place)
         self.assert200(status)

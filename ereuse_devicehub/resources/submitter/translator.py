@@ -1,4 +1,28 @@
-class Translator:
+class BaseTranslator:
+    def __init__(self, config: dict, **kwargs):
+        self.config = config
+        self.database = None
+
+    def translate(self, resource: dict, database: str = None) -> list:
+        """
+        Translates a resource.
+        :param database: The database in DeviceHub (i.e. db1)
+        :param resource: The resource to translate
+        :return: A list of tuples, containing 1. the translated resource, 2. the original resource
+        """
+        self.database = database
+        return [(self._translate(resource), resource)]
+
+    def _translate(self, resource: dict) -> dict:
+        """
+        Translates a resource. This method carries the actual translation.
+        :param resource:
+        :return: The translated resource
+        """
+        raise NotImplementedError()
+
+
+class Translator(BaseTranslator):
     """
         Translates (or transforms) the structure of a resource to adequate it to another agent.
 
@@ -15,27 +39,18 @@ class Translator:
         methods in Translator, and 'resource type name' e.g. devices:Register.
         See :func `GRDTranslator.__init__`: for an example.
     """
-    def __init__(self, config, generic_resource: dict, translation_dict: dict):
+
+    def __init__(self, config, generic_dict: dict = None, specific_dict: dict = None, **kwargs):
         """
         Configures the translator. Once done, you can translate many resources as you want with :func `translate`:.
         :param config:
-        :param generic_resource: Generic translation dictionary shared among resources.
-        :param translation_dict: Specific translation dictionary divided per resource.
+        :param generic_dict: Generic translation dictionary shared among resources.
+        :param specific_dict: Specific translation dictionary divided per resource.
         """
         self.config = config
-        self.generic = generic_resource
-        self.dictionary = translation_dict
-        self.database = None
-
-    def translate(self, database: str, resource: dict) -> list:
-        """
-        Translates a resource.
-        :param database: The database in DeviceHub (i.e. db1)
-        :param resource: The resource to translate
-        :return: A list of tuples, containing 1. the translated resource, 2. the original resource
-        """
-        self.database = database
-        return [(self._translate(resource), resource)]
+        self.generic_dict = generic_dict
+        self.specific_dict = specific_dict
+        super().__init__(config, **kwargs)
 
     def _translate(self, resource: dict) -> dict:
         """
@@ -44,7 +59,8 @@ class Translator:
         :return: The translated resource
         """
         translated = dict()
-        for final_name, (method, *original_name) in dict(self.generic, **self.dictionary[resource['@type']]).items():
+        for final_name, (method, *original_name) in dict(self.generic_dict,
+                                                         **self.specific_dict[resource['@type']]).items():
             value = resource.get(original_name[0] if len(original_name) > 0 else final_name)
             if value is not None:
                 translated[final_name] = method(value)
@@ -55,17 +71,21 @@ class Translator:
         """Obtains an url from the resource identifier.
         :param resource_name: full resource-name with the prefix, if needed it.
         """
+
         def url(resource_or_identifier):
             try:
                 return self._get_resource_url(resource_or_identifier['_id'], resource_name)
             except TypeError:
                 return self._get_resource_url(resource_or_identifier, resource_name)
+
         return url
 
     def for_all(self, method):
         """Executes a transformer method for each value and returns a list of results"""
+
         def _loop(values: list) -> list:
             return [method(value) for value in values]
+
         return _loop
 
     def identity(self, value):
@@ -91,10 +111,12 @@ class Translator:
     def _parse_url(self, url):
         if self.config['URL_PREFIX']:
             url = '{}/{}'.format(self.config['URL_PREFIX'], url)
-        return self.config['BASE_PATH'] + '/' + url
+        return self.config['BASE_URL_FOR_AGENTS'] + '/' + url
 
     def inner_field(self, field: str):
         """Gets a field that is one level nested in a dict"""
+
         def _inner_field(value: dict):
             return value[field]
+
         return _inner_field

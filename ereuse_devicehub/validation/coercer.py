@@ -20,11 +20,9 @@ class Coercer:
         """
         if validators.url(str(url)):
             data_relation = schema[field_name]['data_relation']
-            response = current_app.data.find_one_raw(data_relation['resource'], {'sameAs': url})
+            response = current_app.data.find_one_raw(data_relation['resource'], {'sameAs': {'$in': [url]}})
             if response is not None:
                 return response[data_relation['field']]
-                #identifier =
-                #return str(identifier) if type(identifier) is ObjectId else identifier
             else:
                 raise SchemaError('There is no {} with the field {} "{}".'.format(data_relation['resource'], field_name,
                                                                                   url))

@@ -15,30 +15,33 @@ def execute_post_internal(resource: str, payload: dict, skip_validation=False) -
     return response[0]  # Actual data
 
 
-def execute_post(url: str, payload: dict, headers: list = None, content_type='application/json'):
-    """Executes post to the same DeviceHub but in a new connection."""
+def execute_post(absolute_path_ref: str, payload: dict, headers: list = None, content_type='application/json'):
+    """
+        Executes post to the same DeviceHub but in a new connection.
+        :param absolute_path_ref: The absolute-path reference of the URI (https://tools.ietf.org/html/rfc3986#section-4.2)
+    """
     data = json.dumps(payload)
     with BlankG():
-        response = current_app.test_client().post(url, data=data, content_type=content_type, headers=headers or [])
+        response = current_app.test_client().post(absolute_path_ref, data=data, content_type=content_type, headers=headers or [])
     data = json.loads(response.data.decode())
     if not (200 <= response._status_code < 300):
-        data['url'] = url
+        data['url'] = absolute_path_ref
         raise InnerRequestError(response._status_code, data)
     else:
         return data
 
 
-def execute_get(url: str, token: bytes = None) -> dict:
+def execute_get(absolute_path_ref: str, token: bytes = None) -> dict:
     """
-    :param url:
-    :param token: The *hashed* token.
+        :param absolute_path_ref: The absolute-path reference of the URI (https://tools.ietf.org/html/rfc3986#section-4.2)
+        :param token: The *hashed* token.
     """
     http_authorization = request.headers.environ['HTTP_AUTHORIZATION'] if token is None else b'Basic ' + token
     with BlankG():
-        response = current_app.test_client().get(url, environ_base={'HTTP_AUTHORIZATION': http_authorization})
+        response = current_app.test_client().get(absolute_path_ref, environ_base={'HTTP_AUTHORIZATION': http_authorization})
     data = json.loads(response.data.decode())  # It is useless to use json_util
     if not (200 <= response._status_code < 300):
-        data['url'] = url
+        data['url'] = absolute_path_ref
         raise InnerRequestError(response._status_code, data)
     else:
         return data

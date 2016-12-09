@@ -33,7 +33,8 @@ class Translator(BaseTranslator):
 
         Translation dictionaries are as follows:
         For generic translation dict: ['final_field_name'] = (transformer_method, 'original field name')
-        For specific translation dicts: ['resource type name']['final field name'] = (transformer_method, 'original field name')
+        For specific translation dicts:
+            ['resource type name']['final field name'] = (transformer_method, 'original field name')
         Where 'final field name' is the name of the field in the agent, 'original field name' is the field name
         in DeviceHub (only add it if final name and original name differ), transformer_method is one of the transformer
         methods in Translator, and 'resource type name' e.g. devices:Register.
@@ -42,7 +43,7 @@ class Translator(BaseTranslator):
 
     def __init__(self, config, generic_dict: dict = None, specific_dict: dict = None, **kwargs):
         """
-        Configures the translator. Once done, you can translate many resources as you want with :func `translate`:.
+        Configures the translator. Once done, you can translate many resources as you want with :py:meth:`.translate`:.
         :param config:
         :param generic_dict: Generic translation dictionary shared among resources.
         :param specific_dict: Specific translation dictionary divided per resource.
@@ -80,7 +81,8 @@ class Translator(BaseTranslator):
 
         return url
 
-    def for_all(self, method):
+    @staticmethod
+    def for_all(method):
         """Executes a transformer method for each value and returns a list of results"""
 
         def _loop(values: list) -> list:
@@ -88,7 +90,8 @@ class Translator(BaseTranslator):
 
         return _loop
 
-    def identity(self, value):
+    @staticmethod
+    def identity(value):
         """Returns the same value."""
         return value
 
@@ -113,7 +116,8 @@ class Translator(BaseTranslator):
             url = '{}/{}'.format(self.config['URL_PREFIX'], url)
         return self.config['BASE_URL_FOR_AGENTS'] + '/' + url
 
-    def inner_field(self, field: str):
+    @staticmethod
+    def inner_field(field: str):
         """Gets a field that is one level nested in a dict"""
 
         def _inner_field(value: dict):

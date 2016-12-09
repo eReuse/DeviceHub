@@ -1,10 +1,9 @@
-from flask import current_app
-
 from ereuse_devicehub.exceptions import StandardError
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.domain import Domain
 from ereuse_devicehub.resources.place.settings import PlaceSettings
+from flask import current_app
 
 
 class PlaceDomain(Domain):
@@ -43,11 +42,11 @@ class PlaceDomain(Domain):
         :return:
         """
         devices_to_remove_id = original - updated
-        children_to_remove_id = ComponentDomain.get_components_in_set(devices_to_remove_id)
+        children_to_remove_id = ComponentDomain.get_components_in_set(list(devices_to_remove_id))
         devices_to_remove_id |= children_to_remove_id
 
         devices_to_add_id = updated - original
-        children_to_add_id = ComponentDomain.get_components_in_set(devices_to_add_id)
+        children_to_add_id = ComponentDomain.get_components_in_set(list(devices_to_add_id))
         devices_to_add_id |= children_to_add_id
 
         for device_id in devices_to_remove_id:

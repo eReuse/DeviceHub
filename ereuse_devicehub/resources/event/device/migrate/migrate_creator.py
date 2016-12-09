@@ -2,7 +2,6 @@ from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.exceptions import DeviceNotFound
 from ereuse_devicehub.resources.event.device.snapshot.snapshot import Snapshot
-from flask import current_app
 
 
 class MigrateCreator(Snapshot):
@@ -24,7 +23,7 @@ class MigrateCreator(Snapshot):
         for component in self.components:
             self.get_add_remove(component, self.device)
         self._remove_nonexistent_components()
-        self.return_same_as()
+        self.generate_returned_same_as()
         return event_log + self.events.process()
 
     def get_tests_and_erasures(self, components):
@@ -74,8 +73,9 @@ class MigrateCreator(Snapshot):
         Snapshot).
 
         :param same_as_found: a boolean stating if `self.device` had a matching sameAs (sameAs was found in the DB)
-        and a list of sameAs
-        :param same_as_found_components: list of bools, each bool of the list represents a component (ordered equally)
+            and a list of sameAs
+        :param same_as_found_components: list of booleans,
+            each bool of the list represents a component (ordered equally)
         """
         if not same_as_found[0] and self.device['new']:
             self._append_unsecured(self.device, 'sameAs')
@@ -99,7 +99,15 @@ class MigrateCreator(Snapshot):
     def _update_same_as(device: dict, same_as: list):
         DeviceDomain.update_one_raw(device['_id'], {'$set': {'sameAs': same_as}})
 
-    def return_same_as(self):
+    def generate_returned_same_as(self):
+        """
+        Populates self.returned_same_as with a dict where the URL of devices in the caller agent as keys and a copy of
+        'sameAs' in this agent.
+
+        This value will be returned to the caller agent (see
+        :py:func:`ereuse_devicehub.resources.event.device.migrate.hooks.return_same_as`) which can use it to update
+        its 'sameAs' values with new references.
+        """
         for device, url in zip([self.device] + self.components, self.urls):
             device = DeviceDomain.get_one(device['_id'])
             same_as = set(device['sameAs'])

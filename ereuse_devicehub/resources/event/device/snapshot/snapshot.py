@@ -1,11 +1,11 @@
-from flask import g
-
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.exceptions import DeviceNotFound, NoDevicesToProcess
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.rest import execute_post_internal
 from ereuse_devicehub.utils import Naming
+from flask import g
+
 from .event_processor import EventProcessor
 
 
@@ -72,7 +72,7 @@ class Snapshot:
             }
             self.set_created_conditionally(register)
             event_log.append(execute_post_internal(Naming.resource(register['@type']), register))
-        except NoDevicesToProcess:  # As it is a custom exception we throw, it keeps being an exception through post_internal
+        except NoDevicesToProcess:
             pass
         for device in [self.device] + self.components:
             if 'hid' not in device and 'pid' not in device:

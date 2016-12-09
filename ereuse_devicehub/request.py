@@ -1,8 +1,7 @@
+from ereuse_devicehub.exceptions import StandardError
 from flask import Request, g
 from flask import json, current_app
 from flask.wrappers import _missing, _get_data
-
-from ereuse_devicehub.exceptions import StandardError
 
 PGP_MESSAGE = '-----BEGIN PGP SIGNED MESSAGE-----'
 

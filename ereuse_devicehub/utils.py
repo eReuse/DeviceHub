@@ -8,20 +8,20 @@ cache = Cache(config={'CACHE_TYPE': 'simple'})
 
 
 class Naming:
+    """
+    In DeviceHub there are many ways to name the same resource (yay!), this is because of all the different
+    types of schemas we work with. But no worries, we offer easy ways to change between naming conventions.
+
+    - TypeCase (or resource-type) is the one represented with '@type' and follow PascalCase and always singular.
+        This is the standard preferred one.
+    - resource-case is the eve naming, using the standard URI conventions. This one is tricky, as although the types
+        are represented in singular, the URI convention is to be plural (Event vs events), however just few of them
+        follow this rule (Snapshot [type] to snapshot [resource]). You can set which ones you want to change their
+        number.
+    - python_case is the one used by python for its folders and modules. It is underscored and always singular.
+    """
     TYPE_PREFIX = ':'
     RESOURCE_PREFIX = '_'
-
-    """
-        In DeviceHub there are many ways to name the same resource (yay!), this is because of all the different
-        types of schemas we work in. But no worries, we offer easy ways to change between naming conventions.
-
-        - TypeCase (or resource-type) is the one represented with '@type' and follow PascalCase and always singular. This is the standard preferred one.
-        - resource-case is the eve naming, using the standard URI conventions. This one is tricky, as although the types
-        are represented in singular, the URI convention is to be plural (Event vs events), however just few of them
-        follow this rule (Snapshot [type] to snapshot [resource]). You can set which ones you want to change their number.
-        - python_case is the one used by python for its folders and modules. It is underscored and always singular.
-
-    """
 
     @staticmethod
     def resource(string: str):
@@ -185,7 +185,8 @@ def coerce_type(fields: dict):
 
 
 def get_header_link(resource_type: str) -> ():
-    return 'Link', '<http://www.ereuse.org/onthology/' + resource_type + '.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+    return 'Link', '<http://www.ereuse.org/onthology/' + resource_type + \
+           '.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
 
 
 class ClassProperty(property):

@@ -1,4 +1,3 @@
-from ereuse_devicehub.utils import Naming
 from flask import current_app as app
 
 

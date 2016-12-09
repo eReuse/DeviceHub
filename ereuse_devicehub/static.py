@@ -1,8 +1,7 @@
 import os
 
-from flask import send_from_directory
-
 from ereuse_devicehub.flask_decorators import cache
+from flask import send_from_directory
 
 
 @cache(expires=604800)

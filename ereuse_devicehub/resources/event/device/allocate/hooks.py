@@ -1,4 +1,3 @@
-import pymongo
 from ereuse_devicehub.resources.account.domain import AccountDomain, UserNotFound
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device.deallocate.deallocate import AlreadyAllocated

@@ -17,12 +17,14 @@ def execute_post_internal(resource: str, payload: dict, skip_validation=False) -
 
 def execute_post(absolute_path_ref: str, payload: dict, headers: list = None, content_type='application/json'):
     """
-        Executes post to the same DeviceHub but in a new connection.
-        :param absolute_path_ref: The absolute-path reference of the URI (https://tools.ietf.org/html/rfc3986#section-4.2)
+    Executes post to the same DeviceHub but in a new connection.
+    :param absolute_path_ref: The absolute-path reference of the URI;
+        `ref <https://tools.ietf.org/html/rfc3986#section-4.2>`_.
     """
     data = json.dumps(payload)
     with BlankG():
-        response = current_app.test_client().post(absolute_path_ref, data=data, content_type=content_type, headers=headers or [])
+        response = current_app.test_client().post(absolute_path_ref, data=data, content_type=content_type,
+                                                  headers=headers or [])
     data = json.loads(response.data.decode())
     if not (200 <= response._status_code < 300):
         data['url'] = absolute_path_ref
@@ -33,12 +35,14 @@ def execute_post(absolute_path_ref: str, payload: dict, headers: list = None, co
 
 def execute_get(absolute_path_ref: str, token: bytes = None) -> dict:
     """
-        :param absolute_path_ref: The absolute-path reference of the URI (https://tools.ietf.org/html/rfc3986#section-4.2)
-        :param token: The *hashed* token.
+    :param absolute_path_ref: The absolute-path reference of the URI;
+        `ref <https://tools.ietf.org/html/rfc3986#section-4.2>`_.
+    :param token: The *hashed* token.
     """
     http_authorization = request.headers.environ['HTTP_AUTHORIZATION'] if token is None else b'Basic ' + token
     with BlankG():
-        response = current_app.test_client().get(absolute_path_ref, environ_base={'HTTP_AUTHORIZATION': http_authorization})
+        response = current_app.test_client().get(absolute_path_ref,
+                                                 environ_base={'HTTP_AUTHORIZATION': http_authorization})
     data = json.loads(response.data.decode())  # It is useless to use json_util
     if not (200 <= response._status_code < 300):
         data['url'] = absolute_path_ref
@@ -63,13 +67,14 @@ def execute_delete(resource: str, identifier):
 
 class BlankG:
     """
-        Each request is an addition to a Flask 'app stack'. When performing internal requests (like test_client)
-        things like G are inherited from parent's stack. This means that we leak those global variables to the new
-        requests. This intentional and gome in some scenarios, but it interferes with account and the database usage.
+    Each request is an addition to a Flask 'app stack'. When performing internal requests (like test_client)
+    things like G are inherited from parent's stack. This means that we leak those global variables to the new
+    requests. This intentional and gome in some scenarios, but it interferes with account and the database usage.
 
-        Use this method with a 'with' statement to remove those global variables that should not get passed to a
-        new request; in concrete the actual user and the mongo prefix.
+    Use this method with a 'with' statement to remove those global variables that should not get passed to a
+    new request; in concrete the actual user and the mongo prefix.
     """
+
     # The with statement: http://preshing.com/20110920/the-python-with-statement-by-example/
     # G gets inherited by child requests (not siblings): http://stackoverflow.com/a/33382823/2710757
 

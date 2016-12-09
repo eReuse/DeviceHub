@@ -1,7 +1,6 @@
 import os
 
 import requests
-
 from ereuse_devicehub.default_settings import GRD_DOMAIN
 from ereuse_devicehub.security.request_auth import Auth
 from ereuse_devicehub.tests import TestStandard

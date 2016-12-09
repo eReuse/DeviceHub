@@ -3,7 +3,6 @@ import string
 
 from ereuse_devicehub.resources.account.domain import AccountDomain, UserNotFound
 from ereuse_devicehub.resources.account.role import Role
-from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.rest import execute_post_internal
 from flask import current_app as app
 from passlib.handlers.sha2_crypt import sha256_crypt
@@ -77,7 +76,8 @@ def _add_or_get_inactive_account_id(event, field_name):
         try:
             # We look for just accounts that share our database
             _id = AccountDomain.get_one({
-                'email': event[field_name]['email'] # 'databases': {'$in': AccountDomain.actual['databases']} todo review this
+                'email': event[field_name]['email']
+                # 'databases': {'$in': AccountDomain.actual['databases']} todo review this
             })['_id']
         except UserNotFound:
             event[field_name]['databases'] = [AccountDomain.get_requested_database()]

@@ -17,7 +17,7 @@ class DeviceEventDomain(EventDomain):
         },
         'ToPrepare': {
             'fa': 'fa-wrench',
-            'short_description': 'The devices need some maintenance, some kind of testing or preparation... to be ready',
+            'short_description': 'The devices need some maintenance, some kind of testing or preparation to be ready',
             'sink': 1
         },
         'ToRepair': {

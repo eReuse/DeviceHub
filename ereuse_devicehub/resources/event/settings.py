@@ -7,7 +7,6 @@ from ereuse_devicehub.validation.coercer import Coercer
 from ereuse_devicehub.validation.validation import ALLOWED_WRITE_ROLES
 
 
-
 class Event(Thing):
     date = {
         'type': 'datetime',  # User specified date when the event was triggered

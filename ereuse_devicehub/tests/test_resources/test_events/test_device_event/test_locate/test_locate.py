@@ -72,6 +72,6 @@ class TestLocate(TestDeviceEvent):
         self.assertIn('place', locate)
         self.assertEqual(locate['place'], place['_id'])
         # Let's assure that the materializations of computerMonitor are correct
-        computerMonitor, _ = self.get(self.DEVICES, '', snapshot['device'])
-        self.assertEqual(place['_id'], computerMonitor['place'])
-        assert_that(computerMonitor['events'][0]).is_subset_of(locate)
+        computer_monitor, _ = self.get(self.DEVICES, '', snapshot['device'])
+        self.assertEqual(place['_id'], computer_monitor['place'])
+        assert_that(computer_monitor['events'][0]).is_subset_of(locate)

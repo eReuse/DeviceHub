@@ -18,6 +18,13 @@ class MigrateSubmitter(Submitter):
 
 
 class MigrateTranslator(Translator):
+    """
+    Translator for Migrate.
+
+    Note that this translator is different from others in the sense that does not use the same translation technique,
+    the translation dicts, but a more simpler one, that better fits its situation.
+    """
+
     def _translate(self, resource: dict) -> dict:
         return {
             '@type': 'devices:Migrate',
@@ -28,7 +35,7 @@ class MigrateTranslator(Translator):
         }
 
     def get_device(self, device_id: str) -> dict:
-        """Gets the device ready to be sent to another database"""
+        """Gets the device ready to be sent to another database."""
         # It is just so easy to load stuff (through permissions, etc) through Python-Eve's API
         embedded = json.dumps({'components': 1})
         projection = json.dumps({'events': 0})
@@ -42,6 +49,7 @@ class MigrateTranslator(Translator):
 
     @staticmethod
     def clean_device(device: dict):
+        """Removes values that are not supposed to be sent, like materialized or readonly ones."""
         schema = current_app.config['DOMAIN'][Naming.resource(device['@type'])]['schema']
         _id = device['_id']
         for field in copy.copy(device):

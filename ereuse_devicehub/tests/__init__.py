@@ -13,7 +13,6 @@ from ereuse_devicehub.utils import Naming
 from eve.methods.common import parse
 from eve.tests import TestMinimal
 from flask.ext.pymongo import MongoClient
-from passlib.handlers.sha2_crypt import sha256_crypt
 
 
 class TestBase(TestMinimal):
@@ -30,7 +29,8 @@ class TestBase(TestMinimal):
         self.app = DeviceHub()
         self.prepare()
 
-    def set_settings(self, settings):
+    @staticmethod
+    def set_settings(settings):
         settings.MONGO_DBNAME = 'devicehubtest'
         settings.DATABASES = 'dht1', 'dht2'  # Some tests use 2 databases
         settings.DHT1_DBNAME = 'dht1_'
@@ -276,10 +276,12 @@ class TestStandard(TestBase):
         mounted = self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), mounted)
         return [self.get(self.EVENTS, '', event['events'][0])[0]['device'] for event in [vaio, vostro, xps13, mounted]]
 
-    def device_and_place_contain_each_other(self, device_id: str, place_id: str) -> list:
+    def device_and_place_contain_each_other(self, device_id: str, place_id: str):
         """
         Checks that the materialization of device-place is correct. This is, the place has a reference to a device
-        and the device has a reference to a place. If the device has components, this checks the same for the components.
+        and the device has a reference to a place. If the device has components,
+        this checks the same for the components.
+
         :param device_id:
         :param place_id:
         :return:

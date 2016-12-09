@@ -65,7 +65,7 @@ class DeviceHubValidator(Validator):
             self._error(field, errors.ERROR_COERCION_FAILED.format(field))
         return value
 
-    def _move(self, to, value, field, definition):
+    def _move(self, to, value, field, _):
         """
         Moves one field to another one.
 
@@ -91,7 +91,8 @@ class DeviceHubValidator(Validator):
                     self._error(next(iter(field_names)),
                                 'You need at least one of the following: {}'.format(field_names))
 
-    def _coerce_type(self, fields):
+    @staticmethod
+    def _coerce_type(fields):
         """
          A coerce method masked in a validation one, as coerce has some bugs in Cerberus 0.96.
 
@@ -215,13 +216,14 @@ class DeviceHubValidator(Validator):
     def _validate_description(self, nothing, field, value):
         pass
 
+    # noinspection PyPep8Naming
     def _validate_unitCode(self, nothing, field, value):
         pass
 
     def _validate_doc(self, nothing, field, value):
         pass
 
-    def _validate_get_from_data_relation_or_create(self, nothing, field, value):
+    def _validate_get_from_data_relation_or_create(self, _, field, value):
         """
         Python-eve is incapable of serializing to objectid when type==[objectid, dict], rejecting the entering string.
         To make it work we add [objectid, dict, string] so the entering string is accepted and then we perform
@@ -289,4 +291,3 @@ class DeviceHubValidator(Validator):
         from ereuse_devicehub.resources.account.domain import AccountDomain
         if AccountDomain.actual['role'] < Role(Role.SUPERUSER):
             super(DeviceHubValidator, self)._validate_required_fields(document)
-

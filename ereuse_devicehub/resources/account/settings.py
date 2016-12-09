@@ -42,14 +42,14 @@ class Account(Thing):
     organization = {
         'type': 'string',
         'sink': 1,
-        'description': 'The name of the organization the account is in. Organizations can be inside other organizations.'
+        'description': 'The name of the organization the account is in. Organizations can be inside others.'
     }
     active = {
         'type': 'boolean',
         'default': True,
         'sink': -1,
         'description': 'Activate the account so you can start using it.',
-        'doc': 'Inactive accounts cannot login, and they are created through regular events. `Employee` or below cannot see this parameter.'
+        'doc': 'Inactive accounts cannot login, and they are created through regular events.'
     }
     blocked = {
         'type': 'boolean',

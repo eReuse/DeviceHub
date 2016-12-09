@@ -65,7 +65,7 @@ class TestSnapshot(TestEvent):
         elif type(component[key]) is str:
             import uuid
             component[key] = uuid.uuid4().hex[:6].upper()
-        events = self.post_snapshot_get_full_events(input_snapshot, 3)
+        self.post_snapshot_get_full_events(input_snapshot, 3)
 
     @staticmethod
     def get_num_events(snapshot):
@@ -158,7 +158,7 @@ class TestSnapshot(TestEvent):
         else:
             self.assertTrue(False)  # We shouldn't we here, let's raise something
 
-    def test_snapshot_real_devices(self) -> list:
+    def test_snapshot_real_devices(self):
         # todo the processor of mounted.json and xps13 generates the same hid, as S/N is 'To be filled...'
         for file_name in self.REAL_DEVICES:
             snapshot = self.get_fixture(self.SNAPSHOT, file_name)

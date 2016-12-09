@@ -2,7 +2,6 @@ import copy
 
 import iso3166
 import pymongo
-
 from ereuse_devicehub.resources.resource import ResourceSettings
 from ereuse_devicehub.resources.schema import Thing
 

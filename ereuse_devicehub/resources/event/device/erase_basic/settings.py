@@ -1,4 +1,5 @@
 from ereuse_devicehub.resources.event.device.settings import parent, EventWithOneDevice, EventSubSettingsOneDevice
+
 from .step_settings import step
 
 

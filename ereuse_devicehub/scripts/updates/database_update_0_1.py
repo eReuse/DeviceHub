@@ -26,7 +26,8 @@ class DatabaseUpdate01:
                 self.re_materialize_owners()
                 print('Database {} successfully updated.'.format(AccountDomain.get_requested_database()))
 
-    def set_prefix(self):
+    @staticmethod
+    def set_prefix():
         for event in DeviceEventDomain.get({}):
             try:
                 resource_type = DeviceEventDomain.new_type(event['@type'])
@@ -36,13 +37,15 @@ class DatabaseUpdate01:
                 DeviceEventDomain.update_raw(event['_id'], {'$set': {'@type': resource_type}})
         print('Events prefixed.')
 
-    def re_materialize_events(self):
+    @staticmethod
+    def re_materialize_events():
         DeviceDomain.update_many_raw({}, {'$set': {'events': []}})
         for event in DeviceEventDomain.get({'$query': {}, '$orderby': {'_created': pymongo.ASCENDING}}):
             MaterializeEvents.materialize_events(Naming.resource(event['@type']), [event])
         print('Events re-materialized.')
 
-    def re_materialize_owners(self):
+    @staticmethod
+    def re_materialize_owners():
         for device in DeviceDomain.get({'@type': 'Computer'}):
             materialize_owners([device['_id']])
         print('Owners re-materialized in devices.')

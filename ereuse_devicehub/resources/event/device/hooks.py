@@ -77,7 +77,8 @@ def set_place(resource_name: str, events: list):
             if 'place' in event:
                 place = PlaceDomain.get_one(event['place'])
                 device = [event['device']] if 'device' in event else []
-                execute_patch('places', {'devices': list(set(place['devices'] + event.get('devices', []) + device))}, event['place'])
+                execute_patch('places', {'devices': list(set(place['devices'] + event.get('devices', []) + device))},
+                              event['place'])
 
 
 def unset_place(resource_name: str, event: dict):

@@ -38,7 +38,8 @@ class RDFS(Resource):
         'teaser': False
     }
     _settings = {
-        'prefix': None, """JSON-LD prefix to use in type. Override it to use prefix for the class."""
+        'prefix': None,
+        """JSON-LD prefix to use in type. Override it to use prefix for the class."""
         'abstract': True,
         'attributes_to_remove': ('_settings', '_import_schemas', '_types', 'resource_types',
                                  'type_name', 'types', 'resource_name')
@@ -161,7 +162,7 @@ class Thing(RDFS):
     sameAs = {
         'type': 'list',
         'teaser': False,
-        #'readonly': True, todo should be readonly
+        # 'readonly': True, todo should be readonly
         'unique': True,
     }
     description = {
@@ -170,4 +171,3 @@ class Thing(RDFS):
         'sink': -4,
         'description': 'Full long description'
     }
-

@@ -4,7 +4,7 @@ from ereuse_devicehub.resources.event.device.settings import parent, EventWithOn
 class TestHardDrive(EventWithOneDevice):
     type = {
         'type': 'string',
-        #'allowed': ['Short Offline', 'Extended Offline']
+        # 'allowed': ['Short Offline', 'Extended Offline']
     }
     status = {
         'type': 'string',
@@ -27,9 +27,7 @@ class TestHardDrive(EventWithOneDevice):
     }
     error = {
         'type': 'boolean',
-        'required': True,
-        # IF_VALUE_REQUIRE: (False, ('type', 'lifetime', 'firstError')) todo this can just be done when hard-drive is not
-        # nested, so we will be able to activate it when, in snapshot, we can abort TestHardDrive event
+        'required': True
     }
     parent = parent
 

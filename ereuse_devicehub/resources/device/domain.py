@@ -1,10 +1,9 @@
-from eve.utils import document_etag
-from flask import current_app
-
 from ereuse_devicehub.resources.device.exceptions import DeviceNotFound
 from ereuse_devicehub.resources.device.settings import DeviceSettings
 from ereuse_devicehub.resources.domain import Domain, ResourceNotFound
 from ereuse_devicehub.utils import Naming
+from eve.utils import document_etag
+from flask import current_app
 
 
 class DeviceDomain(Domain):

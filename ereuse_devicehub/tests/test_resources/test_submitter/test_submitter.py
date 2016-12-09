@@ -1,7 +1,6 @@
 from unittest.mock import MagicMock
 
 from assertpy import assert_that
-
 from ereuse_devicehub.tests import TestStandard
 
 
@@ -44,9 +43,10 @@ class TestSubmitter(TestStandard):
             del resource['dhDate']
             assert_that(grd_resource).is_subset_of(resource)
             assert_that(url).is_equal_to(grd_url)
+
         return _mock_post
 
-    def test_snapshot(self):
+    def _test_snapshot(self):
         # We load the expected result that is sent to GRD
         grd_resource = self.get_fixture(self.SNAPSHOT, 'vaio_grd')
         grd_url = 'https://sandbox.ereuse.org/api/devices/register'  # todo ensure requeriment

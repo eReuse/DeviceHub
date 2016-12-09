@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from ereuse_devicehub.exceptions import InnerRequestError
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.domain import EventNotFound
@@ -15,7 +13,7 @@ def on_insert_snapshot(items):
     for item in items:
         if 'label' in item:
             item['device']['labelId'] = item['label']  # todo as we do not update the values of a device,
-        # todo we will never udpate, thus materializing new label ids
+        # todo we will never update, thus materializing new label ids
         snapshot = Snapshot(item['device'], item['components'], item.get('created'))
         item['events'] = [new_events['_id'] for new_events in snapshot.execute()]
         item['device'] = item['device']['_id']
@@ -34,12 +32,12 @@ def save_request(items):
     items[0]['request'] = request.data.decode()
 
 
-def materialize_test_hard_drives(snapshots: list):
+def materialize_test_hard_drives(_):
     for i, test_hard_drives in g.snapshot_test_hard_drives:
         _materialize_event_in_device(test_hard_drives, 'tests')
 
 
-def materialize_erase_basic(snapshots: list):
+def materialize_erase_basic(_):
     for i, erase_basic in g.snapshot_basic_erasures:
         _materialize_event_in_device(erase_basic, 'erasures')
 
@@ -58,7 +56,7 @@ def set_secured(snapshots: list):
         snapshot['secured'] = g.trusted_json
 
 
-def delete_events(resource_name: str, snapshot: dict):
+def delete_events(_, snapshot: dict):
     """
     Deletes the events that were created with the snapshot.
     """

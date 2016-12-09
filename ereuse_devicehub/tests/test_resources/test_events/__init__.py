@@ -18,7 +18,8 @@ class TestEvent(TestStandard):
 
     def assertSimilarDevices(self, input_devices: list, created_devices: list, same_amount_of_devices=False):
         """
-        Every created_device device must seem equal (same fields, except computed ones as hid...) as one of the input devices.
+        Every created_device device must seem equal (same fields, except computed ones as hid...)
+        as one of the input devices.
 
         There must be one input device per created device.
         :param input_devices:

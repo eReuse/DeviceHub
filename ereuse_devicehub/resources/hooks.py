@@ -1,25 +1,21 @@
 from datetime import datetime
 
-from flask import current_app, json
-from requests import Response
-from werkzeug.local import LocalProxy
-
 from ereuse_devicehub.exceptions import RedirectToClient
 from ereuse_devicehub.utils import get_header_link
+from flask import current_app, json
+from requests import Response
 
-def redirect_on_browser(resource, request, lookup):
+
+def redirect_on_browser(_, request, __):
     """
     Redirects the browsers to the client webApp.
-    :param resource:
     :param request:
-    :param lookup:
-    :return:
     """
     if request.accept_mimetypes.accept_html:
         raise RedirectToClient()
 
 
-def set_response_headers_and_cache(resource: str, request: LocalProxy, payload: Response):
+def set_response_headers_and_cache(resource: str, _, payload: Response):
     """
     Sets JSON Header link referring to @type
     """
@@ -43,5 +39,3 @@ def set_date(name: str, resources: dict):
         if name != 'devices_snapshot' and name != 'devices_register':
             # Snapshot and Register will call this method on it's right time, setting name to None
             resource['_created'] = resource['_updated'] = resource.pop('created', datetime.utcnow())
-
-

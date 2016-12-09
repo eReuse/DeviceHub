@@ -48,6 +48,7 @@ class AgentAuth(Auth):
 
         Note that 'self' is a reserved keyword that is interpreted as the own DeviceHub.
     """
+
     def __init__(self, base_url: str, **kwargs):
         if current_app.config['BASE_URL_FOR_AGENTS'] in base_url:
             base_url = 'self'

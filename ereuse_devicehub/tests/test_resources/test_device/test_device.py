@@ -19,8 +19,10 @@ class TestDevice(TestStandard):
         vaio, _ = self.get(self.DEVICES, '', devices[0])
         account_id = str(self.account['_id'])
         materialized = [
-            {'@type': DeviceEventDomain.new_type('Snapshot'), 'secured': False, 'byUser': account_id, 'incidence': False},
-            {'@type': DeviceEventDomain.new_type('Register'), 'secured': False, 'byUser': account_id, 'incidence': False},
+            {'@type': DeviceEventDomain.new_type('Snapshot'), 'secured': False, 'byUser': account_id,
+             'incidence': False},
+            {'@type': DeviceEventDomain.new_type('Register'), 'secured': False, 'byUser': account_id,
+             'incidence': False},
         ]
         fields = {'@type', '_id', 'byUser', 'incidence', 'secured', '_updated'}
         self.assertIn('events', vaio)

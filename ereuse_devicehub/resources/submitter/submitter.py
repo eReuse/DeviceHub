@@ -1,11 +1,10 @@
 import requests
-from flask import json
-from requests import HTTPError
-from werkzeug.urls import url_parse, URL, url_unparse
-
 from ereuse_devicehub.resources.submitter.translator import Translator
 from ereuse_devicehub.rest import execute_get, execute_post
 from ereuse_devicehub.security.request_auth import Auth
+from flask import json
+from requests import HTTPError
+from werkzeug.urls import url_parse, URL, url_unparse
 
 
 class Submitter:
@@ -64,7 +63,9 @@ class Submitter:
         There are two advantages over _post_external:
         a) there is no need to know the actual base-url for the agent (interesting for testing)
         b) it is more efficient
-        :param absolute_path_ref: The absolute-path reference of the URI (https://tools.ietf.org/html/rfc3986#section-4.2)
+
+        :param absolute_path_ref: The absolute-path reference of the URI,
+            `ref <https://tools.ietf.org/html/rfc3986#section-4.2>`_.
         :return:
         """
         email, password = self.config['AGENT_ACCOUNTS']['self']

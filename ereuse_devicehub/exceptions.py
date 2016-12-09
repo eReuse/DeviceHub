@@ -80,5 +80,3 @@ class RedirectToClient(Exception):
 
 class RequestAnother(BasicError):
     """Redirects to DELETE Snapshot"""
-
-

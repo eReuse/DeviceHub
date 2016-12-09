@@ -29,7 +29,8 @@ class TestResource(TestStandard):
 
     def test_resource(self):
         """
-        Creates a resource endpoint extending ResourceSettings and RDFS, checking that both processes are done correctly,
+        Creates a resource endpoint extending ResourceSettings and RDFS,
+        checking that both processes are done correctly,
         performing requests to the endpoint.
         """
         # The endpoint is defined in setUp and created as part of the regular workflow in DeviceHub.

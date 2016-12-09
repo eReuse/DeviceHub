@@ -1,9 +1,8 @@
-from eve.auth import TokenAuth
-from flask import g, current_app
-
 from ereuse_devicehub.exceptions import UnauthorizedToUseDatabase
 from ereuse_devicehub.resources.account.domain import AccountDomain, NotADatabase
 from ereuse_devicehub.resources.account.role import Role
+from eve.auth import TokenAuth
+from flask import g, current_app
 
 
 class RolesAuth(TokenAuth):
@@ -58,7 +57,8 @@ class RolesAuth(TokenAuth):
             except KeyError:
                 raise e
         else:
-            if force or (requested_database in AccountDomain.actual['databases'] or AccountDomain.actual['role'] == Role.SUPERUSER):
+            if force or (requested_database in AccountDomain.actual['databases']
+                         or AccountDomain.actual['role'] == Role.SUPERUSER):
                 self.set_mongo_prefix(requested_database.replace("-", "").upper())
             else:
                 raise UnauthorizedToUseDatabase()

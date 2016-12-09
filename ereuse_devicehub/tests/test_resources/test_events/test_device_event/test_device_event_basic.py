@@ -8,6 +8,7 @@ class TestDeviceEventBasic(TestBase):
     """
         Tests that take care of the creation and configuration of device events.
     """
+
     def test_creation(self):
         """
         Tests that device events have been created correctly, taking special care of:
@@ -24,7 +25,7 @@ class TestDeviceEventBasic(TestBase):
         assert_that(self.domain).contains_key(*events)
         # Type of snapshot should be 'devices:Snapshot'
         snapshot = self.domain['{}{}{}'.format('devices', Naming.RESOURCE_PREFIX, 'snapshot')]
-        assert_that(snapshot['schema']['@type']['allowed'])\
+        assert_that(snapshot['schema']['@type']['allowed']) \
             .is_equal_to({'{}{}{}'.format('devices', Naming.TYPE_PREFIX, 'Snapshot')})
         devices = self.domain['devices']
         # And any other type not subclass from DeviceEvent should be without prefix

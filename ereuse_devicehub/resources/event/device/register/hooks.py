@@ -12,14 +12,15 @@ from flask import current_app as app
 
 def post_devices(registers: list):
     """
-    Main function for Register. For the given devices, POST the new ones.
-
-    If there is an unexpected error (device has a bad field, for example), it undoes all posted devices. In db terms,
-    the commit is all the registers.
+    Main function for Register. For the given devices, POST the new ones. This method rollbacks the database when
+    raising exceptions, like when no device has been POSTed.
 
     If the function is called by post_internal(), as the method keeps the reference of the passed in devices, the
     caller will see how their devices are replaced by the db versions, plus a 'new' property acting as a flag
     to indicate if the device is new or not.
+
+    If a device exists, the input device is replaced by the version of the database, loosing any change the
+    input device was introducing (except benchmarks, which are updated). See `_execute_register` for more info.
 
     :raise InnerRequestError: for any error provoked by a failure in the POST of a device (except if the device already
         existed). It carries the original error sent by the POST.

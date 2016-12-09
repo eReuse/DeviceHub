@@ -1,12 +1,10 @@
 import json
 import sys
-from pprint import pprint
-
-from pymongo import MongoClient
 
 from ereuse_devicehub.exceptions import StandardError
-from ereuse_devicehub.resources.account.hooks import hash_password, generate_token
 from ereuse_devicehub.resources.account.domain import AccountDomain
+from ereuse_devicehub.resources.account.hooks import hash_password, generate_token
+from pymongo import MongoClient
 
 
 def create_account(email: str, password: str, databases: list,

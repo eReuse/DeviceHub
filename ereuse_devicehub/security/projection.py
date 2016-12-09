@@ -1,6 +1,5 @@
-from flask import current_app as app
-
 from ereuse_devicehub.resources.account.domain import AccountDomain
+from flask import current_app as app
 
 GET_PROJECTION_BLACKLIST = 'get_projection_blacklist'
 GET_PROJECTION_WHITELIST = 'get_projection_whitelist'
@@ -39,7 +38,7 @@ def project(resource: str, item: dict):
     if 'get_projection_blacklist' in app.config['DOMAIN'][resource]:  # We take note of the blacklisted fields
         blacklist = app.config['DOMAIN'][resource]['get_projection_blacklist']
         for role, fields in blacklist.items():
-            if '*' == role or AccountDomain.actual['role'] <= role:  # Comparing a role means comparing its permission grade
+            if '*' == role or AccountDomain.actual['role'] <= role:
                 delete_fields += fields
     if 'get_projection_whitelist' in app.config['DOMAIN'][resource]:  # We remove from the blacklist the white ones
         for role, fields in app.config['DOMAIN'][resource]['get_projection_whitelist'].items():

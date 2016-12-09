@@ -11,6 +11,7 @@ class DeviceEvent(Event):
         # 'anyof': [{'required': True}, {'dependencies': ['place']}]  # me OR places
     }
 
+
 settings = DeviceEvent._settings.copy()
 settings.update({'url': 'devices'})
 settings.update(prefix)
@@ -27,6 +28,8 @@ class EventWithOneDevice(DeviceEvent):
         },
         'required': True
     }
+
+
 EventWithOneDevice._settings = dict(Event._settings, **prefix)
 
 
@@ -43,6 +46,8 @@ class EventWithDevices(DeviceEvent):
         },
         'required': True
     }
+
+
 EventWithDevices._settings = EventWithOneDevice._settings
 
 place = {
@@ -103,5 +108,3 @@ class EventSubSettingsOneDevice(EventSubSettings):
 
 class EventSubSettingsMultipleDevices(EventSubSettings):
     _schema = False
-
-

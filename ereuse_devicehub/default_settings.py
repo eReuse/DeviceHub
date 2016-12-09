@@ -28,7 +28,10 @@ BASE_URL_FOR_AGENTS = 'https://devicehub.ereuse.org'
 DATABASES = 'db1',
 """Sets the name of the databases, as appear in the URL. This is the 'mongoDB prefix of eve."""
 DB1_DBNAME = 'dh_db1'  # The value is the name used in mongoDB for the database.
-"""Sets the name of the database, as it is stored in mongoDB. Each database set in 'DATABASES' needs to have this variable."""
+"""
+Sets the name of the database, as it is stored in mongoDB. Each database set in 'DATABASES'
+needs to have this variable.
+"""
 MONGO_DBNAME = 'dh__accounts'
 """
     Name of the central DB used only to store resources set with
@@ -62,7 +65,8 @@ GRD_DOMAIN = 'https://sandbox.ereuse.org'
 THREADS_PER_PAGE = 2
 BULK_ENABLED = False  # Some events cannot work with it todo fix
 CSRF_ENABLED = True
-IF_MATCH = False  # We do not need concurrency control for PUT (if true, we need to provide an etag (include it in x-headers!))
+# We do not need concurrency control for PUT (if true, we need to provide an etag (include it in x-headers!))
+IF_MATCH = False
 XML = False  # Will probably cause bugs
 # 12 hours of cache for /schema, resources have their own cache in their ResourceSettings
 # See https://www.mnot.net/cache_docs/ for more info with cache

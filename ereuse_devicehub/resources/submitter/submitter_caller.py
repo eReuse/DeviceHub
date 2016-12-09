@@ -1,12 +1,11 @@
 from multiprocessing import Process, Queue
 
-from eve.methods.post import post_internal
-from flask import json
-from pymongo.errors import DuplicateKeyError
-
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.submitter.submitter import ThreadedSubmitter
 from ereuse_devicehub.utils import get_last_exception_info
+from eve.methods.post import post_internal
+from flask import json
+from pymongo.errors import DuplicateKeyError
 
 
 class SubmitterCaller:
@@ -62,7 +61,8 @@ class SubmitterCaller:
             account['databases'] = app.config['DATABASES']
             if app.data.find_one_raw('accounts', {'email': account['email']}) is None:
                 try:
-                    post_internal('accounts', dict(account), True)  # If we validate, RolesAuth._set_database changes our db
+                    post_internal('accounts', dict(account),
+                                  True)  # If we validate, RolesAuth._set_database changes our db
                 except DuplicateKeyError:
                     pass
         response = app.test_client().post('login', data=json.dumps(account), content_type='application/json')

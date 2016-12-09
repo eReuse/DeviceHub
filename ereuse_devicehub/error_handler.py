@@ -1,9 +1,8 @@
-from flask import Response, redirect as flask_redirect, request
-from flask.json import jsonify
-
-from ereuse_devicehub.exceptions import BasicError, RedirectToClient, RequestAnother
+from ereuse_devicehub.exceptions import BasicError, RedirectToClient
 from ereuse_devicehub.flask_decorators import crossdomain
 from ereuse_devicehub.utils import get_header_link
+from flask import Response, redirect as flask_redirect, request
+from flask.json import jsonify
 
 
 class ErrorHandlers:

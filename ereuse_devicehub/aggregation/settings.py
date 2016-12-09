@@ -1,9 +1,8 @@
+from ereuse_devicehub.aggregation.aggregation import Aggregation, AggregationError
+from ereuse_devicehub.flask_decorators import crossdomain, cache
 from eve.auth import requires_auth
 from flask import jsonify
 from flask import request
-
-from ereuse_devicehub.aggregation.aggregation import Aggregation, AggregationError
-from ereuse_devicehub.flask_decorators import crossdomain, cache
 
 
 @cache(Aggregation.CACHE_TIMEOUT)

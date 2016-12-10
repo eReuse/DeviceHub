@@ -1,3 +1,4 @@
+from contextlib import suppress
 from multiprocessing import Process, Queue
 
 from ereuse_devicehub.resources.account.role import Role
@@ -60,11 +61,9 @@ class SubmitterCaller:
             account['@type'] = 'Account'
             account['databases'] = app.config['DATABASES']
             if app.data.find_one_raw('accounts', {'email': account['email']}) is None:
-                try:
+                with suppress(DuplicateKeyError):
                     post_internal('accounts', dict(account),
                                   True)  # If we validate, RolesAuth._set_database changes our db
-                except DuplicateKeyError:
-                    pass
         response = app.test_client().post('login', data=json.dumps(account), content_type='application/json')
         js = json.loads(response.data.decode())
         return js['token']

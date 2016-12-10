@@ -1,3 +1,5 @@
+from contextlib import suppress
+
 from ereuse_devicehub.resources.event.device.domain import DeviceEventDomain
 from ereuse_devicehub.resources.event.domain import EventNotFound
 from ereuse_devicehub.resources.place.domain import PlaceDomain, CannotDeleteIfHasEvent
@@ -23,9 +25,6 @@ def unset_place_in_devices(place):
 
 
 def avoid_deleting_if_has_event(item):
-    try:
+    with suppress(EventNotFound):
         DeviceEventDomain.get_one({'place': item['_id']})
-    except EventNotFound:
-        pass
-    else:
         raise CannotDeleteIfHasEvent()

@@ -1,3 +1,5 @@
+from contextlib import suppress
+
 from bson import json_util
 from ereuse_devicehub.exceptions import InnerRequestError
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
@@ -95,11 +97,8 @@ def _get_existing_device(e: InnerRequestError) -> dict:
         if field in e.body['_issues']:
             try:
                 for error in e.body['_issues'][field]:
-                    try:
+                    with suppress(ValueError, KeyError):
                         device = json_util.loads(error)['NotUnique']
-                    except (ValueError, KeyError):
-                        pass
-                    else:
                         break
             except (ValueError, KeyError):
                 raise DeviceNotFound()

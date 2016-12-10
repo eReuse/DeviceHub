@@ -1,3 +1,4 @@
+from contextlib import suppress
 from time import sleep
 
 from ereuse_devicehub.tests import TestStandard
@@ -31,11 +32,9 @@ class TestEvent(TestStandard):
             self.assertEqual(len(input_devices), len(created_devices))
         for created_device in created_devices:
             for input_device in input_devices:
-                try:
+                with suppress(AssertionError):
                     self.assertSimilarDevice(input_device, created_device)
                     break
-                except AssertionError:
-                    pass
             else:
                 self.assertTrue(False)  # Not found
 

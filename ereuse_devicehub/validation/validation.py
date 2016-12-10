@@ -1,4 +1,5 @@
 import copy
+from contextlib import suppress
 from distutils import version
 
 import validators
@@ -154,11 +155,9 @@ class DeviceHubValidator(Validator):
             self.document['isUidSecured'] = False
             if '_id' not in self.document:  # We do not validate here the unique constraint of _id
                 if 'parent' in self.document:
-                    try:
+                    with suppress(KeyError, DeviceNotFound):
                         component = ComponentDomain.get_similar_component(self.document, self.document['parent'])
                         self._error('model', json_util.dumps({'NotUnique': component}))
-                    except (KeyError, DeviceNotFound):
-                        pass
                 else:
                     # If device has no parent and no hid, user needs to: or provide _id or forcing creating it
                     if 'forceCreation' not in self.document or not self.document['forceCreation']:

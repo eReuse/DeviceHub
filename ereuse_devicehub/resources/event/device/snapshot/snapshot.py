@@ -1,3 +1,5 @@
+from contextlib import suppress
+
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.exceptions import DeviceNotFound, NoDevicesToProcess
@@ -64,7 +66,7 @@ class Snapshot:
         self.unsecured.append({'@type': device['@type'], 'type': resource_type, '_id': device['_id']})
 
     def register(self, event_log: list):
-        try:
+        with suppress(NoDevicesToProcess):
             register = {
                 '@type': DeviceEventDomain.new_type('Register'),
                 'device': self.device,
@@ -72,8 +74,6 @@ class Snapshot:
             }
             self.set_created_conditionally(register)
             event_log.append(execute_post_internal(Naming.resource(register['@type']), register))
-        except NoDevicesToProcess:
-            pass
         for device in [self.device] + self.components:
             if 'hid' not in device and 'pid' not in device:
                 self._append_unsecured(device, 'model')

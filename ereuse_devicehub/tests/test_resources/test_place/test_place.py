@@ -1,4 +1,5 @@
 import copy
+from contextlib import suppress
 
 from ereuse_devicehub.tests import TestStandard
 
@@ -15,26 +16,18 @@ class TestPlace(TestStandard):
         :param place_id:
         :return:
         """
-        try:
+        with suppress(AssertionError):  # It is fine if the place does not exist
             place, _ = self.get(self.PLACES, place_id)
-            try:
+            with suppress(KeyError):
                 self.assertNotIn(device_id, place['devices'])
-            except KeyError:
-                pass
-        except AssertionError:
-            pass  # It is fine if the place does not exist
         device, _ = self.get(self.DEVICES, device_id)
-        try:
+        with suppress(KeyError):
             self.assertNotIn(place_id, device['place'])
-        except KeyError:
-            pass
         if 'components' in device:
             for component_id in device['components']:
                 component, _ = self.get(self.DEVICES, component_id)
-                try:
+                with suppress(KeyError):
                     self.assertNotIn(place_id, component['place'])
-                except KeyError:
-                    pass
 
     def test_create_place_with_coordinates(self):
         self.post_and_check(self.PLACES, self.place)

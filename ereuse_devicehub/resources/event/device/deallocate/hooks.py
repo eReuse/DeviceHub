@@ -1,3 +1,5 @@
+from contextlib import suppress
+
 from ereuse_devicehub.resources.account.domain import AccountDomain, UserNotFound
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 
@@ -11,7 +13,5 @@ def materialize_actual_owners_remove(events: list):
 
 def set_organization(deallocates: list):
     for deallocate in deallocates:
-        try:
+        with suppress(UserNotFound, KeyError):  # todo ensure organization is not always needed
             deallocate['fromOrganization'] = AccountDomain.get_one(deallocate['from'])['organization']
-        except (UserNotFound, KeyError):  # todo ensure organization is not always needed
-            pass

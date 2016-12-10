@@ -1,4 +1,5 @@
 import datetime
+from contextlib import suppress
 
 from ereuse_devicehub.resources.account.domain import AccountDomain, UserNotFound
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
@@ -25,7 +26,5 @@ def set_organization(receives: list):
     :return:
     """
     for receive in receives:
-        try:
+        with suppress(UserNotFound):
             receive['receiverOrganization'] = AccountDomain.get_one(receive['receiver']).get('organization')
-        except UserNotFound:
-            pass

@@ -1,3 +1,5 @@
+from contextlib import suppress
+
 import pymongo
 from ereuse_devicehub.exceptions import SchemaError, InnerRequestError
 from ereuse_devicehub.resources.account.domain import AccountDomain
@@ -129,15 +131,13 @@ def check_migrate(_, resource: dict):
     """
     devices = ([resource['device']] if 'device' in resource else []) + resource.get('devices', [])
     for device_id in devices:
-        try:
+        with suppress(EventNotFound):
             # todo can it be done with only one access to the DB for all devices (optimization)?
             # Note that this is executed for every post / delete /update / patch, resulting in queries = n of devices
             query = {'@type': Migrate.type_name, 'devices': {'$in': [device_id]}}
             last_migrate = DeviceEventDomain.get_one({'$query': query, '$orderby': {'_created': pymongo.DESCENDING}})
             if 'to' in last_migrate:
                 raise DeviceHasMigrated(device_id, last_migrate)
-        except EventNotFound:
-            pass
 
 
 def remove_devices_from_place(migrates: dict):

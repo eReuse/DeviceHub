@@ -6,6 +6,7 @@ import os
 import sys
 
 import gnupg
+from contextlib import suppress
 from ereuse_devicehub.aggregation.settings import aggregate_view
 from ereuse_devicehub.data_layer import DataLayer
 from ereuse_devicehub.error_handler import ErrorHandlers
@@ -149,20 +150,12 @@ class DeviceHub(Eve):
                     'url': settings['url'],
                     'use_default_database': settings['use_default_database']
                 }
-                try:
+                with suppress(KeyError):
                     schema['_settings']['fa'] = settings['fa']
-                except:
-                    pass
-                try:
+                with suppress(KeyError):
                     schema['_settings']['short_description'] = settings['short_description']
-                except:
-                    pass
-                try:
+                with suppress(KeyError):
                     schema['_settings']['sink'] = settings['sink']
-                except:
-                    pass
-                try:
+                with suppress(KeyError):
                     schema['_settings']['icon'] = settings['icon']
-                except:
-                    pass
             return send_response(None, (schemas,))

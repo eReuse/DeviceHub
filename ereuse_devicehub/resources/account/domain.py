@@ -53,11 +53,12 @@ class AccountDomain(Domain):
     # noinspection PyNestedDecorators
     @ClassProperty
     @classmethod
-    def actual_token(cls) -> bytes:
+    def actual_token(cls) -> str:
+        """Gets the **unhashed** token. Use `hash_token` to hash it."""
         x = request.headers.environ['HTTP_AUTHORIZATION']
         header = parse_authorization_header(x)
         if header is None:
-            raise BasicError('The Authorization header is not well written.', 400)
+            raise StandardError('The Authorization header is not well written: ' + x, 400)
         return header['username']
 
     @classmethod
@@ -112,4 +113,8 @@ class CannotImportKey(StandardError):
 
 
 class UserNotFound(ResourceNotFound):
+    pass
+
+
+class WrongHeader(StandardError):
     pass

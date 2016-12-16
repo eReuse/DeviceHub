@@ -34,16 +34,19 @@ def execute_post(absolute_path_ref: str, payload: dict, headers: list = None, co
         return data
 
 
-def execute_get(absolute_path_ref: str, token: bytes = None) -> dict:
+def execute_get(absolute_path_ref: str, token: str or bytes = None) -> dict:
     """
+    Executes GET to the same DeviceHub with a new connection.
     :param absolute_path_ref: The absolute-path reference of the URI;
         `ref <https://tools.ietf.org/html/rfc3986#section-4.2>`_.
-    :param token: The *hashed* token.
+    :param token: The *hashed* token. If None it will be used the token of the actual request.
     """
-    http_authorization = request.headers.environ['HTTP_AUTHORIZATION'] if token is None else b'Basic ' + token
+    if token is None:
+        auth = request.headers.environ['HTTP_AUTHORIZATION']
+    else:
+        auth = b'Basic ' + (token if type(token) == bytes else bytes(token, 'utf8'))
     with BlankG():
-        response = current_app.test_client().get(absolute_path_ref,
-                                                 environ_base={'HTTP_AUTHORIZATION': http_authorization})
+        response = current_app.test_client().get(absolute_path_ref, environ_base={'HTTP_AUTHORIZATION': auth})
     data = json.loads(response.data.decode())  # It is useless to use json_util
     if not (200 <= response._status_code < 300):
         data['url'] = absolute_path_ref
@@ -53,6 +56,7 @@ def execute_get(absolute_path_ref: str, token: bytes = None) -> dict:
 
 
 def execute_patch(resource: str, payload: dict, identifier) -> dict:
+    """Executes PATCH to the same DeviceHub with a new connection."""
     payload['_id'] = str(identifier)
     response = patch_internal(resource, payload, False, False, **{'_id': str(identifier)})
     if not (200 <= response[3] < 300):
@@ -61,6 +65,7 @@ def execute_patch(resource: str, payload: dict, identifier) -> dict:
 
 
 def execute_delete(resource: str, identifier):
+    """Executes DELETE to the same DeviceHub with a new connection."""
     _, _, _, status = deleteitem_internal(resource, **{'_id': str(identifier)})
     if status != 204:
         raise InnerRequestError(status, {})

@@ -18,7 +18,11 @@ setup(
         'python-gnupg>=0.3.8,<0.4',  # To use gnupg, install gpg2
         'flask-cache>=0.13.1',
         'python-gnupg',
-        'iso3166'
+        'iso3166',
+        'flask-excel',
+        'pyexcel-ods',
+        'pyexcel-xlsx',
+        'pydash'
     ],
     keywords='eReuse.org DeviceHub devices devicehub reuse recycle it asset management',
     # http://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies

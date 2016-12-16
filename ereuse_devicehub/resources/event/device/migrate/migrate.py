@@ -4,7 +4,7 @@ from ereuse_devicehub.exceptions import SchemaError
 from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.submitter.submitter import Submitter
-from ereuse_devicehub.resources.submitter.translator import Translator
+from ereuse_devicehub.resources.submitter.translator import ResourceTranslator
 from ereuse_devicehub.rest import execute_get
 from ereuse_devicehub.utils import Naming
 from flask import current_app
@@ -17,7 +17,7 @@ class MigrateSubmitter(Submitter):
                                                     original_resource['to']['database'])
 
 
-class MigrateTranslator(Translator):
+class MigrateTranslator(ResourceTranslator):
     """
     Translator for Migrate.
 

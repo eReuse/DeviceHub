@@ -1,19 +1,19 @@
-class BaseTranslator:
+class Translator:
     def __init__(self, config: dict, **kwargs):
         self.config = config
         self.database = None
 
-    def translate(self, resource: dict, database: str = None) -> list:
+    def translate(self, resource_or_resources: list or dict, database: str = None) -> list:
         """
-        Translates a resource.
+        Translates a resource or a group of resources.
         :param database: The database in DeviceHub (i.e. db1)
-        :param resource: The resource to translate
+        :param resource_or_resources: The data to translate
         :return: A list of tuples, containing 1. the translated resource, 2. the original resource
         """
         self.database = database
-        return [(self._translate(resource), resource)]
+        return [(self._translate(resource_or_resources), resource_or_resources)]
 
-    def _translate(self, resource: dict) -> dict:
+    def _translate(self, resource_or_resources: list or dict) -> dict:
         """
         Translates a resource. This method carries the actual translation.
         :param resource:
@@ -22,7 +22,7 @@ class BaseTranslator:
         raise NotImplementedError()
 
 
-class Translator(BaseTranslator):
+class ResourceTranslator(Translator):
     """
         Translates (or transforms) the structure of a resource to adequate it to another agent.
 
@@ -50,7 +50,7 @@ class Translator(BaseTranslator):
         """
         self.config = config
         self.generic_dict = generic_dict
-        self.specific_dict = specific_dict
+        self.specific_dict = specific_dict or {}
         super().__init__(config, **kwargs)
 
     def _translate(self, resource: dict) -> dict:
@@ -60,8 +60,8 @@ class Translator(BaseTranslator):
         :return: The translated resource
         """
         translated = dict()
-        for final_name, (method, *original_name) in dict(self.generic_dict,
-                                                         **self.specific_dict[resource['@type']]).items():
+        fields = dict(self.generic_dict, **self.specific_dict.get(resource['@type'], {})).items()
+        for final_name, (method, *original_name) in fields:
             value = resource.get(original_name[0] if len(original_name) > 0 else final_name)
             if value is not None:
                 translated[final_name] = method(value)
@@ -124,3 +124,52 @@ class Translator(BaseTranslator):
             return value[field]
 
         return _inner_field
+
+    @staticmethod
+    def inner_fields(fields: list, concat=' '):
+        """Gets and concats the inner fields"""
+
+        def _inner_fields(value: dict):
+            result = ''
+            for i, field in enumerate(fields):
+                result += value.get(field, '')
+                if i != len(fields) - 1:
+                    result += concat
+            return result
+
+        return _inner_fields
+
+    @staticmethod
+    def inner_resource(resource_type: str, after=identity):
+        """Gets an entire inner resource, or optionally some of its fields"""
+
+        def _inner_resource(resources: list):
+            resource, *_ = [resource for resource in resources if resource['@type'] == resource_type]
+            return after(resource)
+
+        return _inner_resource
+
+    @staticmethod
+    def nth_resource(nth: int, after=identity):
+        """Gets the nth resource"""
+
+        def _nth_resource(resources: list):
+            return after(resources[nth])
+
+        return _nth_resource
+
+
+class ResourcesTranslator(Translator):
+    def __init__(self, config: dict, resource_translator: ResourceTranslator, generic_dict: dict = None,
+                 specific_dict: dict = None, **kwargs):
+        self.config = config
+        self.resource_translator = resource_translator
+        self.generic_dict = generic_dict
+        self.specific_dict = specific_dict
+        super().__init__(config, **kwargs)
+
+    def _translate_resources(self, resources: list) -> list:
+        return [self.resource_translator.translate(resource)[0] for resource in resources]
+
+    def _translate(self, resources: list) -> dict:
+        raise NotImplementedError()

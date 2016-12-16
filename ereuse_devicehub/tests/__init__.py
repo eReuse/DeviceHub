@@ -130,9 +130,10 @@ class TestBase(TestMinimal):
         database = database or self.select_database(resource)
         return self._get(database + request, self.token if authorize else None)
 
-    def _get(self, url, token=None):
+    def _get(self, url, token=None, **kwargs):
         environ_base = {'HTTP_AUTHORIZATION': 'Basic ' + token} if token else {}
-        r = self.test_client.get(url, environ_base=environ_base)
+        environ_base.update(kwargs.pop('environ_base', {}))
+        r = self.test_client.get(url, environ_base=environ_base, **kwargs)
         return self.parse_response(r)
 
     def post(self, url, data, headers=None, content_type='application/json'):

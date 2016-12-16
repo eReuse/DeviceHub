@@ -7,14 +7,14 @@ from urllib.parse import quote_plus
 
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.submitter.submitter import ThreadedSubmitter
-from ereuse_devicehub.resources.submitter.translator import Translator
+from ereuse_devicehub.resources.submitter.translator import ResourceTranslator
 from ereuse_devicehub.security.request_auth import Auth
 from ereuse_devicehub.utils import Naming
 from ereuse_devicehub.validation.validation import HID_REGEX
 
 
 class GRDSubmitter(ThreadedSubmitter):
-    def __init__(self, app: 'DeviceHub', translator: Translator = None, auth: Auth = None, debug=False,
+    def __init__(self, app: 'DeviceHub', translator: ResourceTranslator = None, auth: Auth = None, debug=False,
                  domain=None, token=None, **kwargs):
         config = app.config
         domain = domain or config['GRD_DOMAIN']
@@ -37,7 +37,7 @@ class GRDSubmitter(ThreadedSubmitter):
         return url
 
 
-class GRDTranslator(Translator):
+class GRDTranslator(ResourceTranslator):
     def __init__(self, config):
         generic_resource = {
             'url': (self.url('events'), '_id'),

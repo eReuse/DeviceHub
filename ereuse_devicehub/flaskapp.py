@@ -10,6 +10,7 @@ from contextlib import suppress
 from ereuse_devicehub.aggregation.settings import aggregate_view
 from ereuse_devicehub.data_layer import DataLayer
 from ereuse_devicehub.error_handler import ErrorHandlers
+from ereuse_devicehub.export.export import export
 from ereuse_devicehub.hooks import hooks
 from ereuse_devicehub.request import RequestSignedJson
 from ereuse_devicehub.resources.account.login.settings import login
@@ -49,6 +50,7 @@ class DeviceHub(Eve):
         self.add_url_rule('/login', 'login', view_func=login, methods=['POST', 'OPTIONS'])
         self.add_url_rule('/devices/icons/<file_name>', view_func=send_device_icon)
         self.add_url_rule('/<db>/aggregations/<resource>/<method>', 'aggregation', view_func=aggregate_view)
+        self.add_url_rule('/<db>/export/<resource>', view_func=export)
         if self.config.get('GRD', True):
             self.grd_submitter_caller = SubmitterCaller(self, GRDSubmitter)
 

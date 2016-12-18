@@ -1,4 +1,5 @@
 from ereuse_devicehub.resources.event.settings import Event, EventSettings
+from ereuse_devicehub.validation.coercer import Coercer
 
 prefix = {'prefix': 'devices'}
 
@@ -51,13 +52,14 @@ class EventWithDevices(DeviceEvent):
 EventWithDevices._settings = EventWithOneDevice._settings
 
 place = {
-    'type': 'objectid',
+    'type': 'objectid',  # It can optionally be the label of the place, be aware that place.label is not unique!
     'data_relation': {
         'resource': 'places',
         'field': '_id',
         'embeddable': True
     },
     'sink': 0,
+    'coerce_with_context': Coercer.label_to_objectid,
     'description': 'Where did it happened'
 }
 

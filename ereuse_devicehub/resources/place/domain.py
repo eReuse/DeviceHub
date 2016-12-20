@@ -67,7 +67,8 @@ class PlaceDomain(Domain):
 
 
 class CannotDeleteIfHasEvent(StandardError):
-    message = "You cannot delete a place where you performed an event."
+    status_code = 400
+    message = 'Delete all the events performed in the place before deleting the place itself.'
 
 
 class NoPlaceForGivenCoordinates(StandardError):

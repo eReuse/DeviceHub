@@ -4,7 +4,8 @@ from ..schema import UnitCodes, Thing
 class Product(Thing):
     model = {
         'type': 'string',
-        'sink': 4
+        'sink': 4,
+        'short': 'Mod.'
     }
     weight = {
         'type': 'float',
@@ -26,7 +27,8 @@ class Product(Thing):
     }
     manufacturer = {
         'type': 'string',
-        'sink': 4
+        'sink': 4,
+        'short': 'Man.'
     }
     productId = {
         'type': 'string',
@@ -38,7 +40,8 @@ class Product(Thing):
 class IndividualProduct(Product):
     serialNumber = {
         'type': 'string',
-        'sink': 4
+        'sink': 4,
+        'short': 'S/N'
     }
 
 
@@ -49,13 +52,15 @@ class Device(IndividualProduct):
         'unique': True,
         'device_id': True,
         'sink': 4,
-        'teaser': False
+        'teaser': False,
+        'short': 'ID'
         # ALLOWED_WRITE_ROLES: Role.SUPERUSER  # For recovery purposes
     }
     hid = {
         'type': 'hid',
         'sink': 5,
-        'teaser': False
+        'teaser': False,
+        'short': 'HID'
     }
     pid = {
         'type': 'string',
@@ -69,7 +74,8 @@ class Device(IndividualProduct):
     }
     labelId = {
         'type': 'string',  # Materialized label of the last snapshot
-        'sink': 5
+        'sink': 5,
+        'short': 'Label'
     }
     components = {
         'type': 'list',

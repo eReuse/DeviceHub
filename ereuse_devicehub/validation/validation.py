@@ -215,6 +215,10 @@ class DeviceHubValidator(Validator):
     def _validate_description(self, nothing, field, value):
         pass
 
+    def _validate_short(self, nothing, field, value):
+        """An abbreviation for a field name. Ex: *SerialNumber* -> *S/N*"""
+        pass
+
     # noinspection PyPep8Naming
     def _validate_unitCode(self, nothing, field, value):
         pass

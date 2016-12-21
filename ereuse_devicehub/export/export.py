@@ -55,7 +55,7 @@ class SpreadsheetResourceTranslator(ResourceTranslator):
         inner_fields = ['_id', 'serialNumber', 'model', 'manufacturer']
         generic_dict = generic_dict or {
             'Identifier': (self.identity, '_id'),
-            'Internal ID (PID)': (self.identity, 'pid'),
+            'Label ID': (self.identity, 'labelId'),
             'Serial Number': (self.identity, 'serialNumber'),
             'Model': (self.identity, 'model'),
             'Manufacturer': (self.identity, 'manufacturer'),
@@ -105,7 +105,7 @@ class SpreadsheetTranslator(ResourcesTranslator):
         resources = self._translate_resources(resources)
         # We get all the field names, note that not all field_names are in all resources
         # And we want the 'static_field_names' to be before other fields
-        field_names = ['PID', 'Identifier', 'Serial Number', 'Model', 'Manufacturer', 'CPU', 'RAM (GB)', 'HDD (MB)']
+        field_names = ['Label ID', 'Identifier', 'Serial Number', 'Model', 'Manufacturer', 'CPU', 'RAM (GB)', 'HDD (MB)']
         other_field_names = SortedSet()
         for resource, _ in resources:
             other_field_names = other_field_names | resource.keys()

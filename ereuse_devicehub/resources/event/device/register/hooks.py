@@ -1,15 +1,16 @@
 from contextlib import suppress
 
 from bson import json_util
+from eve.methods.delete import deleteitem_internal
+
 from ereuse_devicehub.exceptions import InnerRequestError
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
+from ereuse_devicehub.resources.device.computer.hooks import update_materialized_computer
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.exceptions import DeviceNotFound, NoDevicesToProcess
 from ereuse_devicehub.resources.event.device.register.settings import Register
 from ereuse_devicehub.rest import execute_post_internal, execute_delete
 from ereuse_devicehub.utils import Naming
-from eve.methods.delete import deleteitem_internal
-from flask import current_app as app
 
 
 def post_devices(registers: list):
@@ -108,11 +109,9 @@ def _get_existing_device(e: InnerRequestError) -> dict:
 
 
 def set_components(register):
-    """Sets the new devices to the materialized attribute 'components' of the parent device."""
-    app.data.driver.db['devices'].update(
-        {'_id': register['device']},
-        {'$set': {'components': register['components']}}
-    )
+    """Sets the materialized fields *components*, *totalRamSize*, *totalHardDriveSize* and
+    *processorModel* of the computer."""
+    update_materialized_computer(register['device'], register['components'], add=True)
 
 
 def delete_device(_, register):

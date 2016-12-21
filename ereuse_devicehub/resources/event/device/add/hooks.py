@@ -1,20 +1,19 @@
-from flask import current_app as app
+from ereuse_devicehub.resources.device.computer.hooks import update_materialized_computer
 
 
 def add_components(events: dict):
     """
-    Adds the new devices to the materialized attribute 'components' of the parent device.
+    Updates the materialized fields *components*, *totalRamSize*, *totalHardDriveSize* and
+    *processorModel* of the computer.
     """
     for event in events:
-        app.data.driver.db['devices'].update(
-            {'_id': event['device']},
-            {'$addToSet': {'components': {'$each': event['components']}}}
-        )
+        update_materialized_computer(event['device'], event['components'], add=True)
 
 
-def delete_components(resource_name: str, add: dict):
+def delete_components(_, add: dict):
+    """
+    Updates the materialized fields *components*, *totalRamSize*, *totalHardDriveSize* and
+    *processorModel* of the computer.
+    """
     if add.get('@type') == 'devices:Add':
-        app.data.driver.db['devices'].update(
-            {'_id': add['device']},
-            {'$pull': {'components': {'$in': add['components']}}}
-        )
+        update_materialized_computer(add['device'], add['components'], add=False)

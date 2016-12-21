@@ -1,12 +1,10 @@
-from flask import current_app as app
+from ereuse_devicehub.resources.device.computer.hooks import update_materialized_computer
 
 
 def remove_components(events: dict):
     """
-    Removes the components from the materialized attribute 'components' of the parent device.
+    Removes the materialized fields *components*, *totalRamSize*, *totalHardDriveSize* and
+    *processorModel* of the computer.
     """
     for event in events:
-        app.data.driver.db['devices'].update(
-            {'_id': event['device']},
-            {'$pull': {'components': {'$in': event['components']}}}
-        )
+        update_materialized_computer(event['device'], event['components'], add=False)

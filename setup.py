@@ -22,7 +22,8 @@ setup(
         'flask-excel',
         'pyexcel-ods',
         'pyexcel-xlsx',
-        'pydash'
+        'pydash',
+        'sortedcontainers'
     ],
     keywords='eReuse.org DeviceHub devices devicehub reuse recycle it asset management',
     # http://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies

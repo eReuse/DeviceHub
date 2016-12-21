@@ -1,6 +1,9 @@
 from collections import defaultdict
+from math import floor
 
 import flask_excel as excel
+from sortedcontainers import SortedSet
+
 from ereuse_devicehub.flask_decorators import crossdomain
 from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.submitter.translator import ResourceTranslator, ResourcesTranslator
@@ -52,6 +55,7 @@ class SpreadsheetResourceTranslator(ResourceTranslator):
         inner_fields = ['_id', 'serialNumber', 'model', 'manufacturer']
         generic_dict = generic_dict or {
             'Identifier': (self.identity, '_id'),
+            'Internal ID (PID)': (self.identity, 'pid'),
             'Serial Number': (self.identity, 'serialNumber'),
             'Model': (self.identity, 'model'),
             'Manufacturer': (self.identity, 'manufacturer'),
@@ -59,6 +63,9 @@ class SpreadsheetResourceTranslator(ResourceTranslator):
             'Actual state': (self.nth_resource(0, after=self.inner_fields(['@type', 'label', '_id'])), 'events'),
             'Registered in': (self.identity, '_created'),
             'Created by': (self.inner_field('email'), 'byUser'),
+            'CPU': (self.identity, 'processorModel'),
+            'RAM (GB)': (floor, 'totalRamSize'),
+            'HDD (MB)': (floor, 'totalHardDriveSize'),
             'components': (self.for_all(self.inner_fields(inner_fields)),)
         }
         super().__init__(config, generic_dict, specific_dict, **kwargs)
@@ -97,9 +104,12 @@ class SpreadsheetTranslator(ResourcesTranslator):
         """
         resources = self._translate_resources(resources)
         # We get all the field names, note that not all field_names are in all resources
-        field_names = set()
+        # And we want the 'static_field_names' to be before other fields
+        field_names = ['PID', 'Identifier', 'Serial Number', 'Model', 'Manufacturer', 'CPU', 'RAM (GB)', 'HDD (MB)']
+        other_field_names = SortedSet()
         for resource, _ in resources:
-            field_names = field_names | resource.keys()
+            other_field_names = other_field_names | resource.keys()
+        field_names += list(other_field_names - set(field_names))
         spreadsheet = defaultdict(list)
         for resource, _ in resources:
             row = [resource.get(field_name, '') for field_name in field_names]

@@ -78,14 +78,13 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--name')
     parser.add_argument('-o', '--organization')
     parser.add_argument('-b', '--blocked', action='store_true')
-    parser.add_argument('-f', '--default-database', dest='default',
+    parser.add_argument('-f', '--default-database',
                         help='The default database. Leave it empty to use the first of the databases parameter.')
     parser.add_argument('-mh', '--mongo-host', help='Leave it empty to connect to the default Mongo interface URL.')
     parser.add_argument('-mp', '--mongo-port', help='Leave it empty to connect to the default Mongo interface port.')
     parser.add_argument('-dn', '--db-name', default='dh__accounts',
                         help='The database in Mongo used to store the account.')
     args = vars(parser.parse_args())  # If --help or -h or wrong value this will print message to user and abort
-    del args['default']
     account, hashed_token = create_account(**args)
     account['_id'] = str(account['_id'])
     print('Account:')

@@ -1,10 +1,11 @@
+import argparse
 import json
-import sys
+
+from pymongo import MongoClient
 
 from ereuse_devicehub.exceptions import StandardError
 from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.account.hooks import hash_password, generate_token
-from pymongo import MongoClient
 
 
 def create_account(email: str, password: str, databases: list,
@@ -34,9 +35,6 @@ def create_account(email: str, password: str, databases: list,
     db = connection[db_name]
     if db.accounts.find_one({'email': email}):
         raise UserAlreadyExists()
-    databases = eval(databases)
-    if type(databases) is not list:
-        raise TypeError('databases has to be a list')
     account = {
         'email': email,
         'password': password,
@@ -69,7 +67,26 @@ class UserAlreadyExists(StandardError):
 
 if __name__ == '__main__':
     # comment this for autodoc to work. todo Why does it fail?
-    account, hashed_token = create_account(*sys.argv[1:])
+    desc = 'Create an account. This script connects directly to a Mongo interface, so you need to set the connection.'
+    epilog = 'Minimum example: python create_account.py a@a.a 1234 -d db1 db2'
+    parser = argparse.ArgumentParser(description=desc, epilog=epilog)
+    parser.add_argument('email')
+    parser.add_argument('password')
+    parser.add_argument('-d', '--databases', nargs='+', required=True,
+                        help='Required. A list of databases the user has access to.')
+    parser.add_argument('-r', '--role', default='admin', help='By default is admin.')
+    parser.add_argument('-n', '--name')
+    parser.add_argument('-o', '--organization')
+    parser.add_argument('-b', '--blocked', action='store_true')
+    parser.add_argument('-f', '--default-database', dest='default',
+                        help='The default database. Leave it empty to use the first of the databases parameter.')
+    parser.add_argument('-mh', '--mongo-host', help='Leave it empty to connect to the default Mongo interface URL.')
+    parser.add_argument('-mp', '--mongo-port', help='Leave it empty to connect to the default Mongo interface port.')
+    parser.add_argument('-dn', '--db-name', default='dh__accounts',
+                        help='The database in Mongo used to store the account.')
+    args = vars(parser.parse_args())  # If --help or -h or wrong value this will print message to user and abort
+    del args['default']
+    account, hashed_token = create_account(**args)
     account['_id'] = str(account['_id'])
     print('Account:')
     print(json.dumps(account, indent=4))

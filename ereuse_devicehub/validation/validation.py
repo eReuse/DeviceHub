@@ -203,6 +203,10 @@ class DeviceHubValidator(Validator):
         if not validators.email(value):
             self._error(field, errors.ERROR_BAD_TYPE.format('email'))
 
+    def _validate_type_uuid(self, field, value):
+        if not validators.uuid(value):
+            self._error(field, errors.ERROR_BAD_TYPE.format('uuid'))
+
     def _validate_type_version(self, field, value):
         try:
             version.StrictVersion(value)

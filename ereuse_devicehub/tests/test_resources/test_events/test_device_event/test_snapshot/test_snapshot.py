@@ -1,10 +1,12 @@
 import copy
 import os
+import uuid
 from pprint import pprint
 from random import choice
 
 from assertpy import assert_that
 from bson import objectid
+
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.tests.test_resources.test_events import TestEvent
 from ereuse_devicehub.utils import Naming, coerce_type
@@ -48,8 +50,7 @@ class TestSnapshot(TestEvent):
         # We do a snapshot again. We should receive a new snapshot without any event on it.
         if do_second_time_snapshot:
             pprint("2nd time snapshot:")
-            snapshot, status_code = self.post('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), input_snapshot)
-            self.assert201(status_code)
+            snapshot = self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), input_snapshot)
             self.assertLen(snapshot['events'], num_of_events - 1)
         return register['device']
 
@@ -433,3 +434,19 @@ class TestSnapshot(TestEvent):
         self.assert422(status)
         self.set_superuser()
         self.creation(snapshot, self.get_num_events(snapshot))
+
+    def test_uuid(self):
+        """Tests the usage of _uuid field, not allowing two equal uuid to be inserted"""
+        snapshot = self.get_fixture(self.SNAPSHOT, self.REAL_DEVICES[0])
+        snapshot['_uuid'] = str(uuid.uuid4())  # Just a random uuid
+        # Note we do not perform a second-time snapshot, as it would be illegal with the same 'uuid'
+        self.creation(snapshot, self.get_num_events(snapshot), do_second_time_snapshot=False)
+        # As we are going to see now
+        _, status = self.post('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), snapshot)
+        self.assert422(status)
+
+    def test_8a1(self):
+        """Tests a full Snapshot made with DDI version 8a1"""
+        snapshot = self.get_fixture(self.SNAPSHOT, '8a1')
+        # uuid would make this illegal
+        self.creation(snapshot, self.get_num_events(snapshot), do_second_time_snapshot=False)

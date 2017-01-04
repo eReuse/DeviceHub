@@ -8,6 +8,13 @@ from ereuse_devicehub.resources.event.device.settings import place, EventWithOne
 
 
 class Snapshot(EventWithOneDevice):
+    _uuid = {
+        'type': 'uuid',
+        'unique': True,
+        'teaser': False,
+        'modifiable': False
+        # todo require this in a month from jan 2016
+    }
     offline = {
         'type': 'boolean'
     }

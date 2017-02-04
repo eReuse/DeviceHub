@@ -4,36 +4,40 @@ from ereuse_devicehub.resources.schema import UnitCodes
 
 
 class Processor(Component):
-    numberOfCores = {
-        'type': 'integer',
-        'min': 1,
-        'sink': 1
-    }
-    speed = {
-        'type': 'float',
-        'unitCode': UnitCodes.ghz,
-        'sink': 1
-    }
-    address = {
-        'type': 'integer',
-        'unitCode': UnitCodes.bit,
-        'allowed': {8, 16, 32, 64, 128, 256},
-        'sink': -1
-    }
-    benchmark = {
-        'type': 'dict',
-        'schema': BenchmarkProcessor,
-        'writeonly': True,
-    }
-    benchmarks = {
-        'type': 'list',
-        'schema': {
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.numberOfCores = {
+            'type': 'integer',
+            'min': 1,
+            'sink': 1
+        }
+        self.speed = {
+            'type': 'float',
+            'unitCode': UnitCodes.ghz,
+            'sink': 1
+        }
+        self.address = {
+            'type': 'integer',
+            'unitCode': UnitCodes.bit,
+            'allowed': {8, 16, 32, 64, 128, 256},
+            'sink': -1
+        }
+        self.benchmark = {
             'type': 'dict',
-            'schema': BenchmarkProcessor
-        },
-        'readonly': True
-    }
+            'schema': self.__proxy.generate_config_schema(BenchmarkProcessor),
+            'writeonly': True,
+        }
+        self.benchmarks = {
+            'type': 'list',
+            'schema': {
+                'type': 'dict',
+                'schema': self.__proxy.generate_config_schema(BenchmarkProcessor)
+            },
+            'readonly': True
+        }
 
 
 class ProcessorSettings(ComponentSubSettings):
-    _schema = Processor
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.schema = Processor

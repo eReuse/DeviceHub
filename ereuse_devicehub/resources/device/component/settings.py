@@ -6,19 +6,22 @@ from ereuse_devicehub.resources.device.settings import DeviceSettings, DeviceSub
 
 
 class Component(Device):
-    interface = {
-        'type': 'string',
-        'teaser': False,
-        'sink': -1
-    }
-    parent = {
-        'type': 'string',
-        'data_relation': {
-            'resource': 'devices',
-            'field': '_id',
-            'embeddable': True
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.interface = {
+            'type': 'string',
+            'teaser': False,
+            'sink': -1
         }
-    }
+        self.parent = {
+            'type': 'string',
+            'data_relation': {
+                'resource': 'devices',
+                'field': '_id',
+                'embeddable': True
+            }
+        }
+
 
     @classmethod
     def subclasses_fields(cls):
@@ -36,10 +39,14 @@ class Component(Device):
 
 
 class ComponentSettings(DeviceSettings):
-    _schema = Component
-    resource_methods = []
-    item_methods = []
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.schema = Component
+        self.resource_methods = []
+        self.item_methods = []
 
 
 class ComponentSubSettings(DeviceSubSettings):
-    _schema = False
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.schema = None

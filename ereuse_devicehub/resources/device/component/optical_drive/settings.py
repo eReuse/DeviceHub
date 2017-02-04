@@ -6,4 +6,6 @@ class OpticalDrive(Component):
 
 
 class OpticalDriveSettings(ComponentSubSettings):
-    _schema = OpticalDrive
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.schema = OpticalDrive

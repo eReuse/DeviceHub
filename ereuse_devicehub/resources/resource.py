@@ -53,7 +53,7 @@ class Resource:
         raise NotImplementedError
 
     @property
-    def parent(self):
+    def parent_(self):
         """
         Returns the parent of the resource.
 
@@ -69,23 +69,23 @@ class Resource:
             raise ResourceHasNoParent(self.resource)
 
     @property
-    def children(self) -> list:
+    def children_(self) -> list:
         """Returns the children of the resource."""
         return self.__proxy.children[self.__class__.__name__]
 
     @property
-    def ancestors(self):
+    def ancestors_(self):
         """Returns an ordered list of ancestors (1st item = parent)"""
         with suppress(ResourceHasNoParent):
-            yield self.parent
-            yield from self.parent.ancestors()
+            yield self.parent_
+            yield from self.parent_.ancestors_
 
     @property
-    def descendants(self):
+    def descendants_(self):
         """Returns the descendants"""
-        for child in self.children:
+        for child in self.children_:
             yield child
-            yield from child.descendants()
+            yield from child.descendants_
 
     # Execute the following methods only after importing all schemas in the proxy
     def __call__(self, *args, **kwargs):
@@ -94,7 +94,7 @@ class Resource:
     def generate_config(self) -> dict:
         """Generates a fully populated dict. Execute this only after importing (executing 'config') of all schemas"""
         fields = {}
-        for ancestor in reversed(self.ancestors):
+        for ancestor in reversed(self.ancestors_):
             fields.update(ancestor.actual_fields)
         fields.update(self.actual_fields)
         return fields
@@ -129,6 +129,7 @@ class ResourceSettings(Resource):
 
     # noinspection PyAttributeOutsideInit
     def config(self, parent=None):
+        # todo we do not want only the fields of the parent, but of all the ancestors!
         self.use_default_database = False
         """Use the user's specific databases or the common default one"""
         self.extra_response_fields = ['@type', 'label', 'url', 'sameAs', 'description']
@@ -136,7 +137,7 @@ class ResourceSettings(Resource):
         # automatic url generation
         # ex: for HardDrive, it generates 'devices/component/hard-drive'
         names = []
-        for ancestor in reversed(self.ancestors):
+        for ancestor in reversed(self.ancestors_):
             if getattr(ancestor, 'schema', False):
                 names.append(ancestor.resource)
         self.url = '/'.join(names)
@@ -147,8 +148,8 @@ class ResourceSettings(Resource):
         # We make possible GET the resource (not item) /events/devices/snapshot by providing
         # a default filter. Note that first-level resources (devices) do not use it as there is no need
         # Note that as we need to know how many children we have, this cannot go to self.config()
-        if 'datasource' in fields and len(list(self.ancestors)) > 2:
-            if len(self.children) > 0:
+        if 'datasource' in fields and len(list(self.ancestors_)) > 2:
+            if len(self.children_) > 0:
                 fields['datasource']['filter'] = {'@type': {'$in': list(self.schema.types)}}
             else:
                 fields['datasource']['filter'] = {'@type': self.schema.type}

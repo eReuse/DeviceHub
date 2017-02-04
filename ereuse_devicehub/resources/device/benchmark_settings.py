@@ -8,20 +8,17 @@ class Benchmark(RDFS):
         BENCHMARK_HARD_DRIVE,
         BENCHMARK_PROCESSOR
     )
-    readingSpeed = {
-        'type': 'float',
-        'unitCode': UnitCodes.mbyte
-    }
-    writingSpeed = {
-        'type': 'float',
-        'unitCode': UnitCodes.mbyte
-    }
 
-    @classmethod
-    def _clean(cls, attributes: dict, attributes_to_remove: tuple = None) -> dict:
-        attributes_to_remove = tuple() if attributes_to_remove is None else attributes_to_remove
-        benchmark_attributes_to_remove = ('BENCHMARK_HARD_DRIVE', 'BENCHMARK_PROCESSOR', 'TYPES')
-        return super(Benchmark, cls)._clean(attributes, attributes_to_remove + benchmark_attributes_to_remove)
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.readingSpeed = {
+            'type': 'float',
+            'unitCode': UnitCodes.mbyte
+        }
+        self.writingSpeed = {
+            'type': 'float',
+            'unitCode': UnitCodes.mbyte
+        }
 
 
 class BenchmarkHardDrive(Benchmark):
@@ -29,9 +26,10 @@ class BenchmarkHardDrive(Benchmark):
 
 
 class BenchmarkWithScore(Benchmark):
-    score = {
-        'type': 'float'
-    }
+    def config(self, parent=None):
+        self.score = {
+            'type': 'float'
+        }
 
 
 class BenchmarkProcessor(BenchmarkWithScore):

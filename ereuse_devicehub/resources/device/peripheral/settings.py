@@ -5,19 +5,24 @@ from ereuse_devicehub.resources.device.settings import DeviceSubSettings
 
 
 class Peripheral(Device):
-    type = {
-        'type': 'string',
-        'allowed': {'Router', 'Switch', 'Printer', 'Scanner', 'MultifunctionPrinter', 'Terminal', 'HUB', 'SAI',
-                    'Keyboard', 'Mouse'},
-        'required': True
-    }
-    manufacturer = copy.copy(Device.manufacturer)
-    manufacturer['required'] = True
-    serialNumber = copy.copy(Device.serialNumber)
-    serialNumber['required'] = True
-    model = copy.copy(Device.model)
-    model['required'] = True
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.type = {
+            'type': 'string',
+            'allowed': {'Router', 'Switch', 'Printer', 'Scanner', 'MultifunctionPrinter', 'Terminal', 'HUB', 'SAI',
+                        'Keyboard', 'Mouse'},
+            'required': True
+        }
+        self.manufacturer = copy.copy(parent.manufacturer)
+        self.manufacturer['required'] = True
+        self.serialNumber = copy.copy(parent.serialNumber)
+        self.serialNumber['required'] = True
+        self.model = copy.copy(parent.model)
+        self.model['required'] = True
+
 
 
 class PeripheralSettings(DeviceSubSettings):
-    _schema = Peripheral
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.schema = Peripheral

@@ -6,94 +6,95 @@ from ereuse_devicehub.resources.schema import UnitCodes
 
 
 class HardDrive(Component):
-    interface = {
-        'type': 'string',
-        'sink': -1,
-        'teaser': False
-    }
-    size = {
-        'type': 'float',
-        'unitCode': UnitCodes.mbyte,
-        'sink': 1
-    }
-    erasure = {
-        'type': 'dict',
-        'schema': EraseBasic,
-        'writeonly': True
-    }
-    erasures = {
-        'type': 'list',
-        'schema': {
-            'type': 'objectid',
-            'data_relation': {
-                'resource': 'events',
-                'field': '_id',
-                'embeddable': True
-            }
-        },
-        'readonly': True
-    }
-    firmwareRevision = {
-        'type': 'string',
-        'teaser': False,
-        'sink': -1
-    }
-    blockSize = {
-        'type': 'integer',
-        'sink': -1,
-        'teaser': False
-    }
-    sectors = {
-        'type': 'integer',
-        'sink': -1,
-        'teaser': False
-    }
-    test = {
-        'type': 'dict',
-        'schema': TestHardDrive
-    }
-    tests = {
-        'type': 'list',
-        'schema': {
-            'type': 'objectid',
-            'data_relation': {
-                'resource': 'events',
-                'field': '_id',
-                'embeddable': True
-            }
-        },
-        'readonly': True
-    }
-    benchmark = {
-        'type': 'dict',
-        'schema': BenchmarkHardDrive,
-        'writeonly': True
-    }
-    benchmarks = {
-        'type': 'list',
-        'schema': {
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.interface = {
+            'type': 'string',
+            'sink': -1,
+            'teaser': False
+        }
+        self.size = {
+            'type': 'float',
+            'unitCode': UnitCodes.mbyte,
+            'sink': 1
+        }
+        self.erasure = {
             'type': 'dict',
-            'schema': BenchmarkHardDrive
-        },
-        'readonly': True
-    }
+            'schema': self.__proxy.generate_config_schema(EraseBasic),
+            'writeonly': True
+        }
+        self.erasures = {
+            'type': 'list',
+            'schema': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'events',
+                    'field': '_id',
+                    'embeddable': True
+                }
+            },
+            'readonly': True
+        }
+        self.firmwareRevision = {
+            'type': 'string',
+            'teaser': False,
+            'sink': -1
+        }
+        self.blockSize = {
+            'type': 'integer',
+            'sink': -1,
+            'teaser': False
+        }
+        self.sectors = {
+            'type': 'integer',
+            'sink': -1,
+            'teaser': False
+        }
+        self.test = {
+            'type': 'dict',
+            'schema': self.__proxy.generate_config_schema(TestHardDrive)
+        }
+        self.tests = {
+            'type': 'list',
+            'schema': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'events',
+                    'field': '_id',
+                    'embeddable': True
+                }
+            },
+            'readonly': True
+        }
+        self.benchmark = {
+            'type': 'dict',
+            'schema': self.__proxy.generate_config_schema(BenchmarkHardDrive),
+            'writeonly': True
+        }
+        self.benchmarks = {
+            'type': 'list',
+            'schema': {
+                'type': 'dict',
+                'schema': self.__proxy.generate_config_schema(BenchmarkHardDrive)
+            },
+            'readonly': True
+        }
 
-    @classmethod
-    def actual_fields(cls):
+    def actual_fields(self):
         fields = super().actual_fields()
-        if cls._import_schemas:
-            # todo We need to add this because these events are taken from hardDrive in snapshot,
-            # We should remove them in Device POST, so they don't pass through the API and get generated.
-            # This fields are generated automatically by the API
-            del fields['erasure']['schema']['incidence']['default']
-            del fields['erasure']['schema']['secured']['default']
-            del fields['test']['schema']['incidence']['default']
-            del fields['test']['schema']['secured']['default']
-            fields['test']['schema']['device']['required'] = False
-            fields['erasure']['schema']['device']['required'] = False
+        # todo We need to add this because these events are taken from hardDrive in snapshot,
+        # We should remove them in Device POST, so they don't pass through the API and get generated.
+        # This fields are generated automatically by the API
+        del fields['erasure']['schema']['incidence']['default']
+        del fields['erasure']['schema']['secured']['default']
+        del fields['test']['schema']['incidence']['default']
+        del fields['test']['schema']['secured']['default']
+        fields['test']['schema']['device']['required'] = False
+        fields['erasure']['schema']['device']['required'] = False
         return fields
 
 
 class HardDriveSettings(ComponentSubSettings):
-    _schema = HardDrive
-    etag_ignore_fields = ComponentSubSettings.etag_ignore_fields + ['tests', 'erasures', 'test', 'erasure']
+    def config(self, parent=None):
+        self.schema = HardDrive
+        self.etag_ignore_fields = parent.etag_ignore_fields + ['tests', 'erasures', 'test', 'erasure']

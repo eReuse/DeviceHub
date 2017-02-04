@@ -3,13 +3,16 @@ from ereuse_devicehub.resources.schema import UnitCodes
 
 
 class GraphicCard(Component):
-    memory = {
-        'type': 'float',
-        'unitCode': UnitCodes.mbyte,  # MB
-        'min': 1,
-        'sink': 3
-    }
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.memory = {
+            'type': 'float',
+            'unitCode': UnitCodes.mbyte,  # MB
+            'min': 1,
+            'sink': 3
+        }
 
 
 class GraphicCardSettings(ComponentSubSettings):
-    _schema = GraphicCard
+    def config(self, parent=None):
+        self.schema = GraphicCard

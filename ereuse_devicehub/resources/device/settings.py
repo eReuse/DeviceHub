@@ -26,7 +26,7 @@ class DeviceSettings(ResourceSettings):
                                    '_links',
                                    'forceCreation', 'parent', 'events', 'created', 'sameAs']
         self.cache_control = 'max-age=1, must-revalidate'
-        self.extra_response_fields = self.parent.extra_response_fields + ['hid', 'pid']
+        self.extra_response_fields = parent.extra_response_fields + ['hid', 'pid']
         self.datasource = {
             'source': 'devices'
         }

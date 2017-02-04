@@ -5,26 +5,30 @@ from ereuse_devicehub.resources.device.settings import DeviceSubSettings
 
 
 class Mobile(Device):
-    imei = {
-        'type': 'string',
-        'unique': True
-    }
-    meid = {
-        'type': 'string',
-        'unique': True
-    }
-    type = {
-        'type': 'string',
-        'allowed': {'Smartphone', 'Tablet'},
-        'required': True
-    }
-    manufacturer = copy.copy(Device.manufacturer)
-    manufacturer['required'] = True
-    serialNumber = copy.copy(Device.serialNumber)
-    serialNumber['required'] = True
-    model = copy.copy(Device.model)
-    model['required'] = True
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.imei = {
+            'type': 'string',
+            'unique': True
+        }
+        self.meid = {
+            'type': 'string',
+            'unique': True
+        }
+        self.type = {
+            'type': 'string',
+            'allowed': {'Smartphone', 'Tablet'},
+            'required': True
+        }
+        self.manufacturer = copy.copy(parent.manufacturer)
+        self.manufacturer['required'] = True
+        self.serialNumber = copy.copy(parent.serialNumber)
+        self.serialNumber['required'] = True
+        self.model = copy.copy(parent.model)
+        self.model['required'] = True
 
 
 class MobileSettings(DeviceSubSettings):
-    _schema = Mobile
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.schema = Mobile

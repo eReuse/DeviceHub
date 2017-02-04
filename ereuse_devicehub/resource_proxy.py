@@ -2,7 +2,7 @@ from collections import defaultdict
 from pydash import find
 
 from ereuse_devicehub.resources.resource import ResourceSettings
-from ereuse_devicehub.resources.schema import Schema, RDFS
+
 
 
 class ResourceProxy:
@@ -19,6 +19,7 @@ class ResourceProxy:
         self.resources = {}  # Dict of ClassName: instance of resourceSettings or schemas
         self.parents = {}  # For each resourceSettings or schema, its parent
         self.children = defaultdict(list)  # For each resourceSettings or schema, its children
+        from ereuse_devicehub.resources.schema import RDFS
         self.TOP_PARENTS = [ResourceSettings, RDFS]  # They are the top nodes. They cannot be abstract.
 
     def add(self, cls):

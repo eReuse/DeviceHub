@@ -90,15 +90,3 @@ ALLOWED_ITEM_READ_ROLES = {Role.BASIC}
 _events_in_grd = ('Deallocate', 'Migrate', 'Allocate', 'Receive',
                   'Remove', 'Add', 'Register', 'Locate', 'UsageProof', 'Recycle')
 EVENTS_IN_GRD = [Naming.resource(DeviceEventDomain.new_type(event)) for event in _events_in_grd]
-# Generation of the API (DOMAIN)
-from ereuse_devicehub.resources.device.settings import DeviceSettings
-from ereuse_devicehub.resources.account.settings import AccountSettings
-from ereuse_devicehub.resources.event.settings import EventSettings
-from ereuse_devicehub.resources.place.settings import PlaceSettings
-
-DOMAIN = {
-    'devices': DeviceSettings,
-    'events': EventSettings,
-    'accounts': AccountSettings,
-    'places': PlaceSettings
-}

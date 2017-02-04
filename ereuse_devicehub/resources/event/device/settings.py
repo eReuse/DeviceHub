@@ -5,51 +5,48 @@ prefix = {'prefix': 'devices'}
 
 
 class DeviceEvent(Event):
-    geo = {
-        'type': 'point',
-        'sink': -5,
-        'description': 'Where did it happened'
-        # 'anyof': [{'required': True}, {'dependencies': ['place']}]  # me OR places
-    }
+    prefix = 'devices'
 
-
-settings = DeviceEvent._settings.copy()
-settings.update({'url': 'devices'})
-settings.update(prefix)
-DeviceEvent._settings = settings  # todo make this nice
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.geo = {
+            'type': 'point',
+            'sink': -5,
+            'description': 'Where did it happened'
+            # 'anyof': [{'required': True}, {'dependencies': ['place']}]  # me OR places
+        }
 
 
 class EventWithOneDevice(DeviceEvent):
-    device = {
-        'type': 'string',
-        'data_relation': {
-            'resource': 'devices',
-            'field': '_id',
-            'embeddable': True
-        },
-        'required': True
-    }
-
-
-EventWithOneDevice._settings = dict(Event._settings, **prefix)
-
-
-class EventWithDevices(DeviceEvent):
-    devices = {
-        'type': 'list',
-        'schema': {
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.device = {
             'type': 'string',
             'data_relation': {
                 'resource': 'devices',
                 'field': '_id',
                 'embeddable': True
-            }
-        },
-        'required': True
-    }
+            },
+            'required': True
+        }
 
 
-EventWithDevices._settings = EventWithOneDevice._settings
+class EventWithDevices(DeviceEvent):
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.devices = {
+            'type': 'list',
+            'schema': {
+                'type': 'string',
+                'data_relation': {
+                    'resource': 'devices',
+                    'field': '_id',
+                    'embeddable': True
+                }
+            },
+            'required': True
+        }
+
 
 place = {
     'type': 'objectid',  # It can optionally be the label of the place, be aware that place.label is not unique!
@@ -95,18 +92,20 @@ parent = {
 
 
 class DeviceEventSettings(EventSettings):
-    _schema = DeviceEvent
+    def config(self, parent=None):
+        self.schema = DeviceEvent
 
 
 class EventSubSettings(DeviceEventSettings):
-    _schema = False
-    resource_methods = ['POST']
-    item_methods = ['GET', 'DELETE']
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.resource_methods = ['POST']
+        self.item_methods = ['GET', 'DELETE']
 
 
 class EventSubSettingsOneDevice(EventSubSettings):
-    _schema = False
+    pass
 
 
 class EventSubSettingsMultipleDevices(EventSubSettings):
-    _schema = False
+    pass

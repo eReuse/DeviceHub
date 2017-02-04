@@ -100,7 +100,7 @@ class AccountSettings(ResourceSettings):
         # Allow 'token' to be returned with POST responses
         response_fields = ['token', 'email', 'role', 'active', 'name', 'databases', 'defaultDatabase', 'organization',
              'isOrganization']
-        self.extra_response_fields = self.parent.extra_response_fields + response_fields
+        self.extra_response_fields = parent.extra_response_fields + response_fields
         # Finally, let's add the schema definition for this endpoint.
         self.schema = Account
 

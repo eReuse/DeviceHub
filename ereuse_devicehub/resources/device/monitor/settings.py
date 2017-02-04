@@ -5,21 +5,25 @@ from ereuse_devicehub.resources.device.settings import DeviceSubSettings
 
 
 class ComputerMonitor(Device):
-    type = {
-        'type': 'string',
-        'allowed': {'TFT', 'LCD', 'LED', 'OLED'},
-        'required': True
-    }
-    inches = {
-        'type': 'natural'
-    }
-    manufacturer = copy.copy(Device.manufacturer)
-    manufacturer['required'] = True
-    serialNumber = copy.copy(Device.serialNumber)
-    serialNumber['required'] = True
-    model = copy.copy(Device.model)
-    model['required'] = True
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.type = {
+            'type': 'string',
+            'allowed': {'TFT', 'LCD', 'LED', 'OLED'},
+            'required': True
+        }
+        self.inches = {
+            'type': 'natural'
+        }
+        self.manufacturer = copy.copy(parent.manufacturer)
+        self.manufacturer['required'] = True
+        self.serialNumber = copy.copy(parent.serialNumber)
+        self.serialNumber['required'] = True
+        self.model = copy.copy(parent.model)
+        self.model['required'] = True
 
 
 class MonitorSettings(DeviceSubSettings):
-    _schema = ComputerMonitor
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.schema = ComputerMonitor

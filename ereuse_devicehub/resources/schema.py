@@ -2,6 +2,9 @@
 We mimic https://schema.org/unitCode, in concrete
 the UN/CEFACT Common Code.
 """
+from deepmerge import Merger
+from pydash import merge
+
 from ereuse_devicehub.resource_proxy import ResourceProxy
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.resource import Resource
@@ -30,6 +33,19 @@ class Schema(Resource):
     Schemas configure the fields of a resource.
     """
 
+    descendants_merger = Merger(
+        [
+            (list, 'prepend'),
+            (dict, 'merge'),
+            (set, lambda merger, path, base, nxt: base | nxt)  # make the union for settings like 'allowed' of @type
+        ],
+        ['override'],  # For other types, just override them
+        ['override']  # For mismatching types (list and dict) override them
+    )
+    """
+    A dict Merger that prepends lists, deep merges dicts and makes the union for sets.
+    """
+
     prefix = None
     """The prefix of the class. Modify it and the class and its descendants will inherit it nicely"""
 
@@ -39,14 +55,8 @@ class Schema(Resource):
         descendant's fields,
         """
         fields = super(Schema, self).generate_config()  # We get the fields of our ancestors and ours
-        for descendant in self.descendants:  # We get the fields of our descendants
-            descendant_fields = descendant.actual_fields()
-            fields.update(descendant_fields)
-            # Our resource (ex. Device) has to allow sub-resources (ex. ComputerMonitor, HardDrive)
-            if '@type' in fields:
-                fields['@type']['allowed'] |= descendant_fields.get('@type', {}).get('allowed', set())
-            if 'type' in fields:
-                fields['type']['allowed'] |= set(descendant_fields.get('type', {}).get('allowed', set()))
+        # Let's merge with our descendants the best way we can
+        self.descendants_merger.merge(fields, *list(self.descendants_))
         # Let's execute any callable (like fields with references)
         references = []
         NestedLookup(fields, references, callable)
@@ -72,7 +82,7 @@ class Schema(Resource):
     def types(self):
         """Get the types of the actual class and all the descendants"""
         yield self.type
-        for descendant in self.descendants:
+        for descendant in self.descendants_:
             yield descendant.type
 
     @property
@@ -90,7 +100,7 @@ class RDFS(Schema):
             'type': 'string',
             'required': True,
             'teaser': False,
-            'allowed': [self.type]
+            'allowed': {self.type}
         })
         super().__init__(proxy, **kwargs)
 

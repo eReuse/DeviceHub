@@ -6,4 +6,6 @@ class SoundCard(Component):
 
 
 class SoundCardSettings(ComponentSubSettings):
-    _schema = SoundCard
+    # noinspection PyAttributeOutsideInit
+    def config(self, parent=None):
+        self.schema = SoundCard

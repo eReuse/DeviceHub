@@ -1,7 +1,7 @@
 """
 DeviceHub app
 """
-import inspect
+import copy
 import os
 import sys
 
@@ -13,8 +13,9 @@ from ereuse_devicehub.error_handler import ErrorHandlers
 from ereuse_devicehub.export.export import export
 from ereuse_devicehub.hooks import hooks
 from ereuse_devicehub.request import RequestSignedJson
+from ereuse_devicehub.resource_proxy import ResourcesProxy
 from ereuse_devicehub.resources.account.login.settings import login
-from ereuse_devicehub.resources.resource import ResourceSettings
+from ereuse_devicehub.resource_config import resources as _resources
 from ereuse_devicehub.resources.submitter.grd_submitter.grd_submitter import GRDSubmitter
 from ereuse_devicehub.resources.submitter.submitter_caller import SubmitterCaller
 from ereuse_devicehub.security.authentication import RolesAuth
@@ -35,7 +36,7 @@ from flask import request
 class DeviceHub(Eve):
     def __init__(self, import_name=__package__, settings='settings.py', validator=DeviceHubValidator, data=DataLayer,
                  auth=RolesAuth, redis=None, url_converters=None, json_encoder=None, media=GridFSMediaStorage,
-                 url_parse=UrlParse, **kwargs):
+                 url_parse=UrlParse, resources_proxy=ResourcesProxy, **kwargs):
         kwargs.setdefault('static_url_path', '/static')
         super().__init__(import_name, settings, validator, data, auth, redis, url_converters, json_encoder, media,
                          **kwargs)
@@ -45,7 +46,12 @@ class DeviceHub(Eve):
         self.cache = cache
         self.cache.init_app(self)
         self.url_parse = url_parse()
-        hooks(self)  # Set up hooks. You can add more hooks by doing something similar with app "hooks(app)"
+        # Configure resources
+        self.resources = resources_proxy(self)
+        _resources(self)
+        # Set up hooks
+        # You can add more at any time by doing something similar than the following method
+        hooks(self)
         ErrorHandlers(self)
         self.add_url_rule('/login', 'login', view_func=login, methods=['POST', 'OPTIONS'])
         self.add_url_rule('/devices/icons/<file_name>', view_func=send_device_icon)
@@ -54,18 +60,26 @@ class DeviceHub(Eve):
         if self.config.get('GRD', True):
             self.grd_submitter_caller = SubmitterCaller(self, GRDSubmitter)
 
-    def register_resource(self, resource: str, settings: ResourceSettings):
+    def run(self, host=None, port=None, debug=None, **options):
+        self.set_resources_to_domain()  # Generate the dict for domain and register resources
+        super().run(host, port, debug, **options)
+
+    def set_resources_to_domain(self):
         """
-            Recursively registers a resource and it's sub-resources.
+        Generates the config fields for the resources, saves them to eve's domain and registers the resources.
+
+        After exeucting app.run(), execute this method any time you modify the configuration Resource instances
+        to re-apply them. This method is executed when app.run(), so there is no need to executing it if you
+        are adding / modifying resources before app.run() happens.
+        :return:
         """
-        if inspect.isclass(settings) and issubclass(settings, ResourceSettings):
-            for sub_resource_settings in settings.sub_resources():
-                self.register_resource(sub_resource_settings.resource_name(), sub_resource_settings)
-            # noinspection PyCallingNonCallable
-            new_settings = settings()
-        else:
-            new_settings = settings
-        super().register_resource(resource, new_settings)
+        for resource_settings in self.resource_proxy.resources:
+            if hasattr(resource_settings, 'schema'):
+                self.config['DOMAIN'][resource_settings.resource] = resource_settings.generate_config()
+        # This is extracted from eve's init method.
+        domain_copy = copy.deepcopy(self.config['DOMAIN'])
+        for resource, settings in domain_copy.items():
+            self.register_resource(resource, settings)
 
     def _add_resource_url_rules(self, resource, settings):
         """

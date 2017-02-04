@@ -19,13 +19,7 @@ class TestResource(TestStandard):
         :param url_converters:
         :return:
         """
-        self.create_dummy_type_of_device()
         super().setUp(settings_file, url_converters)
-
-    def create_dummy_type_of_device(self):
-        # todo this method will fail if TestResource is not the **first** test executed
-        Resource.create(self.dummy_device_name, Device, self.dummy_device_class, DeviceSubSettings,
-                        self.dummy_device_settings)
 
     def test_resource(self):
         """
@@ -33,8 +27,15 @@ class TestResource(TestStandard):
         checking that both processes are done correctly,
         performing requests to the endpoint.
         """
-        # The endpoint is defined in setUp and created as part of the regular workflow in DeviceHub.
-        # Let's validate it.
+        # We create the resource
+        self.app.resources.create_and_add(self.dummy_device_name, prefix=None, parent_schema='Device',
+                                          schema_fields=self.dummy_device_class,
+                                          parent_resource_settings='DeviceSettings',
+                                          resource_setting_fields=self.dummy_device_settings)
+
+        # And regenerate the whole domain schema
+        self.app.set_resources_to_domain()
+        # Let's validate it
         resource_name = Naming.resource(self.dummy_device_name)
         self.assertIn(resource_name, self.domain)
         settings = self.domain[resource_name]

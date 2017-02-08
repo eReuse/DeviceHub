@@ -116,3 +116,5 @@ def redirect_to_first_snapshot(resource, request, lookup):
         snapshot_id = str(DeviceEventDomain.get_first_snapshot(lookup['_id'])['_id'])
         execute_delete(Naming.resource('devices:Snapshot'), snapshot_id)
         raise RequestAnother('', 204)
+
+

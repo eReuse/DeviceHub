@@ -5,7 +5,7 @@ class Product(Thing):
     model = {
         'type': 'string',
         'sink': 4,
-        'short': 'Mod.'
+        'short': 'Mod.',
     }
     weight = {
         'type': 'float',
@@ -124,3 +124,19 @@ class Device(IndividualProduct):
         },
         'materialized': True
     }
+    placeholder = {
+        'type': 'boolean',
+        'default': False,
+        'doc': 'Invalid for components.'
+    }
+
+    @classmethod
+    def subclasses_fields(cls):
+        """We remove the 'required' clause from the aggregation"""
+        fields = super().subclasses_fields()
+        if cls == Device:
+            del fields['model']['required']
+            del fields['serialNumber']['required']
+            del fields['manufacturer']['required']
+            del fields['type']['required']
+        return fields

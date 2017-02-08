@@ -1,0 +1,7 @@
+{
+  "@type": "Register",
+  "device": {
+    "@type": "Device",
+    "placeholder": true
+  }
+}

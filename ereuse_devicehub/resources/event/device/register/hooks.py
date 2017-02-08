@@ -68,7 +68,8 @@ def _execute_register(device: dict, created: str, log: list):
     :param log: A log where to append the resulting device if execute_register has been successful
     :raise InnerRequestError: any internal error in the POST that is not about the device already existing.
     """
-    device['hid'] = 'dummy'
+    if not device.get('placeholder', False):
+        device['hid'] = 'dummy'
     new = True
     try:
         if created:
@@ -81,6 +82,14 @@ def _execute_register(device: dict, created: str, log: list):
             # We add a benchmark todo move to another place?
             device['_id'] = db_device['_id']
             ComponentDomain.benchmark(device)
+            # If the db_device was a placeholder
+            # We want to override it with the new device
+            if db_device.get('placeholder', False):
+                # Eve do not generate defaults from sub-resources
+                # And we really need the placeholder default set, specially when
+                # discovering a device
+                device['placeholder'] = False
+                DeviceDomain.update_one_raw(db_device['_id'], {'$set': device})
         except DeviceNotFound:
             raise e
     else:

@@ -93,13 +93,15 @@ def hooks(app):
     app.on_insert_devices_receive += transfer_property
     app.on_insert_devices_receive += set_organization
 
-    from ereuse_devicehub.resources.place.hooks import set_place_in_devices, update_place_in_devices, \
-        unset_place_in_devices, update_place_in_devices_if_places, avoid_deleting_if_has_event
-    app.on_inserted_places += set_place_in_devices
-    app.on_updated_places += update_place_in_devices_if_places
+    from ereuse_devicehub.resources.group.hooks import set_children, delete_children, \
+        update_group_in_devices, update_children
+    app.on_inserted += set_children
+    app.on_updated += update_children
+    app.on_deleted_item += delete_children
+    app.on_replaced += update_children
+
+    from ereuse_devicehub.resources.place.hooks import avoid_deleting_if_has_event
     app.on_delete_item_places += avoid_deleting_if_has_event
-    app.on_deleted_item_places += unset_place_in_devices
-    app.on_replaced_places += update_place_in_devices
 
     # Device materializations
     from ereuse_devicehub.resources.device.hooks import MaterializeEvents, redirect_to_first_snapshot

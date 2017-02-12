@@ -1,8 +1,11 @@
 from bson.objectid import ObjectId
+from flask import current_app
+from pydash import merge
+from pymongo import ReturnDocument
+
 from ereuse_devicehub.exceptions import StandardError
 from ereuse_devicehub.resources.resource import ResourceSettings
 from ereuse_devicehub.utils import ClassProperty
-from flask import current_app
 
 
 class Domain:
@@ -33,7 +36,7 @@ class Domain:
         return list(current_app.data.find_raw(cls.source, query_filter))
 
     @classmethod
-    def update_raw(cls, ids: str or ObjectId or list, operation: dict):
+    def update_raw(cls, ids: str or ObjectId or list, operation: dict, key='_id'):
         """
         Sets the properties of a resource using directly the database layer.
         :param ids:
@@ -43,7 +46,7 @@ class Domain:
         resources_id = [ids] if type(ids) is str or type(ids) is ObjectId else ids
         count = 0
         for resource_id in resources_id:
-            count += current_app.data.driver.db[cls.source].update_one({'_id': resource_id}, operation).modified_count
+            count += current_app.data.driver.db[cls.source].update_one({key: resource_id}, operation).modified_count
         return count
 
     @classmethod
@@ -51,11 +54,23 @@ class Domain:
         return current_app.data.driver.db[cls.source].update_many(filter, operation)
 
     @classmethod
-    def update_one_raw(cls, resource_id: str or ObjectId, operation):
-        count = current_app.data.driver.db[cls.source].update_one({'_id': resource_id}, operation).matched_count
+    def update_one_raw(cls, resource_id: str or ObjectId, operation, key='_id'):
+        count = current_app.data.driver.db[cls.source].update_one({key: resource_id}, operation).matched_count
         if count == 0:
             name = cls.resource_settings._schema.type_name
             raise ResourceNotFound('{} {} cannot be updated as it is not found.'.format(name, resource_id))
+
+    @classmethod
+    def update_raw_get(cls, ids: str or ObjectId or list, operation: dict, key='_id',
+                       return_document=ReturnDocument.AFTER, extra_query={}):
+        """Updates the resources and returns them. Set *return_document* to get the documents before/after the update."""
+        resources_id = [ids] if type(ids) is str or type(ids) is ObjectId else ids
+        data = current_app.data.driver.db[cls.source]
+        results = []
+        for identifier in resources_id:
+            query = merge({key: identifier}, extra_query)
+            results.append(data.find_one_and_update(query, operation, return_document=return_document))
+        return results
 
     @classmethod
     def delete(cls, query):

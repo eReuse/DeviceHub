@@ -90,16 +90,39 @@ class Device(IndividualProduct):
         'sink': 1,
         'default': []
     }
-    place = {
-        'type': 'objectid',
-        'data_relation': {
-            'resource': 'places',
-            'embeddable': True,
-            'field': '_id'
-        },
-        'materialized': True,
-        'sink': 2
+    group = {
+        'type': 'dict',
+        'schema': {
+            'place': {
+                'type': 'string',
+                'data_relation': {
+                    'resource': 'places',
+                    'embeddable': True,
+                    'field': 'label'
+                }
+            },
+            'package': {
+                'type': 'string',
+                'data_relation': {
+                    'resource': 'packages',
+                    'embeddable': True,
+                    'field': 'label'
+                }
+            },
+            'lots': {
+                'type': 'list',
+                'schema': {
+                    'type': 'string',
+                    'data_relation': {
+                        'resource': 'places',
+                        'embeddable': True,
+                        'field': 'label'
+                    }
+                }
+            }
+        }
     }
+
     owners = {
         'type': 'list',
         'schema': {

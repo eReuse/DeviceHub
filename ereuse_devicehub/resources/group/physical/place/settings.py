@@ -2,11 +2,14 @@ import copy
 
 import iso3166
 import pymongo
-from ereuse_devicehub.resources.resource import ResourceSettings
+
+from ereuse_devicehub.resources.group.physical.settings import Physical, PhysicalSettings
+from ereuse_devicehub.resources.group.settings import children_groups, place_fk, places_fk, lots_fk, packages_fk, \
+    devices_fk
 from ereuse_devicehub.resources.schema import Thing
 
 
-class Place(Thing):
+class Place(Physical):
     geo = {
         'type': 'polygon',
         'sink': -5,
@@ -17,27 +20,26 @@ class Place(Thing):
         'type': 'string',
         'allowed': {'Department', 'Zone', 'Warehouse', 'CollectionPoint'}
     }
-    devices = {
-        'type': 'list',
+    ancestors = {
+        'type': 'dict',
         'schema': {
-            'type': 'string',
-            'data_relation': {
-                'resource': 'devices',
-                'field': '_id',
-                'embeddable': True
-            }
-        },
-        'default': [],
-        'unique_values': True
+            'places': place_fk
+        }
     }
-    byUser = {
-        'type': 'objectid',
-        'data_relation': {
-            'resource': 'accounts',
-            'field': '_id',
-            'embeddable': True
-        },
-        'readonly': True
+    parents = {
+        'type': 'dict',
+        'schema': {
+            'places': places_fk
+        }
+    }
+    children = {
+        'type': 'dict',
+        'schema': {
+            'places': places_fk,
+            'lots': lots_fk,
+            'packages': packages_fk,
+            'devices': devices_fk
+        }
     }
     address = {
         'type': 'dict',
@@ -70,21 +72,16 @@ class Place(Thing):
         'type': 'string'
     }
 
-    label = copy.deepcopy(Thing.label)
 
-
-Place.label['required'] = True
-
-
-class PlaceSettings(ResourceSettings):
+class PlaceSettings(PhysicalSettings):
     resource_methods = ['GET', 'POST']
     item_methods = ['GET', 'PATCH', 'DELETE', 'PUT']
     _schema = Place
     datasource = {
-        'default_sort': [('_created', -1)],
+        'default_sort': [('_modified', -1)],
         'source': 'places'
     }
-    extra_response_fields = ResourceSettings.extra_response_fields + ['devices']
     mongo_indexes = {
         'geo': [('components', pymongo.GEO2D)]
     }
+    url = 'places'

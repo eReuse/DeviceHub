@@ -7,9 +7,6 @@ from ereuse_devicehub.resources.group.physical.place.settings import PlaceSettin
 
 class PlaceDomain(PhysicalDomain):
     resource_settings = PlaceSettings
-    foreign_key_in_device = 'place'
-
-
 
     @staticmethod
     def get_with_coordinates(coordinates: list) -> dict:

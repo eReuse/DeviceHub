@@ -5,14 +5,15 @@ from pprint import pprint
 import simplejson as json
 from assertpy import assert_that
 from bson.objectid import ObjectId
+from eve.methods.common import parse
+from eve.tests import TestMinimal
+from flask.ext.pymongo import MongoClient
+
 from ereuse_devicehub.flaskapp import DeviceHub
 from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.submitter.grd_submitter.grd_submitter import GRDSubmitter
 from ereuse_devicehub.resources.submitter.submitter_caller import SubmitterCaller
 from ereuse_devicehub.utils import Naming
-from eve.methods.common import parse
-from eve.tests import TestMinimal
-from flask.ext.pymongo import MongoClient
 
 
 class TestBase(TestMinimal):
@@ -277,26 +278,35 @@ class TestStandard(TestBase):
         mounted = self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), mounted)
         return [self.get(self.EVENTS, '', event['events'][0])[0]['device'] for event in [vaio, vostro, xps13, mounted]]
 
-    def device_and_place_contain_each_other(self, device_id: str, place_id: str):
+    def device_and_group_contain_each_other(self, device_id: str, group_id: str, group_url, foreign_key,
+                                            containing=False):
         """
         Checks that the materialization of device-place is correct. This is, the place has a reference to a device
         and the device has a reference to a place. If the device has components,
         this checks the same for the components.
 
         :param device_id:
-        :param place_id:
-        :return:
+        :param group_id:
+        :param group_url: The url to GET the group.
+        :param foreign_key: The field name of the foreign key in the device pointing at the group
+        :param containing: Is the value of the foreign key field above a list of groups or a single unit?
         """
-        place, _ = self.get(self.PLACES, '', place_id)
-        self.assertIn('devices', place)
-        self.assertIn(device_id, place['devices'])
+        group, _ = self.get(group_url, '', group_id)
+        self.assertIn('devices', group)
+        self.assertIn(device_id, group['devices'])
         device, _ = self.get(self.DEVICES, '', device_id)
-        self.assertIn('place', device)
-        self.assertEqual(place_id, device['place'])
+        self.assertIn(foreign_key, device)
+        if containing:
+            self.assertIn(group_id, device[foreign_key])
+        else:
+            self.assertEqual(group_id, device[foreign_key])
         for component_id in device.get('components', []):
             component, _ = self.get(self.DEVICES, '', component_id)
-            self.assertIn('place', component)
-            self.assertEqual(component['place'], place_id)
+            self.assertIn(foreign_key, component)
+            if containing:
+                self.assertIn(group_id, component[foreign_key])
+            else:
+                self.assertEqual(component[foreign_key], group_id)
 
     def devices_do_not_contain_places(self, device_id: str) -> list:
         """ The opposite of `device_and_place_contain_each_other`."""

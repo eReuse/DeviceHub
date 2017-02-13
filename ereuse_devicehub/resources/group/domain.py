@@ -20,25 +20,6 @@ from ereuse_devicehub.utils import Naming
 
 class GroupDomain(Domain):
     resource_settings = GroupSettings
-    foreign_key_in_device = None
-
-    @classproperty
-    def children_resources(cls):
-        if not hasattr(cls, '_children_resources'):
-            from ereuse_devicehub.resources.group.physical.place.domain import PlaceDomain
-            from ereuse_devicehub.resources.group.physical.package.domain import PackageDomain
-            from ereuse_devicehub.resources.group.abstract.lot.domain import LotDomain
-            cls._children_resources = {
-                Place.resource_name: PlaceDomain,
-                Package.resource_name: PackageDomain,
-                Device.resource_name: DeviceDomain,
-                Lot.resource_name: LotDomain,
-                Place.type_name: PlaceDomain,
-                Package.type_name: PackageDomain,
-                Device.type_name: DeviceDomain,
-                Lot.type_name: LotDomain
-            }
-        return cls._children_resources
 
     @classmethod
     def update_children(cls, original: dict, updated: dict, ancestors: list, label: str or None):
@@ -67,6 +48,9 @@ class GroupDomain(Domain):
             # We remove our foreign key (with our ancestors) in the orphans' documents
             cls.disinherit(label, child_domain, new_orphans)
 
+            # We remove other parents (some groups may override it and do nothing here)
+            cls.remove_other_parents_of_type(child_domain, new_adopted)
+
             # We add our foreign key (with our ancestors) in the new adopted's documents
             cls.inherit(label, ancestors, child_domain, new_adopted)
 
@@ -86,6 +70,22 @@ class GroupDomain(Domain):
         full_children = child_domain.update_raw_get(children, q)
         if issubclass(child_domain, GroupDomain):
             cls._update_inheritance_grandchildren(full_children, child_domain)
+
+    @classmethod
+    def remove_other_parents_of_type(cls, child_domain: Domain, children: Iterable):
+        """
+        Removes any parent of the same type of the parent children have.
+
+        By default a resource can only have one parent of a type, so we remove another parent of the same
+        type that our children have. Some groups like lots of packages *share parenthood* (they allow
+        multiple parents simultaniously for their children) and they override this method with a *pass*.
+
+        :param child_domain: The domain of the children. Note that this forces all children to be of the same @type.
+        Call inherit as many times as types of children you have.
+        :param children: A list of children labels.
+        """
+        query = {'$pull': {'ancestors': {'@type': cls.resource_settings._schema.type_name}}}
+        child_domain.update_raw(children, query)
 
     @classmethod
     def inherit(cls, parent_label: str, parent_ancestors: list, child_domain: Domain, children: Iterable):
@@ -172,6 +172,24 @@ class GroupDomain(Domain):
                     grandchildren = set(full_child['children'][name]) if name in full_child['children'] else set()
                     child_domain.inherit(full_child['label'], full_child['ancestors'], grandchildren_domain,
                                          grandchildren)
+
+    @classproperty
+    def children_resources(cls):
+        if not hasattr(cls, '_children_resources'):
+            from ereuse_devicehub.resources.group.physical.place.domain import PlaceDomain
+            from ereuse_devicehub.resources.group.physical.package.domain import PackageDomain
+            from ereuse_devicehub.resources.group.abstract.lot.domain import LotDomain
+            cls._children_resources = {
+                Place.resource_name: PlaceDomain,
+                Package.resource_name: PackageDomain,
+                Device.resource_name: DeviceDomain,
+                Lot.resource_name: LotDomain,
+                Place.type_name: PlaceDomain,
+                Package.type_name: PackageDomain,
+                Device.type_name: DeviceDomain,
+                Lot.type_name: LotDomain
+            }
+        return cls._children_resources
 
     @classmethod
     def is_parent(cls, parent_type: str, parent_label: str, child_label: str) -> bool:

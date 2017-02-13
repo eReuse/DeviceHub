@@ -11,12 +11,6 @@ from ereuse_devicehub.resources.group.physical.package.settings import Package
 
 class LotDomain(AbstractDomain):
     resource_settings = AbstractSettings
-    foreign_key_in_device = 'lots'
-
-    @classmethod
-    def remove_groups(cls, parent_resource_name: str, child_resource_name: str, children: Iterable, parent_label: str):
-        child_domain = cls.dispatch(Naming.type(child_resource_name))
-        child_domain.update_raw(children, {'$unset': {'ancestors.' + parent_resource_name: ''}})
 
     @classmethod
     def inherit(cls, parent_label: str, parent_ancestors: list, child_domain: Domain, children: Iterable):
@@ -30,3 +24,7 @@ class LotDomain(AbstractDomain):
                 cls._update_inheritance_grandchildren(full_children, child_domain)
         else:
             raise KeyError('{} of {} cannot inherit a lot.'.format(children, child_resource_name))
+
+    @classmethod
+    def remove_other_parents_of_type(cls, child_domain: Domain, children: Iterable):
+        pass

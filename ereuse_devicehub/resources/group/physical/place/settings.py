@@ -20,27 +20,13 @@ class Place(Physical):
         'type': 'string',
         'allowed': {'Department', 'Zone', 'Warehouse', 'CollectionPoint'}
     }
-    ancestors = {
-        'type': 'dict',
-        'schema': {
-            'places': place_fk
-        }
-    }
-    parents = {
-        'type': 'dict',
-        'schema': {
-            'places': places_fk
-        }
-    }
-    children = {
-        'type': 'dict',
-        'schema': {
-            'places': places_fk,
-            'lots': lots_fk,
-            'packages': packages_fk,
-            'devices': devices_fk
-        }
-    }
+    ancestors = copy.deepcopy(Physical.ancestors)
+    ancestors['schema']['places'] = places_fk
+    children = copy.deepcopy(Physical.children)
+    children['schema']['packages'] = packages_fk
+    children['schema']['lots'] = lots_fk
+    children['schema']['devices'] = devices_fk
+    children['schema']['places'] = places_fk
     address = {
         'type': 'dict',
         'schema': {

@@ -14,7 +14,7 @@ class TestLocate(TestDeviceEvent):
         locate = self.post_and_check(self.POST_LOCATE, locate)
         # Let's check the place has been correctly materialized in the devices
         for device_id in self.devices_id:
-            self.device_and_place_contain_each_other(device_id, self.place['_id'])
+            self.device_and_group_contain_each_other(device_id, self.place['_id'], self.PLACES, 'place')
         return locate
 
     def test_delete(self):

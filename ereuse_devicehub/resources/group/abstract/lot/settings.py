@@ -1,6 +1,8 @@
+import copy
+
 from ereuse_devicehub.resources.group.abstract.lot.policy import Policies
 from ereuse_devicehub.resources.group.abstract.settings import AbstractSettings, Abstract
-from ereuse_devicehub.resources.group.settings import place_fk, lots_lots_fk, packages_fk, places_fk, lots_fk, \
+from ereuse_devicehub.resources.group.settings import place_fk, packages_fk, places_fk, lots_fk, \
     devices_fk
 
 
@@ -9,13 +11,9 @@ class Lot(Abstract):
         'type': 'dict',
         'schema': Policies()
     }
-    ancestors = {
-        'type': 'dict',
-        'schema': {
-            'places': place_fk,
-            'lots': lots_lots_fk
-        }
-    }
+    ancestors = copy.deepcopy(Abstract.ancestors)
+    ancestors['schema']['places'] = place_fk
+    ancestors['schema']['lots'] = lots_fk
     parents = {
         'type': 'dict',
         'schema': {
@@ -23,14 +21,10 @@ class Lot(Abstract):
             'lots': lots_fk
         }
     }
-    children = {
-        'type': 'dict',
-        'schema': {
-            'packages': packages_fk,
-            'lots': lots_fk,
-            'devices': devices_fk
-        }
-    }
+    children = copy.deepcopy(Abstract.children)
+    children['schema']['packages'] = packages_fk
+    children['schema']['lots'] = lots_fk
+    children['schema']['devices'] = devices_fk
 
 
 class LotSettings(AbstractSettings):

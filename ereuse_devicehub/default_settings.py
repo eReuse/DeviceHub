@@ -4,6 +4,7 @@
     These settings overrides eve's default configuration, and adds new ones.
 """
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
+from ereuse_devicehub.resources.group.settings import GroupSettings
 from ereuse_devicehub.utils import Naming
 
 CLIENT = None
@@ -94,11 +95,10 @@ EVENTS_IN_GRD = [Naming.resource(DeviceEventDomain.new_type(event)) for event in
 from ereuse_devicehub.resources.device.settings import DeviceSettings
 from ereuse_devicehub.resources.account.settings import AccountSettings
 from ereuse_devicehub.resources.event.settings import EventSettings
-from ereuse_devicehub.resources.place.settings import PlaceSettings
 
 DOMAIN = {
     'devices': DeviceSettings,
     'events': EventSettings,
     'accounts': AccountSettings,
-    'places': PlaceSettings
+    'groups': GroupSettings
 }

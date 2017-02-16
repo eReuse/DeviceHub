@@ -8,7 +8,7 @@ class OutputLot(Lot):
         'data_relation': {
             'resource': 'accounts',
             'field': '_id',
-            'embeddable': True,
+            'embeddable': True
         },
         'schema': unregistered_user,
         'doc': 'The user the lot goes to ' + unregistered_user_doc,
@@ -25,4 +25,5 @@ class OutputLot(Lot):
 
 class OutputLotSettings(LotSettings):
     _schema = OutputLot
+    url = None  # todo we can get variables that do not go deep through __a convention
     pass

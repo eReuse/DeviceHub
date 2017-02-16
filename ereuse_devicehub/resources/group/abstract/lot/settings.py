@@ -12,8 +12,8 @@ class Lot(Abstract):
         'schema': Policies()
     }
     ancestors = copy.deepcopy(Abstract.ancestors)
-    ancestors['schema']['places'] = place_fk
-    ancestors['schema']['lots'] = lots_fk
+    ancestors['schema']['schema']['places'] = place_fk
+    ancestors['schema']['schema']['lots'] = lots_fk
     parents = {
         'type': 'dict',
         'schema': {
@@ -25,6 +25,7 @@ class Lot(Abstract):
     children['schema']['packages'] = packages_fk
     children['schema']['lots'] = lots_fk
     children['schema']['devices'] = devices_fk
+    children['schema']['components'] = devices_fk
 
 
 class LotSettings(AbstractSettings):
@@ -33,4 +34,4 @@ class LotSettings(AbstractSettings):
         'default_sort': [('_modified', -1)],
         'source': 'lots'
     }
-    url = 'places'
+    url = 'lots'

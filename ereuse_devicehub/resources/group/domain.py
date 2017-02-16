@@ -1,19 +1,16 @@
 from collections import Iterable
-from collections import defaultdict
 
 from bson import ObjectId
 from passlib.utils import classproperty
-from pydash import pick
+from pydash import compact
+from pydash import flatten
+from pydash import pluck
+from pymongo import ReturnDocument
 from pymongo.errors import OperationFailure
 
-from ereuse_devicehub.exceptions import StandardError
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
 from ereuse_devicehub.resources.device.domain import DeviceDomain
-from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.domain import Domain, ResourceNotFound
-from ereuse_devicehub.resources.group.abstract.lot.settings import Lot
-from ereuse_devicehub.resources.group.physical.package.settings import Package
-from ereuse_devicehub.resources.group.physical.place.settings import Place
 from ereuse_devicehub.resources.group.settings import GroupSettings, Group
 from ereuse_devicehub.utils import Naming
 
@@ -34,40 +31,49 @@ class GroupDomain(Domain):
         :param label: The label of the group, used as an identifier.
         """
 
-        for name in cls.children_resources.keys():
-            resource_original = set(original[name]) if name in original else set()
-            resource_updated = set(updated[name]) if name in updated else set()
+        for resource_name in cls.children_resources.keys():
+            resource_original = set(original[resource_name]) if resource_name in original else set()
+            resource_updated = set(updated[resource_name]) if resource_name in updated else set()
             new_orphans = resource_original - resource_updated
             new_adopted = resource_updated - resource_original
 
-            if name == Device.resource_name:  # We get the components of devices
-                new_orphans |= ComponentDomain.get_components_in_set(list(new_orphans))
-                new_adopted |= ComponentDomain.get_components_in_set(list(new_adopted))
+            if len(new_orphans) != 0 or len(new_adopted) != 0:
+                cls._update_children(new_orphans, new_adopted, ancestors, resource_name, label)
 
-            child_domain = cls.children_resources[name]
-            # We remove our foreign key (with our ancestors) in the orphans' documents
-            cls.disinherit(label, child_domain, new_orphans)
+    @classmethod
+    def _update_children(cls, new_orphans: set, new_adopted: set, ancestors: list, resource_name: str,
+                         label: str or None):
+        child_domain = cls.children_resources[resource_name]
+        # We remove our foreign key (with our ancestors) in the orphans' documents
+        cls.disinherit(label, child_domain, new_orphans)
 
-            # We remove other parents (some groups may override it and do nothing here)
-            cls.remove_other_parents_of_type(child_domain, new_adopted)
+        # We remove other parents (some groups may override it and do nothing here)
+        # Inherit, executed after, will propagate this changes to the descendants
+        cls.remove_other_parents_of_type(child_domain, new_adopted)
 
-            # We add our foreign key (with our ancestors) in the new adopted's documents
-            cls.inherit(label, ancestors, child_domain, new_adopted)
+        # We add our foreign key (with our ancestors) in the new adopted's documents
+        # and we propagate all changes to our descendants
+        cls.inherit(label, ancestors, child_domain, new_adopted)
 
     @classmethod
     def disinherit(cls, parent_label: str, child_domain: Domain, children: Iterable):
         """
         Removes the *ancestors* dict the children inherited from the parent, and then recursively updates
         the ancestors of the descendants of the children.
-
+`
         :param parent_label: The label of the parent, used as FK.
         :param child_domain: The domain of the children. Note that this forces all children to be of the same @type.
         Call inherit as many times as types of children you have.
         :param children: A list of children labels.
         """
-
         q = {'$pull': {'ancestors': {'@type': cls.resource_settings._schema.type_name, 'label': parent_label}}}
         full_children = child_domain.update_raw_get(children, q)
+        # We disinherit any component the devices have (only devices have components)
+        # todo materialize 'components' field into group
+        components = compact(flatten(pluck(full_children, 'components')))
+        if len(components) > 0:
+            cls.disinherit(parent_label, ComponentDomain, components)
+        # Inherit children groups
         if issubclass(child_domain, GroupDomain):
             cls._update_inheritance_grandchildren(full_children, child_domain)
 
@@ -79,6 +85,8 @@ class GroupDomain(Domain):
         By default a resource can only have one parent of a type, so we remove another parent of the same
         type that our children have. Some groups like lots of packages *share parenthood* (they allow
         multiple parents simultaniously for their children) and they override this method with a *pass*.
+
+        This method does not recursively update descendants –use **inherit() after**.
 
         :param child_domain: The domain of the children. Note that this forces all children to be of the same @type.
         Call inherit as many times as types of children you have.
@@ -112,14 +120,14 @@ class GroupDomain(Domain):
         #    - ancestors.prepend({'@type': 'Lot', 'name': '', 'lots': [label], 'packages': [label], 'places': [label]})
 
         # As places only have places is the same as inheriting everything they have.
-        groups = (Place.resource_name, Package.resource_name, Lot.resource_name, Device.resource_name)
+        groups = cls.children_resources.keys()
         full_children = cls._inherit(groups, parent_label, parent_ancestors, child_domain, children)
         if issubclass(child_domain, GroupDomain):
             cls._update_inheritance_grandchildren(full_children, child_domain)
 
     @classmethod
     def _inherit(cls, groups_to_inherit: Iterable, parent_label: str, parent_ancestors: list, child_domain: Domain,
-                 children: Iterable):
+                 children: Iterable) -> list:
         """
         Copies the passed-in ancestors to the children.
 
@@ -128,32 +136,48 @@ class GroupDomain(Domain):
         When pasting the copy, it tries to identify an existing ancestors dictionary given by the parent,
         otherwise creates a new one.
         """
-        child_ancestors = defaultdict(set)
-        child_ancestors['@type'] = cls.resource_settings._schema.type_name
-        child_ancestors['label'] = parent_label
-        for parent_parent in parent_ancestors:
-            for resource_name in groups_to_inherit:
-                if resource_name in parent_parent:
-                    child_ancestors[resource_name] |= set(parent_parent[resource_name])
-                if parent_parent['@type'] == Naming.type(resource_name):  # We add the parent's parent
-                    child_ancestors[resource_name].add(parent_parent['@type'])
-        # Let's try to update an existing ancestor dict (this is with the same label and @type),
-        # Note that this only will succeed when a relationship child-parent already exists, and this case happens
-        # when we are updating the grandchilden (and so on) after adding/deleting a relationship
-        try:
-            extra_query = {'ancestors.@type': child_ancestors['@type'], 'ancestors.label': child_ancestors['label']}
-            update_query = {'$set': {}}
-            for key, value in pick(child_ancestors, groups_to_inherit):
-                update_query['$set']['ancestors.$.' + key] = value
-            return child_domain.update_raw_get(children, update_query, extra_query=extra_query)
-        except OperationFailure as e:
-            if e.code == 16836:
-                # There is not an ancestor dict, so let's create one
-                # This only happens when creating a relationship parent-child
-                update_query = {'$push': {'ancestors': {'$each': [child_ancestors], '$position': 0}}}
-                return child_domain.update_raw_get(children, update_query)
-            else:
-                raise e
+        # The child_ancestors for the 'new' db query
+        child_ancestors_new = {'@type': cls.resource_settings._schema.type_name, 'label': parent_label}
+        # The child_ancestors for the 'update' db query
+        child_ancestors_update = {'$set': {}}
+        for resource_name in groups_to_inherit:
+            child_ancestors_new[resource_name] = set()  # We want to explicitly 'set' for the db
+            for grandparent in parent_ancestors:
+                if resource_name in grandparent:
+                    child_ancestors_new[resource_name] |= set(grandparent[resource_name])
+                if grandparent['@type'] == Naming.type(resource_name):  # We add the grandparent itself
+                    child_ancestors_new[resource_name].add(grandparent['label'])
+            # Let's copy the result of the iteration to the update query
+            child_ancestors_update['$set']['ancestors.$.' + resource_name] = child_ancestors_new[resource_name]
+        return cls._update_db(parent_label, children, child_ancestors_new, child_ancestors_update, child_domain)
+
+    @classmethod
+    def _update_db(cls, parent_label: str, children: Iterable, ancestors_new: dict, ancestors_update: dict,
+                   child_domain: Domain):
+        new_children = []
+        for child in children:  # We cannot run all the children at once when catching exceptions
+            try:
+                # Let's try to update an existing ancestor dict (this is with the same label and @type),
+                # Note that this only will succeed when a relationship child-parent already exists, and this happens
+                # when we are updating the grandchilden (and so on) after adding/deleting a relationship
+                eq = {'ancestors.@type': ancestors_new['@type'], 'ancestors.label': parent_label}
+                full_child, *_ = child_domain.update_raw_get(child, ancestors_update, extra_query=eq, upsert=True)
+
+            except OperationFailure as e:
+                if e.code == 16836:
+                    # There is not an ancestor dict, so let's create one
+                    # This only happens when creating a relationship parent-child
+                    update_query = {'$push': {'ancestors': {'$each': [ancestors_new], '$position': 0}}}
+                    full_child, *_ = child_domain.update_raw_get(child, update_query)
+                else:
+                    raise e
+            if full_child is None:
+                raise GroupNotFound('{} couldn\'t inheritance because it does not exist'.format(child))
+            new_children.append(full_child)
+            # todo materialize components
+            components = full_child.get('components', [])  # Let's update the components
+            cls._update_db(parent_label, components, ancestors_new, ancestors_update, ComponentDomain)
+        return new_children
 
     @classmethod
     def _update_inheritance_grandchildren(cls, full_children: list, child_domain: 'GroupDomain'):
@@ -165,13 +189,14 @@ class GroupDomain(Domain):
         :param full_children: The children whose children (our grand-children) will be updated
         :param child_domain: The domain of the children. Note that this forces all children to be the same @type.
         """
-        if child_domain.resource_settings.resource_name() in Group.types:
+        if child_domain.resource_settings.resource_name() in Group.resource_types:
             for full_child in full_children:
                 for name in child_domain.children_resources.keys():
                     grandchildren_domain = child_domain.children_resources[name]
                     grandchildren = set(full_child['children'][name]) if name in full_child['children'] else set()
-                    child_domain.inherit(full_child['label'], full_child['ancestors'], grandchildren_domain,
-                                         grandchildren)
+                    if len(grandchildren) > 0:
+                        child_domain.inherit(full_child['label'], full_child['ancestors'], grandchildren_domain,
+                                             grandchildren)
 
     @classproperty
     def children_resources(cls):
@@ -179,15 +204,16 @@ class GroupDomain(Domain):
             from ereuse_devicehub.resources.group.physical.place.domain import PlaceDomain
             from ereuse_devicehub.resources.group.physical.package.domain import PackageDomain
             from ereuse_devicehub.resources.group.abstract.lot.domain import LotDomain
+            from ereuse_devicehub.resources.group.abstract.lot.input_lot.domain import InputLotDomain
+            from ereuse_devicehub.resources.group.abstract.lot.output_lot.domain import OutputLotDomain
             cls._children_resources = {
-                Place.resource_name: PlaceDomain,
-                Package.resource_name: PackageDomain,
-                Device.resource_name: DeviceDomain,
-                Lot.resource_name: LotDomain,
-                Place.type_name: PlaceDomain,
-                Package.type_name: PackageDomain,
-                Device.type_name: DeviceDomain,
-                Lot.type_name: LotDomain
+                PlaceDomain.resource_settings.resource_name(): PlaceDomain,
+                PackageDomain.resource_settings.resource_name(): PackageDomain,
+                DeviceDomain.resource_settings.resource_name(): DeviceDomain,
+                LotDomain.resource_settings.resource_name(): LotDomain,
+                InputLotDomain.resource_settings.resource_name(): InputLotDomain,
+                OutputLotDomain.resource_settings.resource_name(): OutputLotDomain,
+                ComponentDomain.resource_settings.resource_name(): ComponentDomain,
             }
         return cls._children_resources
 
@@ -229,11 +255,11 @@ class GroupDomain(Domain):
         """The same but updating 'label' per default"""
         return super().update_one_raw(resource_id, operation, key)
 
+    @classmethod
+    def update_raw_get(cls, ids: str or ObjectId or list, operation: dict, key='label',
+                       return_document=ReturnDocument.AFTER, extra_query={}, **kwargs):
+        return super().update_raw_get(ids, operation, key, return_document, extra_query, **kwargs)
 
-class CannotDeleteIfHasEvent(StandardError):
-    status_code = 400
-    message = 'Delete all the events performed in the place before deleting the {} itself.'
 
-    def __init__(self, resource_type):
-        message = self.message.format(resource_type)
-        super().__init__(message)
+class GroupNotFound(ResourceNotFound):
+    pass

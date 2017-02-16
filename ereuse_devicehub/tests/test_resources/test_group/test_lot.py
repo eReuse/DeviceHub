@@ -6,94 +6,92 @@ from ereuse_devicehub.tests.test_resources.test_group import TestGroupBase
 
 
 class TestLot(TestGroupBase):
-    LOT = 'lot'
-
     def test_schema(self):
-        assert_that(self.domain).contains('lot')
-        schema = self.domain['lot']['schema']
+        assert_that(self.domain).contains('lots')
+        schema = self.domain['lots']['schema']
         assert_that(schema['@type']['allowed']).contains('Lot', 'InputLot', 'OutputLot')
-        assert_that(self.domain['lot']['url']).is_equal_to('lots')
+        assert_that(self.domain[self.LOTS]['url']).is_equal_to('lots')
+        assert_that(self.domain['input-lot']['url']).is_equal_to('lots/input-lot')
+        assert_that(self.domain['output-lot']['url']).is_equal_to('lots/output-lot')
 
     def test_lot_with_devices(self):
         """CRUD of a lot adding and removing devices through all different methods"""
         # Let's create a lot with one device in it
         computers_id = self.get_fixtures_computers()
-        lot = self.get_fixture(self.LOT, 'lot')
-        lot['devices'] = computers_id[0:2]
-        lot = self.post_and_check(self.LOT, copy.deepcopy(lot))
+        lot = self.get_fixture(self.LOTS, 'lot')
+        lot['label'] = 'lot1'
+        lot['children'] = {'devices': computers_id[0:2]}
+        lot_id = self.post_and_check(self.LOTS, lot)['_id']
         # Let's PATCH the lot
         patched_lot = {
-            '_id': lot['_id'],
-            '@type': 'InputLot',
-            'devices': lot['devices'] + computers_id[2:4]
+            '@type': 'Lot',
+            'children': {'devices': computers_id}
         }
-        self.patch_and_check('{}/{}'.format(self.LOT, lot['_id']), copy.deepcopy(patched_lot))
-        # Now we have all computers (4)
+        self.patch_and_check('{}/{}'.format(self.LOTS, lot_id), copy.deepcopy(patched_lot))
         for computer_id in computers_id:
-            self.device_and_group_contain_each_other(computer_id, lot['_id'], self.LOT, 'lots')
+            self.is_parent('lot1', self.LOTS, computer_id, self.DEVICES)
 
         # Let's just make another patch removing a device
-        removed_device = patched_lot['devices'].pop(-1)
-        self.patch_and_check('{}/{}'.format(self.LOT, lot['_id']), copy.deepcopy(patched_lot))
+        removed_device = patched_lot['children']['devices'].pop(-1)
+        self.patch_and_check('{}/{}'.format(self.LOTS, lot_id), patched_lot)
         # All the computers except the last one are accounted
         for computer_id in computers_id[:-1]:
-            self.device_and_group_contain_each_other(computer_id, lot['_id'], self.LOT, 'lots')
-        self.is_parent(lot['_id'], self.LOT, removed_device, self.DEVICES)
+            self.is_parent('lot1', self.LOTS, computer_id, self.DEVICES)
+        self.is_not_parent(lot_id, self.LOTS, removed_device, self.DEVICES)
         # Finally let's remove the entire lot; devices must loose their place
-        self.delete_and_check('{}/{}'.format(self.LOT, lot['_id']))
+        self.delete_and_check('{}/{}'.format(self.LOTS, lot_id))
         for computer_id in computers_id:
-            self.is_not_parent(lot['_id'], self.LOT, computer_id, self.DEVICES)
+            self.child_does_not_have_parent('lot1', self.LOTS, computer_id, self.DEVICES)
 
-    def test_lot_place(self):
-        """Tests introducing/removing lots in places"""
-        # Let's add a lot in a place
-        place = self.get_fixture(self.PLACES, 'place')
-        place = self.post_and_check(self.PLACES, place)
-        lot = self.get_fixture(self.LOT, 'lot')
-        lot['parent'] = [place['label']]
-        lot = self.post_and_check(self.LOT, lot)
-        self.is_parent(place['label'], self.PLACES, lot['label'], self.LOT)
+    def test_lot_moving_devices(self):
+        """Creates two lots (input and output) and moves multiple devices from one to another"""
 
-        # Let's remove the lot from the place
-        lot = self.get_fixture(self.LOT, 'lot')
-        self.patch_and_check('{}/{}'.format(self.LOT, lot['label']), copy.copy(lot))
-        self.is_parent(place['label'], self.PLACES, lot['label'], self.LOT)
+        # Let's try first with regular lots
+        # Devices can be in regular lots and at the end devices will be in both lots
+        input = self.get_fixture(self.LOTS, 'lot')
+        input_label = input['label'] = 'lot1'
+        input_id = self.post_and_check(self.LOTS, input)['_id']
+        output = self.get_fixture(self.LOTS, 'lot')
+        output_label = output['label'] = 'lot2'
+        output_id = self.post_and_check(self.LOTS, output)['_id']
+        computers_id = self.get_fixtures_computers()
 
-        # Let's add two lots in a place
-        second_lot = self.get_fixture(self.LOT, 'lot')
-        second_lot['label'] = 'Second lot'
-        second_lot['parent'] = lot['parent'] = place['label']
-        # First lot
-        self.patch_and_check('{}/{}'.format(self.LOT, lot['label']), copy.copy(lot))
-        self.is_parent(place['label'], self.PLACES, lot['label'], self.LOT)
-        # Second lot
-        self.post_and_check(self.LOT, copy.copy(second_lot))
-        # Both lots are in
-        self.is_parent(place['label'], self.PLACES, lot['label'], self.LOT)
-        self.is_parent(place['label'], self.PLACES, second_lot['label'], self.LOT)
-        # Let's remove the second lot
-        del second_lot['parent']
-        self.patch_and_check('{}/{}'.format(self.LOT, second_lot['label']), copy.copy(second_lot))
-        self.is_not_parent(place['label'], self.PLACES, second_lot['label'], self.LOT)
+        # Let's add the computers to the input lot
+        patched_input = {'@type': 'InputLot', 'children': {'devices': computers_id}}
+        self.patch_and_check('{}/{}'.format(self.LOTS, input_id), patched_input)
+        for computer_id in computers_id:
+            self.is_parent(input_label, self.LOTS, computer_id, self.DEVICES)
 
+        # Let's add them to the output lot
+        patched_output = {'@type': 'OutputLot', 'children': {'devices': computers_id}}
+        self.patch_and_check('{}/{}'.format(self.LOTS, output_id), patched_output)
+        for computer_id in computers_id:
+            self.is_parent(output_label, self.LOTS, computer_id, self.DEVICES)
+        # They are in the first lot too
+        for computer_id in computers_id:
+            self.is_parent(input_label, self.LOTS, computer_id, self.DEVICES)
 
-    def test_lot_packages(self):
-        """Tests introducing/removing packages and devices in lots"""
-        # To start, let's add a lot to a place
-        place = self.get_fixture(self.PLACES, 'place')
-        self.post_and_check(self.PLACES, place)
-        lot = self.get_fixture(self.LOT, 'lot')
-        lot['parent'] = [place['label']]
-        self.post_and_check(self.LOT, lot)
+            # And now with input/output lots
+            # Devices can have only one input/output lot at the same time as parent
+            # input = self.get_fixture(self.LOTS, 'input-lot')
+            # input_label = input['label']
+            # input_id = self.post_and_check(self.INPUT_LOT_URL, input_label)
+            # output = self.get_fixture(self.LOTS, 'output-lot')
+            # output_label = output['label']
+            # output_id = self.post_and_check(self.OUTPUT_LOT_URL, output_label)
+            # computers_id = self.get_fixtures_computers()
 
-        # Now let's add the package to the lot
-        package = self.get_fixture(self.PACKAGES, 'package')
-        package['parent'] = lot['label']
-        self.post_and_check(self.PACKAGES, package)
+            # Let's add the computers to the input lot
+            # patched_input = {'@type': 'InputLot', 'children': {'devices': computers_id}}
+            # self.patch_and_check('{}/{}'.format(self.INPUT_LOT_URL, input_id), patched_input)
+            # for computer_id in computers_id:
+            #    self.is_parent(input_label, self.INPUT_LOT, computer_id, self.OUTPUT_LOT)
 
-
-
-
-
-
-
+            # Let's add them to the output lot
+            # patched_output = {'@type': 'OutputLot', 'children': {'devices': computers_id}}
+            # self.patch_and_check('{}/{}'.format(self.OUTPUT_LOT_URL, output_id), patched_output)
+            # for computer_id in computers_id:
+            #    self.is_parent(output_label, self.INPUT_LOT, computer_id, self.OUTPUT_LOT)
+            # They are not in the first lot
+            # for computer_id in computers_id:
+            # self.is_not_parent(input_label, self.INPUT_LOT, computer_id, self.OUTPUT_LOT)

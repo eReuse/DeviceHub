@@ -1,9 +1,10 @@
 from assertpy import assert_that
 
 from ereuse_devicehub.tests.test_resources.test_events.test_device_event import TestDeviceEvent
+from ereuse_devicehub.tests.test_resources.test_group import TestGroupBase
 
 
-class TestLocate(TestDeviceEvent):
+class TestLocate(TestDeviceEvent, TestGroupBase):
     LOCATE = 'locate'
     POST_LOCATE = TestDeviceEvent.DEVICE_EVENT + '/locate'
 
@@ -14,7 +15,7 @@ class TestLocate(TestDeviceEvent):
         locate = self.post_and_check(self.POST_LOCATE, locate)
         # Let's check the place has been correctly materialized in the devices
         for device_id in self.devices_id:
-            self.device_and_group_contain_each_other(device_id, self.place['_id'], self.PLACES, 'place')
+            self.is_parent(self.place['label'], self.PLACES, device_id, self.DEVICES)
         return locate
 
     def test_delete(self):
@@ -46,8 +47,9 @@ class TestLocate(TestDeviceEvent):
         self.assertEqual(locate['place'], place['_id'])
         # Let's assure that the materializations of the devices are correct
         for device_id in self.devices_id:
-            device, _ = self.get(self.DEVICES, '', device_id)
-            self.assertEqual(place['_id'], device['place'])
+            device, _ = self.get(self.DEVICES, item=device_id)
+            place, _ = self.get(self.PLACES, item=place['_id'])
+            self.is_parent(place['label'], self.PLACES, device_id, self.DEVICES)
             assert_that(device['events'][0]).is_subset_of(locate)
 
     def test_monitor(self):
@@ -68,5 +70,6 @@ class TestLocate(TestDeviceEvent):
         self.assertEqual(locate['place'], place['_id'])
         # Let's assure that the materializations of computerMonitor are correct
         computer_monitor, _ = self.get(self.DEVICES, '', snapshot['device'])
-        self.assertEqual(place['_id'], computer_monitor['place'])
+        place, _ = self.get(self.PLACES, item=place['_id'])
+        self.is_parent(place['label'], self.PLACES, computer_monitor['_id'], self.DEVICES)
         assert_that(computer_monitor['events'][0]).is_subset_of(locate)

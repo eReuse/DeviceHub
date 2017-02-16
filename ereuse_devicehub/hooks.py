@@ -94,13 +94,13 @@ def hooks(app):
     app.on_insert_devices_receive += set_organization
 
     from ereuse_devicehub.resources.group.hooks import set_children, delete_children, \
-        update_group_in_devices, update_children
-    app.on_inserted += set_children
-    app.on_updated += update_children
-    app.on_deleted_item += delete_children
-    app.on_replaced += update_children
+        update_children
+    app.on_insert += set_children
+    app.on_update += update_children
+    app.on_delete_item += delete_children
+    app.on_replace += update_children
 
-    from ereuse_devicehub.resources.place.hooks import avoid_deleting_if_has_event
+    from ereuse_devicehub.resources.group.physical.place.hooks import avoid_deleting_if_has_event
     app.on_delete_item_places += avoid_deleting_if_has_event
 
     # Device materializations

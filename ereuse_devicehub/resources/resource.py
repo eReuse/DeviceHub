@@ -152,11 +152,17 @@ class ResourceSettings(Resource):
         fields = super(ResourceSettings, cls).actual_fields()
         super_resources = super(ResourceSettings, cls).superclasses(2)
         # Creating the url for the resource
+        # if you set 'url' in the ResourceSettings itself this is used directly as a starting-point
+        # This is, the names of the superclassess are replaced
+        # If you set 'url' in the schema._settings this is appended in the normal creation of the url
+        # instead of the schcema name
         names = []
         for resource in reversed(super_resources):
             if getattr(resource, '_schema', False):
-                # We get the URL: first by getting settings['url'] or using the name of the class
-                names.append(resource._schema._settings.get('url', Naming.resource(resource._schema.__name__)))
+                if getattr(resource, 'url', None):  # If a parent has 'url' we generate the subresource from there
+                    names = [resource.url]
+                else:
+                    names.append(resource._schema._settings.get('url', Naming.resource(resource._schema.__name__)))
         fields['url'] = '/'.join(names)
         return fields
 

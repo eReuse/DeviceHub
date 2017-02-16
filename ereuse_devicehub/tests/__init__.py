@@ -61,6 +61,9 @@ class TestBase(TestMinimal):
         self.token = self._login()
         self.auth_header = ('authorization', 'Basic ' + self.token)
 
+        self.db2 = self.app.config['DATABASES'][1]  # 'dht2'
+        self.db1 = self.app.config['DATABASES'][0]  # 'dht1'
+
     def setupDB(self):
         self.connection = MongoClient(self.MONGO_HOST, self.MONGO_PORT)
         self.db = self.connection[self.MONGO_DBNAME]
@@ -277,36 +280,6 @@ class TestStandard(TestBase):
         mounted['device']['forceCreation'] = True
         mounted = self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), mounted)
         return [self.get(self.EVENTS, '', event['events'][0])[0]['device'] for event in [vaio, vostro, xps13, mounted]]
-
-    def device_and_group_contain_each_other(self, device_id: str, group_id: str, group_url, foreign_key,
-                                            containing=False):
-        """
-        Checks that the materialization of device-place is correct. This is, the place has a reference to a device
-        and the device has a reference to a place. If the device has components,
-        this checks the same for the components.
-
-        :param device_id:
-        :param group_id:
-        :param group_url: The url to GET the group.
-        :param foreign_key: The field name of the foreign key in the device pointing at the group
-        :param containing: Is the value of the foreign key field above a list of groups or a single unit?
-        """
-        group, _ = self.get(group_url, '', group_id)
-        self.assertIn('devices', group)
-        self.assertIn(device_id, group['devices'])
-        device, _ = self.get(self.DEVICES, '', device_id)
-        self.assertIn(foreign_key, device)
-        if containing:
-            self.assertIn(group_id, device[foreign_key])
-        else:
-            self.assertEqual(group_id, device[foreign_key])
-        for component_id in device.get('components', []):
-            component, _ = self.get(self.DEVICES, '', component_id)
-            self.assertIn(foreign_key, component)
-            if containing:
-                self.assertIn(group_id, component[foreign_key])
-            else:
-                self.assertEqual(component[foreign_key], group_id)
 
     def devices_do_not_contain_places(self, device_id: str) -> list:
         """ The opposite of `device_and_place_contain_each_other`."""

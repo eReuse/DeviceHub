@@ -25,8 +25,6 @@ class TestMigrate(TestDeviceEvent):
             }
         )
         self.token_b = super(TestBase, self).post('/login', {'email': 'b@b.b', 'password': '1234'})[0]['token']
-        self.db2 = self.app.config['DATABASES'][1]  # 'dht2'
-        self.db1 = self.app.config['DATABASES'][0]  # 'dht1'
 
     def test_migrate(self):
         """Tests a basic migrate of multiple devices, from one database (db1) to another database (db2)."""
@@ -57,12 +55,12 @@ class TestMigrate(TestDeviceEvent):
         patched_place = {
             '_id': self.place['_id'],
             '@type': 'Place',
-            'devices': self.devices_id
+            'children': {'devices': self.devices_id}
         }
         _, status = self.patch('{}/{}'.format(self.PLACES, self.place['_id']), patched_place)
         # todo it should be 422 however eve's patch renders 400 if exception does not extend werkzeug's HTTPException
         self.assert400(status)
-        del patched_place['devices']  # By removing the devices it should work (empty place)
+        del patched_place['children']['devices']  # By removing the devices it should work (empty place)
         _, status = self.patch('{}/{}'.format(self.PLACES, self.place['_id']), patched_place)
         self.assert200(status)
         allocate = self.get_fixture('allocate', 'allocate')  # Let's post another event
@@ -77,7 +75,7 @@ class TestMigrate(TestDeviceEvent):
         # Let's perform the same but in db2
         # Note that we will need to create the place in db2
         place = self.get_fixture(self.PLACES, 'place')
-        place['devices'] = self.devices_id
+        place['children'] = {'devices': self.devices_id}
         place_in_db2, status = self._post('{}/{}'.format(self.db2, self.PLACES), place, self.token_b)
         self.assert201(status)
 
@@ -121,11 +119,11 @@ class TestMigrate(TestDeviceEvent):
         place_in_db2, status = self._get('{}/{}/{}'.format(self.db2, self.PLACES, place_in_db2['_id']), self.token_b)
         self.assert200(status)
         # assert_that(place_in_db2).does_not_contain('devices')
-        assert_that(place_in_db2['devices']).does_not_contain(*[device['_id'] for device in devices_db2])
+        assert_that(place_in_db2['children']['devices']).does_not_contain(*[device['_id'] for device in devices_db2])
         # b) you cannot POST/PUT/PATCH/DELETE anything with a reference to those devices
         new_patch_for_place_in_db2 = {
             '@type': 'Place',
-            'devices': self.devices_id
+            'children': {'devices': self.devices_id}
         }
         url = '{}/{}/{}'.format(self.db2, self.PLACES, place_in_db2['_id'])
         _, status = self._patch(url, new_patch_for_place_in_db2, self.token_b)

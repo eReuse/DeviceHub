@@ -30,3 +30,7 @@ class TestResourceNaming(TestBase):
         self.try_prefix('Event', 'projects', 'events')
         # Finally without prefix
         self.try_prefix('Device', None, 'devices')
+        self.try_prefix('Package', None, 'packages')
+        self.try_prefix('Lot', None, 'lots')
+        self.try_prefix('InputLot', None, 'input-lot')
+        self.try_prefix('Place', None, 'places')

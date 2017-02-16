@@ -2,18 +2,18 @@ from collections import defaultdict
 from math import floor
 
 import flask_excel as excel
-from sortedcontainers import SortedSet
-
-from ereuse_devicehub.flask_decorators import crossdomain
-from ereuse_devicehub.resources.account.domain import AccountDomain
-from ereuse_devicehub.resources.submitter.translator import ResourceTranslator, ResourcesTranslator
-from ereuse_devicehub.rest import execute_get
 from eve.auth import requires_auth
 from flask import current_app
 from flask import json
 from flask import request
 from pyexcel_webio import FILE_TYPE_MIME_TABLE as REVERSED_FILE_TYPE_MIME_TABLE
+from sortedcontainers import SortedSet
 from werkzeug.exceptions import NotAcceptable
+
+from ereuse_devicehub.flask_decorators import crossdomain
+from ereuse_devicehub.resources.account.domain import AccountDomain
+from ereuse_devicehub.resources.submitter.translator import ResourceTranslator, ResourcesTranslator
+from ereuse_devicehub.rest import execute_get
 
 FILE_TYPE_MIME_TABLE = dict(zip(REVERSED_FILE_TYPE_MIME_TABLE.values(), REVERSED_FILE_TYPE_MIME_TABLE.keys()))
 
@@ -29,7 +29,7 @@ def export(db, resource):
     token = AccountDomain.hash_token(AccountDomain.actual_token)
     group_by = request.args.get('groupBy')
     default_group = request.args.get('defaultGroup', 'Others')
-    embedded = {'byUser': 1, 'events': 1, 'components': 1, 'place': 1, 'owners': 1}
+    embedded = {'byUser': 1, 'events': 1, 'components': 1, 'owners': 1}  # todo we do not get places for now 'place': 1
     translator = SpreadsheetTranslator(current_app.config, group_by=group_by, default_group=default_group)
     exporter = Exporter(translator, embedded, token)
     spreadsheets, _ = exporter.export(ids, db, resource)[0]
@@ -59,7 +59,7 @@ class SpreadsheetResourceTranslator(ResourceTranslator):
             'Serial Number': (self.identity, 'serialNumber'),
             'Model': (self.identity, 'model'),
             'Manufacturer': (self.identity, 'manufacturer'),
-            'Actual place': (self.inner_field('label'), 'place'),
+            # 'Actual place': (self.inner_field('label'), 'place'), todo we do not get places for now
             'Actual state': (self.nth_resource(0, after=self.inner_fields(['@type', 'label', '_id'])), 'events'),
             'Registered in': (self.identity, '_created'),
             'Created by': (self.inner_field('email'), 'byUser'),
@@ -105,7 +105,8 @@ class SpreadsheetTranslator(ResourcesTranslator):
         resources = self._translate_resources(resources)
         # We get all the field names, note that not all field_names are in all resources
         # And we want the 'static_field_names' to be before other fields
-        field_names = ['Label ID', 'Identifier', 'Serial Number', 'Model', 'Manufacturer', 'CPU', 'RAM (GB)', 'HDD (MB)']
+        field_names = ['Label ID', 'Identifier', 'Serial Number', 'Model', 'Manufacturer', 'CPU', 'RAM (GB)',
+                       'HDD (MB)']
         other_field_names = SortedSet()
         for resource, _ in resources:
             other_field_names = other_field_names | resource.keys()

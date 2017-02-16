@@ -1,13 +1,16 @@
 import pymongo
+from flask import current_app
+from pydash import uniq
+
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
 from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.settings import Event, DeviceEvent
-from ereuse_devicehub.resources.place.domain import PlaceDomain, NoPlaceForGivenCoordinates, \
+from ereuse_devicehub.resources.group.physical.place.domain import NoPlaceForGivenCoordinates, \
     CoordinatesAndPlaceDoNotMatch
+from ereuse_devicehub.resources.group.physical.place.domain import PlaceDomain
 from ereuse_devicehub.rest import execute_patch, execute_delete
 from ereuse_devicehub.utils import Naming
-from flask import current_app
 
 
 def get_place(resource_name: str, events: list):
@@ -77,8 +80,9 @@ def set_place(resource_name: str, events: list):
             if 'place' in event:
                 place = PlaceDomain.get_one(event['place'])
                 device = [event['device']] if 'device' in event else []
-                execute_patch('places', {'devices': list(set(place['devices'] + event.get('devices', []) + device))},
-                              event['place'])
+                devices = uniq(place['children'].get('devices', []) + event.get('devices', []) + device)
+                patch = {'@type': 'Place', 'label': place['label'], 'children': {'devices': devices}}
+                execute_patch('places', patch, identifier=place['_id'])
 
 
 def unset_place(resource_name: str, event: dict):
@@ -86,8 +90,9 @@ def unset_place(resource_name: str, event: dict):
         if 'place' in event:
             place = PlaceDomain.get_one(event['place'])
             device = [event['device']] if 'device' in event else []
-            devices = event.get('devices', []) + device
-            execute_patch('places', {'devices': list(set(place['devices']) - set(devices))}, event['place'])
+            devices = list(set(place['children'].get('devices', [])) - set(event.get('devices', []) + device))
+            patch = {'@type': 'Place', 'label': place['label'], 'children': {'devices': devices}}
+            execute_patch('places', patch, event['place'])
 
 
 def delete_events_in_device(resource_name: str, device: dict):

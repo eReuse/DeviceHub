@@ -7,7 +7,3 @@ from ereuse_devicehub.resources.group.physical.package.settings import PackageSe
 
 class PackageDomain(PhysicalDomain):
     resource_settings = PackageSettings
-
-    @classmethod
-    def remove_other_parents_of_type(cls, child_domain: Domain, children: Iterable):
-        pass

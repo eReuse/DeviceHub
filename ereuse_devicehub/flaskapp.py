@@ -8,7 +8,7 @@ import sys
 import gnupg
 from contextlib import suppress
 from ereuse_devicehub.aggregation.settings import aggregate_view
-from ereuse_devicehub.data_layer import DataLayer
+from ereuse_devicehub.data_layer import DataLayer, MongoEncoder
 from ereuse_devicehub.error_handler import ErrorHandlers
 from ereuse_devicehub.export.export import export
 from ereuse_devicehub.hooks import hooks
@@ -35,12 +35,13 @@ from flask import request
 class DeviceHub(Eve):
     def __init__(self, import_name=__package__, settings='settings.py', validator=DeviceHubValidator, data=DataLayer,
                  auth=RolesAuth, redis=None, url_converters=None, json_encoder=None, media=GridFSMediaStorage,
-                 url_parse=UrlParse, **kwargs):
+                 url_parse=UrlParse, mongo_encoder=MongoEncoder, **kwargs):
         kwargs.setdefault('static_url_path', '/static')
         super().__init__(import_name, settings, validator, data, auth, redis, url_converters, json_encoder, media,
                          **kwargs)
         self.json_encoder = MongoJSONEncoder
         self.request_class = RequestSignedJson
+        self.mongo_encoder = mongo_encoder()
         self.gpg = gnupg.GPG()
         self.cache = cache
         self.cache.init_app(self)
@@ -161,3 +162,8 @@ class DeviceHub(Eve):
                 with suppress(KeyError):
                     schema['_settings']['icon'] = settings['icon']
             return send_response(None, (schemas,))
+
+    # def handle_user_exception(self, e):
+    #     raise e
+
+

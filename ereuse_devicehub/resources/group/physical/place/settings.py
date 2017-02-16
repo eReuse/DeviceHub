@@ -4,9 +4,8 @@ import iso3166
 import pymongo
 
 from ereuse_devicehub.resources.group.physical.settings import Physical, PhysicalSettings
-from ereuse_devicehub.resources.group.settings import children_groups, place_fk, places_fk, lots_fk, packages_fk, \
+from ereuse_devicehub.resources.group.settings import places_fk, lots_fk, packages_fk, \
     devices_fk
-from ereuse_devicehub.resources.schema import Thing
 
 
 class Place(Physical):
@@ -21,12 +20,13 @@ class Place(Physical):
         'allowed': {'Department', 'Zone', 'Warehouse', 'CollectionPoint'}
     }
     ancestors = copy.deepcopy(Physical.ancestors)
-    ancestors['schema']['places'] = places_fk
+    ancestors['schema']['schema']['places'] = places_fk
     children = copy.deepcopy(Physical.children)
     children['schema']['packages'] = packages_fk
     children['schema']['lots'] = lots_fk
     children['schema']['devices'] = devices_fk
     children['schema']['places'] = places_fk
+    children['schema']['components'] = devices_fk
     address = {
         'type': 'dict',
         'schema': {

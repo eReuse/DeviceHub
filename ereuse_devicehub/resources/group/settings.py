@@ -49,20 +49,26 @@ class Group(Thing):
     label['unique'] = True
     children = {
         'type': 'dict',
-        'schema': {}  # Let make each group type define it
+        'schema': {},  # Let make each group type define it
+        'default': {}
     }
     ancestors = {
         'type': 'list',
         'schema': {
-            '@type': {
-                'type': 'string'
-            },
-            'label': {
-                'type': 'string',
-                'doc': 'Although this is a data relation, we cannot specify it to eve as datasources'
-                       'are different. This is an ordered set of values where the first is the parent.'
+            'type': 'dict',
+            'schema': {
+                '@type': {
+                    'type': 'string',
+                    'allowed': {'Lot', 'InputLot', 'OutputLot', 'Place', 'Package'}
+                },
+                'label': {
+                    'type': 'string',
+                    'doc': 'Although this is a data relation, we cannot specify it to eve as datasources'
+                           'are different. This is an ordered set of values where the first is the parent.'
+                }
             }
         },
+        'default': [],
         'materialized': True
     }
 
@@ -78,6 +84,10 @@ class GroupSettings(ResourceSettings):
     extra_response_fields = ResourceSettings.extra_response_fields + ['children', 'ancestors', 'byUser', 'devices']
     mongo_indexes = {
         '@type and label': [('@type', pymongo.DESCENDING), ('label', pymongo.DESCENDING)],
+    }
+    additional_lookup = {
+        'url': r'regex("([\w]).+")',
+        'field': 'label',
     }
 
 
@@ -103,6 +113,7 @@ package_fk = {
         'field': 'label'
     }
 }
+
 packages_fk = {
     'type': 'list',
     'schema': package_fk,

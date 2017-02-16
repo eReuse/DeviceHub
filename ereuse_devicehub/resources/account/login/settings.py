@@ -17,5 +17,5 @@ def login():
         account['token'] = AccountDomain.hash_token(account['token'])
         account['_id'] = str(account['_id'])
         return jsonify(account)
-    except (KeyError, TypeError, UserNotFound):
-        raise WrongCredentials()
+    except (KeyError, TypeError, UserNotFound) as e:
+        raise WrongCredentials() from e

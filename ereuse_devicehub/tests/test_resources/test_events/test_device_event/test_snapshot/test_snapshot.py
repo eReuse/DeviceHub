@@ -9,11 +9,12 @@ from bson import objectid
 
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.tests.test_resources.test_events import TestEvent
+from ereuse_devicehub.tests.test_resources.test_group import TestGroupBase
 from ereuse_devicehub.utils import Naming, coerce_type
 from ereuse_devicehub.utils import NestedLookup
 
 
-class TestSnapshot(TestEvent):
+class TestSnapshot(TestEvent, TestGroupBase):
     DUMMY_DEVICES = (
         '1_1_Register_one_device_with_components',
         '1 - 2 - Register second device with components of first',
@@ -369,7 +370,7 @@ class TestSnapshot(TestEvent):
         num_events = self.get_num_events(snapshot)
         device_id = self.creation(snapshot, num_events)
         device, _ = self.get(self.DEVICES, '', device_id)
-        assert_that(device['place']).is_equal_to(snapshot['place'])
+        self.is_parent(snapshot['place'], self.PLACES, device['_id'], self.DEVICES)
         account, status = self.get(self.ACCOUNTS, '', 'hello@hello.com')
         self.assert200(status)
 

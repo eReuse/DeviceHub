@@ -1,9 +1,11 @@
+from ereuse_devicehub.resources.device.component.settings import ComponentSettings
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.domain import EventDomain
 
 
 class ComponentDomain(DeviceDomain):
+    resource_settings = ComponentSettings
     @classmethod
     def get_parent(cls, _id: str) -> dict or None:
         return cls.get_one({'components': {'$in': [_id]}})

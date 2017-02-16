@@ -1,11 +1,12 @@
 from bson.objectid import ObjectId
 from flask import current_app
+from passlib.utils import classproperty
 from pydash import merge
 from pymongo import ReturnDocument
 
+from ereuse_devicehub.data_layer import mongo_encode
 from ereuse_devicehub.exceptions import StandardError
 from ereuse_devicehub.resources.resource import ResourceSettings
-from ereuse_devicehub.utils import ClassProperty
 
 
 class Domain:
@@ -14,6 +15,7 @@ class Domain:
     """Link to the resource settings. Override it linking it with the appropriate subclass"""
 
     @classmethod
+    @mongo_encode('id_or_filter')
     def get_one(cls, id_or_filter: dict or ObjectId or str):
         """
         Obtains a resource.
@@ -28,6 +30,7 @@ class Domain:
             return resource
 
     @classmethod
+    @mongo_encode('query_filter')
     def get(cls, query_filter: dict) -> list:
         """
         Obtains several resources.
@@ -36,6 +39,7 @@ class Domain:
         return list(current_app.data.find_raw(cls.source, query_filter))
 
     @classmethod
+    @mongo_encode('operation')
     def update_raw(cls, ids: str or ObjectId or list, operation: dict, key='_id'):
         """
         Sets the properties of a resource using directly the database layer.
@@ -50,10 +54,12 @@ class Domain:
         return count
 
     @classmethod
+    @mongo_encode('filter', 'operation')
     def update_many_raw(cls, filter, operation):
         return current_app.data.driver.db[cls.source].update_many(filter, operation)
 
     @classmethod
+    @mongo_encode('id_or_filter')
     def update_one_raw(cls, resource_id: str or ObjectId, operation, key='_id'):
         count = current_app.data.driver.db[cls.source].update_one({key: resource_id}, operation).matched_count
         if count == 0:
@@ -61,24 +67,24 @@ class Domain:
             raise ResourceNotFound('{} {} cannot be updated as it is not found.'.format(name, resource_id))
 
     @classmethod
+    @mongo_encode('operation', 'extra_query')
     def update_raw_get(cls, ids: str or ObjectId or list, operation: dict, key='_id',
-                       return_document=ReturnDocument.AFTER, extra_query={}):
+                       return_document=ReturnDocument.AFTER, extra_query={}, **kwargs):
         """Updates the resources and returns them. Set *return_document* to get the documents before/after the update."""
         resources_id = [ids] if type(ids) is str or type(ids) is ObjectId else ids
         data = current_app.data.driver.db[cls.source]
         results = []
         for identifier in resources_id:
             query = merge({key: identifier}, extra_query)
-            results.append(data.find_one_and_update(query, operation, return_document=return_document))
+            results.append(data.find_one_and_update(query, operation, return_document=return_document, **kwargs))
         return results
 
     @classmethod
+    @mongo_encode('query')
     def delete(cls, query):
         return current_app.data.driver.db[cls.source].delete_one(query)
 
-    # noinspection PyNestedDecorators
-    @ClassProperty
-    @classmethod
+    @classproperty
     def source(cls):
         try:
             return cls.resource_settings.datasource['source']

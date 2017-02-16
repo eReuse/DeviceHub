@@ -1,6 +1,11 @@
 from contextlib import suppress
 
 import pymongo
+from flask import Response
+from flask import current_app
+from flask import g
+from flask import json
+
 from ereuse_devicehub.exceptions import SchemaError, InnerRequestError
 from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.device.component.settings import Component
@@ -11,15 +16,11 @@ from ereuse_devicehub.resources.event.device.migrate.migrate import DeviceHasMig
 from ereuse_devicehub.resources.event.device.migrate.migrate_creator import MigrateCreator
 from ereuse_devicehub.resources.event.device.migrate.settings import Migrate
 from ereuse_devicehub.resources.event.domain import EventNotFound
-from ereuse_devicehub.resources.place.domain import PlaceDomain
-from ereuse_devicehub.resources.place.settings import Place
+from ereuse_devicehub.resources.group.physical.place.domain import PlaceDomain
+from ereuse_devicehub.resources.group.physical.place.settings import Place
 from ereuse_devicehub.rest import execute_delete, execute_patch
 from ereuse_devicehub.security.request_auth import AgentAuth
 from ereuse_devicehub.utils import Naming
-from flask import Response
-from flask import current_app
-from flask import g
-from flask import json
 
 MIGRATE_RETURNED_SAME_AS = 'migrate_returned_same_as'
 
@@ -42,19 +43,8 @@ def submit_migrate(migrates: dict):
                 execute_delete(Migrate.resource_name, migrate['_id'])
                 raise e
             else:
-                _remove_devices_from_places(migrate)
                 update = {'$set': {'to.url': migrate['to']['url'], 'devices': [_id for _id in migrate['devices']]}}
                 DeviceEventDomain.update_one_raw(migrate['_id'], update)
-
-
-def _remove_devices_from_places(migrate):
-    """Removes the devices of the migrate from their place"""
-    for device in migrate:
-        if 'place' in device:
-            place = PlaceDomain.get_one(device['place'])
-            devices = set(place['devices'])
-            devices.remove(device['_id'])
-            execute_patch('places', {'@type': 'Place', 'devices': list(devices)}, place['_id'])
 
 
 def _update_same_as(returned_same_as: dict):
@@ -129,7 +119,8 @@ def check_migrate(_, resource: dict):
     come back.
     :raises DeviceHasMigrated
     """
-    devices = ([resource['device']] if 'device' in resource else []) + resource.get('devices', [])
+    devices = ([resource['device']] if 'device' in resource else [])
+    devices += resource.get('children', {}).get('devices', []) + resource.get('devices', [])
     for device_id in devices:
         with suppress(EventNotFound):
             # todo can it be done with only one access to the DB for all devices (optimization)?
@@ -148,9 +139,9 @@ def remove_devices_from_place(migrates: dict):
     for migrate in migrates:
         if 'to' in migrate:
             devices_to_remove = set(migrate['devices'])
-            for place in PlaceDomain.get({'devices': {'$in': migrate['devices']}}):
+            for place in PlaceDomain.get({'children.devices': {'$in': migrate['devices']}}):
                 payload = {
                     '@type': Place.type_name,
-                    'devices': list(set(place['devices']) - devices_to_remove)
+                    'children': {'devices': list(set(place['children'].get('devices', [])) - devices_to_remove)}
                 }
                 execute_patch(Place.resource_name, payload, place['_id'])

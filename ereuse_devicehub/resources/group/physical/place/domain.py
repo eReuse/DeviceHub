@@ -1,6 +1,9 @@
+from collections import Iterable
+
 from flask import current_app
 
 from ereuse_devicehub.exceptions import StandardError
+from ereuse_devicehub.resources.domain import Domain
 from ereuse_devicehub.resources.group.physical.domain import PhysicalDomain
 from ereuse_devicehub.resources.group.physical.place.settings import PlaceSettings
 
@@ -28,6 +31,13 @@ class PlaceDomain(PhysicalDomain):
         if not place:
             raise NoPlaceForGivenCoordinates()
         return place
+
+    @classmethod
+    def remove_other_parents_of_type(cls, child_domain: Domain, children: Iterable):
+        """Removes other places and packages the resource may have."""
+        query = {'$pull': {'ancestors': {'@type': 'Package'}}}
+        child_domain.update_raw(children, query)
+        super().remove_other_parents_of_type(child_domain, children)
 
 
 class CannotDeleteIfHasEvent(StandardError):

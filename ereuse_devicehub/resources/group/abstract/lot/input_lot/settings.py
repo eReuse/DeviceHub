@@ -7,7 +7,7 @@ class InputLot(Lot):
         'data_relation': {
             'resource': 'accounts',
             'field': '_id',
-            'embeddable': True,
+            'embeddable': True
         },
         'sink': 2
     }
@@ -20,4 +20,5 @@ class InputLot(Lot):
 
 class InputLotSettings(LotSettings):
     _schema = InputLot
-    pass
+    url = None
+

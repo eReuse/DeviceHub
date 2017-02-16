@@ -1,0 +1,1 @@
+from .lot import settings

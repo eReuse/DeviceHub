@@ -40,7 +40,7 @@ MONGO_DBNAME = 'dh__accounts'
 """
 RESOURCES_NOT_USING_DATABASES = ['schema']
 """List of any special resources that do not use any database, for example eve's schema endpoint."""
-RESOURCES_CHANGING_NUMBER = {'device', 'event', 'account', 'place', 'erase', 'project', 'package', 'lot', ''}
+RESOURCES_CHANGING_NUMBER = {'device', 'event', 'account', 'place', 'erase', 'project', 'package', 'lot'}
 """
     List of resources that change form singular and plural. Write it in the resource singular form.
     See :class:`app.utils.Naming`

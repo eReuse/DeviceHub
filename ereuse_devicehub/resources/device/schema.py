@@ -116,3 +116,19 @@ class Device(IndividualProduct):
         'materialized': True
     }
     ancestors = Package.ancestors
+    placeholder = {
+        'type': 'boolean',
+        'default': False,
+        'doc': 'Invalid for components.'
+    }
+
+    @classmethod
+    def subclasses_fields(cls):
+        """We remove the 'required' clause from the aggregation"""
+        fields = super().subclasses_fields()
+        if cls == Device:
+            del fields['model']['required']
+            del fields['serialNumber']['required']
+            del fields['manufacturer']['required']
+            del fields['type']['required']
+        return fields

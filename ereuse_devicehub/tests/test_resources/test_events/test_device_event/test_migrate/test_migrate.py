@@ -1,14 +1,25 @@
+import os
+
 from assertpy import assert_that
+from passlib.handlers.sha2_crypt import sha256_crypt
+
 from ereuse_devicehub.resources.event.device.migrate.settings import Migrate
 from ereuse_devicehub.resources.event.device.register.settings import Register
 from ereuse_devicehub.tests import TestBase
 from ereuse_devicehub.tests.test_resources.test_events.test_device_event import TestDeviceEvent
 from ereuse_devicehub.utils import Naming
-from passlib.handlers.sha2_crypt import sha256_crypt
 
 
 class TestMigrate(TestDeviceEvent):
     MIGRATE = 'migrate'
+    MIGRATE_URL = '{}/{}'.format(TestDeviceEvent.DEVICE_EVENT, MIGRATE)
+
+    @staticmethod
+    def set_settings(settings):
+        settings.DHT3_DBNAME = 'dht3_'
+        settings.DHT4_DBNAME = 'dht4_'
+        TestDeviceEvent.set_settings(settings)
+        settings.DATABASES += 'dht3', 'dht4'
 
     def setUp(self, settings_file=None, url_converters=None):
         super().setUp(settings_file, url_converters)
@@ -128,3 +139,64 @@ class TestMigrate(TestDeviceEvent):
         url = '{}/{}/{}'.format(self.db2, self.PLACES, place_in_db2['_id'])
         _, status = self._patch(url, new_patch_for_place_in_db2, self.token_b)
         self.assert400(status)
+
+    def add_accounts_dht3and4(self):
+        self.db.accounts.insert(
+            {
+                'email': 'c@c.c',
+                'password': sha256_crypt.encrypt('1234'),
+                'role': 'admin',
+                'token': 'FDAEWHPIOZMGU',
+                'databases': self.app.config['DATABASES'][2],
+                'defaultDatabase': self.app.config['DATABASES'][2],
+                '@type': 'Account'
+            }
+        )
+        self.token_c = super(TestBase, self).post('/login', {'email': 'c@c.c', 'password': '1234'})[0]['token']
+        self.db.accounts.insert(
+            {
+                'email': 'd@d.d',
+                'password': sha256_crypt.encrypt('1234'),
+                'role': 'admin',
+                'token': 'FDAEWHPIOZMGU',
+                'databases': self.app.config['DATABASES'][3],
+                'defaultDatabase': self.app.config['DATABASES'][3],
+                '@type': 'Account'
+            }
+        )
+        self.token_d = super(TestBase, self).post('/login', {'email': 'd@d.d', 'password': '1234'})[0]['token']
+        self.db3 = self.app.config['DATABASES'][2]  # 'dht3'
+        self.db4 = self.app.config['DATABASES'][3]  # 'dht4'
+
+    def test_migrate_placeholder(self):
+        """
+        Creates 15 placeholders from db1 and moves them to db2-4, receiving 5 each. Then, they discover the devices.
+        """
+        self.add_accounts_dht3and4()
+        # Let's get 15 snapshots that we will use to 'discover' the devices later
+        full_snapshots = []
+        this_directory = os.path.dirname(os.path.realpath(__file__))
+        file_directory = os.path.join(this_directory, '..', 'test_snapshot', 'resources', '2015-12-09')
+        for i, filename in zip(range(0, 15), os.listdir(file_directory)):
+            if 'json' in filename:
+                full_snapshots.append(self.get_json_from_file(filename, file_directory))
+
+        devices_id = []
+        for i in range(1, 15):
+            placeholder = self.get_fixture('register', '1-placeholder')
+            event = self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, 'register'), placeholder)
+            devices_id.append(event['device'])
+        tokens = self.token_b, self.token_c, self.token_d
+        for db, token, i in zip(self.app.config['DATABASES'][1:], tokens, range(0, 3)):
+            f_migrate_to = self.get_fixture('migrate', 'migrate_to')
+            f_migrate_to['devices'] = devices_id[(i * 5):(i * 5 + 5)]
+            f_migrate_to['to']['database'] = db
+            migrate_to = self.post_and_check(self.MIGRATE_URL, f_migrate_to)
+            migrate_other_db, status = self._get(migrate_to['to']['url'], token)
+            self.assert200(status)
+            for device_id in migrate_other_db['devices']:
+                full_snapshot = full_snapshots.pop(-1)
+                full_snapshot['@type'] = 'devices:Snapshot'
+                full_snapshot['device']['_id'] = device_id
+                _, status = self._post('{}/{}/{}'.format(db, self.DEVICE_EVENT, self.SNAPSHOT), full_snapshot, token)
+                self.assert201(status)

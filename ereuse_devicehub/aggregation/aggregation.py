@@ -1,11 +1,13 @@
 import calendar
 import datetime
 
-from ereuse_devicehub.exceptions import StandardError
-from ereuse_devicehub.utils import cache
 from flask import current_app
 from pymongo import DESCENDING
 from werkzeug.datastructures import ImmutableList
+
+from ereuse_devicehub.exceptions import StandardError
+from ereuse_devicehub.resources.device.component.settings import Component
+from ereuse_devicehub.utils import cache
 
 
 class Aggregation:
@@ -93,6 +95,26 @@ class Aggregation:
             for pos in org['months']:
                 res['data'][-1][pos - 1] = org['devices'][i]
                 i += 1
+        return res
+
+    def discovered_devices(self, group=None):
+        pipeline = [
+            {
+                '$match': {
+                    '@type': {'$nin': list(Component.types)},
+                }
+            },
+            {
+                '$group': {
+                    '_id': '$placeholder',
+                    'number': {'$sum': 1}
+                }
+            }
+        ]
+        a = self._aggregate(ImmutableList(pipeline))
+        res = {
+            'result': a
+        }
         return res
 
     @cache.memoize(timeout=CACHE_TIMEOUT)

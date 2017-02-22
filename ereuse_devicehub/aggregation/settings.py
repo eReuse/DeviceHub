@@ -17,7 +17,7 @@ def aggregate_view(db, resource, method):
     if method == '_aggregate':
         raise AggregationError("You cannot use _aggregate.")
     try:
-        m = getattr(aggregation, method)(request.args)
+        m = getattr(aggregation, method)(**request.args)
     except AttributeError as a:
         raise AggregationError(a.args)
     else:

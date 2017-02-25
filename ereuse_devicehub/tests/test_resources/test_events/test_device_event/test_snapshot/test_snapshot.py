@@ -1,7 +1,6 @@
 import copy
 import os
 import uuid
-from pprint import pprint
 from random import choice
 
 from assertpy import assert_that
@@ -24,6 +23,7 @@ class TestSnapshot(TestEvent):
         'vostro', 'vaio', 'xps13'
     )
     RESOURCES_PATH = 'test_events/test_snapshot/resources/'
+    SNAPSHOT_URL = '{}/{}'.format(TestEvent.DEVICE_EVENT, TestEvent.SNAPSHOT)
 
     def post_snapshot(self, input_snapshot):
         return self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), input_snapshot)
@@ -39,7 +39,6 @@ class TestSnapshot(TestEvent):
         return events
 
     def creation(self, input_snapshot: dict, num_of_events: int = 1, do_second_time_snapshot=True) -> str:
-        pprint("1st time snapshot:")
         events = self.post_snapshot_get_full_events(input_snapshot, num_of_events)
         self.assertLen(events, num_of_events)
         register = events[0]
@@ -49,7 +48,6 @@ class TestSnapshot(TestEvent):
             self.assertSimilarDevices(input_snapshot['components'], register['components'])
         # We do a snapshot again. We should receive a new snapshot without any event on it.
         if do_second_time_snapshot:
-            pprint("2nd time snapshot:")
             snapshot = self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), input_snapshot)
             self.assertLen(snapshot['events'], num_of_events - 1)
         return register['device']
@@ -100,26 +98,32 @@ class TestSnapshot(TestEvent):
         # We have created 1 Remove, 1 Add
         self.post_snapshot_get_full_events(snapshots[3], 2)
 
-    def _test_snapshot_register_vostro(self):
+    def test_snapshot_pc_then_register_component(self):
         """
-        Same as `test_snapshot_register_easy` however with real devices (fake serials), with all the risks that takes.
-        :return:
-        """
-        self.creation(self.get_json_from_file(self.RESOURCES_PATH + 'vostro.json'), 2)
+        Snapshots a computer and then snapshots three non-existing components inside.
 
-    def _test_snapshot_register_vaio(self):
+        The first component has HID, the second has not, and the third is a hard-drive with an erasure and a test
+        events.
         """
-        Same as `test_snapshot_register_easy` however with real devices (fake serials), with all the risks that takes.
-        :return:
-        """
-        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.REAL_DEVICES[1]))
+        snapshot = self.get_fixture(self.SNAPSHOT, 'snapshot-simple')
+        computer_id = self.creation(snapshot)
+        snapshot_components_fixture = self.get_fixture(self.SNAPSHOT, 'snapshot-simple-components')
+        snapshot_components = self.post_and_check(self.SNAPSHOT_URL, snapshot_components_fixture)
+        computer = self.get_and_check(self.DEVICES, item=computer_id)
+        # We check that the parent contains the components
+        assert_that(computer['components']).contains(*snapshot_components['components'])
+        # And that the components contain the parent
+        components = [self.get_and_check(self.DEVICES, item=_id) for _id in snapshot_components['components']]
+        assert_that(components).extracting('parent').contains_only(computer_id)
 
-    def _test_snapshot_register_dellxps(self):
-        """
-        Same as `test_snapshot_register_easy` however with real devices (fake serials), with all the risks that takes.
-        :return:
-        """
-        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.REAL_DEVICES[2]))
+        # We check the same in events
+        events = [self.get_and_check(self.EVENTS, item=_id) for _id in snapshot_components['events']]
+        # The expected events have been created (apart from the Snapshot)...
+        assert_that(events).extracting('@type').is_equal_to(
+            ['devices:Register', 'devices:EraseBasic', 'devices:TestHardDrive'])
+        # ...and have a reference to the computer parent device
+        assert_that(events[0]['device']).contains('1')
+        assert_that(events[1:]).extracting('parent').contains_only('1')
 
     def test_snapshot_no_hid(self):
         """
@@ -450,3 +454,5 @@ class TestSnapshot(TestEvent):
         snapshot = self.get_fixture(self.SNAPSHOT, '8a1')
         # uuid would make this illegal
         self.creation(snapshot, self.get_num_events(snapshot), do_second_time_snapshot=False)
+
+

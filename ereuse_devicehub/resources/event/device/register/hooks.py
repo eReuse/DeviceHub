@@ -1,5 +1,6 @@
 from contextlib import suppress
 
+from bson import ObjectId
 from bson import json_util
 from eve.methods.delete import deleteitem_internal
 
@@ -8,7 +9,9 @@ from ereuse_devicehub.resources.device.component.domain import ComponentDomain
 from ereuse_devicehub.resources.device.computer.hooks import update_materialized_computer
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.exceptions import DeviceNotFound, NoDevicesToProcess
+from ereuse_devicehub.resources.event.device.add.hooks import add_components
 from ereuse_devicehub.resources.event.device.register.settings import Register
+from ereuse_devicehub.resources.place.domain import PlaceDomain
 from ereuse_devicehub.rest import execute_post_internal, execute_delete
 from ereuse_devicehub.utils import Naming
 
@@ -46,7 +49,14 @@ def post_devices(registers: list):
                 if caller_device['new']:
                     set_components(register)
                 elif not register['components']:
-                    raise NoDevicesToProcess()
+                    text = 'Device {} and components {} already exist.'.format(register['device'],
+                                                                               register['components'])
+                    raise NoDevicesToProcess(text)
+                else:
+                    add_components([register])  # The device is not new but we have new computers
+                    # Note that we only need to copy a place from the parent if this already existed
+                    if 'place' in caller_device:
+                        inherit_place(caller_device['place'], register['device'], register['components'])
     except Exception as e:
         for device in reversed(log):  # Rollback
             deleteitem_internal(Naming.resource(device['@type']), device)
@@ -127,3 +137,9 @@ def delete_device(_, register):
     if register.get('@type') == Register.type_name:
         for device_id in [register['device']] + register.get('components', []):
             execute_delete(Naming.resource(DeviceDomain.get_one(device_id)['@type']), device_id)
+
+
+def inherit_place(place_id: ObjectId, device_id: str or ObjectId, components: list):
+    """Copies the place from the parent device to the new components and materializes them in the place"""
+    ComponentDomain.update_raw(components, {'$set': {'place': place_id}})
+    PlaceDomain.update_one_raw(place_id, {'$addToSet': {'components': components}})

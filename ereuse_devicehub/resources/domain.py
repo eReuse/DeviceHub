@@ -20,7 +20,11 @@ class Domain:
         """
         resource = current_app.data.find_one_raw(cls.source, id_or_filter)
         if resource is None:
-            raise ResourceNotFound()
+            if type(id_or_filter) is dict:
+                text = 'There is no resource matching the query {}'.format(id_or_filter)
+            else:
+                text = 'The resource with id {} does not exist.'.format(id_or_filter)
+            raise ResourceNotFound(text)
         else:
             return resource
 

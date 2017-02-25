@@ -16,8 +16,8 @@ class DeviceDomain(Domain):
         """
         try:
             return super().get_one(id_or_filter)
-        except ResourceNotFound:
-            raise DeviceNotFound()
+        except ResourceNotFound as e:
+            raise DeviceNotFound(e.message) from e
 
     @staticmethod
     def generate_etag(device: dict) -> str:

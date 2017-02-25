@@ -29,7 +29,7 @@ class TestMigrate(TestDeviceEvent):
                 'email': 'b@b.b',
                 'password': sha256_crypt.encrypt('1234'),
                 'role': 'admin',
-                'token': 'FDAEWHPIOZMGU',
+                'token': 'TOKENB',
                 'databases': self.app.config['DATABASES'][1],
                 'defaultDatabase': self.app.config['DATABASES'][1],
                 '@type': 'Account'
@@ -148,7 +148,7 @@ class TestMigrate(TestDeviceEvent):
                 'email': 'c@c.c',
                 'password': sha256_crypt.encrypt('1234'),
                 'role': 'admin',
-                'token': 'FDAEWHPIOZMGU',
+                'token': 'TOKENC',
                 'databases': self.app.config['DATABASES'][2],
                 'defaultDatabase': self.app.config['DATABASES'][2],
                 '@type': 'Account'
@@ -160,7 +160,7 @@ class TestMigrate(TestDeviceEvent):
                 'email': 'd@d.d',
                 'password': sha256_crypt.encrypt('1234'),
                 'role': 'admin',
-                'token': 'FDAEWHPIOZMGU',
+                'token': 'TOKEND',
                 'databases': self.app.config['DATABASES'][3],
                 'defaultDatabase': self.app.config['DATABASES'][3],
                 '@type': 'Account'
@@ -198,7 +198,6 @@ class TestMigrate(TestDeviceEvent):
             self.assert200(status)
             for device_id in migrate_other_db['devices']:
                 full_snapshot = full_snapshots.pop(-1)
-                full_snapshot['@type'] = 'devices:Snapshot'
                 full_snapshot['device']['_id'] = device_id
                 _, status = self._post('{}/{}/{}'.format(db, self.DEVICE_EVENT, self.SNAPSHOT), full_snapshot, token)
                 self.assert201(status)

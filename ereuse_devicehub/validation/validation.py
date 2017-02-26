@@ -285,6 +285,14 @@ class DeviceHubValidator(Validator):
                     and field in self._original_document and value != self._original_document[field]:
                 self._error(field, 'You cannot modify this value.')
 
+    def _validate_uid(self, boolean, field, value):
+        """The 'uid' is only used to tag a field as an uid. DeviceDomain makes use of this."""
+        pass
+
+    def _validate_externalSynthetic(self, boolean, field, value):
+        """The 'uid' is only used to tag a field as an uid. DeviceDomain makes use of this."""
+        pass
+
     def _validate_materialized(self, _, field, value):
         """Just to show which values are materialized. They behave like *readonly*."""
         self._validate_readonly(True, field, value)

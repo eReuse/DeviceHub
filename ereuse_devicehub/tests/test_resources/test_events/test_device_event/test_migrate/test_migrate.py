@@ -1,4 +1,5 @@
 import os
+from uuid import uuid4
 
 from assertpy import assert_that
 from passlib.handlers.sha2_crypt import sha256_crypt
@@ -181,7 +182,11 @@ class TestMigrate(TestDeviceEvent):
         file_directory = os.path.join(this_directory, '..', 'test_snapshot', 'resources', '2015-12-09')
         for i, filename in zip(range(0, 15), os.listdir(file_directory)):
             if 'json' in filename:
-                full_snapshots.append(self.get_json_from_file(filename, file_directory))
+                snapshot = self.get_json_from_file(filename, file_directory)
+                # This is optional. Let's add a random rid/pid/gid to ensure this does not affect the process
+                # For simplicity we add the same value to all of them but this is not usually the case
+                snapshot['device']['rid'] = snapshot['device']['pid'] = snapshot['device']['gid'] = str(uuid4())
+                full_snapshots.append(snapshot)
 
         devices_id = []
         for i in range(1, 15):
@@ -201,3 +206,5 @@ class TestMigrate(TestDeviceEvent):
                 full_snapshot['device']['_id'] = device_id
                 _, status = self._post('{}/{}/{}'.format(db, self.DEVICE_EVENT, self.SNAPSHOT), full_snapshot, token)
                 self.assert201(status)
+
+

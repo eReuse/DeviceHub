@@ -163,6 +163,64 @@ class TestSnapshot(TestEvent):
         else:
             self.assertTrue(False)  # We shouldn't we here, let's raise something
 
+    def test_hid_vs_id(self):
+        """
+        Tests a second-time snapshot when there is conflict in hid/_id:
+        hid equals to one device but _id equals to another.
+        """
+        vostro = self.get_fixture(self.SNAPSHOT, 'vostro')
+        # We snapshot twice -> ok
+        vostro_id = self.creation(vostro, 2)
+        # If we set the id to vostro in vostro everything is ok
+        # We could say we have a redundancy of ids
+        vostro['device']['_id'] = vostro_id
+        self.post_and_check(self.SNAPSHOT_URL, vostro)
+        # Let's create another device
+        vaio_id = self.creation(self.get_fixture(self.SNAPSHOT, 'vaio'))
+        # Let's set the _id of vostro to vaio (for example because the user wrote misspelled it)
+        # We get 'hid' as we can compute it. The device of the hid != device of the _id so the system
+        # does not allow registering it
+        vostro['device']['_id'] = vaio_id
+        result, status = self.post(self.SNAPSHOT_URL, vostro)
+        self.assert422(status)
+        # Note that the unique id list the system checks against is a set, so the order where
+        # the unique fields are checked is random. This means that depending on execution, one error
+        # will be raised before the other, having to check two possible scenarios
+        error1 = {'_issues': {'hid': 'This ID identifies the device 1 but the _id identifies the device 15'}}
+        error2 = {'_issues': {'_id': 'This ID identifies the device 15 but the hid identifies the device 1'}}
+        if 'hid' in result['_issues']:
+            assert_that(result).is_equal_to(error1)
+        else:
+            assert_that(result).is_equal_to(error2)
+
+    def test_uids(self):
+        """
+        Users can send snapshots with stating only one uid; like only the RID, the _id, the HID (S/N, model, man.)...
+
+        The system should handle this snapshots with grace. Note that this does not apply in Workbench, as workbench
+        always send all the uid info as possible.
+
+        This system tries this behaviour.
+        """
+        snapshot = self.get_fixture(self.SNAPSHOT, 'monitor')
+        _id = self.creation(snapshot, self.get_num_events(snapshot))
+        snapshot['device']['rid'] = 'rid1'
+        self.post_and_check(self.SNAPSHOT_URL, snapshot)
+        monitor = self.get_and_check(self.DEVICES, item=_id)
+        assert_that(monitor).has_rid('rid1')
+        # Let's remove a field of the device, like the S/N, so it cannot generate HID
+        # The system should be able to identify it with another uid, like the RID
+        serial_number = snapshot['device'].pop('serialNumber')
+        self.post_and_check(self.SNAPSHOT_URL, snapshot)
+        monitor = self.get_and_check(self.DEVICES, item=_id)
+        assert_that(monitor).has_rid('rid1').has_serialNumber(serial_number)
+        # Or by only the _id, of course
+        del snapshot['device']['rid']
+        snapshot['device']['_id'] = _id
+        self.post_and_check(self.SNAPSHOT_URL, snapshot)
+        monitor = self.get_and_check(self.DEVICES, item=_id)
+        assert_that(monitor).has_rid('rid1').has_serialNumber(serial_number)
+
     def test_snapshot_real_devices(self):
         # todo the processor of mounted.json and xps13 generates the same hid, as S/N is 'To be filled...'
         for file_name in self.REAL_DEVICES:
@@ -454,5 +512,3 @@ class TestSnapshot(TestEvent):
         snapshot = self.get_fixture(self.SNAPSHOT, '8a1')
         # uuid would make this illegal
         self.creation(snapshot, self.get_num_events(snapshot), do_second_time_snapshot=False)
-
-

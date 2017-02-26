@@ -3,8 +3,10 @@ from contextlib import suppress
 from bson import ObjectId
 from bson import json_util
 from eve.methods.delete import deleteitem_internal
+from pydash import is_empty
+from pydash import pick
 
-from ereuse_devicehub.exceptions import InnerRequestError
+from ereuse_devicehub.exceptions import InnerRequestError, SchemaError
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
 from ereuse_devicehub.resources.device.computer.hooks import update_materialized_computer
 from ereuse_devicehub.resources.device.domain import DeviceDomain
@@ -92,6 +94,7 @@ def _execute_register(device: dict, created: str, log: list):
             # We add a benchmark todo move to another place?
             device['_id'] = db_device['_id']
             ComponentDomain.benchmark(device)
+            external_synthetic_id_fields = pick(device, *DeviceDomain.external_synthetic_ids)
             # If the db_device was a placeholder
             # We want to override it with the new device
             if db_device.get('placeholder', False):
@@ -100,6 +103,11 @@ def _execute_register(device: dict, created: str, log: list):
                 # discovering a device
                 device['placeholder'] = False
                 DeviceDomain.update_one_raw(db_device['_id'], {'$set': device})
+            elif not is_empty(external_synthetic_id_fields):
+                # External Synthetic identifiers are not intrinsically inherent
+                # of devices, and thus can be added later in other Snapshots
+                # Note that the device / post and _get_existing_device() have already validated those ids
+                DeviceDomain.update_one_raw(db_device['_id'], {'$set': external_synthetic_id_fields})
         except DeviceNotFound:
             raise e
     else:
@@ -111,20 +119,27 @@ def _execute_register(device: dict, created: str, log: list):
 
 
 def _get_existing_device(e: InnerRequestError) -> dict:
-    """Gets the device from a special formatted cerberus error."""
-    device = None
-    for field in 'hid', '_id', 'model':  # unique fields
-        if field in e.body['_issues']:
-            try:
-                for error in e.body['_issues'][field]:
-                    with suppress(ValueError, KeyError):
-                        device = json_util.loads(error)['NotUnique']
-                        break
-            except (ValueError, KeyError):
-                raise DeviceNotFound()
-    if not device:
+    """
+    Gets the device encoded in the InnerRequestError after ensuring integrity in the errors.
+
+    Only accepted errors are about already existing unique id fields (like _id or hid), as they are the only ones
+    that hint an already existing device.
+
+    @raise MismatchBetweenUid: When the unique ids point at different devices, this is usually a mispelling error
+    by the user, as some uids can be entered manually.
+    @raise DeviceNotFound: There is not an uid error or it is not well formatted
+    """
+    devices = []
+    for field in DeviceDomain.uid_fields | {'model'}:  # Model is used when matching in components with parents
+        for error in e.body['_issues'].get(field, []):
+            with suppress(ValueError, KeyError):
+                device = json_util.loads(error)['NotUnique']
+                if not is_empty(devices) and device['_id'] != devices[-1][1]['_id']:
+                    raise MismatchBetweenUid(field, device['_id'], devices[-1][1]['_id'], devices[-1][0])
+                devices.append((field, device))
+    if is_empty(devices):
         raise DeviceNotFound()
-    return device
+    return devices[-1][1]
 
 
 def set_components(register):
@@ -143,3 +158,14 @@ def inherit_place(place_id: ObjectId, device_id: str or ObjectId, components: li
     """Copies the place from the parent device to the new components and materializes them in the place"""
     ComponentDomain.update_raw(components, {'$set': {'place': place_id}})
     PlaceDomain.update_one_raw(place_id, {'$addToSet': {'components': components}})
+
+
+class MismatchBetweenUid(SchemaError):
+    def __init__(self, field, device_id, other_device_id, other_field):
+        self.field = field
+        self.device_id = device_id
+        self.other_device_id = other_device_id
+        self.other_field = other_field
+        formatting = [self.device_id, self.other_field, self.other_device_id]
+        message = 'This ID identifies the device {} but the {} identifies the device {}'.format(*formatting)
+        super(MismatchBetweenUid, self).__init__(field, message)

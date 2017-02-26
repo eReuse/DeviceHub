@@ -19,7 +19,28 @@
     {
       "@type": "HardDrive",
       "interface": "ata",
-      "size": 15296.0
+      "size": 15296.0,
+      "benchmark": {
+        "@type": "BenchmarkHardDrive",
+        "readingSpeed": 55.6,
+        "writingSpeed": 19.9
+      },
+      "erasure": {
+        "@type": "EraseBasic",
+        "cleanWithZeros": false,
+        "endingTime": "2016-03-06T22:19:57",
+        "secureRandomSteps": 0,
+        "startingTime": "2016-03-06T22:16:44",
+        "steps": [
+          {
+            "@type": "Random",
+            "endingTime": "2016-03-06T22:19:57",
+            "startingTime": "2016-03-06T22:19:57",
+            "success": true
+          }
+        ],
+        "success": true
+      }
     },
     {
       "@type": "HardDrive",

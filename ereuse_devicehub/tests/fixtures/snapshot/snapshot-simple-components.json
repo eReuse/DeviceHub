@@ -1,0 +1,72 @@
+{
+  "@type": "Snapshot",
+  "comment": "all ok",
+  "device": {
+    "@type": "Computer",
+    "manufacturer": "Manufacturer1",
+    "model": "Model1",
+    "serialNumber": "SerialNumber1",
+    "type": "Laptop"
+  },
+  "components": [
+    {
+      "@type": "Motherboard",
+      "connectors": {
+        "firewire": 0,
+        "pcmcia": 0,
+        "serial": 0,
+        "usb": 5
+      },
+      "manufacturer": "ASUSTeK Computer INC.",
+      "model": "1000H",
+      "serialNumber": "EeePC-0123456789",
+      "totalSlots": 1,
+      "usedSlots": 1
+    },
+    {
+      "@type": "GraphicCard",
+      "manufacturer": "Intel Corporation",
+      "memory": 256.0,
+      "model": "Mobile 945GSE Express Integrated Graphics Controller"
+    },
+    {
+      "@type": "HardDrive",
+      "benchmark": {
+        "@type": "BenchmarkHardDrive",
+        "readingSpeed": 63.3,
+        "writingSpeed": 19.7
+      },
+      "erasure": {
+        "@type": "EraseBasic",
+        "cleanWithZeros": false,
+        "endingTime": "2017-01-03T19:13:22",
+        "secureRandomSteps": 0,
+        "startingTime": "2017-01-03T18:22:11",
+        "steps": [
+          {
+            "@type": "Random",
+            "endingTime": "2017-01-03T19:13:22",
+            "startingTime": "2017-01-03T19:13:22",
+            "success": true
+          }
+        ],
+        "success": true
+      },
+      "interface": "ata",
+      "manufacturer": "Seagate",
+      "model": "ST9160310AS",
+      "serialNumber": "5SV1W0WF",
+      "size": 152627.8359375,
+      "test": {
+        "@type": "TestHardDrive",
+        "error": false,
+        "firstError": null,
+        "lifetime": 2077,
+        "status": "Completed without error",
+        "type": "Short offline"
+      }
+    }
+  ],
+  "label": "label1",
+  "version": "8.0a1"
+}

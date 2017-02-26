@@ -19,9 +19,9 @@ class TestRegister(TestEvent, TestGroupBase):
         assert_that(device['placeholder']).is_true()
         # Let's add the device to a place
         place = self.get_fixture(self.PLACES, 'place')
-        place['devices'] = [device['_id']]
+        place['children'] = {'devices': [device['_id']]}
         place = self.post_and_check(self.PLACES, copy.deepcopy(place))
-        self.is_parent(place['_id'], self.PLACES, device['_id'], self.DEVICES)
+        self.is_parent(place['label'], self.PLACES, device['_id'], self.DEVICES)
         # Let's discover the device
         full_snapshot = self.get_fixture('register', '1-full-snapshot')
         # The device of the snapshot links to the placeholder through the id
@@ -34,4 +34,4 @@ class TestRegister(TestEvent, TestGroupBase):
         # The @type of device has changed as the part of the discovery
         assert_that(updated_device['@type']).is_equal_to('Computer')
         # The device and its components need to be in the same place as before
-        self.is_parent(place['_id'], self.PLACES, updated_device['_id'], self.DEVICES)
+        self.is_parent(place['label'], self.PLACES, updated_device['_id'], self.DEVICES)

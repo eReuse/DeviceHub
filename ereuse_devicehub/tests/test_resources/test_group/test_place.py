@@ -5,7 +5,7 @@ from ereuse_devicehub.tests.test_resources.test_group import TestGroupBase
 
 class TestPlace(TestGroupBase):
     def setUp(self, settings_file=None, url_converters=None):
-        super(TestPlace, self).setUp(settings_file, url_converters)
+        super().setUp(settings_file, url_converters)
         self.place = self.get_fixture(self.PLACES, 'place')
 
     def test_create_place_with_coordinates(self):

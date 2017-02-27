@@ -96,6 +96,7 @@ parent = {
 
 class DeviceEventSettings(EventSettings):
     _schema = DeviceEvent
+    extra_response_fields = EventSettings.extra_response_fields + ['device', 'components']
 
 
 class EventSubSettings(DeviceEventSettings):

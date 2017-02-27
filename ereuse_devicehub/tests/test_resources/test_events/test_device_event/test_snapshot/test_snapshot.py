@@ -1,7 +1,6 @@
 import copy
 import os
 import uuid
-from pprint import pprint
 from random import choice
 
 from assertpy import assert_that
@@ -24,6 +23,7 @@ class TestSnapshot(TestEvent):
         'vostro', 'vaio', 'xps13'
     )
     RESOURCES_PATH = 'test_events/test_snapshot/resources/'
+    SNAPSHOT_URL = '{}/{}'.format(TestEvent.DEVICE_EVENT, TestEvent.SNAPSHOT)
 
     def post_snapshot(self, input_snapshot):
         return self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), input_snapshot)
@@ -39,7 +39,6 @@ class TestSnapshot(TestEvent):
         return events
 
     def creation(self, input_snapshot: dict, num_of_events: int = 1, do_second_time_snapshot=True) -> str:
-        pprint("1st time snapshot:")
         events = self.post_snapshot_get_full_events(input_snapshot, num_of_events)
         self.assertLen(events, num_of_events)
         register = events[0]
@@ -49,7 +48,6 @@ class TestSnapshot(TestEvent):
             self.assertSimilarDevices(input_snapshot['components'], register['components'])
         # We do a snapshot again. We should receive a new snapshot without any event on it.
         if do_second_time_snapshot:
-            pprint("2nd time snapshot:")
             snapshot = self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), input_snapshot)
             self.assertLen(snapshot['events'], num_of_events - 1)
         return register['device']
@@ -100,26 +98,32 @@ class TestSnapshot(TestEvent):
         # We have created 1 Remove, 1 Add
         self.post_snapshot_get_full_events(snapshots[3], 2)
 
-    def _test_snapshot_register_vostro(self):
+    def test_snapshot_pc_then_register_component(self):
         """
-        Same as `test_snapshot_register_easy` however with real devices (fake serials), with all the risks that takes.
-        :return:
-        """
-        self.creation(self.get_json_from_file(self.RESOURCES_PATH + 'vostro.json'), 2)
+        Snapshots a computer and then snapshots three non-existing components inside.
 
-    def _test_snapshot_register_vaio(self):
+        The first component has HID, the second has not, and the third is a hard-drive with an erasure and a test
+        events.
         """
-        Same as `test_snapshot_register_easy` however with real devices (fake serials), with all the risks that takes.
-        :return:
-        """
-        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.REAL_DEVICES[1]))
+        snapshot = self.get_fixture(self.SNAPSHOT, 'snapshot-simple')
+        computer_id = self.creation(snapshot)
+        snapshot_components_fixture = self.get_fixture(self.SNAPSHOT, 'snapshot-simple-components')
+        snapshot_components = self.post_and_check(self.SNAPSHOT_URL, snapshot_components_fixture)
+        computer = self.get_and_check(self.DEVICES, item=computer_id)
+        # We check that the parent contains the components
+        assert_that(computer['components']).contains(*snapshot_components['components'])
+        # And that the components contain the parent
+        components = [self.get_and_check(self.DEVICES, item=_id) for _id in snapshot_components['components']]
+        assert_that(components).extracting('parent').contains_only(computer_id)
 
-    def _test_snapshot_register_dellxps(self):
-        """
-        Same as `test_snapshot_register_easy` however with real devices (fake serials), with all the risks that takes.
-        :return:
-        """
-        self.creation(self.get_json_from_file(self.RESOURCES_PATH + self.REAL_DEVICES[2]))
+        # We check the same in events
+        events = [self.get_and_check(self.EVENTS, item=_id) for _id in snapshot_components['events']]
+        # The expected events have been created (apart from the Snapshot)...
+        assert_that(events).extracting('@type').is_equal_to(
+            ['devices:Register', 'devices:EraseBasic', 'devices:TestHardDrive'])
+        # ...and have a reference to the computer parent device
+        assert_that(events[0]['device']).contains('1')
+        assert_that(events[1:]).extracting('parent').contains_only('1')
 
     def test_snapshot_no_hid(self):
         """
@@ -158,6 +162,64 @@ class TestSnapshot(TestEvent):
                 raise e
         else:
             self.assertTrue(False)  # We shouldn't we here, let's raise something
+
+    def test_hid_vs_id(self):
+        """
+        Tests a second-time snapshot when there is conflict in hid/_id:
+        hid equals to one device but _id equals to another.
+        """
+        vostro = self.get_fixture(self.SNAPSHOT, 'vostro')
+        # We snapshot twice -> ok
+        vostro_id = self.creation(vostro, 2)
+        # If we set the id to vostro in vostro everything is ok
+        # We could say we have a redundancy of ids
+        vostro['device']['_id'] = vostro_id
+        self.post_and_check(self.SNAPSHOT_URL, vostro)
+        # Let's create another device
+        vaio_id = self.creation(self.get_fixture(self.SNAPSHOT, 'vaio'))
+        # Let's set the _id of vostro to vaio (for example because the user wrote misspelled it)
+        # We get 'hid' as we can compute it. The device of the hid != device of the _id so the system
+        # does not allow registering it
+        vostro['device']['_id'] = vaio_id
+        result, status = self.post(self.SNAPSHOT_URL, vostro)
+        self.assert422(status)
+        # Note that the unique id list the system checks against is a set, so the order where
+        # the unique fields are checked is random. This means that depending on execution, one error
+        # will be raised before the other, having to check two possible scenarios
+        error1 = {'_issues': {'hid': 'This ID identifies the device 1 but the _id identifies the device 15'}}
+        error2 = {'_issues': {'_id': 'This ID identifies the device 15 but the hid identifies the device 1'}}
+        if 'hid' in result['_issues']:
+            assert_that(result).is_equal_to(error1)
+        else:
+            assert_that(result).is_equal_to(error2)
+
+    def test_uids(self):
+        """
+        Users can send snapshots with stating only one uid; like only the RID, the _id, the HID (S/N, model, man.)...
+
+        The system should handle this snapshots with grace. Note that this does not apply in Workbench, as workbench
+        always send all the uid info as possible.
+
+        This system tries this behaviour.
+        """
+        snapshot = self.get_fixture(self.SNAPSHOT, 'monitor')
+        _id = self.creation(snapshot, self.get_num_events(snapshot))
+        snapshot['device']['rid'] = 'rid1'
+        self.post_and_check(self.SNAPSHOT_URL, snapshot)
+        monitor = self.get_and_check(self.DEVICES, item=_id)
+        assert_that(monitor).has_rid('rid1')
+        # Let's remove a field of the device, like the S/N, so it cannot generate HID
+        # The system should be able to identify it with another uid, like the RID
+        serial_number = snapshot['device'].pop('serialNumber')
+        self.post_and_check(self.SNAPSHOT_URL, snapshot)
+        monitor = self.get_and_check(self.DEVICES, item=_id)
+        assert_that(monitor).has_rid('rid1').has_serialNumber(serial_number)
+        # Or by only the _id, of course
+        del snapshot['device']['rid']
+        snapshot['device']['_id'] = _id
+        self.post_and_check(self.SNAPSHOT_URL, snapshot)
+        monitor = self.get_and_check(self.DEVICES, item=_id)
+        assert_that(monitor).has_rid('rid1').has_serialNumber(serial_number)
 
     def test_snapshot_real_devices(self):
         # todo the processor of mounted.json and xps13 generates the same hid, as S/N is 'To be filled...'

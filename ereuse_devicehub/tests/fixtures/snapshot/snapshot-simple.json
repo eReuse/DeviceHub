@@ -1,0 +1,13 @@
+{
+  "@type": "Snapshot",
+  "comment": "all ok",
+  "device": {
+    "@type": "Computer",
+    "manufacturer": "Manufacturer1",
+    "model": "Model1",
+    "serialNumber": "SerialNumber1",
+    "type": "Laptop"
+  },
+  "label": "label1",
+  "version": "8.0a1"
+}

@@ -1,7 +1,7 @@
 from ereuse_devicehub.resources.device.computer.hooks import update_materialized_computer
 
 
-def add_components(events: dict):
+def add_components(events: list):
     """
     Updates the materialized fields *components*, *totalRamSize*, *totalHardDriveSize* and
     *processorModel* of the computer.

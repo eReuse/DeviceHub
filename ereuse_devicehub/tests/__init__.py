@@ -262,6 +262,11 @@ class TestStandard(TestBase):
         self.assert204(status_code)
         return response
 
+    def get_and_check(self, resource, query='', item=None, authorize=True, database=None):
+        response, status_code = self.get(resource, query, item, authorize, database)
+        self.assert200(status_code)
+        return response
+
     def get_fixtures_computers(self) -> list:
         """
         Snapshots four computers in the database, and returns a list with their identifiers.

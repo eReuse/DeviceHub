@@ -67,7 +67,7 @@ def set_place(resource_name: str, events: list):
     """
     Sets the place of the devices. This method must execute after 'get_place' of this module.
 
-    The event performs PATCH of place, so the effect is like setting the devices to the place.
+    The event performs PATCH o\ hf place, so the effect is like setting the devices to the place.
     :param resource_name:
     :param events:
     :return:

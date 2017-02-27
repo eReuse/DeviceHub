@@ -226,24 +226,21 @@ class GroupDomain(Domain):
             return False
 
     @classmethod
-    def is_ancestor(cls, ancestor_resource_name: str, ancestor_label: str, descendant_label: str) -> bool:
+    def get_descendants(cls, child_domain: Domain, parent_labels: str or list) -> list:
         """
-        Checks if *ancestor_label* is an ancestor of *descendant_label*.
+        Get the descendants of this class type of the given ancestor.
 
         This is possible because during the inheritance, we only add to 'ancestors' the valid ones.
-
         """
+        type_name = cls.resource_settings._schema.type_name
+        labels = parent_labels if type(parent_labels) is list else [parent_labels]
         query = {
-            'label': descendant_label,
             '$or': [
-                {'ancestors.@type': Naming.type(ancestor_resource_name), 'label': ancestor_label},  # is parent
-                {'ancestors': {'$elemMatch': {ancestor_resource_name: {'$elemMatch': ancestor_label}}}},  # >= grandpa
+                {'ancestors': {'$elemMatch': {'@type': type_name, 'label': {'$in': labels}}}},
+                {'ancestors': {'$elemMatch': {cls.resource_settings.resource_name(): {'$elemMatch': {'$in': labels}}}}}
             ]
         }
-        try:
-            return bool(cls.get_one(query))
-        except ResourceNotFound:
-            return False
+        return child_domain.get(query)
 
     @classmethod
     def update_raw(cls, ids: str or ObjectId or list, operation: dict, key='label'):

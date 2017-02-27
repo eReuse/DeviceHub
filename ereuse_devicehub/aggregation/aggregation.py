@@ -2,11 +2,12 @@ import calendar
 import datetime
 
 from flask import current_app
+from geojson_utils import centroid
 from pymongo import DESCENDING
 from werkzeug.datastructures import ImmutableList
 
 from ereuse_devicehub.exceptions import StandardError
-from ereuse_devicehub.resources.device.component.settings import Component
+from ereuse_devicehub.resources.group.physical.place.domain import PlaceDomain
 from ereuse_devicehub.utils import cache
 
 
@@ -97,25 +98,14 @@ class Aggregation:
                 i += 1
         return res
 
-    def discovered_devices(self, group=None):
-        pipeline = [
-            {
-                '$match': {
-                    '@type': {'$nin': list(Component.types)},
-                }
-            },
-            {
-                '$group': {
-                    '_id': '$placeholder',
-                    'number': {'$sum': 1}
-                }
-            }
-        ]
-        a = self._aggregate(ImmutableList(pipeline))
-        res = {
-            'result': a
-        }
-        return res
+    @staticmethod
+    def places_with_coordinates():
+        places_with_geo = PlaceDomain.get({'geo': {'$exists': True}})
+        for place in places_with_geo:
+            place['geo'] = centroid(place['geo'])
+        # place_type = PlaceDomain.resource_settings._schema.type_name
+        # descendants = PlaceDomain.get_descendants(place_type, pluck(places_with_geo, 'label'))
+        return {'_items': places_with_geo}
 
     @cache.memoize(timeout=CACHE_TIMEOUT)
     def _aggregate(self, pipeline):

@@ -4,12 +4,14 @@ from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.device.settings import DeviceSubSettings
 
 
-class Peripheral(Device):
+class TelevisionSet(Device):
     type = {
         'type': 'string',
-        'allowed': {'Router', 'Switch', 'Printer', 'Scanner', 'MultifunctionPrinter', 'Terminal', 'HUB', 'SAI',
-                    'Keyboard', 'Mouse', 'WirelessAccessPoint', 'LabelPrinter', 'Projector', 'VideoconferenceDevice'},
+        'allowed': {'CRT', 'LCD', 'LED', 'OLED', 'Plasma'},
         'required': True
+    }
+    inches = {
+        'type': 'natural'
     }
     manufacturer = copy.copy(Device.manufacturer)
     manufacturer['required'] = True
@@ -19,5 +21,5 @@ class Peripheral(Device):
     model['required'] = True
 
 
-class PeripheralSettings(DeviceSubSettings):
-    _schema = Peripheral
+class TelevisionSetSettings(DeviceSubSettings):
+    _schema = TelevisionSet

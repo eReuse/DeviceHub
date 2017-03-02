@@ -15,6 +15,9 @@ class Snapshot(EventWithOneDevice):
         'modifiable': False
         # todo require this in a month from jan 2016
     }
+    pid = {
+        'type': 'string'
+    }
     offline = {
         'type': 'boolean'
     }

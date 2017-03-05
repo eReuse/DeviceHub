@@ -1,0 +1,104 @@
+{
+  "@type": "Snapshot",
+  "_uuid": "fc62bfd0-3a61-4075-8124-1e0e467731b5",
+  "components": [
+    {
+      "@type": "GraphicCard",
+      "manufacturer": "Intel Corporation",
+      "memory": 256.0,
+      "model": "Mobile 4 Series Chipset Integrated Graphics Controller"
+    },
+    {
+      "@type": "GraphicCard",
+      "manufacturer": "Intel Corporation",
+      "model": "Mobile 4 Series Chipset Integrated Graphics Controller"
+    },
+    {
+      "@type": "HardDrive",
+      "benchmark": {
+        "@type": "BenchmarkHardDrive",
+        "readingSpeed": 44.5,
+        "writingSpeed": 10.2
+      },
+      "interface": "ata",
+      "manufacturer": "Toshiba",
+      "model": "TOSHIBA MK1233GS",
+      "serialNumber": "7098W510W",
+      "size": 114473.4609375
+    },
+    {
+      "@type": "RamModule",
+      "interface": "DDR2",
+      "manufacturer": "Micron",
+      "serialNumber": "DE2F4F88",
+      "size": 2048,
+      "speed": 800.0
+    },
+    {
+      "@type": "Motherboard",
+      "connectors": {
+        "firewire": 0,
+        "pcmcia": 0,
+        "serial": 0,
+        "usb": 8
+      },
+      "manufacturer": "Hewlett-Packard",
+      "model": "30E1",
+      "serialNumber": "CND9222D3B",
+      "totalSlots": 2,
+      "usedSlots": 1
+    },
+    {
+      "@type": "NetworkAdapter",
+      "manufacturer": "Intel Corporation",
+      "model": "82567LM Gigabit Network Connection",
+      "serialNumber": "00:23:5a:9f:af:45",
+      "speed": 1000
+    },
+    {
+      "@type": "NetworkAdapter",
+      "manufacturer": "Intel Corporation",
+      "model": "PRO/Wireless 5100 AGN [Shiloh] Network Connection",
+      "serialNumber": "00:22:fa:ba:65:2a"
+    },
+    {
+      "@type": "OpticalDrive",
+      "description": "DVD-RAM writer",
+      "manufacturer": "Optiarc",
+      "model": "DVD RW AD-7910S"
+    },
+    {
+      "@type": "Processor",
+      "benchmark": {
+        "@type": "BenchmarkProcessor",
+        "score": 7448.64
+      },
+      "manufacturer": "Intel Corp.",
+      "model": "Intel(R) Core(TM)2 Duo CPU L9400 @ 1.86GHz",
+      "numberOfCores": 2
+    },
+    {
+      "@type": "SoundCard",
+      "manufacturer": "Intel Corporation",
+      "model": "82801I (ICH9 Family) HD Audio Controller"
+    }
+  ],
+  "condition": {
+    "appearance": {
+      "general": "B"
+    },
+    "functionality": {
+      "general": "B"
+    }
+  },
+  "device": {
+    "@type": "Computer",
+    "manufacturer": "Hewlett-Packard",
+    "model": "HP EliteBook 2530p",
+    "serialNumber": "CND9222D3B",
+    "type": "Laptop"
+  },
+  "label": "2999",
+  "pid": "543545",
+  "version": "8.0a1"
+}

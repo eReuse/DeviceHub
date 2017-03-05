@@ -26,13 +26,16 @@ class MigrateTranslator(ResourceTranslator):
     """
 
     def _translate(self, resource: dict) -> dict:
-        return {
+        translation = {
             '@type': 'devices:Migrate',
             'from': current_app.config['BASE_URL_FOR_AGENTS'] + '/' + resource['_links']['self']['href'],
-            'devices': [self.get_device(device_id) for device_id in resource['devices']],
-            'label': resource['label'],
-            'comment': resource['comment']
+            'devices': [self.get_device(device_id) for device_id in resource['devices']]
         }
+        if 'label' in resource:
+            translation['label'] = resource['label']
+        if 'comment' in resource:
+            translation['comment'] = resource['comment']
+        return translation
 
     def get_device(self, device_id: str) -> dict:
         """Gets the device ready to be sent to another database."""

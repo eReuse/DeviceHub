@@ -15,8 +15,8 @@ def update_materialized_computer(device_id: str, components_id: list, add: bool 
     for component in ComponentDomain.get({'_id': {'$in': components_id}}):
         _type = component['@type']
         if _type in total_types:
-            inc[_type] += component['size']
-        elif _type == Processor.type_name:
+            inc[_type] += component.get('size', 0)
+        elif _type == Processor.type_name and 'model' in component:
             update_query['$set' if add else '$unset'] = {'processorModel': component['model']}
 
     sign = 1 if add else -1  # We will add or subtract values depending if adding or removing components

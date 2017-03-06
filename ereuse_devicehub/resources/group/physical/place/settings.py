@@ -71,3 +71,4 @@ class PlaceSettings(PhysicalSettings):
         'geo': [('components', pymongo.GEO2D)]
     }
     url = 'places'
+    fa = 'fa-map-marker'

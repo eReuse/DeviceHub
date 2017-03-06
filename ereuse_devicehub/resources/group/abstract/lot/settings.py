@@ -34,4 +34,5 @@ class LotSettings(AbstractSettings):
         'default_sort': [('_modified', -1)],
         'source': 'lots'
     }
+    fa = 'fa-cubes'
     url = 'lots'

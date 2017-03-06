@@ -51,3 +51,4 @@ class PackageSettings(PhysicalSettings):
         'source': 'packages'
     }
     url = 'packages'
+    fa = 'fa-archive'

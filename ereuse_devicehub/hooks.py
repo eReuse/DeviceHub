@@ -32,13 +32,14 @@ def hooks(app):
     app.on_updated += materialize_public_in_components_update
 
     from ereuse_devicehub.resources.event.device.snapshot.hooks import on_insert_snapshot, save_request, \
-        materialize_test_hard_drives, materialize_erase_basic, set_secured, delete_events
+        materialize_test_hard_drives, materialize_erase_basic, set_secured, delete_events, move_id
     app.on_insert_devices_snapshot += set_secured
     app.on_insert_devices_snapshot += on_insert_snapshot
     app.on_insert_devices_snapshot += save_request
     app.on_inserted_devices_snapshot += materialize_test_hard_drives
     app.on_inserted_devices_snapshot += materialize_erase_basic
     app.on_delete_item += delete_events
+    app.on_pre_POST_devices_snapshot = move_id
 
     from ereuse_devicehub.resources.event.device.hooks import get_place, materialize_components, materialize_parent, \
         set_place, unset_place, delete_events_in_device, remove_from_other_events
@@ -109,3 +110,5 @@ def hooks(app):
 
     from ereuse_devicehub.resources.hooks import set_date
     app.on_insert += set_date
+
+

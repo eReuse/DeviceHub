@@ -14,13 +14,6 @@ class Lot(Abstract):
     ancestors = copy.deepcopy(Abstract.ancestors)
     ancestors['schema']['schema']['places'] = place_fk
     ancestors['schema']['schema']['lots'] = lots_fk
-    parents = {
-        'type': 'dict',
-        'schema': {
-            'places': places_fk,
-            'lots': lots_fk
-        }
-    }
     children = copy.deepcopy(Abstract.children)
     children['schema']['packages'] = packages_fk
     children['schema']['lots'] = lots_fk

@@ -37,7 +37,6 @@ class Package(Physical):
     ancestors['schema']['schema']['packages'] = packages_fk
     children = copy.deepcopy(Physical.children)
     children['schema']['packages'] = packages_fk
-    children['schema']['lots'] = lots_fk
     children['schema']['devices'] = devices_fk
     children['schema']['components'] = devices_fk
 

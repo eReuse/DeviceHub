@@ -80,8 +80,6 @@ def _execute_register(device: dict, created: str, log: list):
     :param log: A log where to append the resulting device if execute_register has been successful
     :raise InnerRequestError: any internal error in the POST that is not about the device already existing.
     """
-    if not device.get('placeholder', False):
-        device['hid'] = 'dummy'
     new = True
     try:
         if created:
@@ -102,6 +100,9 @@ def _execute_register(device: dict, created: str, log: list):
                 # And we really need the placeholder default set, specially when
                 # discovering a device
                 device['placeholder'] = False
+                # We create hid when we validate (wrong thing) so we need to manually set it here as we won't
+                # validate in this db operation
+                device['hid'] = DeviceDomain.hid(device['manufacturer'], device['serialNumber'], device['model'])
                 DeviceDomain.update_one_raw(db_device['_id'], {'$set': device})
             elif not is_empty(external_synthetic_id_fields):
                 # External Synthetic identifiers are not intrinsically inherent

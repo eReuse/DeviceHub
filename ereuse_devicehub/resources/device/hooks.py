@@ -1,3 +1,6 @@
+from eve.utils import document_etag
+from flask import current_app as app
+
 from ereuse_devicehub.exceptions import RequestAnother
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.schema import Device
@@ -5,8 +8,6 @@ from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.settings import DeviceEvent
 from ereuse_devicehub.rest import execute_delete
 from ereuse_devicehub.utils import Naming
-from eve.utils import document_etag
-from flask import current_app as app
 
 
 def generate_etag(resource: str, items: list):
@@ -116,5 +117,3 @@ def redirect_to_first_snapshot(resource, request, lookup):
         snapshot_id = str(DeviceEventDomain.get_first_snapshot(lookup['_id'])['_id'])
         execute_delete(Naming.resource('devices:Snapshot'), snapshot_id)
         raise RequestAnother('', 204)
-
-

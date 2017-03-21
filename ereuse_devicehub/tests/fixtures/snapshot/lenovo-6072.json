@@ -1,0 +1,153 @@
+{
+    "@type": "Snapshot", 
+    "_id": "1192", 
+    "_uuid": "87a4f1a0-29eb-4631-a44a-3944da47b02a", 
+    "components": [
+        {
+            "@type": "GraphicCard", 
+            "manufacturer": "Intel Corporation", 
+            "memory": 256.0, 
+            "model": "82Q35 Express Integrated Graphics Controller"
+        }, 
+        {
+            "@type": "HardDrive", 
+            "benchmark": {
+                "@type": "BenchmarkHardDrive", 
+                "readingSpeed": 69.7, 
+                "writingSpeed": 23.6
+            }, 
+            "erasure": {
+                "@type": "EraseBasic", 
+                "cleanWithZeros": false, 
+                "endingTime": "2015-08-27T15:51:06", 
+                "secureRandomSteps": 0, 
+                "startingTime": "2015-08-27T15:05:38", 
+                "steps": [
+                    {
+                        "@type": "Random", 
+                        "endingTime": "2015-08-27T15:51:06", 
+                        "startingTime": "2015-08-27T15:51:06", 
+                        "success": true
+                    }
+                ], 
+                "success": true
+            }, 
+            "interface": "ata", 
+            "manufacturer": "Seagate", 
+            "model": "ST3160815AS", 
+            "serialNumber": "6RAE0KTE", 
+            "size": 152627.8359375, 
+            "test": {
+                "@type": "TestHardDrive", 
+                "error": false, 
+                "firstError": null, 
+                "lifetime": 19054, 
+                "status": "Completed without error", 
+                "type": "Short offline"
+            }
+        }, 
+        {
+            "@type": "RamModule", 
+            "interface": "DDR2", 
+            "manufacturer": "Samsung                                         ", 
+            "serialNumber": "79636507", 
+            "size": 1024, 
+            "speed": 667.0
+        }, 
+        {
+            "@type": "RamModule", 
+            "interface": "DDR2", 
+            "manufacturer": "Hyundai Electronics                             ", 
+            "serialNumber": "0000101E", 
+            "size": 1024, 
+            "speed": 667.0
+        }, 
+        {
+            "@type": "RamModule", 
+            "interface": "DDR2", 
+            "manufacturer": "Samsung                                         ", 
+            "serialNumber": "79636536", 
+            "size": 1024, 
+            "speed": 667.0
+        }, 
+        {
+            "@type": "RamModule", 
+            "interface": "DDR2", 
+            "manufacturer": "Samsung                                         ", 
+            "serialNumber": "81678305", 
+            "size": 1024, 
+            "speed": 667.0
+        }, 
+        {
+            "@type": "Motherboard", 
+            "connectors": {
+                "firewire": 0, 
+                "pcmcia": 0, 
+                "serial": 0, 
+                "usb": 8
+            }, 
+            "manufacturer": "LENOVO", 
+            "model": "LENOVO", 
+            "serialNumber": "NONE", 
+            "totalSlots": 0, 
+            "usedSlots": 4
+        }, 
+        {
+            "@type": "NetworkAdapter", 
+            "manufacturer": "Intel Corporation", 
+            "model": "82566DM-2 Gigabit Network Connection", 
+            "serialNumber": "00:21:86:21:c9:2a", 
+            "speed": 1000
+        }, 
+        {
+            "@type": "OpticalDrive", 
+            "description": "DVD-RAM writer", 
+            "manufacturer": "HL-DT-ST", 
+            "model": "DVD-RAM GH10N"
+        }, 
+        {
+            "@type": "Processor", 
+            "address": 64, 
+            "benchmark": {
+                "@type": "BenchmarkProcessor", 
+                "score": 9575.78
+            }, 
+            "manufacturer": "Intel Corp.", 
+            "model": "Intel(R) Core(TM)2 Duo CPU E4600 @ 2.40GHz", 
+            "numberOfCores": 2, 
+            "speed": 2.4
+        }, 
+        {
+            "@type": "Processor", 
+            "address": 64, 
+            "benchmark": {
+                "@type": "BenchmarkProcessor", 
+                "score": 9575.78
+            }, 
+            "numberOfCores": 2, 
+            "speed": 2.4
+        }, 
+        {
+            "@type": "SoundCard", 
+            "manufacturer": "Intel Corporation", 
+            "model": "82801I (ICH9 Family) HD Audio Controller"
+        }
+    ], 
+    "condition": {
+        "appearance": {
+            "general": "B"
+        }, 
+        "functionality": {
+            "general": "B"
+        }
+    }, 
+    "device": {
+        "@type": "Computer", 
+        "manufacturer": "LENOVO", 
+        "model": "6072V27", 
+        "serialNumber": "LMWLMZ0", 
+        "type": "Desktop"
+    }, 
+    "pid": "10110", 
+    "version": "8.0b1"
+}

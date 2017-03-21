@@ -5,12 +5,12 @@ import copy
 import re
 from urllib.parse import quote_plus
 
+from ereuse_devicehub.resources.device.settings import HID_REGEX
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.submitter.submitter import ThreadedSubmitter
 from ereuse_devicehub.resources.submitter.translator import ResourceTranslator
 from ereuse_devicehub.security.request_auth import Auth
 from ereuse_devicehub.utils import Naming
-from ereuse_devicehub.validation.validation import HID_REGEX
 
 
 class GRDSubmitter(ThreadedSubmitter):

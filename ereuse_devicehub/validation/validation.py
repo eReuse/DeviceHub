@@ -6,20 +6,18 @@ import validators
 from bson import json_util, ObjectId
 from bson.errors import InvalidId
 from cerberus import errors
-from ereuse_devicehub.resources.account.role import Role
-from ereuse_devicehub.utils import Naming, coerce_type
 from eve.io.mongo import Validator
 from eve.utils import config
 from flask import current_app as app
 
+from ereuse_devicehub.resources.account.role import Role
+from ereuse_devicehub.utils import coerce_type
 from . import errors as dh_errors
 
 ALLOWED_WRITE_ROLES = 'dh_allowed_write_roles'
 DEFAULT_AUTHOR = 'dh_default_author'
 IF_VALUE_REQUIRE = 'dh_if_value_require'
 COERCE_WITH_CONTEXT = 'coerce_with_context'
-
-HID_REGEX = '[\w]+-[\w]+-[\w]+'
 
 
 class DeviceHubValidator(Validator):
@@ -35,6 +33,10 @@ class DeviceHubValidator(Validator):
         self._coerce_type(document)
         self._remove_none(document)
         super(DeviceHubValidator, self)._validate(document, schema, update, context)
+        if document == self.document:  # I am the top document
+            from ereuse_devicehub.resources.device.schema import Device
+            if document.get('@type', None) in Device.types and not document.get('placeholder', False):
+                self._validate_type_hid('hid', None)
         self._validate_or(self._current)
         return len(self._errors) == 0
 
@@ -135,7 +137,7 @@ class DeviceHubValidator(Validator):
         if response:
             self._error(field, json_util.dumps({'NotUnique': response}))
 
-    def _validate_type_hid(self, field, value):
+    def _validate_type_hid(self, field, _):
         """
         General validation for inserting devices (the name of the function is forced by Cerberus, not a good one).
 
@@ -147,11 +149,13 @@ class DeviceHubValidator(Validator):
         from ereuse_devicehub.resources.device.component.domain import ComponentDomain
         from ereuse_devicehub.resources.device.exceptions import DeviceNotFound
         try:
-            self.document['hid'] = Naming.url_word(self.document['manufacturer']) + \
-                                   '-' + Naming.url_word(self.document['serialNumber']) + \
-                                   '-' + Naming.url_word(self.document['model'])
+            from ereuse_devicehub.resources.device.domain import DeviceDomain
+            # todo this should not be done in the validation. Prove of this is that it needs to be done in
+            # register/hooks again for placeholders
+            self.document['hid'] = DeviceDomain.hid(self.document['manufacturer'],
+                                                    self.document['serialNumber'],
+                                                    self.document['model'])
         except KeyError:
-            del self.document['hid']
             self.document['isUidSecured'] = False
             if '_id' not in self.document:  # We do not validate here the unique constraint of _id
                 if 'parent' in self.document:
@@ -165,6 +169,7 @@ class DeviceHubValidator(Validator):
                         # else: user forces us to create the device, it will be assigned an _id
                         # else: user provided _id. We accept this, however is unsecured.
         else:
+            from ereuse_devicehub.resources.device.settings import HID_REGEX
             self._validate_regex(HID_REGEX, field, self.document['hid'])
             self._validate_unique(True, field, self.document['hid'])
 

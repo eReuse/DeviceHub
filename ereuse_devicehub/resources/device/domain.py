@@ -69,3 +69,10 @@ class DeviceDomain(Domain):
         _id as other external synthetic ids.
         """
         return {n for n, field in cls.resource_settings._schema.actual_fields().items() if 'externalSynthetic' in field}
+
+    @staticmethod
+    def hid(manufacturer: str, serial_number: str, model: str) -> str:
+        """Generates the HID"""
+        return Naming.url_word(manufacturer) + \
+               '-' + Naming.url_word(serial_number) + \
+               '-' + Naming.url_word(model)

@@ -6,6 +6,7 @@ from random import choice
 from assertpy import assert_that
 from bson import objectid
 
+from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.tests.test_resources.test_events import TestEvent
 from ereuse_devicehub.tests.test_resources.test_group import TestGroupBase
@@ -45,6 +46,9 @@ class TestSnapshot(TestEvent, TestGroupBase):
         register = events[0]
         self.assertType(DeviceEventDomain.new_type('Register'), register)
         self.assertSimilarDevice(input_snapshot['device'], register['device'])
+        device = self.get_and_check(self.DEVICES, item=register['device'])
+        if 'hid' in device:
+            assert_that(device['hid']).is_not_equal_to('dummy')
         if 'components' in input_snapshot:
             self.assertSimilarDevices(input_snapshot['components'], register['components'])
         # We do a snapshot again. We should receive a new snapshot without any event on it.
@@ -514,15 +518,30 @@ class TestSnapshot(TestEvent, TestGroupBase):
         # uuid would make this illegal
         self.creation(snapshot, self.get_num_events(snapshot), do_second_time_snapshot=False)
 
-    def test_8a1_with_pid(self):
+    def test_8b1_with_pid_and_id(self):
         """
         The version 8a1 puts the pid in the snapshot and not the device (which is wrong), but we need
         to deal with it.
         """
         snapshot = self.get_fixture(self.SNAPSHOT, 'workbench-80a1-pid')
+        placeholder = self.get_fixture('register', '1-placeholder')
+        placeholder['device']['_id'] = snapshot['_id']
+        self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, 'register'), placeholder)
         result = self.post_and_check(self.SNAPSHOT_URL, snapshot)
         device = self.get_and_check(self.DEVICES, item=result['device'])
+        assert_that(device).has_hid('asustek_computer_inc-8boaaq191999-1000h')
         assert_that(device).has_pid(snapshot['pid'])
+        assert_that(device).has__id(snapshot['_id'])
         # Let's try a second snapshot, just in case
         snapshot['_uuid'] = str(uuid.uuid4())  # Let's change the uuid or we won't be able to submit it
         self.post_and_check(self.SNAPSHOT_URL, snapshot)
+
+    def test_placeholder_snapshot_hid(self):
+        """Tests that hid is correctly computed in placeholders."""
+        placeholder = self.get_fixture('register', '1-placeholder')
+        placeholder['device']['_id'] = '1192'
+        self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, 'register'), placeholder)
+        snapshot = self.get_fixture(self.SNAPSHOT, 'lenovo-6072')
+        result = self.post_and_check(self.SNAPSHOT_URL, snapshot)
+        device = self.get_and_check(self.DEVICES, item=result['device'])
+        assert_that(device).has_hid(DeviceDomain.hid(device['manufacturer'], device['serialNumber'], device['model']))

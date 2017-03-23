@@ -5,6 +5,7 @@ from ereuse_devicehub.rest import execute_delete
 from ereuse_devicehub.utils import Naming
 from flask import current_app as app
 from flask import request, g
+from werkzeug.local import LocalProxy
 
 from .snapshot import Snapshot
 
@@ -14,8 +15,6 @@ def on_insert_snapshot(items):
         if 'label' in item:
             item['device']['labelId'] = item['label']  # todo as we do not update the values of a device,
         # todo we will never update, thus materializing new label ids
-        if 'pid' in item:  # todo workbench hotfix for pid
-            item['device']['pid'] = item.pop('pid')
         snapshot = Snapshot(item['device'], item['components'], item.get('created'))
         item['events'] = [new_events['_id'] for new_events in snapshot.execute()]
         item['device'] = item['device']['_id']
@@ -75,3 +74,12 @@ def delete_events(_, snapshot: dict):
                 except InnerRequestError as e:
                     if e.status_code != 404:
                         raise e
+
+
+def move_id(payload: LocalProxy):
+    """Moves the _id and pid from the snapshot to the inner device of the snapshot, as a hotfix for Workbench's bug"""
+    if '_id' in payload.json:
+        payload.json['device']['_id'] = payload.json.pop('_id')
+    if 'pid' in payload.json:  # todo workbench hotfix for pid
+        payload.json['device']['pid'] = payload.json.pop('pid')
+

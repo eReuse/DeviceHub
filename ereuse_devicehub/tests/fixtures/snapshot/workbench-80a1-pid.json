@@ -1,38 +1,62 @@
 {
   "@type": "Snapshot",
-  "_uuid": "fc62bfd0-3a61-4075-8124-1e0e467731b5",
+  "_id": "id1",
+  "_uuid": "04b6a7a0-9e01-4338-a4d5-9234164f7c43",
+  "comment": "comment1",
   "components": [
     {
       "@type": "GraphicCard",
       "manufacturer": "Intel Corporation",
       "memory": 256.0,
-      "model": "Mobile 4 Series Chipset Integrated Graphics Controller"
+      "model": "Mobile 945GSE Express Integrated Graphics Controller"
     },
     {
       "@type": "GraphicCard",
       "manufacturer": "Intel Corporation",
-      "model": "Mobile 4 Series Chipset Integrated Graphics Controller"
+      "model": "Mobile 945GM/GMS/GME, 943/940GML Express Integrated Graphics Controller"
     },
     {
       "@type": "HardDrive",
       "benchmark": {
         "@type": "BenchmarkHardDrive",
-        "readingSpeed": 44.5,
-        "writingSpeed": 10.2
+        "readingSpeed": 65.0,
+        "writingSpeed": 19.8
+      },
+      "erasure": {
+        "@type": "EraseBasic",
+        "cleanWithZeros": false,
+        "endingTime": "2017-03-06T22:57:45",
+        "secureRandomSteps": 0,
+        "startingTime": "2017-03-06T22:06:35",
+        "steps": [
+          {
+            "@type": "Random",
+            "endingTime": "2017-03-06T22:57:45",
+            "startingTime": "2017-03-06T22:57:45",
+            "success": true
+          }
+        ],
+        "success": true
       },
       "interface": "ata",
-      "manufacturer": "Toshiba",
-      "model": "TOSHIBA MK1233GS",
-      "serialNumber": "7098W510W",
-      "size": 114473.4609375
+      "manufacturer": "Seagate",
+      "model": "ST9160310AS",
+      "serialNumber": "5SV1W0WF",
+      "size": 152627.8359375,
+      "test": {
+        "@type": "TestHardDrive",
+        "error": false,
+        "firstError": null,
+        "lifetime": 2079,
+        "status": "Completed without error",
+        "type": "Short offline"
+      }
     },
     {
       "@type": "RamModule",
-      "interface": "DDR2",
-      "manufacturer": "Micron",
-      "serialNumber": "DE2F4F88",
-      "size": 2048,
-      "speed": 800.0
+      "interface": "SDRAM",
+      "manufacturer": "Manufacturer0",
+      "size": 2048
     },
     {
       "@type": "Motherboard",
@@ -40,47 +64,42 @@
         "firewire": 0,
         "pcmcia": 0,
         "serial": 0,
-        "usb": 8
+        "usb": 5
       },
-      "manufacturer": "Hewlett-Packard",
-      "model": "30E1",
-      "serialNumber": "CND9222D3B",
-      "totalSlots": 2,
+      "manufacturer": "ASUSTeK Computer INC.",
+      "model": "1000H",
+      "serialNumber": "EeePC-0123456789",
+      "totalSlots": 1,
       "usedSlots": 1
     },
     {
       "@type": "NetworkAdapter",
-      "manufacturer": "Intel Corporation",
-      "model": "82567LM Gigabit Network Connection",
-      "serialNumber": "00:23:5a:9f:af:45",
-      "speed": 1000
+      "manufacturer": "Qualcomm Atheros",
+      "model": "AR8121/AR8113/AR8114 Gigabit or Fast Ethernet",
+      "serialNumber": "00:23:54:8d:be:66",
+      "speed": 100
     },
     {
       "@type": "NetworkAdapter",
-      "manufacturer": "Intel Corporation",
-      "model": "PRO/Wireless 5100 AGN [Shiloh] Network Connection",
-      "serialNumber": "00:22:fa:ba:65:2a"
-    },
-    {
-      "@type": "OpticalDrive",
-      "description": "DVD-RAM writer",
-      "manufacturer": "Optiarc",
-      "model": "DVD RW AD-7910S"
+      "manufacturer": "Ralink corp.",
+      "model": "RT2790 Wireless 802.11n 1T/2R PCIe",
+      "serialNumber": "00:15:af:dc:44:eb"
     },
     {
       "@type": "Processor",
       "benchmark": {
         "@type": "BenchmarkProcessor",
-        "score": 7448.64
+        "score": 6383.96
       },
       "manufacturer": "Intel Corp.",
-      "model": "Intel(R) Core(TM)2 Duo CPU L9400 @ 1.86GHz",
-      "numberOfCores": 2
+      "model": "Intel(R) Atom(TM) CPU N270 @ 1.60GHz",
+      "numberOfCores": 1,
+      "speed": 1.6
     },
     {
       "@type": "SoundCard",
       "manufacturer": "Intel Corporation",
-      "model": "82801I (ICH9 Family) HD Audio Controller"
+      "model": "NM10/ICH7 Family High Definition Audio Controller"
     }
   ],
   "condition": {
@@ -93,12 +112,11 @@
   },
   "device": {
     "@type": "Computer",
-    "manufacturer": "Hewlett-Packard",
-    "model": "HP EliteBook 2530p",
-    "serialNumber": "CND9222D3B",
-    "type": "Laptop"
+    "manufacturer": "ASUSTeK Computer INC.",
+    "model": "1000H",
+    "serialNumber": "8BOAAQ191999",
+    "type": "Netbook"
   },
-  "label": "2999",
-  "pid": "543545",
-  "version": "8.0a1"
+  "pid": "pid1",
+  "version": "8.0b1"
 }

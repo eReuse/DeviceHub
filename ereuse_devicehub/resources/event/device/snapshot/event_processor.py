@@ -1,13 +1,24 @@
+from collections import OrderedDict
+
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.rest import execute_post_internal
 from ereuse_devicehub.utils import Naming
 
 
 class EventProcessor:
+    """
+    Constructs events in different iterations, adding references (like values in 'component') in each iteration, and
+    later in time, once they are fully populated, you can POST them.
+
+    EventProcessor accepts *Remove* and *add* events (although easily more can be added), where for example, the
+    *components* array is populated in different iterations. *process* finally POSTS the resulted events.
+
+    EventProcessor executes the events in the order they were first created (internally using an OrderedDict).
+    """
+
     def __init__(self):
-        self.events = {}
-        self.references = {}  # We cannot use device-dict as references and we cannot rely on _id or hid,
-        # So we need another reference: the python's id(). One we insert the device we update the dict with _id
+        self.events = OrderedDict()
+        self.references = {}
 
     def append_remove(self, component, old_parent):
         self._append(DeviceEventDomain.new_type('Remove'), old_parent, component)
@@ -24,7 +35,7 @@ class EventProcessor:
         :param unique: Unique property of the event (usually 'component' one).
         :return:
         """
-        reference = id(common)
+        reference = id(common)  # We can't use device-dict as references and we can't rely on _id or hid, so we use id()
         self.references[reference] = common
         self.events.setdefault(event, {}).setdefault(reference, []).append(unique)
 

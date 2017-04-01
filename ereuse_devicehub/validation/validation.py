@@ -22,6 +22,9 @@ COERCE_WITH_CONTEXT = 'coerce_with_context'
 
 class DeviceHubValidator(Validator):
     SCALE_AD = ['A', 'B', 'C', 'D']
+    SCALE_AE = SCALE_AD + ['E']
+    SCALE_0E = ['0'] + SCALE_AE
+
     special_rules = Validator.special_rules + ('or', COERCE_WITH_CONTEXT, 'move')
 
     def __init__(self, schema=None, resource=None, allow_unknown=False, transparent_schema_rules=False):
@@ -235,6 +238,12 @@ class DeviceHubValidator(Validator):
     def _validate_doc(self, nothing, field, value):
         pass
 
+    def _validate_placeholder_disallowed(self, _, field, device_id):
+        from ereuse_devicehub.resources.device.domain import DeviceDomain
+        device = DeviceDomain.get_one(device_id)
+        if device.get('placeholder', False):
+            self._error(field, dh_errors.PLACEHOLDER)
+
     def _validate_get_from_data_relation_or_create(self, _, field, value):
         """
         Python-eve is incapable of serializing to objectid when type==[objectid, dict], rejecting the entering string.
@@ -258,6 +267,10 @@ class DeviceHubValidator(Validator):
         pass
 
     def _validate_teaser(self, x, y, z):
+        pass
+
+    def _validate_allowed_description(self, _, field, value):
+        """Explains each allowed element, useful for selects or dropdowns."""
         pass
 
     def _validate_excludes(self, other_field: list, field: str, value):

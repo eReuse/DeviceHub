@@ -10,9 +10,7 @@ from ereuse_devicehub.resources.device.component.domain import ComponentDomain
 from ereuse_devicehub.resources.device.computer.hooks import update_materialized_computer
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.exceptions import DeviceNotFound, NoDevicesToProcess
-from ereuse_devicehub.resources.event.device.add.hooks import add_components
 from ereuse_devicehub.resources.event.device.register.settings import Register
-from ereuse_devicehub.resources.group.domain import GroupDomain
 from ereuse_devicehub.rest import execute_post_internal, execute_delete
 from ereuse_devicehub.utils import Naming
 
@@ -34,29 +32,29 @@ def post_devices(registers: list):
     :raise NoDevicesToProcess: Raised to avoid creating empty registers, that actually did not POST any device
     """
     log = []
+    register = registers[0]
     try:
-        for register in registers:
-            caller_device = register['device']  # Keep the reference from where register['device'] points to
-            _execute_register(caller_device, register.get('created'), log)
-            register['device'] = caller_device['_id']
-            if 'components' in register:
-                caller_components = register['components']
-                register['components'] = []
-                for component in caller_components:
-                    component['parent'] = caller_device['_id']
-                    _execute_register(component, register.get('created'), log)
-                    if component['new']:  # todo put new in g., don't use device
-                        register['components'].append(component['_id'])
-                if caller_device['new']:
-                    set_components(register)
-                elif not register['components']:
-                    t = 'Device {} and components {} already exist.'.format(register['device'], register['components'])
-                    raise NoDevicesToProcess(t)
-                else:
-                    add_components([register])  # The device is not new but we have new components
-                    # Note that we only need to copy a group from the parent if this already exists
-                    if 'ancestors' in caller_device:
-                        inherit_group(caller_device['ancestors'], register['components'])
+        device = register['device']  # register['device'] will be only the _id later
+        if 'parent' in register:  # If device is a component which we are manually setting its parent
+            device['parent'] = register['parent']
+        register['deviceIsNew'] = device_is_new = _execute_register(device, register.get('created'), log)
+        register['device'] = device['_id']
+        components_created = []  # Note that components_created it doesn't need to be equal to register['comp.']
+        for component in register.get('components', []):
+            # Although we set materialized 'parent' in component after (in add_components), this one is needed
+            # to help in case of a new component that cannot generate HID, linking it to its parent
+            component['parent'] = device['_id']
+            if _execute_register(component, register.get('created'), log):  # Component is new
+                components_created.append(component['_id'])
+        register['components'] = components_created  # We only keep in the event the new components
+        if not device_is_new and is_empty(components_created):
+            t = 'Device {} and components {} already exist.'.format(register['device'], register['components'])
+            raise NoDevicesToProcess(t)
+        if 'parent' in register:
+            # If our *device* is a component itself, we need to inherit from its parent
+            update_materialized_computer(register['parent'], [device['_id']], add=True)
+        # We inherit groups to new components and materialize device - components relationships
+        update_materialized_computer(device, components_created, add=True)
     except Exception as e:
         for device in reversed(log):  # Rollback
             deleteitem_internal(Naming.resource(device['@type']), device)
@@ -66,7 +64,7 @@ def post_devices(registers: list):
         set_date(None, registers)  # Let's get the time AFTER creating the devices
 
 
-def _execute_register(device: dict, created: str, log: list):
+def _execute_register(device: dict, created: str, log: list) -> bool:
     """
     Tries to POST the device and updates the `device` dict with the resource from the database; if the device could
     not be uploaded the `device` param will contain the database version of the device, not the inputting one. This is
@@ -78,7 +76,6 @@ def _execute_register(device: dict, created: str, log: list):
     :param log: A log where to append the resulting device if execute_register has been successful
     :raise InnerRequestError: any internal error in the POST that is not about the device already existing.
     """
-    new = True
     try:
         if created:
             device['created'] = created
@@ -110,11 +107,11 @@ def _execute_register(device: dict, created: str, log: list):
         except DeviceNotFound:
             raise e
     else:
+        new = True
         log.append(db_device)
     device.clear()
     device.update(db_device)
-    device['new'] = new  # Note that the device is 'cleared' before
-    return db_device
+    return new
 
 
 def _get_existing_device(e: InnerRequestError) -> dict:
@@ -141,24 +138,10 @@ def _get_existing_device(e: InnerRequestError) -> dict:
     return devices[-1][1]
 
 
-def set_components(register):
-    """Sets the materialized fields *components*, *totalRamSize*, *totalHardDriveSize* and
-    *processorModel* of the computer."""
-    update_materialized_computer(register['device'], register['components'], add=True)
-
-
 def delete_device(_, register):
     if register.get('@type') == Register.type_name:
         for device_id in [register['device']] + register.get('components', []):
             execute_delete(Naming.resource(DeviceDomain.get_one(device_id)['@type']), device_id)
-
-
-def inherit_group(computer_ancestors: list, components: list):
-    """Copies the place from the parent device to the new components and materializes them in the place"""
-    ComponentDomain.update_raw(components, {'$set': {'ancestors': computer_ancestors}})
-    for parent in computer_ancestors:
-        query = {'$addToSet': {'children.components': components}}
-        GroupDomain.children_resources[Naming.resource(parent['@type'])].update_one_raw(parent['label'], query)
 
 
 class MismatchBetweenUid(SchemaError):

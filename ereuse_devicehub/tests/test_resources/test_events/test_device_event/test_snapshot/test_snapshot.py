@@ -1,17 +1,18 @@
 import copy
 import os
 import uuid
-from random import choice
 
 from assertpy import assert_that
 from bson import objectid
+from pydash import map_
+from pydash import select
 
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.tests.test_resources.test_events import TestEvent
 from ereuse_devicehub.tests.test_resources.test_group import TestGroupBase
-from ereuse_devicehub.utils import Naming, coerce_type
 from ereuse_devicehub.utils import NestedLookup
+from ereuse_devicehub.utils import coerce_type
 
 
 class TestSnapshot(TestEvent, TestGroupBase):
@@ -30,7 +31,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
     def post_snapshot(self, input_snapshot):
         return self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), input_snapshot)
 
-    def post_snapshot_get_full_events(self, input_snapshot, number_of_events_to_assert):
+    def post_snapshot_get_full_events(self, input_snapshot, number_of_events_to_assert) -> tuple:
         snapshot = self.post_snapshot(copy.deepcopy(input_snapshot))
         self.assertEqual(len(snapshot['events']), number_of_events_to_assert)
         events = []
@@ -38,10 +39,11 @@ class TestSnapshot(TestEvent, TestGroupBase):
             event, status_code = self.get('events', '', event_id)
             self.assert200(status_code)
             events.append(event)
-        return events
+        return snapshot, events
 
-    def creation(self, input_snapshot: dict, num_of_events: int = 1, do_second_time_snapshot=True) -> str:
-        events = self.post_snapshot_get_full_events(input_snapshot, num_of_events)
+    def creation(self, input_snapshot: dict, num_of_events: int = 1, do_second_time_snapshot=True) -> tuple:
+        snapshot, events = self.post_snapshot_get_full_events(input_snapshot, num_of_events)
+        snapshot_id = snapshot['_id']
         self.assertLen(events, num_of_events)
         register = events[0]
         self.assertType(DeviceEventDomain.new_type('Register'), register)
@@ -55,21 +57,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
         if do_second_time_snapshot:
             snapshot = self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), input_snapshot)
             self.assertLen(snapshot['events'], num_of_events - 1)
-        return register['device']
-
-    def add_remove(self, input_snapshot):
-        component = choice(input_snapshot['components'])
-        while True:
-            ignore_fields = self.app.config['DOMAIN'][Naming.resource(component['@type'])]['etag_ignore_fields']
-            key = choice(list(component.keys()))
-            if key not in ignore_fields:
-                break
-        if type(component[key]) is int or type(component[key]) is float:
-            component[key] += 10
-        elif type(component[key]) is str:
-            import uuid
-            component[key] = uuid.uuid4().hex[:6].upper()
-        self.post_snapshot_get_full_events(input_snapshot, 3)
+        return snapshot_id, register['device']
 
     @staticmethod
     def get_num_events(snapshot):
@@ -85,23 +73,66 @@ class TestSnapshot(TestEvent, TestGroupBase):
         return len(values) + 1  # 1 == register event itself
 
     def test_add_remove(self):
+        """
+        Tests Add and Remove with some foo-bar computers and components. Not all components generate HID, but computers
+        do.
+        """
+        SN = 'serialNumber'
+
         # todo create add/remove test with components and computers without hid
-        # todo Check that the type of events generated are the correct ones
-        folder = 'add_remove'
-        snapshots = []
-        for dummy_device in self.DUMMY_DEVICES:
-            snapshots.append(self.get_fixture(folder, dummy_device))
-        # We add the first device (2 times)
-        self.creation(snapshots[0], self.get_num_events(snapshots[0]))
-        # We register a new device, which has the processor of the first one
+        def get_components() -> list:
+            return self.get_and_check(self.DEVICES, '?where={"@type": {"$nin": ["Computer"]}}')['_items']
+
+        def check_relationship(all_components: list, components_sn: set, device_id: str, snapshot: dict = None):
+            """Checks that the components whose SerialNumber are in *components_sn* are in device and otherwise."""
+            device = self.get_and_check(self.DEVICES, item=device_id)
+            _components = select(all_components, lambda c: c[SN] in components_sn)
+            assert_that(_components).is_length(len(components_sn))
+            components_id = map_(_components, '_id')
+            # Components and parent are in Snapshot
+            # We only check when the snapshot **caused** this relationship
+            if snapshot:
+                assert_that(snapshot).has_device(device_id)
+                assert_that(snapshot['components']).contains_only(*components_id)
+            # Components contain parent
+            assert_that(map_(_components, 'parent')).contains_only(device_id)
+            # Parent contains components
+            assert_that(device['components']).contains_only(*components_id)
+
+        snapshots = [self.get_fixture('add_remove', dummy_device) for dummy_device in self.DUMMY_DEVICES]
+
+        # We add the first device (2 times). The distribution of components (represented with their S/N) should be
+        # in the two computers at play should be:
+        # PC 0: p1c2s, p1c2s, p1c3s. PC 1: ø
+        snapshot0_id, device0_id = self.creation(snapshots[0], self.get_num_events(snapshots[0]))
+        snapshot0 = self.get_and_check(self.EVENTS, item=snapshot0_id)
+        # Let's check if the device contains the components and otherwise
+        check_relationship(get_components(), {'p1c1s', 'p1c2s', 'p1c3s'}, device0_id, snapshot0)
+
+        # We register a new device, which has the processor of the first one (p1c2s)
+        # PC 0: p1c1s, p1c3s. PC 1: p2c1s, p1c2s
         # We have created 3 events (apart from the snapshot itself): Register, 1 Add and 1 Remove
-        self.post_snapshot_get_full_events(snapshots[1], 3)
+        snapshot1, _ = self.post_snapshot_get_full_events(snapshots[1], 3)
+        device1_id = snapshot1['device']
+        components = get_components()
+        check_relationship(components, {'p1c1s', 'p1c3s'}, device0_id)  # Parent 0
+        check_relationship(components, {'p1c2s', 'p2c1s'}, device1_id, snapshot1)  # Parent 1
+
         # We register the first device again, but removing motherboard and moving processor from the second device
+        # PC 0: p1c2s, p1c3s. PC 1: p2c1s
         # to the first. We have created 1 Add, 2 Remove (1. motherboard, 2. processor from second device)
-        self.post_snapshot_get_full_events(snapshots[2], 3)
-        # We register the first device but without the processor and adding a graphic card
+        snapshot2, _ = self.post_snapshot_get_full_events(snapshots[2], 3)
+        components = get_components()
+        check_relationship(components, {'p1c2s', 'p1c3s'}, device0_id, snapshot2)  # Parent 0
+        check_relationship(components, {'p2c1s'}, device1_id)  # Parent 1
+
+        # We register the first device but without the processor, adding a graphic card and adding a new component
         # We have created 1 Remove, 1 Add
-        self.post_snapshot_get_full_events(snapshots[3], 2)
+        # PC 0: p1c3s, p1c4s. PC1: p2c1s
+        snapshot3, _ = self.post_snapshot_get_full_events(snapshots[3], 2)
+        components = get_components()
+        check_relationship(components, {'p1c3s', 'p1c4s'}, device0_id, snapshot3)
+        check_relationship(components, {'p2c1s'}, device1_id)
 
     def test_snapshot_pc_then_register_component(self):
         """
@@ -111,7 +142,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
         events.
         """
         snapshot = self.get_fixture(self.SNAPSHOT, 'snapshot-simple')
-        computer_id = self.creation(snapshot)
+        _, computer_id = self.creation(snapshot)
         snapshot_components_fixture = self.get_fixture(self.SNAPSHOT, 'snapshot-simple-components')
         snapshot_components = self.post_and_check(self.SNAPSHOT_URL, snapshot_components_fixture)
         computer = self.get_and_check(self.DEVICES, item=computer_id)
@@ -175,13 +206,13 @@ class TestSnapshot(TestEvent, TestGroupBase):
         """
         vostro = self.get_fixture(self.SNAPSHOT, 'vostro')
         # We snapshot twice -> ok
-        vostro_id = self.creation(vostro, 2)
+        _, vostro_id = self.creation(vostro, 2)
         # If we set the id to vostro in vostro everything is ok
         # We could say we have a redundancy of ids
         vostro['device']['_id'] = vostro_id
         self.post_and_check(self.SNAPSHOT_URL, vostro)
         # Let's create another device
-        vaio_id = self.creation(self.get_fixture(self.SNAPSHOT, 'vaio'))
+        _, vaio_id = self.creation(self.get_fixture(self.SNAPSHOT, 'vaio'))
         # Let's set the _id of vostro to vaio (for example because the user wrote misspelled it)
         # We get 'hid' as we can compute it. The device of the hid != device of the _id so the system
         # does not allow registering it
@@ -208,7 +239,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
         This system tries this behaviour.
         """
         snapshot = self.get_fixture(self.SNAPSHOT, 'monitor')
-        _id = self.creation(snapshot, self.get_num_events(snapshot))
+        _, _id = self.creation(snapshot, self.get_num_events(snapshot))
         snapshot['device']['rid'] = 'rid1'
         self.post_and_check(self.SNAPSHOT_URL, snapshot)
         monitor = self.get_and_check(self.DEVICES, item=_id)
@@ -250,7 +281,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
     def test_benchmark(self):
         # todo add benchmark for processors (which is done in `test_erase_sectors`
         snapshot = self.get_fixture(self.SNAPSHOT, 'device_benchmark')
-        device_id = self.creation(snapshot, self.get_num_events(snapshot))
+        _, device_id = self.creation(snapshot, self.get_num_events(snapshot))
         full_device, _ = self.get(self.DEVICES, '?embedded={"components": 1}', device_id)
         # Let's check that the benchmarks have been created correctly
         for component in full_device['components']:
@@ -279,7 +310,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
     def _test_erase_sectors(self, fixture_name):
         snapshot = self.get_fixture(self.SNAPSHOT, fixture_name)
         # We do a Snapshot 2 times
-        device_id = self.creation(snapshot, self.get_num_events(snapshot))
+        _, device_id = self.creation(snapshot, self.get_num_events(snapshot))
         full_device, _ = self.get(self.DEVICES, '?embedded={"components": 1}', device_id)
         found = False
         for component in full_device['components']:
@@ -319,7 +350,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
         """
         Tests deleting a full device, ensuring related events and components are deleted.
         """
-        device_id = self.test_703b6()
+        _, device_id = self.test_703b6()
         device, _ = self.get(self.DEVICES, '', device_id)
         # The materialization keeps events of the device and its components, we only get test_hd as an event
         # for a component, to try with it later; let's ignore the rest of events from components
@@ -378,15 +409,29 @@ class TestSnapshot(TestEvent, TestGroupBase):
         snapshot = self.get_fixture(self.SNAPSHOT, 'monitor')
         self.creation(snapshot, 1)  # Register only
 
-    def test_condition(self, maximum: int = None):
-        condition = {
+    def test_condition(self):
+        """
+        Tests the input of different condition parameters.
+
+        See their definition in :func:`ereuse_devicehub.resources.condition.condition`
+        """
+        snapshot = self.get_fixture(self.SNAPSHOT, 'vaio')
+        snapshot['condition'] = condition = {
             'appearance': {'general': 'A'},
-            'functionality': {'general': 'C'}
+            'functionality': {'general': 'C'},
+            'labelling': False,
+            'bios': {'general': 'E'}
         }
-        self.test_snapshot_2015_12_09(maximum or 5, {'condition': condition})
+        result = self.post_snapshot(snapshot)
+        snapshot_result = self.get_and_check(self.EVENTS, item=result['_id'])
+        assert_that(snapshot_result).has_condition(condition)
+        # Now let's make it wrong
+        snapshot['condition']['bios'] = 'X'
+        _, status = self.post(self.SNAPSHOT_URL, snapshot)
+        self.assert422(status)
 
     def _test_giver(self, snapshot, account_email):
-        device_id = self.creation(snapshot, 2, False)
+        _, device_id = self.creation(snapshot, 2, False)
         account, status = self.get(self.ACCOUNTS, '', account_email)
         self.assert200(status)
         # Let's see that the materialized snapshot contains the event
@@ -434,7 +479,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
         }
         snapshot['place'] = self.post_and_check(self.PLACES, self.get_fixture(self.PLACES, 'place'))['_id']
         num_events = self.get_num_events(snapshot)
-        device_id = self.creation(snapshot, num_events)
+        _, device_id = self.creation(snapshot, num_events)
         device, _ = self.get(self.DEVICES, '', device_id)
         self.is_parent(snapshot['place'], self.PLACES, device['_id'], self.DEVICES)
         account, status = self.get(self.ACCOUNTS, '', 'hello@hello.com')
@@ -446,7 +491,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
         """
         snapshot = self.get_fixture(self.SNAPSHOT, '71a4 eee-pc erasure real')
         num_events = self.get_num_events(snapshot)
-        return self.creation(snapshot, num_events)
+        self.creation(snapshot, num_events)
 
     def test_import(self):
         snapshot = self.get_fixture(self.SNAPSHOT, '703b6')
@@ -459,7 +504,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
         self.assert422(status)
         # Let's make account a superuser so it can arbitrary set both fields
         self.set_superuser()
-        device_id = self.creation(snapshot, num_events)
+        _, device_id = self.creation(snapshot, num_events)
         # Let's check that created and the id have been set correctly
         # Any event that we created from this snapshot should have the same date
         register = self.get_first(self.EVENTS)
@@ -545,3 +590,57 @@ class TestSnapshot(TestEvent, TestGroupBase):
         result = self.post_and_check(self.SNAPSHOT_URL, snapshot)
         device = self.get_and_check(self.DEVICES, item=result['device'])
         assert_that(device).has_hid(DeviceDomain.hid(device['manufacturer'], device['serialNumber'], device['model']))
+
+    def test_snapshot_through_computer_then_take_component_snapshot_it_and_remove_it(self):
+        """
+        Let's suppose the computer is broken and we want to take care of the hdd, so we need to:
+
+        1. Snapshot a computer through the app
+        2. Physically remove a component, like the hdd
+        3. Snapshot the component
+        4. Remove the component
+        5. (todo) Erase the hdd in another machine
+
+        Test for this UX: https://tree.taiga.io/project/ereuseorg-app/us/6?milestone=123867
+        """
+        # 1. Snapshot a computer through the app
+        snapshot = self.post_fixture(self.SNAPSHOT, self.SNAPSHOT_URL, 'app')
+        # 2. Physically remove a component (I have done it virtually :-))
+        # 3. Snapshot the component
+        snapshot_component = self.get_fixture(self.SNAPSHOT, 'app-hdd')
+        snapshot_component['parent'] = snapshot['device']
+        snapshot_component_result = self.post_snapshot(snapshot_component)
+        # Computer has component
+        computer = self.get_and_check(self.DEVICES, item=snapshot['device'])
+        assert_that(computer).has_components([snapshot_component_result['device']])
+        # Component is in computer
+        component = self.get_and_check(self.DEVICES, item=snapshot_component_result['device'])
+        assert_that(component).has_parent(computer['_id'])
+        # 4. Remove the component
+        remove = {
+            '@type': 'devices:Remove', 'device': snapshot['device'], 'components': [snapshot_component_result['device']]
+        }
+        self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, 'remove'), remove)
+        # Computer has not component
+        computer = self.get_and_check(self.DEVICES, item=snapshot['device'])
+        assert_that(computer).has_components([])
+        # Component is not in computer
+        component = self.get_and_check(self.DEVICES, item=snapshot_component_result['device'])
+        assert_that(component).does_not_contain('parent')
+
+        # And now let's try a common error:
+        # 1. Create a placeholder
+        # 2. Do not discover / link the computer (through a snapshot from the App)
+        # 3. Snapshot the component and remove it
+        snapshot_placeholder = self.post_fixture('register', '{}/{}'.format(self.DEVICE_EVENT, 'register'),
+                                                 '1-placeholder')
+        snapshot_component = self.get_fixture(self.SNAPSHOT, 'app-hdd')
+        snapshot_component['parent'] = snapshot_placeholder['device']
+        _, status = self.post(self.SNAPSHOT_URL, snapshot_component)
+        self.assert422(status)
+
+        # And another error, directly snapshot the component with an non-existing parent
+        snapshot_component = self.get_fixture(self.SNAPSHOT, 'app-hdd')
+        snapshot_component['parent'] = 'this id does not exist'
+        _, status = self.post(self.SNAPSHOT_URL, snapshot_component)
+        self.assert422(status)

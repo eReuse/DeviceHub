@@ -1,12 +1,12 @@
+from flask import current_app as app
+from flask import request, g
+from werkzeug.local import LocalProxy
+
 from ereuse_devicehub.exceptions import InnerRequestError
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.domain import EventNotFound
 from ereuse_devicehub.rest import execute_delete
 from ereuse_devicehub.utils import Naming
-from flask import current_app as app
-from flask import request, g
-from werkzeug.local import LocalProxy
-
 from .snapshot import Snapshot
 
 
@@ -15,7 +15,7 @@ def on_insert_snapshot(items):
         if 'label' in item:
             item['device']['labelId'] = item['label']  # todo as we do not update the values of a device,
         # todo we will never update, thus materializing new label ids
-        snapshot = Snapshot(item['device'], item['components'], item.get('created'))
+        snapshot = Snapshot(item['device'], item['components'], item.get('created'), item.get('parent'))
         item['events'] = [new_events['_id'] for new_events in snapshot.execute()]
         item['device'] = item['device']['_id']
         item['components'] = [component['_id'] for component in item['components']]
@@ -82,4 +82,3 @@ def move_id(payload: LocalProxy):
         payload.json['device']['_id'] = payload.json.pop('_id')
     if 'pid' in payload.json:  # todo workbench hotfix for pid
         payload.json['device']['pid'] = payload.json.pop('pid')
-

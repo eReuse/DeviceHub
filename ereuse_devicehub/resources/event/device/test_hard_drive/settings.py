@@ -1,4 +1,5 @@
-from ereuse_devicehub.resources.event.device.settings import parent, EventWithOneDevice, EventSubSettingsOneDevice
+from ereuse_devicehub.resources.event.device.settings import parent_materialized, EventWithOneDevice, \
+    EventSubSettingsOneDevice
 
 
 class TestHardDrive(EventWithOneDevice):
@@ -29,7 +30,7 @@ class TestHardDrive(EventWithOneDevice):
         'type': 'boolean',
         'required': True
     }
-    parent = parent
+    parent = parent_materialized
 
 
 class TestHardDriveSettings(EventSubSettingsOneDevice):

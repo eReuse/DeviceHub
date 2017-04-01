@@ -1,4 +1,5 @@
-from ereuse_devicehub.resources.event.device.settings import parent, EventWithOneDevice, EventSubSettingsOneDevice
+from ereuse_devicehub.resources.event.device.settings import parent_materialized, EventWithOneDevice, \
+    EventSubSettingsOneDevice
 
 from .step_settings import step
 
@@ -27,7 +28,7 @@ class EraseBasic(EventWithOneDevice):
             'schema': step
         }
     }
-    parent = parent
+    parent = parent_materialized
 
 
 class EraseBasicSettings(EventSubSettingsOneDevice):

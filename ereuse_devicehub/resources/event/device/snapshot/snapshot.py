@@ -1,18 +1,18 @@
 from contextlib import suppress
 
+from flask import g
+
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.exceptions import DeviceNotFound, NoDevicesToProcess
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.rest import execute_post_internal
 from ereuse_devicehub.utils import Naming
-from flask import g
-
 from .event_processor import EventProcessor
 
 
 class Snapshot:
-    def __init__(self, device: dict, components: list, created=None):
+    def __init__(self, device: dict, components: list, created=None, parent: str = None):
         self.events = EventProcessor()
         self.device = device
         self.components = components
@@ -20,6 +20,9 @@ class Snapshot:
         self.test_hard_drives = g.snapshot_test_hard_drives = []
         self.erasures = g.snapshot_basic_erasures = []
         self.created = created
+        self.parent = parent
+        self.device_is_new = None
+        self.new_components_id = {}
 
     def execute(self):
         event_log = []
@@ -40,7 +43,7 @@ class Snapshot:
         :param device: The device must have an hid
         :param new_parent:
         """
-        if not device['new']:
+        if not device['_id'] in self.new_components_id:
             try:
                 old_parent = ComponentDomain.get_parent(device['_id'])
             except DeviceNotFound:  # The component exists but had no parent device, until now
@@ -70,10 +73,14 @@ class Snapshot:
             register = {
                 '@type': DeviceEventDomain.new_type('Register'),
                 'device': self.device,
-                'components': self.components
+                'components': self.components,
+                'parent': self.parent  # which can be None
             }
             self.set_created_conditionally(register)
-            event_log.append(execute_post_internal(Naming.resource(register['@type']), register))
+            register = execute_post_internal(Naming.resource(register['@type']), register)
+            self.device_is_new = register['deviceIsNew']
+            self.new_components_id = set(register['components'])
+            event_log.append(register)
         for device in [self.device] + self.components:
             if 'hid' not in device and 'pid' not in device:
                 self._append_unsecured(device, 'model')

@@ -3,11 +3,15 @@
   "comment": "The computer has small scratches.",
   "condition": {
     "appearance": {
-      "general": "B"
+      "general": "0"
     },
     "functionality": {
       "general": "A"
-    }
+    },
+    "bios": {
+      "general": "B"
+    },
+    "labelling": true
   },
   "components": [
     {

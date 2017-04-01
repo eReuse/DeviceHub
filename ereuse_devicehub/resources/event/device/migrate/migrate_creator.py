@@ -77,10 +77,10 @@ class MigrateCreator(Snapshot):
         :param same_as_found_components: list of booleans,
             each bool of the list represents a component (ordered equally)
         """
-        if not same_as_found[0] and self.device['new']:
+        if not same_as_found[0] and self.device_is_new:
             self._append_unsecured(self.device, 'sameAs')
         for component, same_as_found_component in zip(self.components, same_as_found_components):
-            if not same_as_found_component[0] and component['new']:
+            if not same_as_found_component[0] and component['_id'] in self.new_components_id:
                 self._append_unsecured(component, 'sameAs')
 
     def update_same_as(self, same_as_found, same_as_found_components):
@@ -89,10 +89,10 @@ class MigrateCreator(Snapshot):
 
         This only makes sense when the device has not been created (as it existed); Register does not update its values.
         """
-        if not self.device['new']:
+        if not self.device_is_new:
             self._update_same_as(self.device, same_as_found[1])
         for component, same_as_found_component in zip(self.components, same_as_found_components):
-            if not component['new']:
+            if not component['_id'] in self.new_components_id:
                 self._update_same_as(component, same_as_found_component[1])
 
     @staticmethod

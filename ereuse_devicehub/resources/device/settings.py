@@ -24,7 +24,7 @@ class DeviceSettings(ResourceSettings):
                           'busClock', 'labelId', 'owners', 'place', 'benchmark', 'benchmarks', 'public', '_links',
                           'forceCreation', 'parent', 'events', 'created', 'sameAs', 'placeholder', 'ancestors']
     cache_control = 'max-age=1, must-revalidate'
-    extra_response_fields = ResourceSettings.extra_response_fields + ['hid', 'pid']
+    extra_response_fields = ResourceSettings.extra_response_fields + ['hid', 'pid', 'ancestors', 'gid', 'rid']
     datasource = {
         'source': 'devices'
     }

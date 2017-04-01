@@ -1,4 +1,7 @@
-from ereuse_devicehub.resources.event.device.settings import place, EventWithOneDevice, EventSubSettingsOneDevice
+import copy
+
+from ereuse_devicehub.resources.event.device.settings import place, EventWithOneDevice, EventSubSettingsOneDevice, \
+    parent
 
 
 class Register(EventWithOneDevice):
@@ -10,6 +13,11 @@ class Register(EventWithOneDevice):
             'embeddable': True
         }
     }
+    deviceIsNew = {
+        'type': 'boolean',
+        'default': False,
+        'doc': 'Note that prior may 2017 this value is None for everyone.'
+    }
     components = {
         'type': ['list', 'string'],  # POST dict, GET str
         'data_relation': {
@@ -18,6 +26,10 @@ class Register(EventWithOneDevice):
             'embeddable': True
         }
     }
+    parent = copy.copy(parent)
+    parent['placeholder_disallowed'] = True
+    parent['doc'] = 'Please, discover first its parent before registering a component.'
+
     force = {
         'type': ['boolean']  # Creates a device even if it does not have pid or hid, doesn't affect components
         # An automatic way of generating pid must be set (ex: PID_AS_AUTOINCREMENT)
@@ -27,6 +39,6 @@ class Register(EventWithOneDevice):
 
 class RegisterSettings(EventSubSettingsOneDevice):
     _schema = Register
-    extra_response_fields = EventSubSettingsOneDevice.extra_response_fields + ['device', 'components']
+    extra_response_fields = EventSubSettingsOneDevice.extra_response_fields + ['device', 'components', 'deviceIsNew']
     fa = 'fa-plus'
     short_description = 'The creation of a new device in the system.'

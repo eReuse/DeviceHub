@@ -33,6 +33,8 @@ def hooks(app):
 
     from ereuse_devicehub.resources.event.device.snapshot.hooks import on_insert_snapshot, save_request, \
         materialize_test_hard_drives, materialize_erase_basic, set_secured, delete_events, move_id
+    from ereuse_devicehub.resources.event.device.hooks import validate_only_components_can_have_parents
+    app.on_insert_devices_snapshot += validate_only_components_can_have_parents
     app.on_insert_devices_snapshot += set_secured
     app.on_insert_devices_snapshot += on_insert_snapshot
     app.on_insert_devices_snapshot += save_request
@@ -56,6 +58,7 @@ def hooks(app):
     app.on_delete_item += delete_components
 
     from ereuse_devicehub.resources.event.device.register.hooks import post_devices, delete_device
+    app.on_insert_devices_register += validate_only_components_can_have_parents
     app.on_insert_devices_register += post_devices
     app.on_delete_item += delete_device
 
@@ -112,5 +115,3 @@ def hooks(app):
 
     from ereuse_devicehub.resources.hooks import set_date
     app.on_insert += set_date
-
-

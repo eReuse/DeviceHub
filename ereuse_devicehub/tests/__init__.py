@@ -286,7 +286,7 @@ class TestStandard(TestBase):
         mounted = self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), mounted)
         return [self.get(self.EVENTS, '', event['events'][0])[0]['device'] for event in [vaio, vostro, xps13, mounted]]
 
-    def devices_do_not_contain_places(self, device_id: str) -> list:
+    def devices_do_not_contain_places(self, device_id: str):
         """ The opposite of `device_and_place_contain_each_other`."""
         device, _ = self.get(self.DEVICES, '', device_id)
         assert_that(device).does_not_contain('place')

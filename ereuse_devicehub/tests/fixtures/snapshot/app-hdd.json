@@ -1,0 +1,10 @@
+{
+  "@type": "Snapshot",
+  "device": {
+    "@type": "HardDrive",
+    "manufacturer": "Nice Man HDD",
+    "model": "Nice Model HDD",
+    "serialNumber": "Nice SN HDD"
+  },
+  "snapshotSoftware": "Scan"
+}

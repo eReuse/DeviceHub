@@ -4,7 +4,7 @@ from ereuse_devicehub.resources.device.computer.hooks import update_materialized
 def remove_components(events: dict):
     """
     Removes the materialized fields *components*, *totalRamSize*, *totalHardDriveSize* and
-    *processorModel* of the computer.
+    *processorModel* of the computer, and the field *parent* of such components.
     """
     for event in events:
         update_materialized_computer(event['device'], event['components'], add=False)

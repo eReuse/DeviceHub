@@ -2,7 +2,9 @@ import pymongo
 from flask import current_app
 from pydash import uniq
 
+from ereuse_devicehub.exceptions import SchemaError
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
+from ereuse_devicehub.resources.device.component.settings import Component
 from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.settings import Event, DeviceEvent
@@ -54,15 +56,13 @@ def materialize_components(resource_name: str, events: list):
 
 def materialize_parent(resource_name: str, events: list):
     """
-    Materializes the field 'parent' of events that only affect components (such as TestHardDrive or EraseBasic)
-    :param resource_name:
-    :param events:
-    :return:
+    Materializes the field 'parent', only when this field is set as 'materialized'. This is in case of events affecting
+    components (such as TestHardDrive or EraseBasic).
     """
     if resource_name in Event.resource_types:
         for event in events:
             sub_schema = current_app.config['DOMAIN'][resource_name]['schema']
-            if 'parent' in sub_schema:
+            if sub_schema.get('parent', {}).get('materialized', False):
                 event['parent'] = ComponentDomain.get_parent(event['device'])['_id']
 
 
@@ -130,3 +130,18 @@ def remove_from_other_events(resource_name: str, event: dict):
     if resource_name in DeviceEvent.resource_types:
         update = {'$pull': {'events': {'$in': [event['_id']]}}}
         DeviceEventDomain.update_many_raw({}, update)
+
+
+def validate_only_components_can_have_parents(snapshots: list):
+    """Validates that *parent* in a Snapshot is only present when *device* is a component."""
+    for snapshot in snapshots:
+        if 'parent' in snapshot and snapshot['device']['@type'] not in Component.types:
+            # We cannot do this in Validation due to technical difficulties
+            raise OnlyComponentsCanHaveParents('device', snapshot['device']['@type'])
+
+
+class OnlyComponentsCanHaveParents(SchemaError):
+    def __init__(self, field=None, resource_type=None):
+        message = 'Only components can be inside a device. Remove "parent" or set the device as a component.' \
+                  ' Your device is set as {}.'.format(resource_type)
+        super().__init__(field, message)

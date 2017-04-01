@@ -83,6 +83,17 @@ components = {
     'description': 'Components affected by the event.',
     'teaser': False
 }
+parent_materialized = {
+    'type': 'string',
+    'data_relation': {
+        'resource': 'devices',
+        'field': '_id',
+        'embeddable': True
+    },
+    'description': 'The event triggered in this computer.',
+    'materialized': True
+}
+
 parent = {
     'type': 'string',
     'data_relation': {
@@ -90,7 +101,8 @@ parent = {
         'field': '_id',
         'embeddable': True
     },
-    'description': 'The event triggered in this computer.'
+    'doc': 'This is not the same as the materialized "parent" field. This field can be set when snapshotting a'
+           ' component, for example through Scan, that should be included in a device.'
 }
 
 

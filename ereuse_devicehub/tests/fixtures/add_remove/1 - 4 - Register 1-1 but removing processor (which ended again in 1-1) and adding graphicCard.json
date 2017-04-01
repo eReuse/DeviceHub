@@ -11,14 +11,14 @@
   "@type": "Snapshot",
   "components": [
     {
-      "manufacturer": "p1c3m",
-      "serialNumber": "1f:c3:1d:2d:3d:3f",
+      "manufacturer": "p1c4m",
+      "serialNumber": "p1c4s",
       "speed": 1000,
       "@type": "NetworkAdapter"
     },
     {
-      "manufacturer": "p1c4m",
-      "serialNumber": "p1c4s",
+      "manufacturer": "p1c3m",
+      "serialNumber": "p1c3s",
       "@type": "GraphicCard",
       "memory": 1.5
     }

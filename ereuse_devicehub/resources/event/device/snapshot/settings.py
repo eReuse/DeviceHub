@@ -4,7 +4,8 @@ from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.account.settings import unregistered_user, unregistered_user_doc
 from ereuse_devicehub.resources.condition import condition
 from ereuse_devicehub.resources.device.component.settings import Component
-from ereuse_devicehub.resources.event.device.settings import place, EventWithOneDevice, EventSubSettingsOneDevice
+from ereuse_devicehub.resources.event.device.settings import place, EventWithOneDevice, EventSubSettingsOneDevice, \
+    parent
 
 
 class Snapshot(EventWithOneDevice):
@@ -95,6 +96,7 @@ class Snapshot(EventWithOneDevice):
         'default': [],
         'teaser': False
     }
+    parent = parent
     debug = {
         'type': 'dict',
         'teaser': False

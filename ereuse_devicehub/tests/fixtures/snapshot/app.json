@@ -1,0 +1,24 @@
+{
+  "@type": "Snapshot",
+  "condition": {
+    "appearance": {
+      "general": "B"
+    },
+    "functionality": {
+      "general": "B"
+    },
+    "bios": {
+      "general": "C"
+    },
+    "labelling": false
+  },
+  "device": {
+    "@type": "Computer",
+    "manufacturer": "Nice Man",
+    "model": "Nice Model",
+    "serialNumber": "Nice SN",
+    "type": "Netbook"
+  },
+  "pid": "Nice PID",
+  "snapshotSoftware": "Scan"
+}

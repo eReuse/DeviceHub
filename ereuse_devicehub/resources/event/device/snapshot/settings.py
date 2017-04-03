@@ -27,7 +27,7 @@ class Snapshot(EventWithOneDevice):
     }
     snapshotSoftware = {
         'type': 'string',
-        'allowed': ['DDI', 'Scan', 'DeviceHubClient'],
+        'allowed': ['Workbench', 'AndroidApp', 'Web', 'DDI'],
         'default': 'DDI'
     }
     events = {

@@ -544,3 +544,14 @@ class TestSnapshot(TestEvent):
         result = self.post_and_check(self.SNAPSHOT_URL, snapshot)
         device = self.get_and_check(self.DEVICES, item=result['device'])
         assert_that(device).has_hid(DeviceDomain.hid(device['manufacturer'], device['serialNumber'], device['model']))
+
+    def test_snapshot_software_old(self):
+        """Tests snapshotSoftware"""
+        # Old version
+        snapshot = self.get_fixture(self.SNAPSHOT, self.REAL_DEVICES[0])
+        snapshot['snapshotSoftware'] = 'DDI'
+        self.creation(snapshot, self.get_num_events(snapshot))
+        # New version
+        snapshot = self.get_fixture(self.SNAPSHOT, self.REAL_DEVICES[1])
+        snapshot['snapshotSoftware'] = 'Workbench'
+        self.creation(snapshot, self.get_num_events(snapshot))

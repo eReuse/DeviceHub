@@ -1,3 +1,5 @@
+from contextlib import suppress
+
 from pydash import find
 
 from ereuse_devicehub.resources.device.domain import DeviceDomain
@@ -17,7 +19,8 @@ class SnapshotSoftware(Update):
             'DeviceHubClient': 'Web'
         }
         for snapshot in DeviceEventDomain.get({'@type': "devices:Snapshot"}):
-            snapshot['snapshotSoftware'] = SNAPSHOT_SOFTWARE[snapshot.get('snapshotSoftware', 'DDI')]
+            with suppress(KeyError):
+                snapshot['snapshotSoftware'] = SNAPSHOT_SOFTWARE[snapshot.get('snapshotSoftware', 'DDI')]
             DeviceEventDomain.update_one_raw(snapshot['_id'], {'$set': {'snapshotSoftware': snapshot['snapshotSoftware']}})
             for device in DeviceDomain.get({'events._id': snapshot['_id']}):
                 materialized_snapshot = find(device['events'], lambda event: event['_id'] == snapshot['_id'])

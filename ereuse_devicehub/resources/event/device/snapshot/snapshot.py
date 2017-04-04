@@ -11,18 +11,69 @@ from ereuse_devicehub.utils import Naming
 from .event_processor import EventProcessor
 
 
-class Snapshot:
-    def __init__(self, device: dict, components: list, created=None, parent: str = None):
-        self.events = EventProcessor()
+class SnapshotWithoutComponents:
+    """
+    Basic Snapshot that process devices without components; see *Snapshot* for more information.
+    """
+    def __init__(self, device: dict, components: list = None, created=None, parent: str = None):
+        """
+
+        :param device: The device to process.
+        :param components: A list of components. Although not used in this class others do.
+        :param created: Was the resource created?
+        :param parent: The identifier of a parent, if the device is a component itself.
+        """
         self.device = device
-        self.components = components
+        self.components = components or []
         self.unsecured = []
-        self.test_hard_drives = g.snapshot_test_hard_drives = []
-        self.erasures = g.snapshot_basic_erasures = []
         self.created = created
         self.parent = parent
         self.device_is_new = None
         self.new_components_id = {}
+
+    def execute(self):
+        event_log = []
+        self.register(event_log)
+        return event_log
+
+    def register(self, event_log: list):
+        with suppress(NoDevicesToProcess):
+            register = {
+                '@type': DeviceEventDomain.new_type('Register'),
+                'device': self.device,
+                'components': self.components,
+                'parent': self.parent  # which can be None
+            }
+            self.set_created_conditionally(register)
+            register = execute_post_internal(Naming.resource(register['@type']), register)
+            self.device_is_new = register['deviceIsNew']
+            self.new_components_id = set(register['components'])
+            event_log.append(register)
+        for device in [self.device] + self.components:
+            if 'hid' not in device and 'pid' not in device:
+                self._append_unsecured(device, 'model')
+            elif 'pid' in device:
+                self._append_unsecured(device, 'pid')
+
+    def set_created_conditionally(self, resource):
+        if self.created:
+            resource['created'] = self.created
+
+    def _append_unsecured(self, device: dict, resource_type: str):
+        self.unsecured.append({'@type': device['@type'], 'type': resource_type, '_id': device['_id']})
+
+
+class Snapshot(SnapshotWithoutComponents):
+    """
+    Updates devices and its components and performs events to the database to reflect
+    the changes specified in Snapshot files, introduced as the init parameters.
+    """
+
+    def __init__(self, device: dict, components: list = None, created=None, parent: str = None):
+        self.test_hard_drives = g.snapshot_test_hard_drives = []
+        self.erasures = g.snapshot_basic_erasures = []
+        self.events = EventProcessor()
+        super().__init__(device, components, created, parent)
 
     def execute(self):
         event_log = []
@@ -33,6 +84,22 @@ class Snapshot:
         self.exec_hard_drive_events(event_log, self.erasures + self.test_hard_drives)
         self._remove_nonexistent_components()
         return event_log + self.events.process()
+
+    def get_tests_and_erasures(self, components):
+        for i, component in enumerate(components):
+            if 'test' in component:
+                self.test_hard_drives.append((i, component['test']))
+                del component['test']
+            if 'erasure' in component:
+                self.erasures.append((i, component['erasure']))
+                del component['erasure']
+
+    def exec_hard_drive_events(self, event_log, events):
+        for i, event in events:
+            event['device'] = self.components[i]['_id']
+            self.set_created_conditionally(event)
+            event_log.append(execute_post_internal(Naming.resource(event['@type']), event))
+            event.update(event_log[-1])
 
     def get_add_remove(self, device: dict, new_parent: dict):
         """
@@ -64,71 +131,3 @@ class Snapshot:
             full_old_components = [ComponentDomain.get_one(component) for component in self.device['components']]
             for component_to_remove in ComponentDomain.difference(full_old_components, self.components):
                 self.events.append_remove(component_to_remove, self.device)
-
-    def _append_unsecured(self, device: dict, resource_type: str):
-        self.unsecured.append({'@type': device['@type'], 'type': resource_type, '_id': device['_id']})
-
-    def register(self, event_log: list):
-        with suppress(NoDevicesToProcess):
-            register = {
-                '@type': DeviceEventDomain.new_type('Register'),
-                'device': self.device,
-                'components': self.components,
-                'parent': self.parent  # which can be None
-            }
-            self.set_created_conditionally(register)
-            register = execute_post_internal(Naming.resource(register['@type']), register)
-            self.device_is_new = register['deviceIsNew']
-            self.new_components_id = set(register['components'])
-            event_log.append(register)
-        for device in [self.device] + self.components:
-            if 'hid' not in device and 'pid' not in device:
-                self._append_unsecured(device, 'model')
-            elif 'pid' in device:
-                self._append_unsecured(device, 'pid')
-
-    def get_tests_and_erasures(self, components):
-        i = 0
-        for component in components:
-            if 'test' in component:
-                self.test_hard_drives.append((i, component['test']))
-                del component['test']
-            if 'erasure' in component:
-                self.erasures.append((i, component['erasure']))
-                del component['erasure']
-            i += 1
-
-    def exec_hard_drive_events(self, event_log, events):
-        for i, event in events:
-            event['device'] = self.components[i]['_id']
-            self.set_created_conditionally(event)
-            event_log.append(execute_post_internal(Naming.resource(event['@type']), event))
-            event.update(event_log[-1])
-
-    def set_created_conditionally(self, resource):
-        if self.created:
-            resource['created'] = self.created
-
-
-class SnapshotNotProcessingComponents(Snapshot):
-    """The same as *Snapshot*, but without processing components"""
-
-    def __init__(self, device: dict, created=None):
-        super().__init__(device, [], created)
-
-    def execute(self):
-        event_log = []
-        self.register(event_log)
-        return event_log
-
-    def exec_hard_drive_events(self, event_log, events):
-        raise NotImplementedError()
-
-    def get_tests_and_erasures(self, components):
-        raise NotImplementedError()
-
-    def get_add_remove(self, device: dict, new_parent: dict):
-        raise NotImplementedError()
-
-    def _remove_nonexistent_components(self):
-        raise NotImplementedError()

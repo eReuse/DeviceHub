@@ -2,19 +2,12 @@ from flask import current_app as app
 from flask import request, g
 from werkzeug.local import LocalProxy
 
-import copy
-
-from flask import current_app as app
-from flask import request, g
-from werkzeug.local import LocalProxy
-
 from ereuse_devicehub.exceptions import InnerRequestError
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.domain import EventNotFound
 from ereuse_devicehub.rest import execute_delete
 from ereuse_devicehub.utils import Naming
-from .snapshot import Snapshot
-from .snapshot import Snapshot, SnapshotNotProcessingComponents
+from .snapshot import Snapshot, SnapshotWithoutComponents
 
 
 def on_insert_snapshot(items):
@@ -25,7 +18,7 @@ def on_insert_snapshot(items):
         if item['snapshotSoftware'] == 'Workbench':
             snapshot = Snapshot(item['device'], item['components'], item.get('created'), item.get('parent'))
         else:  # In App or web we do not ask for component info
-            snapshot = SnapshotNotProcessingComponents(item['device'], item.get('created'), item.get('parent'))
+            snapshot = SnapshotWithoutComponents(item['device'], created=item.get('created'), parent=item.get('parent'))
         item['events'] = [new_events['_id'] for new_events in snapshot.execute()]
         item['device'] = snapshot.device['_id']
         item['components'] = [component['_id'] for component in snapshot.components]
@@ -44,12 +37,12 @@ def save_request(items):
 
 
 def materialize_test_hard_drives(_):
-    for i, test_hard_drives in g.snapshot_test_hard_drives:
+    for i, test_hard_drives in getattr(g, 'snapshot_test_hard_drives', []):
         _materialize_event_in_device(test_hard_drives, 'tests')
 
 
 def materialize_erase_basic(_):
-    for i, erase_basic in g.snapshot_basic_erasures:
+    for i, erase_basic in getattr(g, 'snapshot_basic_erasures', []):
         _materialize_event_in_device(erase_basic, 'erasures')
 
 

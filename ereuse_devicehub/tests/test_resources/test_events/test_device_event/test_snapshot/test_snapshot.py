@@ -591,6 +591,17 @@ class TestSnapshot(TestEvent, TestGroupBase):
         device = self.get_and_check(self.DEVICES, item=result['device'])
         assert_that(device).has_hid(DeviceDomain.hid(device['manufacturer'], device['serialNumber'], device['model']))
 
+    def test_snapshot_software_old(self):
+        """Tests snapshotSoftware"""
+        # Old version
+        snapshot = self.get_fixture(self.SNAPSHOT, self.REAL_DEVICES[0])
+        snapshot['snapshotSoftware'] = 'DDI'
+        self.creation(snapshot, self.get_num_events(snapshot))
+        # New version
+        snapshot = self.get_fixture(self.SNAPSHOT, self.REAL_DEVICES[1])
+        snapshot['snapshotSoftware'] = 'Workbench'
+        self.creation(snapshot, self.get_num_events(snapshot))
+
     def test_snapshot_through_computer_then_take_component_snapshot_it_and_remove_it(self):
         """
         Let's suppose the computer is broken and we want to take care of the hdd, so we need to:

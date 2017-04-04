@@ -76,9 +76,19 @@ def delete_events(_, snapshot: dict):
                         raise e
 
 
+SNAPSHOT_SOFTWARE = {
+    'DDI': 'Workbench',
+    'Scan': 'AndroidApp',
+    'DeviceHubClient': 'Web'
+}
+
+
 def move_id(payload: LocalProxy):
     """Moves the _id and pid from the snapshot to the inner device of the snapshot, as a hotfix for Workbench's bug"""
     if '_id' in payload.json:
         payload.json['device']['_id'] = payload.json.pop('_id')
     if 'pid' in payload.json:  # todo workbench hotfix for pid
         payload.json['device']['pid'] = payload.json.pop('pid')
+    if payload.json.get('snapshotSoftware', None) in SNAPSHOT_SOFTWARE:
+        payload.json['snapshotSoftware'] = SNAPSHOT_SOFTWARE[payload.json['snapshotSoftware']]
+

@@ -82,16 +82,16 @@ class MaterializeEvents:
         Materializes some fields of the events in the affected device, benefiting searches. To keep minimum space,
         only selected fields are materialized (which you can check in the following tuple)
     """
-    fields = {
+    FIELDS = {
         '_id', '@type', 'label', 'date', 'incidence', 'secured', 'comment', 'success', 'error', 'type', 'receiver',
-        'receiverOrganization', 'to', 'toOrganization', 'secured', 'byUser', 'geo', '_updated'
+        'receiverOrganization', 'to', 'toOrganization', 'secured', 'byUser', 'geo', '_updated', 'snapshotSoftware'
     }
 
     @classmethod
     def materialize_events(cls, resource: str, events: list):
         if resource in DeviceEvent.resource_types:
             for event in events:
-                trimmed_event = {field_name: event[field_name] for field_name in cls.fields if field_name in event}
+                trimmed_event = {field_name: event[field_name] for field_name in cls.FIELDS if field_name in event}
                 query = {'$push': {'events': {'$each': [trimmed_event], '$position': 0}}}
                 devices = [event['device']] if 'device' in event else event['devices']
                 if 'parent' in event:  # Let's materialize the events (test, erasure...) of the component to the parent
@@ -100,7 +100,7 @@ class MaterializeEvents:
                 DeviceDomain.update_raw(event.get('components', []), query)
 
     @classmethod
-    def dematerialize_event(cls, resource: str, event: dict):
+    def dematerialize_event(cls, _, event: dict):
         if event.get('@type') in DeviceEvent.types:
             device = [event['device']] if 'device' in event else []
             parent = [event['parent']] if 'parent' in device else []

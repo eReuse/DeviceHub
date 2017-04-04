@@ -1,12 +1,14 @@
+import copy
+
+from flask import current_app as app
+from flask import request, g
+from werkzeug.local import LocalProxy
+
 from ereuse_devicehub.exceptions import InnerRequestError
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.domain import EventNotFound
 from ereuse_devicehub.rest import execute_delete
 from ereuse_devicehub.utils import Naming
-from flask import current_app as app
-from flask import request, g
-from werkzeug.local import LocalProxy
-
 from .snapshot import Snapshot
 
 
@@ -14,6 +16,9 @@ def on_insert_snapshot(items):
     for item in items:
         if 'label' in item:
             item['device']['labelId'] = item['label']  # todo as we do not update the values of a device,
+        item['_snapshot'] = copy.deepcopy(item)
+        del item['_snapshot']['_created']
+        del item['_snapshot']['_updated']
         # todo we will never update, thus materializing new label ids
         snapshot = Snapshot(item['device'], item['components'], item.get('created'))
         item['events'] = [new_events['_id'] for new_events in snapshot.execute()]

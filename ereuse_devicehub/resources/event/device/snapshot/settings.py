@@ -99,6 +99,12 @@ class Snapshot(EventWithOneDevice):
         'type': 'dict',
         'teaser': False
     }
+    _snapshot = {
+        'type': 'dict',
+        'materialized': True,
+        'description': 'A read-only copy of the Snapshot as it was introduced.',
+        'doc': 'Used to debug and resolve problems.'
+    }
     place = copy.deepcopy(place)
     place['description'] = 'Place the devices to an existing location.'
     place['label'] = 'Place where the devices are saved'

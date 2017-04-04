@@ -108,3 +108,27 @@ class Snapshot:
     def set_created_conditionally(self, resource):
         if self.created:
             resource['created'] = self.created
+
+
+class SnapshotNotProcessingComponents(Snapshot):
+    """The same as *Snapshot*, but without processing components"""
+
+    def __init__(self, device: dict, created=None):
+        super().__init__(device, [], created)
+
+    def execute(self):
+        event_log = []
+        self.register(event_log)
+        return event_log
+
+    def exec_hard_drive_events(self, event_log, events):
+        raise NotImplementedError()
+
+    def get_tests_and_erasures(self, components):
+        raise NotImplementedError()
+
+    def get_add_remove(self, device: dict, new_parent: dict):
+        raise NotImplementedError()
+
+    def _remove_nonexistent_components(self):
+        raise NotImplementedError()

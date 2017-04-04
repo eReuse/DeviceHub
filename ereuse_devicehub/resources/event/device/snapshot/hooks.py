@@ -2,12 +2,19 @@ from flask import current_app as app
 from flask import request, g
 from werkzeug.local import LocalProxy
 
+import copy
+
+from flask import current_app as app
+from flask import request, g
+from werkzeug.local import LocalProxy
+
 from ereuse_devicehub.exceptions import InnerRequestError
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.domain import EventNotFound
 from ereuse_devicehub.rest import execute_delete
 from ereuse_devicehub.utils import Naming
 from .snapshot import Snapshot
+from .snapshot import Snapshot, SnapshotNotProcessingComponents
 
 
 def on_insert_snapshot(items):
@@ -15,10 +22,13 @@ def on_insert_snapshot(items):
         if 'label' in item:
             item['device']['labelId'] = item['label']  # todo as we do not update the values of a device,
         # todo we will never update, thus materializing new label ids
-        snapshot = Snapshot(item['device'], item['components'], item.get('created'), item.get('parent'))
+        if item['snapshotSoftware'] == 'Workbench':
+            snapshot = Snapshot(item['device'], item['components'], item.get('created'), item.get('parent'))
+        else:  # In App or web we do not ask for component info
+            snapshot = SnapshotNotProcessingComponents(item['device'], item.get('created'), item.get('parent'))
         item['events'] = [new_events['_id'] for new_events in snapshot.execute()]
-        item['device'] = item['device']['_id']
-        item['components'] = [component['_id'] for component in item['components']]
+        item['device'] = snapshot.device['_id']
+        item['components'] = [component['_id'] for component in snapshot.components]
         item['unsecured'] = snapshot.unsecured
         from ereuse_devicehub.resources.hooks import set_date
         set_date(None, items)  # Let's get the time AFTER creating the other events
@@ -91,4 +101,3 @@ def move_id(payload: LocalProxy):
         payload.json['device']['pid'] = payload.json.pop('pid')
     if payload.json.get('snapshotSoftware', None) in SNAPSHOT_SOFTWARE:
         payload.json['snapshotSoftware'] = SNAPSHOT_SOFTWARE[payload.json['snapshotSoftware']]
-

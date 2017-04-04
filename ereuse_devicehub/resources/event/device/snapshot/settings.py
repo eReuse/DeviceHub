@@ -28,11 +28,11 @@ class Snapshot(EventWithOneDevice):
     }
     snapshotSoftware = {
         'type': 'string',
-        'allowed': ['Workbench', 'AndroidApp', 'Web', 'DDI'],
-        'default': 'DDI'
+        'allowed': ['Workbench', 'AndroidApp', 'Web'],
+        'default': 'Workbench'
     }
     events = {
-        'type': 'list',  # Snapshot generates this automatically
+        'type': 'list',
         'schema': {
             'type': 'objectid',
             'data_relation': {
@@ -41,14 +41,16 @@ class Snapshot(EventWithOneDevice):
                 'field': '_id'
             }
         },
-        'readonly': True
+        'readonly': True,
+        'description': 'The events triggered by the Snapshot.'
     }
     request = {
-        'type': 'string',  # The request sent, saved in case of debugging
-        'readonly': True
+        'type': 'string',
+        'readonly': True,
+        'doc': 'The whole Snapshot saved in case for debugging'
     }
     unsecured = {
-        'type': 'list',  # When we match an existing non-hid device, we state it here
+        'type': 'list',
         'schema': {
             'type': 'dict',
             'schema': {
@@ -70,7 +72,8 @@ class Snapshot(EventWithOneDevice):
             }
         },
         'default': [],
-        'readonly': True
+        'readonly': True,
+        'description': 'Information about existing non-HID device.'
     }
     device = {
         'type': 'dict',  # eve doesn't care about the type when GET values

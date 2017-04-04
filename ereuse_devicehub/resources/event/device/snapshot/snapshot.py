@@ -1,13 +1,13 @@
 from contextlib import suppress
 
+from flask import g
+
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.exceptions import DeviceNotFound, NoDevicesToProcess
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.rest import execute_post_internal
 from ereuse_devicehub.utils import Naming
-from flask import g
-
 from .event_processor import EventProcessor
 
 
@@ -101,3 +101,27 @@ class Snapshot:
     def set_created_conditionally(self, resource):
         if self.created:
             resource['created'] = self.created
+
+
+class SnapshotNotProcessingComponents(Snapshot):
+    """The same as *Snapshot*, but without processing components"""
+
+    def __init__(self, device: dict, created=None):
+        super().__init__(device, [], created)
+
+    def execute(self):
+        event_log = []
+        self.register(event_log)
+        return event_log
+
+    def exec_hard_drive_events(self, event_log, events):
+        raise NotImplementedError()
+
+    def get_tests_and_erasures(self, components):
+        raise NotImplementedError()
+
+    def get_add_remove(self, device: dict, new_parent: dict):
+        raise NotImplementedError()
+
+    def _remove_nonexistent_components(self):
+        raise NotImplementedError()

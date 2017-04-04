@@ -9,21 +9,21 @@ from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.domain import EventNotFound
 from ereuse_devicehub.rest import execute_delete
 from ereuse_devicehub.utils import Naming
-from .snapshot import Snapshot
+from .snapshot import Snapshot, SnapshotNotProcessingComponents
 
 
 def on_insert_snapshot(items):
     for item in items:
         if 'label' in item:
             item['device']['labelId'] = item['label']  # todo as we do not update the values of a device,
-        item['_snapshot'] = copy.deepcopy(item)
-        del item['_snapshot']['_created']
-        del item['_snapshot']['_updated']
         # todo we will never update, thus materializing new label ids
-        snapshot = Snapshot(item['device'], item['components'], item.get('created'))
+        if item['snapshotSoftware'] == 'Workbench':
+            snapshot = Snapshot(item['device'], item['components'], item.get('created'))
+        else:  # In App or web we do not ask for component info
+            snapshot = SnapshotNotProcessingComponents(item['device'], item.get('created'))
         item['events'] = [new_events['_id'] for new_events in snapshot.execute()]
-        item['device'] = item['device']['_id']
-        item['components'] = [component['_id'] for component in item['components']]
+        item['device'] = snapshot.device['_id']
+        item['components'] = [component['_id'] for component in snapshot.components]
         item['unsecured'] = snapshot.unsecured
         from ereuse_devicehub.resources.hooks import set_date
         set_date(None, items)  # Let's get the time AFTER creating the other events

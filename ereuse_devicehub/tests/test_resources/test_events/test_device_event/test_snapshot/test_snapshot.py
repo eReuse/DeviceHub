@@ -5,6 +5,7 @@ from random import choice
 
 from assertpy import assert_that
 from bson import objectid
+from pydash import pick
 
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
@@ -555,3 +556,35 @@ class TestSnapshot(TestEvent):
         snapshot = self.get_fixture(self.SNAPSHOT, self.REAL_DEVICES[1])
         snapshot['snapshotSoftware'] = 'Workbench'
         self.creation(snapshot, self.get_num_events(snapshot))
+
+    def test_workbench_then_app(self):
+        """
+        When performing a Snapshot through the app there is no information about components. In Workbench,
+        an empty components array (or None) equals to *this device has no components, remove them*, but with the App
+        the message is just *I am not providing any info about the components*. The Workbench scenario is by default;
+        this test ensures that the App scenario is well handled.
+        """
+        workbench = self.get_fixture(self.SNAPSHOT, 'vaio')
+        workbench = self.post_snapshot(workbench)
+        workbench = self.get_and_check(self.EVENTS, item=workbench['_id'])
+        device_after_workbench = self.get_and_check(self.DEVICES, item=workbench['device'])
+        components_after_workbench = [self.get_and_check(self.DEVICES, item=component_id) for component_id in
+                                      device_after_workbench['components']]
+        # Let's create our App Snapshot
+        app = self.get_fixture(self.SNAPSHOT, 'vaio')
+        app['snapshotSoftware'] = 'AndroidApp'  # This is how we differentiate snapshots from Workbench and App
+        app['device'] = pick(device_after_workbench, 'serialNumber', 'manufacturer', 'model', '@type')
+        del app['components']  # '[]' is set by default if this is None
+        # The rest of values of Snapshot can be the same, they won't affect
+        app = self.post_snapshot(app)
+        app = self.get_and_check(self.EVENTS, item=app['_id'])
+        device_after_app = self.get_and_check(self.DEVICES, item=app['device'])
+        components_after_app = [self.get_and_check(self.DEVICES, item=component_id) for component_id in
+                                device_after_app['components']]
+
+        assert_that(device_after_app.pop('events')).contains(*device_after_workbench.pop('events'))
+        assert_that(device_after_app).is_equal_to(device_after_workbench)
+
+        for component_w, component_a in zip(components_after_workbench, components_after_app):
+            assert_that(component_w.pop('events')).contains(*component_a.pop('events'))
+            assert_that(component_w).is_equal_to(component_a)

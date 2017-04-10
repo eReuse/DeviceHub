@@ -1,7 +1,9 @@
 import linecache
+import os
 import sys
 
 import inflection as inflection
+from flask import json
 from flask.ext.cache import Cache
 
 cache = Cache(config={'CACHE_TYPE': 'simple'})
@@ -194,3 +196,22 @@ class ClassProperty(property):
 
     def __get__(self, cls, owner):
         return self.fget.__get__(None, owner)()
+
+
+def get_json_from_file(filename: str, directory: str = None, parse_json=True, mode='r',
+                       same_directory_as_file: str = None) -> dict:
+    """
+
+    :param parse_json: Try to parse the json or only return the string?
+    :param mode: File opening mode. By default only read.
+    :type filename: str
+    :param directory: Optional. Directory to get the file from. If nothing, it is taken from .
+    :param same_directory_as_file: Optional. If supplied, directory is set to the same directory as the file, overriding
+    param *directory*.
+    :return: JSON dict
+    """
+    if same_directory_as_file:
+        directory = os.path.dirname(os.path.realpath(same_directory_as_file))
+    with open(os.path.abspath(os.path.join(directory, filename)), mode=mode) as data_file:
+        value = json.load(data_file) if parse_json else data_file.read()
+    return value

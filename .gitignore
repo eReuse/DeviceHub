@@ -57,3 +57,4 @@ logs/**
 /app.py
 /settings.py
 /dummy.py
+/update.py

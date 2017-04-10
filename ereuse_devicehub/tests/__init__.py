@@ -9,6 +9,7 @@ from eve.methods.common import parse
 from eve.tests import TestMinimal
 from flask.ext.pymongo import MongoClient
 
+from ereuse_devicehub import utils
 from ereuse_devicehub.flaskapp import DeviceHub
 from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.submitter.grd_submitter.grd_submitter import GRDSubmitter
@@ -181,17 +182,9 @@ class TestBase(TestMinimal):
 class TestStandard(TestBase):
     @staticmethod
     def get_json_from_file(filename: str, directory: str = None, parse_json=True, mode='r') -> dict:
-        """
-
-        :type filename: str
-        :param directory: Optionall. Directory to get the file from. If nothing, it is taken from the actual directory.
-        :return:
-        """
         if directory is None:
             directory = os.path.dirname(os.path.realpath(__file__))
-        with open(os.path.abspath(os.path.join(directory, filename)), mode=mode) as data_file:
-            value = json.load(data_file) if parse_json else data_file.read()
-        return value
+        return utils.get_json_from_file(filename, directory, parse_json, mode)
 
     def parse_event(self, event):
         with self.app.app_context():

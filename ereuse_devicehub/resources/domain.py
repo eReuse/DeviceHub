@@ -106,6 +106,11 @@ class Domain:
         """Returns the resource full url as seen for other agents."""
         return '{}/{}'.format(current_app.config['BASE_URL_FOR_AGENTS'], cls.path_for(database, identifier))
 
+    @classmethod
+    def insert(cls, document: dict):
+        """Inserts a document."""
+        current_app.data.insert(cls.source, document)
+
 
 class ResourceNotFound(StandardError):
     status_code = 422

@@ -18,4 +18,4 @@ def materialize_owners(devices_id):
         else:
             modified = materialize_actual_owners_remove([event])
             if modified == 0:  # This Remove does nothing and should be erased
-                DeviceEventDomain.delete({'_id': event['_id']})
+                DeviceEventDomain.delete_one({'_id': event['_id']})

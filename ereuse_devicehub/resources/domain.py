@@ -85,8 +85,13 @@ class Domain:
 
     @classmethod
     @mongo_encode('query')
-    def delete(cls, query):
+    def delete_one(cls, query):
         return current_app.data.driver.db[cls.source].delete_one(query)
+
+    @classmethod
+    @mongo_encode('query')
+    def delete_all(cls):
+        return current_app.data.driver.db[cls.source].drop()
 
     @classproperty
     def source(cls):

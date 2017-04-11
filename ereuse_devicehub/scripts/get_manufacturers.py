@@ -1,11 +1,17 @@
 import argparse
 import json
+from contextlib import suppress
 
 import requests
 from bs4 import BeautifulSoup
+from pydash import find
 from pydash import is_empty
 from pydash import py_
 from requests import HTTPError
+from wikipedia import wikipedia
+
+from ereuse_devicehub import DeviceHub
+from ereuse_devicehub.resources.device.manufacturers import ManufacturerDomain
 
 
 class ManufacturersGetter:
@@ -32,12 +38,46 @@ class ManufacturersGetter:
             'id': 'mw-pages'
         }
     )
+    VALUES_TO_REMOVE = 'Hewlett',
+    # HP has many companies called the same and Wikpedia accounts for each of them, and HP Inc is the new name for
+    # The old Hewlett-Packard
+    PATHS_TO_REMOVE = 'index.php', 'List of'
+    LOGO_AVOID = 'commons-logo', 'old'
+    FILENAME = '_manufacturers.json'
 
-    def execute(self, file_name: str = 'manufacturers.json'):
-        """Executes *self.get()* and saves the list in a JSON file."""
-        manufacturers = self.get()
-        with open(file_name, 'w') as file:
-            json.dump(manufacturers, file)
+    def execute(self, app):
+        """
+        Populates the database with the manufacturers. This method will try to locate a *_manufacturers.json* and
+        populate from there. If the file does not exist it will fetch the data from Wikipedia (taking long time) and
+        then saving it in the database and the *_manufacturers.json* file (think of it as a cache).
+        :param app:
+        :return:
+        """
+        ManufacturerDomain.delete_all()
+        try:
+            with open(self.FILENAME) as fp:
+                manufacturers = json.load(fp)
+                for man in manufacturers:
+                    ManufacturerDomain.insert(man)
+        except FileNotFoundError:
+            with app.app_context():
+                m = []
+                for manufacturer_name in self.get():
+                    with suppress(Exception):
+                        page = wikipedia.page(manufacturer_name, auto_suggest=False, redirect=False)
+                        man = {
+                            'label': manufacturer_name,
+                            'url': page.url
+                        }
+                        with suppress(Exception):
+                            man['logo'] = find(
+                                page.images,
+                                lambda x: 'logo' in x.lower() and not any(v in x.lower() for v in self.LOGO_AVOID)
+                            )
+                        m.append(man)
+                        ManufacturerDomain.insert(man)
+            with open(self.FILENAME, 'w') as fp:
+                json.dump(m, fp)
 
     def get(self) -> list:
         """
@@ -47,7 +87,7 @@ class ManufacturersGetter:
         print('Manufacturers:')
         urls = [self._manufacturers_url(self._get_page(p['url']), p['class'], p['id']) for p in self.PARAMS]
         return py_(urls).flatten().uniq().map_(lambda x: self._request(x['href'])) \
-            .filter_(lambda x: not is_empty(x)).uniq().sort().value()
+            .filter_(lambda x: not (is_empty(x) or any(v in x for v in self.VALUES_TO_REMOVE))).uniq().sort().value()
 
     def _get_page(self, url: str) -> BeautifulSoup:
         """Givern an URL, fetches the page and returns a beautifoulsoup page element."""
@@ -65,12 +105,12 @@ class ManufacturersGetter:
         except HTTPError:
             return None  # It will be erased later todo I do not like returning None, it should be an exception
 
-    @staticmethod
-    def _manufacturers_url(page: BeautifulSoup, class_: str, id_: str) -> list:
+    @classmethod
+    def _manufacturers_url(cls, page: BeautifulSoup, class_: str, id_: str) -> list:
         """Finds the manufacturers' URL given a Wikipedia structured page."""
         containers = page.find(id=id_).find_all(class_=class_)
-        return py_(containers).map_(lambda x: x.find_all('li')).flatten().map_(lambda x: x.a) \
-            .remove(lambda x: not (is_empty(x) or 'index.php' in x or 'List of' in x)).value()
+        return py_(containers).map_(lambda x: x.find_all('li')).flatten().map_(lambda x: x.a). \
+            remove(lambda x: not (is_empty(x) or any(v in x for v in cls.PATHS_TO_REMOVE))).value()
 
 
 if __name__ == '__main__':
@@ -79,4 +119,6 @@ if __name__ == '__main__':
     epilog = 'Minimum example: python get_manufacturers.py'
     parser = argparse.ArgumentParser(description=desc, epilog=epilog)
     parser.parse_args()
-    ManufacturersGetter().execute()
+
+    app = DeviceHub()
+    ManufacturersGetter().execute(app)

@@ -40,7 +40,8 @@ MONGO_DBNAME = 'dh__accounts'
 """
 RESOURCES_NOT_USING_DATABASES = ['schema']
 """List of any special resources that do not use any database, for example eve's schema endpoint."""
-RESOURCES_CHANGING_NUMBER = {'device', 'event', 'account', 'place', 'erase', 'project', 'package', 'lot'}
+RESOURCES_CHANGING_NUMBER = {'device', 'event', 'account', 'place', 'erase', 'project', 'package', 'lot',
+                             'manufacturer'}
 """
     List of resources that change form singular and plural. Write it in the resource singular form.
     See :class:`app.utils.Naming`
@@ -95,10 +96,12 @@ EVENTS_IN_GRD = [Naming.resource(DeviceEventDomain.new_type(event)) for event in
 from ereuse_devicehub.resources.device.settings import DeviceSettings
 from ereuse_devicehub.resources.account.settings import AccountSettings
 from ereuse_devicehub.resources.event.settings import EventSettings
+from ereuse_devicehub.resources.device.manufacturers import ManufacturerSettings
 
 DOMAIN = {
     'devices': DeviceSettings,
     'events': EventSettings,
     'accounts': AccountSettings,
-    'groups': GroupSettings
+    'groups': GroupSettings,
+    'manufacturers': ManufacturerSettings
 }

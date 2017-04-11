@@ -131,6 +131,7 @@ class AccountSettings(ResourceSettings):
     }
     allowed_item_write_roles = {Role.AMATEUR}  # Amateur can write it's account
     use_default_database = True  # We have a common shared database with accounts
+    fa = 'fa-user-o'
 
 
 unregistered_user = {

@@ -29,6 +29,7 @@ class DeviceSettings(ResourceSettings):
         'source': 'devices'
     }
     icon = 'devices/icons/'
+    fa = 'fa-desktop'
 
 
 class DeviceSubSettings(DeviceSettings):

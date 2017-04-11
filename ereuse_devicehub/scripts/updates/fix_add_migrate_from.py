@@ -15,7 +15,7 @@ class FixAddMigrateFrom(ReMaterializeEventsInDevices):
     """Re-does internally a Migrate that was erroniously partly-erased"""
     def execute(self, database):
         if database == 'alencop':
-            DeviceEventDomain.delete({"_id": ObjectId('58e283091f632f56a18ca413')})
+            DeviceEventDomain.delete_one({"_id": ObjectId('58e283091f632f56a18ca413')})
             ids = list(range(1348, 1448))
             ids = [str(_id) for _id in ids]
             devices = DeviceDomain.get({'_id': {'$in': ids}})

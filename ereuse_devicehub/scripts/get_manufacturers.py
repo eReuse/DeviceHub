@@ -53,14 +53,14 @@ class ManufacturersGetter:
         :param app:
         :return:
         """
-        ManufacturerDomain.delete_all()
-        try:
-            with open(self.FILENAME) as fp:
-                manufacturers = json.load(fp)
-                for man in manufacturers:
-                    ManufacturerDomain.insert(man)
-        except FileNotFoundError:
-            with app.app_context():
+        with app.app_context():
+            ManufacturerDomain.delete_all()
+            try:
+                with open(self.FILENAME) as fp:
+                    manufacturers = json.load(fp)
+                    for man in manufacturers:
+                        ManufacturerDomain.insert(man)
+            except FileNotFoundError:
                 m = []
                 for manufacturer_name in self.get():
                     with suppress(Exception):
@@ -76,8 +76,8 @@ class ManufacturersGetter:
                             )
                         m.append(man)
                         ManufacturerDomain.insert(man)
-            with open(self.FILENAME, 'w') as fp:
-                json.dump(m, fp)
+                with open(self.FILENAME, 'w') as fp:
+                    json.dump(m, fp)
 
     def get(self) -> list:
         """

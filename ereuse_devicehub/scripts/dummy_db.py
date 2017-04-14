@@ -2,6 +2,7 @@ from pprint import pprint
 
 from geojson import Polygon, utils
 
+from ereuse_devicehub.scripts.get_manufacturers import ManufacturersGetter
 from ereuse_devicehub.tests.test_resources.test_events.test_device_event.test_snapshot.test_snapshot import TestSnapshot
 
 
@@ -31,6 +32,7 @@ class DummyDB:
     def create_dummy(self, maximum: int = None):
         self.create_dummy_devices(maximum)
         self.create_dummy_groups(maximum)
+        ManufacturersGetter().execute(self.app)
 
     def create_dummy_devices(self, maximum: int = None):
         self.test.creation = self._creation

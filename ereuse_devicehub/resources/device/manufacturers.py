@@ -30,7 +30,7 @@ class ManufacturerSettings(ResourceSettings):
 
     cache_control = 'max-age={}, public'.format(12 * 60 * 60)
     mongo_indexes = {
-        'label_index': [('label', pymongo.ASCENDING)]
+        'Man: label': [('label', pymongo.TEXT)]
     }
     use_default_database = True
 

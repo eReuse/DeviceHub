@@ -83,7 +83,8 @@ class GroupSettings(ResourceSettings):
     }
     extra_response_fields = ResourceSettings.extra_response_fields + ['children', 'ancestors', 'byUser', 'devices']
     mongo_indexes = {
-        '@type and label': [('@type', pymongo.DESCENDING), ('label', pymongo.DESCENDING)],
+        'Group: updated': [('_updated', pymongo.DESCENDING)],
+        'Group: updated, label': [('label', pymongo.TEXT), ('_updated', pymongo.DESCENDING)],
     }
     additional_lookup = {
         'url': r'regex("([\w]).+")',

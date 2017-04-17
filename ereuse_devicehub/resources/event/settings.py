@@ -55,9 +55,10 @@ class EventSettings(ResourceSettings):
         'default_sort': [('_created', -1)]
     }
     mongo_indexes = {
-        '@type': [('@type', pymongo.DESCENDING)],
-        'device': [('device', pymongo.HASHED)],
-        'components': [('components', pymongo.DESCENDING)],
+        'Event: updated': [('_updated', pymongo.DESCENDING)],
+        'Event: @type, updated': [('@type', pymongo.DESCENDING), ('_updated', pymongo.DESCENDING)],
+        'Event: device': [('device', pymongo.HASHED)],
+        'Event: components': [('components', pymongo.DESCENDING)],
     }
     cache_control = 'max-age=15, must-revalidate'
     fa = 'fa-bookmark-o'

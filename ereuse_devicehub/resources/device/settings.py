@@ -16,9 +16,8 @@ class DeviceSettings(ResourceSettings):
     }
     item_url = 'regex("[\w]+")'
     mongo_indexes = {
-        '@type': [('@type', pymongo.DESCENDING)],
-        '@type and subtype': [('@type', pymongo.DESCENDING), ('type', pymongo.DESCENDING)],
-        '@type and _created': [('@type', pymongo.DESCENDING), ('_created', pymongo.DESCENDING)]
+        'Device: @type and subtype': [('@type', pymongo.DESCENDING), ('type', pymongo.DESCENDING)],
+        'Device: @type and _updated': [('@type', pymongo.DESCENDING), ('_updated', pymongo.DESCENDING)]
     }
     etag_ignore_fields = ['hid', '_id', 'components', 'isUidSecured', '_created', '_updated', '_etag', 'speed',
                           'busClock', 'labelId', 'owners', 'place', 'benchmark', 'benchmarks', 'public', '_links',

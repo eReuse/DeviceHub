@@ -6,7 +6,17 @@ import os
 import sys
 
 import gnupg
-from contextlib import suppress
+from eve import Eve
+from eve.endpoints import schema_collection_endpoint
+from eve.exceptions import ConfigException
+from eve.io.mongo import GridFSMediaStorage
+from eve.io.mongo import MongoJSONEncoder
+from eve.render import send_response
+from flask import json
+from flask import request
+from inflection import camelize
+from pydash import chain
+
 from ereuse_devicehub.aggregation.settings import aggregate_view
 from ereuse_devicehub.data_layer import DataLayer, MongoEncoder
 from ereuse_devicehub.error_handler import ErrorHandlers
@@ -22,14 +32,6 @@ from ereuse_devicehub.static import send_device_icon
 from ereuse_devicehub.url_parse import UrlParse
 from ereuse_devicehub.utils import cache
 from ereuse_devicehub.validation.validation import DeviceHubValidator
-from eve import Eve
-from eve.endpoints import schema_collection_endpoint
-from eve.exceptions import ConfigException
-from eve.io.mongo import GridFSMediaStorage
-from eve.io.mongo import MongoJSONEncoder
-from eve.render import send_response
-from flask import json
-from flask import request
 
 
 class DeviceHub(Eve):
@@ -146,24 +148,13 @@ class DeviceHub(Eve):
         if request.method == 'OPTIONS':
             return response
         else:
+            SETTINGS_TO_PICK = ('url', 'use_default_database', 'short_description', 'sink', 'icon',
+                                'resource_methods', 'item_methods', 'fa')
             schemas = json.loads(response.data.decode())
             for resource_type, schema in schemas.items():
-                settings = self.config['DOMAIN'][resource_type]
-                schema['_settings'] = {
-                    'url': settings['url'],
-                    'use_default_database': settings['use_default_database']
-                }
-                with suppress(KeyError):
-                    schema['_settings']['fa'] = settings['fa']
-                with suppress(KeyError):
-                    schema['_settings']['short_description'] = settings['short_description']
-                with suppress(KeyError):
-                    schema['_settings']['sink'] = settings['sink']
-                with suppress(KeyError):
-                    schema['_settings']['icon'] = settings['icon']
-            return send_response(None, (schemas,))
-
-    # def handle_user_exception(self, e):
-    #     raise e
-
-
+                # Note that JSON keys are in camelCase
+                schema['_settings'] = chain(self.config['DOMAIN'][resource_type]) \
+                    .pick(SETTINGS_TO_PICK) \
+                    .map_keys(lambda _, key: camelize(key, False)) \
+                    .value()
+        return send_response(None, (schemas,))

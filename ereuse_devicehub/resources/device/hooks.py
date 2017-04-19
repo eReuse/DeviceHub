@@ -1,10 +1,13 @@
+from bson import ObjectId
 from eve.utils import document_etag
 from flask import current_app as app
+from pydash import find
 
-from ereuse_devicehub.exceptions import RequestAnother
+from ereuse_devicehub.exceptions import RequestAnother, StandardError
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
+from ereuse_devicehub.resources.event.device.migrate.settings import Migrate
 from ereuse_devicehub.resources.event.device.settings import DeviceEvent
 from ereuse_devicehub.rest import execute_delete
 from ereuse_devicehub.utils import Naming
@@ -77,6 +80,14 @@ def materialize_public_in_components_update(resource: str, device: dict, origina
         materialize_public_in_components(Naming.resource(original['@type']), [device])
 
 
+def avoid_deleting_if_device_has_migrate(resource_name: str, device: dict):
+    """Deleting a device that has a Migrate would mean to undo the migrate, something we are not ready to do."""
+    if resource_name in Device.resource_types:
+        event = find(device['events'], {'@type': Migrate.type_name})
+        if event:
+            raise DeviceHasMigrate(event['_id'], device['_id'])
+
+
 class MaterializeEvents:
     """
         Materializes some fields of the events in the affected device, benefiting searches. To keep minimum space,
@@ -117,3 +128,11 @@ def redirect_to_first_snapshot(resource, request, lookup):
         snapshot_id = str(DeviceEventDomain.get_first_snapshot(lookup['_id'])['_id'])
         execute_delete(Naming.resource('devices:Snapshot'), snapshot_id)
         raise RequestAnother('', 204)
+
+
+class DeviceHasMigrate(StandardError):
+    status_code = 405  # Method not allowed
+
+    def __init__(self, event_id: ObjectId, device_id: str):
+        message = 'You can\'t delete a device that has a Migrate event.'.format(event_id, device_id)
+        super().__init__(message)

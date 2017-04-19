@@ -12,6 +12,12 @@ def hooks(app):
     app.on_fetched_item += project_item
     app.on_fetched_resource += project_resource
 
+    from ereuse_devicehub.resources.hooks import avoid_deleting_if_not_last_event_or_more_x_minutes
+    app.on_pre_DELETE += avoid_deleting_if_not_last_event_or_more_x_minutes
+
+    from ereuse_devicehub.resources.device.hooks import avoid_deleting_if_device_has_migrate
+    app.on_delete_item += avoid_deleting_if_device_has_migrate
+
     from ereuse_devicehub.resources.event.device.migrate.hooks import check_migrate, create_migrate, submit_migrate, \
         check_migrate_insert, check_migrate_update, remove_devices_from_place, return_same_as
     app.on_insert += check_migrate_insert

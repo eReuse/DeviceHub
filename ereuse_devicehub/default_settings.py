@@ -3,6 +3,8 @@
 
     These settings overrides eve's default configuration, and adds new ones.
 """
+from datetime import timedelta
+
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.group.settings import GroupSettings
 from ereuse_devicehub.utils import Naming
@@ -79,6 +81,7 @@ DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
 SCHEMA_ENDPOINT = 'schema'
 VALIDATION_ERROR_AS_LIST = True  # We always use list to show errors
 ITEM_CACHE = 120  # We differentiate from Resource cache (Cache setting from Eve) from Item cache
+TIME_TO_DELETE_RESOURCES = timedelta(minutes=5)  # How much time do users have to delete a resource after creating it?
 
 # Role settings
 from ereuse_devicehub.resources.account.role import Role

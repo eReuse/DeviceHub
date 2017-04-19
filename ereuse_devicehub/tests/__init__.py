@@ -1,8 +1,7 @@
+import contextlib
 import copy
 import os
-from pprint import pprint
 
-import simplejson as json
 from assertpy import assert_that
 from bson.objectid import ObjectId
 from eve.methods.common import parse
@@ -10,6 +9,7 @@ from eve.tests import TestMinimal
 from flask.ext.pymongo import MongoClient
 
 from ereuse_devicehub import utils
+from ereuse_devicehub.exceptions import StandardError
 from ereuse_devicehub.flaskapp import DeviceHub
 from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.submitter.grd_submitter.grd_submitter import GRDSubmitter
@@ -168,8 +168,10 @@ class TestBase(TestMinimal):
         headers = headers or []
         return super(TestBase, self).put(self.select_database(url) + '/' + url, data, headers + [self.auth_header])
 
-    def delete(self, url, headers=None):
+    def delete(self, url, headers=None, item=None):
         headers = headers or []
+        if item:
+            url = url + '/' + item
         return super(TestBase, self).delete(self.select_database(url) + '/' + url, headers + [self.auth_header])
 
     def _login(self) -> str:
@@ -235,29 +237,44 @@ class TestStandard(TestBase):
 
     def post_and_check(self, url, payload):
         response, status_code = self.post(url, payload)
-        try:
+        with self._print_unsuccessful_request(url, response, status_code, payload):
             self.assert201(status_code)
-        except AssertionError as e:
-            pprint(response)
-            pprint(payload)
-            e.message = response
-            raise e
         return response
 
     def patch_and_check(self, url, payload):
         response, status_code = self.patch(url, payload)
-        self.assert200(status_code)
+        with self._print_unsuccessful_request(url, response, status_code, payload):
+            self.assert200(status_code)
         return response
 
     def put_and_check(self, url, payload):
         response, status_code = self.put(url, payload)
-        self.assert200(status_code)
+        with self._print_unsuccessful_request(url, response, status_code, payload):
+            self.assert200(status_code)
         return response
 
-    def delete_and_check(self, url):
-        response, status_code = self.delete(url)
-        self.assert204(status_code)
+    def delete_and_check(self, url, item=None):
+        response, status_code = self.delete(url, item=item)
+        with self._print_unsuccessful_request(url, response, status_code):
+            self.assert204(status_code)
         return response
+
+    def assert_error(self, response: dict, status_code: int, error_class: StandardError):
+        """Ensures that the response (a dict from a JSON) represents the *error_class*."""
+        name = error_class.__name__
+        if error_class.status_code != status_code or response['_error']['@type'] != name:
+            raise AssertionError('Response error {} is not an instance of error {}.'.format(response, name))
+
+    @contextlib.contextmanager
+    def _print_unsuccessful_request(self, url, response, status_code, payload=None):
+        try:
+            yield
+        except AssertionError:
+            m = 'Unsuccessful DELETE on {} (HTTP {}):\n'.format(url, status_code)
+            if payload:
+                m += 'Payload:\n{}\n'.format(payload)
+            m += 'Response:\n{}'.format(response)
+            raise AssertionError(m)
 
     def get_and_check(self, resource, query='', item=None, authorize=True, database=None):
         response, status_code = self.get(resource, query, item, authorize, database)

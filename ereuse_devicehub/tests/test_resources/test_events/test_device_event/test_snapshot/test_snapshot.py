@@ -4,8 +4,8 @@ import uuid
 
 from assertpy import assert_that
 from bson import objectid
-from pydash import pick
 from pydash import map_
+from pydash import pick
 from pydash import select
 
 from ereuse_devicehub.resources.device.domain import DeviceDomain
@@ -30,7 +30,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
     SNAPSHOT_URL = '{}/{}'.format(TestEvent.DEVICE_EVENT, TestEvent.SNAPSHOT)
 
     def post_snapshot(self, input_snapshot):
-        return self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), input_snapshot)
+        return self.post_and_check(self.SNAPSHOT_URL, input_snapshot)
 
     def post_snapshot_get_full_events(self, input_snapshot, number_of_events_to_assert) -> tuple:
         snapshot = self.post_snapshot(copy.deepcopy(input_snapshot))
@@ -170,35 +170,27 @@ class TestSnapshot(TestEvent, TestGroupBase):
         :return:
         """
         snapshot = self.get_fixture(self.SNAPSHOT, 'mounted')
-        try:
-            # Let's try first a simple snapshot
-            self.post_snapshot(snapshot)
-        except AssertionError as e:
-            if e.args[0] == '422 != 201' and 'NeedsId' in e.message['_issues']['_id'][0]:
-                # The system tells us that it could not register the device because the device (computer) has no hid
-                # We can tell the system that this device already exists, by specifying an '_id', or stating
-                # that this is new. We say it is new:
-                snapshot['device']['forceCreation'] = True
-                # And we repeat the process
-                self.creation(snapshot, self.get_num_events(snapshot), False)
-                # All ok. We remove the forceCreation and repeat the process
-                del snapshot['device']['forceCreation']
-                try:
-                    self.post_snapshot(snapshot)
-                except AssertionError as k:
-                    # The system asks again the same. This time we will say that the device is the first one
-                    # by specifying the '_id' to '1'
-                    if k.args[0] == '422 != 201' and 'NeedsId' in k.message['_issues']['_id'][0]:
-                        snapshot['device']['_id'] = '1'
-                        # The system now is going to recognize the device and it's components,
-                        # thus causing no extra event, apart from the snapshot itself
-                        self.post_snapshot_get_full_events(snapshot, 0)
-                    else:
-                        raise e
-            else:
-                raise e
-        else:
-            self.assertTrue(False)  # We shouldn't we here, let's raise something
+        # Let's try first a simple snapshot
+        response, status = self.post(self.SNAPSHOT_URL, snapshot)
+        self.assert422(status)
+        assert_that(response['_issues']['_id'][0]).contains('NeedsId')
+        # The system tells us that it could not register the device because the device (computer) has no hid
+        # We can tell the system that this device already exists, by specifying an '_id', or stating
+        # that this is new. We say it is new:
+        snapshot['device']['forceCreation'] = True
+        # And we repeat the process
+        self.creation(snapshot, self.get_num_events(snapshot), False)
+        # All ok. We remove the forceCreation and repeat the process
+        del snapshot['device']['forceCreation']
+        response, status = self.post(self.SNAPSHOT_URL, snapshot)
+        self.assert422(status)
+        # The system asks again the same. This time we will say that the device is the first one
+        # by specifying the '_id' to '1'
+        assert_that(response['_issues']['_id'][0]).contains('NeedsId')
+        snapshot['device']['_id'] = '1'
+        # The system now is going to recognize the device and it's components,
+        # thus causing no extra event, apart from the snapshot itself
+        self.post_snapshot_get_full_events(snapshot, 0)
 
     def test_hid_vs_id(self):
         """

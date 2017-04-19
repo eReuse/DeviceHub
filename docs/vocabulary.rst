@@ -19,6 +19,8 @@ note that you can `get here <https://github.com/eReuse/DeviceHub/blob/master/ere
 Device
 ------
 
+Definition in :ref:py:`ereuse_devicehub.resources.device.schema.Device`.
+
 Device is a meticulously chosen word by its generic definition, which represents our purpose to be able to reuse almost
 anything, although we start with a subset of electronic devices. Some devices can have inner devices called components.
 The relationship is recursive: as components are devices that can have inner components, too. For example, both a

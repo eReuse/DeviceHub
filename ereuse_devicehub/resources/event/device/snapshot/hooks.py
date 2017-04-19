@@ -1,3 +1,5 @@
+from contextlib import suppress
+
 from flask import current_app as app
 from flask import request, g
 from werkzeug.local import LocalProxy
@@ -61,17 +63,12 @@ def set_secured(snapshots: list):
 
 
 def delete_events(_, snapshot: dict):
-    """
-    Deletes the events that were created with the snapshot.
-    """
+    """Deletes the events that were created with the snapshot."""
     if snapshot.get('@type') == 'devices:Snapshot':
         for event_id in snapshot['events']:
-            try:
+            with suppress(EventNotFound):
                 # If the first event is Register, erasing the device will erase the rest of events
                 event = DeviceEventDomain.get_one(event_id)
-            except EventNotFound:
-                pass
-            else:
                 try:
                     execute_delete(Naming.resource(event['@type']), event['_id'])
                 except InnerRequestError as e:

@@ -52,3 +52,14 @@ class TestDevice(TestStandard):
         self.post_and_check('{}/add'.format(self.DEVICE_EVENT), add)
         vaio_after, _ = self.get(self.DEVICES, '', devices[0])
         assert_that(vaio_after['totalHardDriveSize']).is_equal_to(122104.3359375 + 15296.0 + hard_drive['size'])
+
+    def test_delete(self):
+        """Deletes a device."""
+        snapshot = self.post_fixture(self.SNAPSHOT, '{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), 'vaio')
+        device = self.get_and_check(self.DEVICES, item=snapshot['device'])
+        _, status = self.delete(self.DEVICES, item=device['_id'])
+        self.assert204(status)
+        # Let's check that any event is there
+        for event in device['events']:
+            _, status = self.get(self.EVENTS, item=event['_id'])
+            self.assert404(status)

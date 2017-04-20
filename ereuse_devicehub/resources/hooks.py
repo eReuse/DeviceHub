@@ -6,6 +6,7 @@ from requests import Response
 
 from ereuse_devicehub.exceptions import RedirectToClient, StandardError
 from ereuse_devicehub.resources.device.domain import DeviceDomain
+from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.settings import DeviceEvent
 from ereuse_devicehub.utils import get_header_link
@@ -67,12 +68,18 @@ def avoid_deleting_if_not_last_event_or_more_x_minutes(resource_name: str, _, lo
     deleted prior Snapshot however Snapshot is the last event, which would cause error.
     """
     # Note that devices are only redirected to their first snapshot so this is going to be checked on there
-    if resource_name in DeviceEvent.resource_types:
+    is_device_event = resource_name in DeviceEvent.resource_types
+    if is_device_event:
         resource = DeviceEventDomain.get_one(ObjectId(lookup['_id']))
-        # Checks timing
-        if datetime.now(timezone.utc) - resource['_created'] > current_app.config['TIME_TO_DELETE_RESOURCES']:
-            raise TooLateToDelete()
-        # Checks event is last
+    elif resource_name in Device.resource_types:
+        resource = DeviceDomain.get_one(lookup['_id'])
+    else:
+        return
+    # Checks timing
+    if datetime.now(timezone.utc) - resource['_created'] > current_app.config['TIME_TO_DELETE_RESOURCES']:
+        raise TooLateToDelete()
+    # Checks event is last
+    if is_device_event:
         for device_id in DeviceEventDomain.devices_id(resource) + resource.get('components', []):
             device = DeviceDomain.get_one(device_id)
             if device['events'][0]['_id'] != resource['_id']:  # It is not the last event

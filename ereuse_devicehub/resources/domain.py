@@ -20,7 +20,7 @@ class Domain:
         """
         Obtains a resource.
         :param id_or_filter: An identifier or the filter in Mongo to obtain the resource.
-        :throws ResourceNotFound:
+        :raise ResourceNotFound:
         :return:
         """
         resource = current_app.data.find_one_raw(cls.source, id_or_filter)

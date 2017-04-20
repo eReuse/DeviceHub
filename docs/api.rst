@@ -224,7 +224,7 @@ The following example shows two things, first the structure when GET collection 
 
 
 Deleting resources
-^^^^^^^^^^^^^^^^^^
+------------------
 Deleting resources (events or devices specifically) is against traceability. What is the credibility of a log if you
 can modify it and delete it? So, we usually don't let deleting anything. However, as an exception, we let deleting
 an event or device if:
@@ -245,4 +245,5 @@ defined we will just not allow it to be erased.
 
 Note that although it is redundant for this operation, the system it checks too that the device is
 in the current database (not Migrated to another DB). And finally, if you look at
-:py:func:`ereuse_devicehub.hooks.hooks` you can see the hooks that check those conditions assigned on app.on_delete_item.
+:py:func:`ereuse_devicehub.hooks.hooks` you can see the hooks that check those conditions assigned on
+``app.on_delete_item`` and ``app.on_PRE_delete``.

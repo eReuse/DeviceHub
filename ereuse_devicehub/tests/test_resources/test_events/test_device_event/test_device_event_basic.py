@@ -1,10 +1,14 @@
+from datetime import timedelta
+from time import sleep
+
 from assertpy import assert_that
 
-from ereuse_devicehub.tests import TestBase
+from ereuse_devicehub.resources.hooks import TooLateToDelete
+from ereuse_devicehub.tests import TestStandard
 from ereuse_devicehub.utils import Naming
 
 
-class TestDeviceEventBasic(TestBase):
+class TestDeviceEventBasic(TestStandard):
     """
         Tests that take care of the creation and configuration of device events.
     """
@@ -35,3 +39,13 @@ class TestDeviceEventBasic(TestBase):
         assert_that(snapshot['url']).is_equal_to('events/devices/snapshot')
         # ...but it doesn't add devices to others (it would be then 'devices/devices')
         assert_that(devices['url']).is_equal_to('devices')
+
+    def test_delete_in_time(self):
+        """Tests deleting an event only in time."""
+        # Let's set a small amount of time and try to delete the device after it
+        self.app.config['TIME_TO_DELETE_RESOURCES'] = timedelta(seconds=1)
+        SNAPSHOT_URL = self.DEVICE_EVENT + '/' + self.SNAPSHOT
+        snapshot = self.post_fixture(self.SNAPSHOT, SNAPSHOT_URL, 'xps13')
+        sleep(2)
+        response, status = self.delete(SNAPSHOT_URL, item=snapshot['_id'])
+        self.assert_error(response, status, TooLateToDelete)

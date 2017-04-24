@@ -1,5 +1,5 @@
 API
-===
+###
 
 DeviceHub uses `Python-Eve <http://python-eve.org>`_, which exposes a full API.
 The system is RESTFUL using HATEOAS, partially extends Schema.org, and uses a very limited (for now)
@@ -10,7 +10,7 @@ as you use an Event to do so (you only ``GET /devices``). For example, to upload
 the event ``POST /snapshot`` (:ref:`devices-snapshot`).
 
 Login
------
+=====
 To use the API, you will need first to log in with an existing account from the DeviceHub.
 Perform ``POST /login`` with the email and password fields filled::
 
@@ -40,12 +40,8 @@ Upon success, you will be answered with the account object, containing a Token f
 From this moment, any other following operation against the API will require the following HTTP Header:
 ``Authorization: Basic token``.
 
-Working with devices
-____________________
-
-
 Filter, order, embed, and project
-_________________________________
+=================================
 Built under Python-Eve, you can always `filter <http://python-eve.org/features.html#filtering>`_::
 
     https://api.devicetag.io/public/events?where={“@type”: “Snapshot”}
@@ -81,18 +77,54 @@ Finally, we can join everything::
 *Exemplifying GET query combining different operations. In this case, it obtains all devices from the public*
 *database of DeviceTag.io that are TFT (sub type of monitors) and it sorts them by labelId (ascending).*
 
+The Schema
+==========
+The Schema endpoint defines all the resource endpoints, detailing how values should be. The Schema is a superset of
+the `eve's schema <http://python-eve.org/config.html#schema>`_, as we define more schema rules. The Schema is
+internally used by DeviceHub to validate fields and by the web app to configure several parameters and generate
+the forms.
+
+To retrieve the schema:
+
+ 1. **Login**, as DeviceHub only sends you the portion of the schema the user can interact with. If you do not login you
+    can still get the schema, but you may not see it fully.
+ 2. ``GET /schema``.
+
+You can `try it and see it in the browser <https://api.devicetag.io/schema>`_.
+
+You can also do ``GET /schema/devices_snapshot`` for any endpoint. Note that resource names with *:* are changed for
+*_* to make it URL valid. See more `in eve's documentation <http://python-eve.org/features.html#the-schema-endpoint>`_.
+
+Original rules from Python-eve are explained `here <http://python-eve.org/config.html#schema>`_, and the ones we add
+are methods of the class: :class:`ereuse_devicehub.validation.validation.DeviceHubValidator`. Any method starting with
+``_validate_`` is a validation rule, except the following cases:
+
+ - :meth:`ereuse_devicehub.validation.validation.DeviceHubValidator._validate_sink`
+ - :meth:`ereuse_devicehub.validation.validation.DeviceHubValidator._validate_description`
+ - :meth:`ereuse_devicehub.validation.validation.DeviceHubValidator._validate_short`
+ - :meth:`ereuse_devicehub.validation.validation.DeviceHubValidator._validate_unitCode`
+ - :meth:`ereuse_devicehub.validation.validation.DeviceHubValidator._validate_doc`
+ - :meth:`ereuse_devicehub.validation.validation.DeviceHubValidator._validate_uid`
+ - :meth:`ereuse_devicehub.validation.validation.DeviceHubValidator._validate_externalSynthetic`
+ - :meth:`ereuse_devicehub.validation.validation.DeviceHubValidator._validate_allowed_description`
+
+
+
+In the following section you have a more human representation of the schema (it is not updated):
 
 API Endpoints
-_____________
+-------------
 The following list describes the details of every endpoint in DeviceHub:
 
-.. toctree::
-:maxdepth: 4
 
-       api-endpoints
+.. toctree::
+   :maxdepth: 4
+
+   api-endpoints
+
 
 Errors
-______
+======
 We are working for all errors to be like the following:
 
 Errors extend from the Error class in Hydra and are represented as follows: the ``@type`` field describing the type of class
@@ -113,11 +145,11 @@ description of the error::
 As you can see, the server sets the most specific HTTP status code.
 
 Examples
-________
+========
 You have some real example to catch-on fast.
 
 Device
-^^^^^^
+------
 The following example illustrates how to retreive a resource, like a device. The request is::
 
     GET /devices/1
@@ -169,7 +201,7 @@ And the result::
     }
 
 Collection of events
-^^^^^^^^^^^^^^^^^^^^
+--------------------
 The following example shows two things, first the structure when GET collection of resources, and then one event::
 
     {
@@ -224,7 +256,7 @@ The following example shows two things, first the structure when GET collection 
 
 
 Deleting resources
-------------------
+==================
 Deleting resources (events or devices specifically) is against traceability. What is the credibility of a log if you
 can modify it and delete it? So, we usually don't let deleting anything. However, as an exception, we let deleting
 an event or device if:

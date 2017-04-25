@@ -55,11 +55,11 @@ class AccountDomain(Domain):
     @classmethod
     def actual_token(cls) -> str:
         """Gets the **unhashed** token. Use `hash_token` to hash it."""
-        x = request.headers.environ['HTTP_AUTHORIZATION']
-        header = parse_authorization_header(x)
-        if header is None:
-            raise StandardError('The Authorization header is not well written: ' + x, 400)
-        return header['username']
+        try:
+            x = request.headers.environ['HTTP_AUTHORIZATION']
+            return parse_authorization_header(x)['username']
+        except (KeyError, TypeError) as e:
+            raise StandardError('The Authorization header is not well written or missing', 400) from e
 
     @classmethod
     def get_one(cls, id_or_filter: dict or ObjectId or str):

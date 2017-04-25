@@ -10,6 +10,7 @@ from pydash import select
 
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
+from ereuse_devicehub.resources.event.device.remove.hooks import ComponentIsNotInside
 from ereuse_devicehub.tests.test_resources.test_events import TestEvent
 from ereuse_devicehub.tests.test_resources.test_group import TestGroupBase
 from ereuse_devicehub.utils import NestedLookup
@@ -220,7 +221,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
         if 'hid' in result['_issues']:
             assert_that(result).is_equal_to(error1)
         else:
-            assert_that(result).is_equal_to(error2)
+            assert_that(result).is_equal_to(error1)
 
     def test_uids(self):
         """
@@ -664,7 +665,12 @@ class TestSnapshot(TestEvent, TestGroupBase):
         component = self.get_and_check(self.DEVICES, item=snapshot_component_result['device'])
         assert_that(component).does_not_contain('parent')
 
-        # And now let's try a common error:
+        # Let's check common mistakes:
+
+        # Double remove
+        response, status = self.post('{}/{}'.format(self.DEVICE_EVENT, 'remove'), remove)
+        self.assert_error(response, status, ComponentIsNotInside)
+
         # 1. Create a placeholder
         # 2. Do not discover / link the computer (through a snapshot from the App)
         # 3. Snapshot the component and remove it

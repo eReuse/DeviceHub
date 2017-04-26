@@ -2,9 +2,10 @@ def hooks(app):
     """
         This method "ties" all the hooks DeviceHub uses with the app.
     """
-    from ereuse_devicehub.resources.hooks import set_response_headers_and_cache, redirect_on_browser
+    from ereuse_devicehub.resources.hooks import set_response_headers_and_cache, redirect_on_browser, check_type
     app.on_post_GET += set_response_headers_and_cache
     app.on_pre_GET += redirect_on_browser
+    app.on_insert += check_type
 
     from ereuse_devicehub.security.hooks import project_item, project_resource, authorize_public, deny_public
     app.on_fetched_item += authorize_public
@@ -17,6 +18,9 @@ def hooks(app):
 
     from ereuse_devicehub.resources.device.hooks import avoid_deleting_if_device_has_migrate
     app.on_delete_item += avoid_deleting_if_device_has_migrate
+
+    from ereuse_devicehub.resources.event.device.hooks import fill_devices_field_from_groups
+    app.on_insert += fill_devices_field_from_groups  # This needs to go before any insert device event hook
 
     from ereuse_devicehub.resources.event.device.migrate.hooks import check_migrate, create_migrate, submit_migrate, \
         check_migrate_insert, check_migrate_update, remove_devices_from_place, return_same_as
@@ -68,7 +72,8 @@ def hooks(app):
     app.on_insert_devices_register += post_devices
     app.on_delete_item += delete_device
 
-    from ereuse_devicehub.resources.event.device.remove.hooks import remove_components
+    from ereuse_devicehub.resources.event.device.remove.hooks import check_remove, remove_components
+    app.on_insert_devices_remove += check_remove
     app.on_inserted_devices_remove += remove_components
 
     from ereuse_devicehub.resources.account.hooks import set_byUser, set_byOrganization, \
@@ -114,7 +119,8 @@ def hooks(app):
     app.on_delete_item_places += avoid_deleting_if_has_event
 
     # Device materializations
-    from ereuse_devicehub.resources.device.hooks import MaterializeEvents, redirect_to_first_snapshot
+    from ereuse_devicehub.resources.device.hooks import redirect_to_first_snapshot
+    from ereuse_devicehub.resources.hooks import MaterializeEvents
     app.on_inserted += MaterializeEvents.materialize_events
     app.on_delete_item += MaterializeEvents.dematerialize_event
     app.on_pre_DELETE += redirect_to_first_snapshot

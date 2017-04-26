@@ -43,6 +43,12 @@ class Domain:
         return list(current_app.data.find_raw(cls.source, query_filter))
 
     @classmethod
+    @mongo_encode('values')
+    def get_in(cls, field: str, values: list):
+        """The same as get({field: {$in: values}})."""
+        return cls.get({field: {'$in': values}})
+
+    @classmethod
     @mongo_encode('operation')
     def update_raw(cls, ids: str or ObjectId or list, operation: dict, key='_id'):
         """

@@ -24,8 +24,12 @@ class TestBase(TestMinimal):
     PLACES = 'places'
     SNAPSHOT = 'snapshot'
     ACCOUNTS = 'accounts'
+    GROUPS = 'groups'
+    LOTS = 'lots'
+    PACKAGES = 'packages'
 
     def setUp(self, settings_file=None, url_converters=None):
+        # noinspection PyUnresolvedReferences
         from ereuse_devicehub import default_settings as settings
         self.set_settings(settings)
         self.app = DeviceHub()
@@ -155,8 +159,9 @@ class TestBase(TestMinimal):
             return self.parse_response(r)
         return super(TestBase, self).post(url, data, headers, content_type)
 
-    def patch(self, url, data, headers=None):
+    def patch(self, url, data, headers=None, item=None):
         headers = headers or []
+        url = url + '/' + str(item) if item else url
         return self._patch(self.select_database(url) + '/' + url, data, self.token, headers)
 
     def _patch(self, url, data, token, headers=None):
@@ -241,8 +246,8 @@ class TestStandard(TestBase):
             self.assert201(status_code)
         return response
 
-    def patch_and_check(self, url, payload):
-        response, status_code = self.patch(url, payload)
+    def patch_and_check(self, url, payload, item=None):
+        response, status_code = self.patch(url, payload, item=item)
         with self._print_unsuccessful_request(url, response, status_code, payload):
             self.assert200(status_code)
         return response
@@ -270,7 +275,7 @@ class TestStandard(TestBase):
         try:
             yield
         except AssertionError:
-            m = 'Unsuccessful DELETE on {} (HTTP {}):\n'.format(url, status_code)
+            m = 'Unsuccessful request on {} (HTTP {}):\n'.format(url, status_code)
             if payload:
                 m += 'Payload:\n{}\n'.format(payload)
             m += 'Response:\n{}'.format(response)

@@ -89,7 +89,7 @@ class GRDTranslator(ResourceTranslator):
     def translate(self, resource: dict, database: str = None) -> list:
         self.database = database
         translated = []
-        if 'devices' in resource and resource['@type'] != DeviceEventDomain.new_type('Register'):
+        if resource.get('devices', None) and resource['@type'] != DeviceEventDomain.new_type('Register'):
             e = copy.deepcopy(resource)
             del e['devices']
             for device in resource['devices']:

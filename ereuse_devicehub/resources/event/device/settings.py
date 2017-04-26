@@ -1,4 +1,6 @@
 from ereuse_devicehub.resources.event.settings import Event, EventSettings
+from ereuse_devicehub.resources.group.settings import lots_fk
+from ereuse_devicehub.resources.group.settings import packages_fk
 from ereuse_devicehub.validation.coercer import Coercer
 
 prefix = {'prefix': 'devices'}
@@ -26,8 +28,7 @@ class EventWithOneDevice(DeviceEvent):
             'resource': 'devices',
             'field': '_id',
             'embeddable': True
-        },
-        'required': True
+        }
     }
 
 
@@ -45,7 +46,26 @@ class EventWithDevices(DeviceEvent):
                 'embeddable': True
             }
         },
-        'required': True
+        'default': [],
+        'doc': 'We want either \'devices\' xor \'groups\'.'
+    }
+    groups = {
+        'type': 'dict',
+        'schema': {
+            'packages': packages_fk,
+            'lots': lots_fk
+        },
+        'description': 'The groups the event has been performed on.',
+        'doc': 'This field contains the groups and all its descendants.'
+    }
+    originalGroups = {
+        'type': 'dict',
+        'readonly': True,
+        'schema': {
+            'packages': packages_fk,
+            'lots': lots_fk
+        },
+        'doc': 'The groups the user performed the event on, without its descendants.'
     }
 
 
@@ -108,7 +128,7 @@ parent = {
 
 class DeviceEventSettings(EventSettings):
     _schema = DeviceEvent
-    extra_response_fields = EventSettings.extra_response_fields + ['device', 'components']
+    extra_response_fields = EventSettings.extra_response_fields + ['device', 'components', 'groups']
 
 
 class EventSubSettings(DeviceEventSettings):

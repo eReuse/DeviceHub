@@ -1,3 +1,4 @@
+from ereuse_devicehub.resources import events_pk_schema
 from ereuse_devicehub.resources.group.physical.package.settings import Package
 from ..schema import UnitCodes, Thing
 
@@ -133,15 +134,7 @@ class Device(IndividualProduct):
         'type': 'boolean',
         'default': False
     }
-    events = {
-        'type': 'list',
-        'schema': {
-            'type': 'dict'
-        },
-        'materialized': True,
-        'description': 'A list of events where the first one is the most recent.',
-        'doc': 'Few values of events are kept, avoiding big documents. See device/hooks/MaterializeEvents.fields.'
-    }
+    events = events_pk_schema.events
     ancestors = Package.ancestors
     placeholder = {
         'type': 'boolean',

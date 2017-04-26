@@ -2,13 +2,16 @@ from datetime import datetime, timezone
 
 from bson import ObjectId
 from flask import current_app, json
+from pydash import pick
 from requests import Response
 
-from ereuse_devicehub.exceptions import RedirectToClient, StandardError
+from ereuse_devicehub.exceptions import RedirectToClient, StandardError, SchemaError
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.settings import DeviceEvent
+from ereuse_devicehub.resources.group.domain import GroupDomain
+from ereuse_devicehub.resources.schema import RDFS
 from ereuse_devicehub.utils import get_header_link
 
 
@@ -102,3 +105,55 @@ class OnlyLastEventCanBeDeleted(StandardError):
     def __init__(self, device_id: str):
         message = 'The event is not the last one for device {} so you can\'t delete it.'.format(device_id)
         super().__init__(message)
+
+
+class MaterializeEvents:
+    """
+        Materializes some fields of the events in the affected device, benefiting searches. To keep minimum space,
+        only selected fields are materialized (which you can check in the following tuple)
+    """
+    FIELDS = {
+        '_id', '@type', 'label', 'date', 'incidence', 'secured', 'comment', 'success', 'error', 'type', 'receiver',
+        'receiverOrganization', 'to', 'toOrganization', 'secured', 'byUser', 'geo', '_updated', 'snapshotSoftware'
+    }
+    # Let's materialize the events (test, erasure...) of the component to the parent, so we take 'parent'
+    DEVICE_FIELDS = 'device', 'devices', 'parent', 'components'
+
+    @classmethod
+    def materialize_events(cls, resource: str, events: list):
+        """Materializes the event in their devices and groups."""
+        if resource in DeviceEvent.resource_types:
+            for event in events:
+                QUERY = {'$push': {'events': {'$each': [pick(event, *cls.FIELDS)], '$position': 0}}}
+                cls._update_materializations(event, QUERY)
+
+    @classmethod
+    def dematerialize_event(cls, _, event: dict):
+        """
+        Removes the materializaitons of the event in its devices and groups, usually because the event is being deleted.
+        """
+        if event.get('@type', None) in DeviceEvent.types:
+            QUERY = {'$pull': {'events': {'_id': event['_id']}}}
+            cls._update_materializations(event, QUERY)
+
+    @classmethod
+    def _update_materializations(cls, event: dict, query: dict):
+        """Updates the materializations in the devices and groups using *query*."""
+        # Update in devices, including the parent and components
+        devices_id = DeviceEventDomain.devices_id(event, cls.DEVICE_FIELDS)
+        DeviceDomain.update_raw(devices_id, query)
+
+        # Update in groups, if any
+        for resource_name, labels in event.get('groups', {}).items():
+            GroupDomain.children_resources[resource_name].update_raw(labels, query, key='label')
+
+
+def check_type(_, resources: list):
+    """Many hooks require a @type in the resources. This one guarantees it for the top resource."""
+    for resource in resources:
+        if resource.get('@type', None) not in RDFS.types:
+            raise TypeIsInvalid('@type')
+
+
+class TypeIsInvalid(SchemaError):
+    message = '@type is missing or misspelled.'

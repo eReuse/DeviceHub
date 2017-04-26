@@ -8,7 +8,6 @@ from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.migrate.settings import Migrate
-from ereuse_devicehub.resources.event.device.settings import DeviceEvent
 from ereuse_devicehub.rest import execute_delete
 from ereuse_devicehub.utils import Naming
 
@@ -86,37 +85,6 @@ def avoid_deleting_if_device_has_migrate(resource_name: str, device: dict):
         event = find(device['events'], {'@type': Migrate.type_name})
         if event:
             raise DeviceHasMigrate(event['_id'], device['_id'])
-
-
-class MaterializeEvents:
-    """
-        Materializes some fields of the events in the affected device, benefiting searches. To keep minimum space,
-        only selected fields are materialized (which you can check in the following tuple)
-    """
-    FIELDS = {
-        '_id', '@type', 'label', 'date', 'incidence', 'secured', 'comment', 'success', 'error', 'type', 'receiver',
-        'receiverOrganization', 'to', 'toOrganization', 'secured', 'byUser', 'geo', '_updated', 'snapshotSoftware'
-    }
-
-    @classmethod
-    def materialize_events(cls, resource: str, events: list):
-        if resource in DeviceEvent.resource_types:
-            for event in events:
-                trimmed_event = {field_name: event[field_name] for field_name in cls.FIELDS if field_name in event}
-                query = {'$push': {'events': {'$each': [trimmed_event], '$position': 0}}}
-                devices = [event['device']] if 'device' in event else event['devices']
-                if 'parent' in event:  # Let's materialize the events (test, erasure...) of the component to the parent
-                    devices.append(event['parent'])
-                DeviceDomain.update_raw(devices, query)
-                DeviceDomain.update_raw(event.get('components', []), query)
-
-    @classmethod
-    def dematerialize_event(cls, _, event: dict):
-        if event.get('@type') in DeviceEvent.types:
-            device = [event['device']] if 'device' in event else []
-            parent = [event['parent']] if 'parent' in device else []
-            for device_id in event.get('devices', []) + event.get('components', []) + device + parent:
-                DeviceDomain.update_raw(device_id, {'$pull': {'events': {'_id': event['_id']}}})
 
 
 def redirect_to_first_snapshot(resource, request, lookup):

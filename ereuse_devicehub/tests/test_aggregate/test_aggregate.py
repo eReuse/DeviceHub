@@ -3,7 +3,7 @@ from ereuse_devicehub.tests.test_resources.test_group import TestGroupBase
 
 
 class TestAggregate(TestDeviceEvent, TestGroupBase):
-    def test_discovered_devices(self):
+    def _test_discovered_devices(self):
         placeholders_id = []
         full_devices = self.devices_id
         for i in range(0, 10):

@@ -5,6 +5,7 @@ from flask import Response
 from flask import current_app
 from flask import g
 from flask import json
+from pydash import get
 
 from ereuse_devicehub.exceptions import SchemaError, InnerRequestError
 from ereuse_devicehub.resources.account.domain import AccountDomain
@@ -15,7 +16,7 @@ from ereuse_devicehub.resources.event.device.migrate.migrate import DeviceHasMig
     MigrateTranslator
 from ereuse_devicehub.resources.event.device.migrate.migrate_creator import MigrateCreator
 from ereuse_devicehub.resources.event.device.migrate.settings import Migrate
-from ereuse_devicehub.resources.event.domain import EventNotFound, EventDomain
+from ereuse_devicehub.resources.event.domain import EventNotFound
 from ereuse_devicehub.resources.group.physical.place.domain import PlaceDomain
 from ereuse_devicehub.resources.group.physical.place.settings import Place
 from ereuse_devicehub.rest import execute_delete, execute_patch
@@ -119,7 +120,7 @@ def check_migrate(_, resource: dict):
     come back.
     :raises DeviceHasMigrated
     """
-    for device_id in EventDomain.devices_id(resource) + resource.get('children', {}).get('devices', []):
+    for device_id in DeviceEventDomain.devices_id(resource) + get(resource, 'children.devices', []):
         with suppress(EventNotFound):
             # todo can it be done with only one access to the DB for all devices (optimization)?
             # Note that this is executed for every post / delete /update / patch, resulting in queries = n of devices

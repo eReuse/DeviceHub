@@ -1,6 +1,7 @@
 import argparse
 
 import requests
+
 from ereuse_devicehub.security.request_auth import Auth
 
 
@@ -10,37 +11,34 @@ def create_placeholders_and_migrate(base_url, email, password, n_placeholders, o
        Remotely connects to a devicehub, creates n_placeholders placeholders and then migrates them to a dest_db
        in the same devicehub.
     """
-    try:
-        auth = Auth(base_url, email, password)
-        snapshot = {
-            "@type": "devices:Register",
-            "device": {
-                "@type": "Device",
-                "placeholder": True
-            }
+    auth = Auth(base_url, email, password)
+    snapshot = {
+        "@type": "devices:Register",
+        "device": {
+            "@type": "Device",
+            "placeholder": True
         }
+    }
 
-        devices_id = []
-        for _ in range(0, n_placeholders):
-            r = requests.post('{}/{}/events/devices/register'.format(base_url, origin_db), json=snapshot, auth=auth)
-            r.raise_for_status()
-            result = r.json()
-            devices_id.append(result['device'])
-
-        migrate = {
-            "@type": "devices:Migrate",
-            "label": label,
-            "to": {
-                "baseUrl": "https://devicehub.ereuse.org/",
-                "database": dest_db
-            },
-            'devices': devices_id,
-            "comment": comment
-        }
-        r = requests.post('{}/{}/events/devices/migrate'.format(base_url, origin_db), json=migrate, auth=auth)
+    devices_id = []
+    for _ in range(0, n_placeholders):
+        r = requests.post('{}/{}/events/devices/register'.format(base_url, origin_db), json=snapshot, auth=auth)
         r.raise_for_status()
-    except Exception as e:
-        raise e
+        result = r.json()
+        devices_id.append(result['device'])
+
+    migrate = {
+        "@type": "devices:Migrate",
+        "label": label,
+        "to": {
+            "baseUrl": "https://devicehub.ereuse.org/",
+            "database": dest_db
+        },
+        'devices': devices_id,
+        "comment": comment
+    }
+    r = requests.post('{}/{}/events/devices/migrate'.format(base_url, origin_db), json=migrate, auth=auth)
+    r.raise_for_status()
 
 
 if __name__ == '__main__':

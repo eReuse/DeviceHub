@@ -2,6 +2,7 @@ import copy
 
 import pymongo
 
+from ereuse_devicehub.resources import events_pk_schema
 from ereuse_devicehub.resources.resource import ResourceSettings
 from ereuse_devicehub.resources.schema import Thing
 
@@ -71,6 +72,7 @@ class Group(Thing):
         'default': [],
         'materialized': True
     }
+    events = events_pk_schema.events
 
 
 class GroupSettings(ResourceSettings):

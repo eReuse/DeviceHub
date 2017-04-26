@@ -219,9 +219,9 @@ class TestSnapshot(TestEvent, TestGroupBase):
         error1 = {'_issues': {'hid': 'This ID identifies the device 1 but the _id identifies the device 15'}}
         error2 = {'_issues': {'_id': 'This ID identifies the device 15 but the hid identifies the device 1'}}
         if 'hid' in result['_issues']:
-            assert_that(result).is_equal_to(error1)
+            assert_that(error1).is_subset_of(result)
         else:
-            assert_that(result).is_equal_to(error1)
+            assert_that(error2).is_subset_of(result)
 
     def test_uids(self):
         """

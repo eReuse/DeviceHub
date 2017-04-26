@@ -1,9 +1,10 @@
 import pymongo
+
 from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.device.domain import DeviceDomain
-from ereuse_devicehub.resources.device.hooks import MaterializeEvents
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.allocate.allocate import materialize_owners
+from ereuse_devicehub.resources.hooks import MaterializeEvents
 from ereuse_devicehub.utils import Naming
 
 

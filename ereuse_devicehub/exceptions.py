@@ -13,9 +13,10 @@ class BasicError(Exception):
 class StandardError(BasicError):
     message = None
 
-    def __init__(self, message=""):
+    def __init__(self, message="", status_code=None):
         if self.message is None:
             self.message = message
+        self.status_code = status_code or self.status_code
 
     def to_dict(self):
         return {
@@ -41,11 +42,13 @@ class SchemaError(StandardError):
             self.message = message
 
     def to_dict(self):
-        return {
-            '_issues': {
-                self.field: self.message
-            }
+        d = super().to_dict()
+        # We are missing what we add in line 28 of this file, but this is needed to follow Cerberus' errors
+        # todo change this when changing Cerberus' errors
+        d['_issues'] = {
+            self.field: self.message
         }
+        return d
 
 
 class UnauthorizedToUseDatabase(StandardError):

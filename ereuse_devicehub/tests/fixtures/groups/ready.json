@@ -1,0 +1,11 @@
+{
+  "@type": "devices:Ready",
+  "groups": {
+    "lots": [
+      "lot"
+    ],
+    "packages": [
+      "package"
+    ]
+  }
+}

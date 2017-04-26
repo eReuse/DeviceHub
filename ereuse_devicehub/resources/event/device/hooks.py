@@ -1,5 +1,12 @@
+import copy
+
 import pymongo
 from flask import current_app
+from pydash import chain
+from pydash import concat
+from pydash import map_
+from pydash import map_values
+from pydash import merge
 from pydash import uniq
 
 from ereuse_devicehub.exceptions import SchemaError
@@ -8,6 +15,7 @@ from ereuse_devicehub.resources.device.component.settings import Component
 from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.settings import Event, DeviceEvent
+from ereuse_devicehub.resources.group.domain import GroupDomain
 from ereuse_devicehub.resources.group.physical.place.domain import NoPlaceForGivenCoordinates, \
     CoordinatesAndPlaceDoNotMatch
 from ereuse_devicehub.resources.group.physical.place.domain import PlaceDomain
@@ -145,3 +153,31 @@ class OnlyComponentsCanHaveParents(SchemaError):
         message = 'Only components can be inside a device. Remove "parent" or set the device as a component.' \
                   ' Your device is set as {}.'.format(resource_type)
         super().__init__(field, message)
+
+
+def fill_devices_field_from_groups(resource_name: str, events: list):
+    """Gets all the devices from the passed-in groups and adds them to the 'devices' field so they are processed."""
+
+    def get_descendants(labels: list, group_name: str) -> (list, dict):
+        """Obtains devices :-)"""
+        group_domain = GroupDomain.children_resources[group_name]
+
+        grouped_descendants = group_domain.get_all_descendants(labels)  # descendants per type: devices: [], lots: []
+        del grouped_descendants['component']
+        devices_id = grouped_descendants.pop('devices')
+        devices_id = chain(devices_id).filter(lambda device: device['@type'] not in Component.types).map_('_id').value()
+        grouped_descendants = map_values(grouped_descendants, lambda descendants: map_(descendants, 'label'))
+        return devices_id, grouped_descendants
+
+    if resource_name in DeviceEvent.resource_types:
+        for event in events:
+            if 'groups' in event:
+                if event['devices']:
+                    raise SchemaError('groups', 'You can\'t set groups and devices in the same event.')
+                event['originalGroups'] = copy.copy(event['groups'])
+                for group_name, labels in event['originalGroups'].items():  # So we don't iterate over changing 'groups'
+                    # move resources to event concatenating their arrays values
+                    devices, groups = get_descendants(labels, group_name)
+                    event['devices'].extend(devices)
+                    # We need to add `dest or []` because https://github.com/dgilland/pydash/issues/95
+                    merge(event['groups'], groups, callback=lambda dest, source: concat(dest or [], source))

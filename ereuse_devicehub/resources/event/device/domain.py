@@ -1,4 +1,6 @@
 import pymongo
+from pydash import chain
+
 from ereuse_devicehub.resources.event.domain import EventDomain
 from ereuse_devicehub.utils import Naming
 
@@ -64,3 +66,8 @@ class DeviceEventDomain(EventDomain):
     def get_first_snapshot(device_id: str):
         return DeviceEventDomain.get_one(
             {'$query': {'device': device_id, '@type': 'devices:Snapshot'}, '$orderby': {'_created': pymongo.ASCENDING}})
+
+    @classmethod
+    def devices_id(cls, event: dict, fields=('device', 'devices')) -> list:
+        """Gets a list of devices of the event, independently if they are in *device* or *devices* fields."""
+        return chain(event).pick(*fields).values().flatten().compact().value()

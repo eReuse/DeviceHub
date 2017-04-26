@@ -4,6 +4,8 @@ from bson import ObjectId
 from passlib.utils import classproperty
 from pydash import compact
 from pydash import flatten
+from pydash import map_values
+from pydash import pick
 from pydash import pluck
 from pymongo import ReturnDocument
 from pymongo.errors import OperationFailure
@@ -206,7 +208,7 @@ class GroupDomain(Domain):
             from ereuse_devicehub.resources.group.abstract.lot.domain import LotDomain
             from ereuse_devicehub.resources.group.abstract.lot.input_lot.domain import InputLotDomain
             from ereuse_devicehub.resources.group.abstract.lot.output_lot.domain import OutputLotDomain
-            cls._children_resources = {
+            children_resources = {
                 PlaceDomain.resource_settings.resource_name(): PlaceDomain,
                 PackageDomain.resource_settings.resource_name(): PackageDomain,
                 DeviceDomain.resource_settings.resource_name(): DeviceDomain,
@@ -215,6 +217,9 @@ class GroupDomain(Domain):
                 OutputLotDomain.resource_settings.resource_name(): OutputLotDomain,
                 ComponentDomain.resource_settings.resource_name(): ComponentDomain,
             }
+            types = {DeviceDomain.resource_settings.resource_name(), ComponentDomain.resource_settings.resource_name()}
+            types |= cls.resource_settings._schema.resource_types
+            cls._children_resources = pick(children_resources, *types)
         return cls._children_resources
 
     @classmethod
@@ -229,9 +234,10 @@ class GroupDomain(Domain):
     def get_descendants(cls, child_domain: Domain, parent_labels: str or list) -> list:
         """
         Get the descendants of this class type of the given ancestor.
-
-        This is possible because during the inheritance, we only add to 'ancestors' the valid ones.
+        :param child_domain: The child domain.
+        :param parent_labels: The label of a parent or a list of them. We retrieve descendants of **any** parent.
         """
+        # The following is possible because during the inheritance, we only add to 'ancestors' the valid ones.
         type_name = cls.resource_settings._schema.type_name
         labels = parent_labels if type(parent_labels) is list else [parent_labels]
         query = {
@@ -241,6 +247,11 @@ class GroupDomain(Domain):
             ]
         }
         return child_domain.get(query)
+
+    @classmethod
+    def get_all_descendants(cls, parent_labels: str or list) -> list:
+        # Todo enhance by performing only one query
+        return map_values(cls.children_resources, lambda domain: cls.get_descendants(domain, parent_labels))
 
     @classmethod
     def update_raw(cls, ids: str or ObjectId or list, operation: dict, key='label'):

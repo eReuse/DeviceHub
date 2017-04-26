@@ -15,8 +15,6 @@ from ereuse_devicehub.utils import coerce_type
 from . import errors as dh_errors
 
 ALLOWED_WRITE_ROLES = 'dh_allowed_write_roles'
-DEFAULT_AUTHOR = 'dh_default_author'
-IF_VALUE_REQUIRE = 'dh_if_value_require'
 COERCE_WITH_CONTEXT = 'coerce_with_context'
 
 
@@ -85,11 +83,13 @@ class DeviceHubValidator(Validator):
         del self._current[field]
 
     def _validate_dh_allowed_write_roles(self, roles, field, value):
+        """Only the specified roles can write the field."""
         from ereuse_devicehub.resources.account.domain import AccountDomain
         if not AccountDomain.actual['role'].has_role(roles):
             self._error(field, json_util.dumps({'ForbiddenToWrite': self.document}))
 
     def _validate_or(self, document):
+        """At least the field, or any of the others specified, are required."""
         for field_name, definition in self.schema.items():
             if 'or' in definition:
                 field_names = set([field_name] + definition['or'])
@@ -107,12 +107,6 @@ class DeviceHubValidator(Validator):
         # todo move it to a coerce method when Cerberus 0.10 is out
         if fields:
             coerce_type(fields)
-
-    def _validate_dh_if_value_require(self, condition: tuple, field: str, value):
-        desired_value, fields = condition
-        if value == desired_value:
-            if not all(other_field in self.document.keys() for other_field in fields):
-                self._error(field, "When {} is {}, you need to send: {}".format(field, desired_value, fields))
 
     def _get_resource(self, unique, field, value, query):
         if unique and self.resource:
@@ -188,6 +182,7 @@ class DeviceHubValidator(Validator):
             self._error(field, json_util.dumps(dh_errors.not_enough_privilege))
 
     def _validate_data_relation(self, data_relation, field, value):
+        """Internally use. See the super method this one overrides."""
         if not isinstance(value, dict) and not isinstance(value, list):  # todo more broad way?
             super(DeviceHubValidator, self)._validate_data_relation(data_relation, field, value)
 
@@ -199,32 +194,39 @@ class DeviceHubValidator(Validator):
                 self._error(field, json_util.dumps({'CannotCreateId': self.document}))
 
     def _validate_type_natural(self, field, value):
+        """Validate that the value is a natural; this is, a non-negative integer."""
         self._validate_type_integer(field, value)
         if value < 0:
             self._error(field, errors.ERROR_BAD_TYPE.format('natural (positive integer)'))
 
     def _validate_type_url(self, field, value):
+        """Validate that the value is an URL."""
         if not validators.url(value) and 'localhost' not in value:
             self._error(field, errors.ERROR_BAD_TYPE.format('url'))
 
     def _validate_type_email(self, field, value):
+        """Validate that the value is a correct e-mail."""
         if not validators.email(value):
             self._error(field, errors.ERROR_BAD_TYPE.format('email'))
 
     def _validate_type_uuid(self, field, value):
+        """Validates that the value is an UUID."""
         if not validators.uuid(value):
             self._error(field, errors.ERROR_BAD_TYPE.format('uuid'))
 
     def _validate_type_version(self, field, value):
+        """Validates that the value is a Python strict version."""
         try:
             version.StrictVersion(value)
         except ValueError:
             self._error(field, '{} is not a valid python strict version.'.format(value))
 
     def _validate_sink(self, nothing, field, value):
+        """Order fields by setting a priority value, where the field with lowest value 'sinks' to the bottom."""
         pass
 
     def _validate_description(self, nothing, field, value):
+        """An user-friendly description of the field that can be used in a form."""
         pass
 
     def _validate_short(self, nothing, field, value):
@@ -233,9 +235,11 @@ class DeviceHubValidator(Validator):
 
     # noinspection PyPep8Naming
     def _validate_unitCode(self, nothing, field, value):
+        """The UnitCode as in :class:`ereuse_devicehub.resources.schema.UnitCodes`"""
         pass
 
     def _validate_doc(self, nothing, field, value):
+        """Technical description of a field."""
         pass
 
     def _validate_placeholder_disallowed(self, _, field, device_id):
@@ -261,16 +265,23 @@ class DeviceHubValidator(Validator):
 
     @staticmethod
     def _validate_writeonly(x, y, z):
-        """
-        Don't expect to GET this value.
-        """
+        """Don't expect to GET this value."""
         pass
 
     def _validate_teaser(self, x, y, z):
+        """
+        Teaser values are supposed to be shown when the UI shows a minified version of the resource
+        (with lesser fields than the usual).
+        """
         pass
 
     def _validate_allowed_description(self, _, field, value):
-        """Explains each allowed element, useful for selects or dropdowns."""
+        """
+        Explains each allowed element, useful for selects or dropdowns.
+
+        This provides a dict whose keys are the values a dropdown can get, and whose values are the texts
+        the user should see.
+        """
         pass
 
     def _validate_excludes(self, other_field: list, field: str, value):
@@ -312,7 +323,7 @@ class DeviceHubValidator(Validator):
         pass
 
     def _validate_materialized(self, _, field, value):
-        """Just to show which values are materialized. They behave like *readonly*."""
+        """Just to show which values are materialized automatically by DeviceHub. They behave like *readonly*."""
         self._validate_readonly(True, field, value)
 
     def _validate_required_fields(self, document):

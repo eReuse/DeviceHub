@@ -94,6 +94,7 @@ class GroupSettings(ResourceSettings):
     }
 
 
+
 place_fk = {
     'type': 'string',
     'data_relation': {

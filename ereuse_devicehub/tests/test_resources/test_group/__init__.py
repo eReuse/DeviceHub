@@ -1,6 +1,9 @@
+import pymongo
 from assertpy import assert_that
 from bson import ObjectId
+from flask import json
 
+from ereuse_devicehub.resources.group.group_log.settings import UpdateGroupLogEntry
 from ereuse_devicehub.tests import TestStandard
 from ereuse_devicehub.utils import Naming
 
@@ -112,6 +115,20 @@ class TestGroupBase(TestStandard):
             pass
         else:
             raise AssertionError('{} is a parent of {}'.format(parent_label, str(child_key)))
+
+    def assert_last_log_entry(self, parent_label: str, parent_type: str, added: dict = None, removed: dict = None):
+        """Asserts that the last log entry is correctly set."""
+        where = {'parent': {'label': parent_label, '@type': parent_type}, '@type': UpdateGroupLogEntry.type_name}
+        sort = [('_created', pymongo.DESCENDING)]
+        query = '?where={}&sort={}&max_results=1'.format(json.dumps(where), json.dumps(sort))
+        try:
+            entry = self.get_and_check('group-log-entry', query=query)['_items'][0]
+            if added:
+                assert_that(entry).has_added(added)
+            if removed:
+                assert_that(entry).has_removed(removed)
+        except Exception as e:
+            raise AssertionError('Last log entry is not as described.') from e
 
 
 class IsNotAncestor(AssertionError):

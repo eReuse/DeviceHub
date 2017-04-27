@@ -34,8 +34,8 @@ class GroupDomain(Domain):
         """
 
         for resource_name in cls.children_resources.keys():
-            resource_original = set(original[resource_name]) if resource_name in original else set()
-            resource_updated = set(updated[resource_name]) if resource_name in updated else set()
+            resource_original = set(original.get(resource_name, []))
+            resource_updated = set(updated.get(resource_name, []))
             new_orphans = resource_original - resource_updated
             new_adopted = resource_updated - resource_original
 

@@ -100,11 +100,13 @@ from ereuse_devicehub.resources.device.settings import DeviceSettings
 from ereuse_devicehub.resources.account.settings import AccountSettings
 from ereuse_devicehub.resources.event.settings import EventSettings
 from ereuse_devicehub.resources.manufacturers import ManufacturerSettings
+from ereuse_devicehub.resources.group.group_log.settings import GroupLogEntrySettings
 
 DOMAIN = {
     'devices': DeviceSettings,
     'events': EventSettings,
     'accounts': AccountSettings,
     'groups': GroupSettings,
-    'manufacturers': ManufacturerSettings
+    'manufacturers': ManufacturerSettings,
+    'group-log-entry': GroupLogEntrySettings
 }

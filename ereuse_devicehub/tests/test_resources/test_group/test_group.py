@@ -39,17 +39,20 @@ class TestGroup(TestGroupBase):
         # Device1
         package1 = self.get_fixture(self.PACKAGES, 'package')
         package1['label'] = 'package1'
-        package1['children'] = {'devices': [device1_id]}
+        package1['children'] = added = {'devices': [device1_id]}
         package1_id = self.post_and_check(self.PACKAGES, package1)['_id']
         self.is_parent('package1', self.PACKAGES, device1_id, self.DEVICES)
+        self.assert_last_log_entry('package1', 'Package', added=added)
         # Let's try to remove it
         package1_patch = {'@type': 'Package', 'children': {'devices': []}}
         self.patch_and_check('{}/{}'.format(self.PACKAGES, package1_id), package1_patch)
         self.is_not_parent('package1', self.PACKAGES, device1_id, self.DEVICES)
+        self.assert_last_log_entry('package1', 'Package', removed=added)
         # Let's add it again
         package1_patch['children']['devices'] = [device1_id]
         self.patch_and_check('{}/{}'.format(self.PACKAGES, package1_id), package1_patch)
         self.is_parent('package1', self.PACKAGES, device1_id, self.DEVICES)
+        self.assert_last_log_entry('package1', 'Package', added=added)
 
         # Let's continue with
         #  Lot1
@@ -59,6 +62,7 @@ class TestGroup(TestGroupBase):
         lot1['label'] = 'lot1'
         lot1['children'] = {'packages': ['package1']}
         lot1_id = self.post_and_check(self.LOTS, lot1)['_id']
+        self.assert_last_log_entry('lot1', 'Lot', added=lot1['children'])
         # Let's check if the package is in the lot's children field and if the lot is in the ancestors' array
         # as a parent
         self.is_parent('lot1', self.LOTS, 'package1', self.PACKAGES)
@@ -74,6 +78,7 @@ class TestGroup(TestGroupBase):
         package2_id = self.post_and_check(self.PACKAGES, package2)['_id']
         package1_patch['children']['packages'] = ['package2']
         self.patch_and_check('{}/{}'.format(self.PACKAGES, package1_id), package1_patch)
+        self.assert_last_log_entry('package1', 'Package', added={'packages': ['package2']})
         # This should be
         # Lot1
         #   |
@@ -97,6 +102,7 @@ class TestGroup(TestGroupBase):
         # Place2
         place1_patch = {'@type': 'Place', 'children': {'places': ['place2']}}
         self.patch_and_check('{}/{}'.format(self.PLACES, place1_id), place1_patch)
+        self.assert_last_log_entry('place1', 'Place', added={'places': ['place2']})
         self.is_parent('place1', self.PLACES, 'place2', self.PLACES)
 
         # And now let's add place2-lot1 to have:
@@ -111,6 +117,7 @@ class TestGroup(TestGroupBase):
         # Device1   Package2
         place2_patch = {'@type': 'Place', 'children': {'lots': ['lot1']}}
         self.patch_and_check('{}/{}'.format(self.PLACES, place2_id), place2_patch)
+        self.assert_last_log_entry('place2', 'Place', added={'lots': ['lot1']})
         self.is_parent('place1', self.PLACES, 'place2', self.PLACES)
         self.is_parent('place2', self.PLACES, 'lot1', self.LOTS)
         self.is_parent('lot1', self.LOTS, 'package1', self.PACKAGES)
@@ -136,6 +143,7 @@ class TestGroup(TestGroupBase):
         # Device1   Package2
         place2_patch['children']['packages'] = ['package1']
         self.patch_and_check('{}/{}'.format(self.PLACES, place2_id), place2_patch)
+        self.assert_last_log_entry('place2', 'Place', added={'packages': ['package1']})
         self.is_parent('place2', self.PLACES, 'package1', self.PACKAGES)
         self.is_grandpa_or_above('place1', self.PLACES, device1_id, self.DEVICES)
         self.is_grandpa_or_above('place2', self.PLACES, device1_id, self.DEVICES)
@@ -145,6 +153,7 @@ class TestGroup(TestGroupBase):
         # relationship with lot1, place2, an place1
         lot1_patch = {'@type': 'Lot', 'children': {'packages': []}}
         self.patch_and_check('{}/{}'.format(self.LOTS, lot1_id), lot1_patch)
+        self.assert_last_log_entry('lot1', 'Lot', removed={'packages': ['package1']})
         self.is_not_parent('lot1', self.LOTS, 'package1', self.PACKAGES)
         self.is_not_grandpa_or_above('lot1', self.LOTS, device1_id, self.DEVICES)
         self.is_not_grandpa_or_above('lot1', self.LOTS, 'package2', self.PACKAGES)
@@ -154,6 +163,7 @@ class TestGroup(TestGroupBase):
         # Let's add the relationship again
         lot1_patch = {'@type': 'Lot', 'children': {'packages': ['package1']}}
         self.patch_and_check('{}/{}'.format(self.LOTS, lot1_id), lot1_patch)
+        self.assert_last_log_entry('lot1', 'Lot', added={'packages': ['package1']})
         self.is_parent('lot1', self.LOTS, 'package1', self.PACKAGES)
         self.is_grandpa_or_above('lot1', self.LOTS, device1_id, self.DEVICES)
 
@@ -172,6 +182,7 @@ class TestGroup(TestGroupBase):
         place3['label'] = 'place3'
         place3['children'] = {'packages': ['package2']}
         place3_id = self.post_and_check(self.PLACES, place3)['_id']
+        self.assert_last_log_entry('place3', 'Place', added={'packages': ['package2']})
         self.is_parent('place3', self.PLACES, 'package2', self.PACKAGES)
 
         # Place1
@@ -186,18 +197,21 @@ class TestGroup(TestGroupBase):
         # Device1   Package2
         place1_patch['children']['places'].append('place3')
         self.patch_and_check('{}/{}'.format(self.PLACES, place1_id), place1_patch)
+        self.assert_last_log_entry('place1', 'Place', added={'places': ['place3']})
         self.is_parent('place1', self.PLACES, 'place3', self.PLACES)
         self.is_grandpa_or_above('place1', self.PLACES, 'package2', self.PACKAGES)
 
         # Now if I cut package2 - Package1, place1 will still be ancestor of package2
         package1_patch['children']['packages'].remove('package2')
         self.patch_and_check('{}/{}'.format(self.PACKAGES, package1_id), package1_patch)
+        self.assert_last_log_entry('package1', 'Package', removed={'packages': ['package2']})
         self.is_not_parent('package1', self.PACKAGES, 'package2', self.PACKAGES)
         self.is_grandpa_or_above('place1', self.PLACES, 'package2', self.PACKAGES)
 
         # Let's redo package1-package2
         package1_patch['children']['packages'].append('package2')
         self.patch_and_check('{}/{}'.format(self.PACKAGES, package1_id), package1_patch)
+        self.assert_last_log_entry('package1', 'Package', added={'packages': ['package2']})
         self.is_parent('package1', self.PACKAGES, 'package2', self.PACKAGES)
 
         # Place1

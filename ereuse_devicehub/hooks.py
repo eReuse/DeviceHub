@@ -127,3 +127,10 @@ def hooks(app):
 
     from ereuse_devicehub.resources.hooks import set_date
     app.on_insert += set_date
+
+    # group-log
+    from ereuse_devicehub.resources.group.group_log.hooks import add_group_change_to_log, set_children, delete_children
+    app.on_inserted += set_children
+    app.on_deleted_item += delete_children
+    app.on_updated += add_group_change_to_log
+    app.on_replaced += add_group_change_to_log

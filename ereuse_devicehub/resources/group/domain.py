@@ -206,15 +206,15 @@ class GroupDomain(Domain):
             from ereuse_devicehub.resources.group.physical.place.domain import PlaceDomain
             from ereuse_devicehub.resources.group.physical.package.domain import PackageDomain
             from ereuse_devicehub.resources.group.abstract.lot.domain import LotDomain
-            from ereuse_devicehub.resources.group.abstract.lot.input_lot.domain import InputLotDomain
-            from ereuse_devicehub.resources.group.abstract.lot.output_lot.domain import OutputLotDomain
+            from ereuse_devicehub.resources.group.abstract.lot.incoming_lot.domain import IncomingLotDomain
+            from ereuse_devicehub.resources.group.abstract.lot.outgoing_lot.domain import OutgoingLotDomain
             children_resources = {
                 PlaceDomain.resource_settings.resource_name(): PlaceDomain,
                 PackageDomain.resource_settings.resource_name(): PackageDomain,
                 DeviceDomain.resource_settings.resource_name(): DeviceDomain,
                 LotDomain.resource_settings.resource_name(): LotDomain,
-                InputLotDomain.resource_settings.resource_name(): InputLotDomain,
-                OutputLotDomain.resource_settings.resource_name(): OutputLotDomain,
+                IncomingLotDomain.resource_settings.resource_name(): IncomingLotDomain,
+                OutgoingLotDomain.resource_settings.resource_name(): OutgoingLotDomain,
                 ComponentDomain.resource_settings.resource_name(): ComponentDomain,
             }
             types = {DeviceDomain.resource_settings.resource_name(), ComponentDomain.resource_settings.resource_name()}

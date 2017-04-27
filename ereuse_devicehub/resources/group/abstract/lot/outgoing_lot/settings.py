@@ -2,7 +2,7 @@ from ereuse_devicehub.resources.account.settings import unregistered_user, unreg
 from ereuse_devicehub.resources.group.abstract.lot.settings import Lot, LotSettings
 
 
-class OutputLot(Lot):
+class OutgoingLot(Lot):
     to = {
         'type': ['objectid', 'dict', 'string'],  # We should not add string but it does not work otherwise...
         'data_relation': {
@@ -23,7 +23,7 @@ class OutputLot(Lot):
     }
 
 
-class OutputLotSettings(LotSettings):
-    _schema = OutputLot
+class OutgoingLotSettings(LotSettings):
+    _schema = OutgoingLot
     url = None  # todo we can get variables that do not go deep through __a convention
     pass

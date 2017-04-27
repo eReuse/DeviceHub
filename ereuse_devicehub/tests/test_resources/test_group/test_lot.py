@@ -9,10 +9,10 @@ class TestLot(TestGroupBase):
     def test_schema(self):
         assert_that(self.domain).contains('lots')
         schema = self.domain['lots']['schema']
-        assert_that(schema['@type']['allowed']).contains('Lot', 'InputLot', 'OutputLot')
+        assert_that(schema['@type']['allowed']).contains('Lot', 'IncomingLot', 'OutgoingLot')
         assert_that(self.domain[self.LOTS]['url']).is_equal_to('lots')
-        assert_that(self.domain['input-lot']['url']).is_equal_to('lots/input-lot')
-        assert_that(self.domain['output-lot']['url']).is_equal_to('lots/output-lot')
+        assert_that(self.domain['incoming-lot']['url']).is_equal_to('lots/incoming-lot')
+        assert_that(self.domain['outgoing-lot']['url']).is_equal_to('lots/outgoing-lot')
 
     def test_lot_with_devices(self):
         """CRUD of a lot adding and removing devices through all different methods"""
@@ -57,13 +57,13 @@ class TestLot(TestGroupBase):
         computers_id = self.get_fixtures_computers()
 
         # Let's add the computers to the input lot
-        patched_input = {'@type': 'InputLot', 'children': {'devices': computers_id}}
+        patched_input = {'@type': 'IncomingLot', 'children': {'devices': computers_id}}
         self.patch_and_check('{}/{}'.format(self.LOTS, input_id), patched_input)
         for computer_id in computers_id:
             self.is_parent(input_label, self.LOTS, computer_id, self.DEVICES)
 
         # Let's add them to the output lot
-        patched_output = {'@type': 'OutputLot', 'children': {'devices': computers_id}}
+        patched_output = {'@type': 'OutgoingLot', 'children': {'devices': computers_id}}
         self.patch_and_check('{}/{}'.format(self.LOTS, output_id), patched_output)
         for computer_id in computers_id:
             self.is_parent(output_label, self.LOTS, computer_id, self.DEVICES)

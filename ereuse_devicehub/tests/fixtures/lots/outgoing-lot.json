@@ -1,4 +1,4 @@
 {
-  "@type": "OutputLot",
+  "@type": "OutgoingLot",
   "label": "Lot to User X"
 }

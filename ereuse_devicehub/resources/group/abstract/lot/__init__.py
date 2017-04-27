@@ -1,2 +1,2 @@
-from .input_lot import settings
-from .output_lot import settings
+from .incoming_lot import settings
+from .outgoing_lot import settings

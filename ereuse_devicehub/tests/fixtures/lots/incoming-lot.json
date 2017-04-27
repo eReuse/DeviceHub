@@ -1,4 +1,4 @@
 {
-  "@type": "InputLot",
+  "@type": "IncomingLot",
   "label": "Lot from User X"
 }

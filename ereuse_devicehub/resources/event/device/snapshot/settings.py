@@ -140,8 +140,7 @@ class Snapshot(EventWithOneDevice):
     @classmethod
     def _clean(cls, attributes: dict, attributes_to_remove: tuple = None) -> dict:
         full_dict = super(Snapshot, cls)._clean(attributes, attributes_to_remove)
-        full_dict['from'] = full_dict['_from']
-        del full_dict['_from']
+        full_dict['from'] = full_dict.pop('_from')
         return full_dict
 
 

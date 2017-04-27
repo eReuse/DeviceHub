@@ -60,7 +60,7 @@ class Group(Thing):
             'schema': {
                 '@type': {
                     'type': 'string',
-                    'allowed': {'Lot', 'InputLot', 'OutputLot', 'Place', 'Package'}
+                    'allowed': {'Lot', 'IncomingLot', 'OutgoingLot', 'Place', 'Package'}
                 },
                 'label': {
                     'type': 'string',

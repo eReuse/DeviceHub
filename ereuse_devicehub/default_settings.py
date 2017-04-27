@@ -99,7 +99,7 @@ EVENTS_IN_GRD = [Naming.resource(DeviceEventDomain.new_type(event)) for event in
 from ereuse_devicehub.resources.device.settings import DeviceSettings
 from ereuse_devicehub.resources.account.settings import AccountSettings
 from ereuse_devicehub.resources.event.settings import EventSettings
-from ereuse_devicehub.resources.device.manufacturers import ManufacturerSettings
+from ereuse_devicehub.resources.manufacturers import ManufacturerSettings
 
 DOMAIN = {
     'devices': DeviceSettings,

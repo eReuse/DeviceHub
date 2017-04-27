@@ -28,7 +28,7 @@ class ManufacturerSettings(ResourceSettings):
         'default_sort': [('label', pymongo.ASCENDING)]
     }
 
-    cache_control = 'max-age={}, public'.format(12 * 60 * 60)
+    cache_control = 'max-age={}, public'.format(3 * 24 * 60 * 60)
     mongo_indexes = {
         'Man: label': [('label', pymongo.TEXT)]
     }

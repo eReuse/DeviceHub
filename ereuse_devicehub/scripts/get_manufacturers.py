@@ -11,7 +11,8 @@ from requests import HTTPError
 from wikipedia import wikipedia
 
 from ereuse_devicehub import DeviceHub
-from ereuse_devicehub.resources.device.manufacturers import ManufacturerDomain
+from ereuse_devicehub.resources.manufacturers import ManufacturerDomain
+from ereuse_devicehub.utils import get_json_from_file
 
 
 class ManufacturersGetter:
@@ -56,10 +57,8 @@ class ManufacturersGetter:
         with app.app_context():
             ManufacturerDomain.delete_all()
             try:
-                with open(self.FILENAME) as fp:
-                    manufacturers = json.load(fp)
-                    for man in manufacturers:
-                        ManufacturerDomain.insert(man)
+                for man in get_json_from_file(self.FILENAME, same_directory_as_file=__file__):
+                    ManufacturerDomain.insert(man)
             except FileNotFoundError:
                 m = []
                 for manufacturer_name in self.get():

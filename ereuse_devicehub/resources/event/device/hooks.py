@@ -174,6 +174,10 @@ def fill_devices_field_from_groups(resource_name: str, events: list):
             if 'groups' in event:
                 if event['devices']:
                     raise SchemaError('groups', 'You can\'t set groups and devices in the same event.')
+                # python-eve does not copy [] so it leaks what we do to default []
+                # https://github.com/pyeve/eve/issues/1016
+                # todo try removing it after upgrading eve and cerberus
+                event['devices'] = []
                 event['originalGroups'] = copy.copy(event['groups'])
                 for group_name, labels in event['originalGroups'].items():  # So we don't iterate over changing 'groups'
                     # move resources to event concatenating their arrays values

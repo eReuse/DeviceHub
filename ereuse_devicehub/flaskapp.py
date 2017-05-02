@@ -149,7 +149,7 @@ class DeviceHub(Eve):
             return response
         else:
             SETTINGS_TO_PICK = ('url', 'use_default_database', 'short_description', 'sink', 'icon',
-                                'resource_methods', 'item_methods', 'fa')
+                                'resource_methods', 'item_methods', 'fa', 'parent')
             schemas = json.loads(response.data.decode())
             for resource_type, schema in schemas.items():
                 # Note that JSON keys are in camelCase

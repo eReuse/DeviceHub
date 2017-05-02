@@ -1,6 +1,7 @@
 import copy
 import inspect
 from collections import Sequence
+from contextlib import suppress
 
 from ereuse_devicehub.utils import Naming
 
@@ -89,7 +90,15 @@ class Resource:
         return subclasses
 
     @classmethod
-    def superclasses(cls, ignore_n: int) -> tuple:
+    def _parent(cls) -> type:
+        """Like subclasses, but only getting the direct children, no more descendants."""
+        try:
+            return cls.superclasses()[1]
+        except:
+            raise TypeError('Class {} has no parent.'.format(cls.__name__))
+
+    @classmethod
+    def superclasses(cls, ignore_n: int = 2) -> tuple:
         """
         :param ignore_n: The number of top superclasses to ignore.
         """
@@ -139,6 +148,8 @@ class ResourceSettings(Resource):
             else:
                 fields['datasource']['filter'] = {'@type': {'$in': list(cls._schema.types)}}
         if fields['_schema']:  # We get the schema. This is a costly operation we do not want to do in actual_fields
+            with suppress(TypeError):
+                fields['parent'] = fields['_schema'].parent_type
             fields['schema'] = fields['_schema']()
         return fields
 

@@ -42,7 +42,7 @@ class RDFS(Resource):
         """JSON-LD prefix to use in type. Override it to use prefix for the class."""
         'abstract': True,
         'attributes_to_remove': ('_settings', '_import_schemas', '_types', 'resource_types',
-                                 'type_name', 'types', 'resource_name')
+                                 'type_name', 'types', 'resource_name', 'parent_type')
     }
     _import_schemas = True
     created = {
@@ -144,6 +144,13 @@ class RDFS(Resource):
             Read-only.
         """
         return {_class.type_name for _class in cls.subclasses() + [cls]}
+
+    # noinspection PyNestedDecorators
+    @ClassProperty
+    @classmethod
+    def parent_type(cls):
+        """Like types but only for direct children, not returning the parent."""
+        return cls._parent().type_name
 
     # noinspection PyNestedDecorators
     @ClassProperty

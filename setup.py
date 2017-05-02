@@ -14,6 +14,7 @@ setup(
         'eve>=0.6.3,<7.0',
         'passlib>=1.6.5,<2.0',
         'validators>=0.10,<0.20',
+        'flask>=0.10,<0.11',
         'requests>=2.9.1,<3.0',
         'python-gnupg>=0.3.8,<0.4',  # To use gnupg, install gpg2
         'flask-cache>=0.13.1',

@@ -436,9 +436,11 @@ class TestSnapshot(TestEvent, TestGroupBase):
                 assert_that(event['from']).is_equal_to(account['_id'])
                 assert_that(event['from']).is_type_of(objectid)
 
-    def test_from_registered(self):
+    def _test_from_registered(self):
         """
             Tests that 'from' is set to the event.
+
+            Notice: Not used for now as 'from' is being disabled for snapshots
         """
         snapshot = self.get_fixture(self.SNAPSHOT, 'vostro')
         account = {'email': 'r@r.com', 'name': 'R Registered', 'organization': 'R ORG', '@type': 'Account',
@@ -447,9 +449,11 @@ class TestSnapshot(TestEvent, TestGroupBase):
         snapshot['from'] = account['_id']
         self._test_giver(snapshot, 'r@r.com')
 
-    def test_from_unregistered(self):
+    def _test_from_unregistered(self):
         """
             Tests that 'unregisteredFrom' is set to the event.
+
+            Notice: Not used for now as 'from' is being disabled for snapshots
         """
         snapshot = self.get_fixture(self.SNAPSHOT, 'vostro')
         snapshot['from'] = {
@@ -468,16 +472,17 @@ class TestSnapshot(TestEvent, TestGroupBase):
         Tests that the account and place in snapshot are correctly created.
         """
         snapshot = self.get_fixture(self.SNAPSHOT, '703b6')
-        snapshot['from'] = {
-            'email': 'hello@hello.com'
-        }
+        # This field is forbidden for now
+        # snapshot['from'] = {
+        #    'email': 'hello@hello.com'
+        # }
         snapshot['place'] = self.post_and_check(self.PLACES, self.get_fixture(self.PLACES, 'place'))['_id']
         num_events = self.get_num_events(snapshot)
         _, device_id = self.creation(snapshot, num_events)
         device, _ = self.get(self.DEVICES, '', device_id)
         self.is_parent(snapshot['place'], self.PLACES, device['_id'], self.DEVICES)
-        account, status = self.get(self.ACCOUNTS, '', 'hello@hello.com')
-        self.assert200(status)
+        # account, status = self.get(self.ACCOUNTS, '', 'hello@hello.com')
+        # self.assert200(status)
 
     def test_71a4_eepc_erasure_real(self):
         """

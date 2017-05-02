@@ -19,7 +19,7 @@ class DatabaseUpdate03(Update):
         PlaceDomain.update_many_raw({}, {'$set': {'children': {}, 'ancestors': []}})  # set as default
         for place in PlaceDomain.get(QUERY):
             patch = {'children': {'devices': place['devices']}, '@type': 'Place'}
-            account = AccountDomain.get_one({'email': 'a@a.a'})
+            account = AccountDomain.get_one(place['byUser'])
             headers = (('Accept', 'application/json'),
                        ('Authorization', 'Basic ' + AccountDomain.hash_token(account['token']).decode()))
             with self.app.test_request_context('/{}/devices'.format(database), headers=headers):

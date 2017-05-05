@@ -2,10 +2,13 @@ import copy
 
 import iso3166
 import pymongo
-
 from ereuse_devicehub.resources.group.physical.settings import Physical, PhysicalSettings
-from ereuse_devicehub.resources.group.settings import places_fk, lots_fk, packages_fk, \
-    devices_fk
+from ereuse_devicehub.resources.group.settings import places_fk, lots_fk, packages_fk, devices_fk
+from sortedcontainers import SortedDict
+
+COUNTRIES = SortedDict()
+for key, country in iso3166.countries_by_alpha2.items():
+    COUNTRIES[key] = country.name
 
 
 class Place(Physical):
@@ -32,8 +35,9 @@ class Place(Physical):
         'schema': {
             'addressCountry': {
                 'type': 'string',
-                'allowed': {key for key in iso3166.countries_by_alpha2},
+                'allowed': list(COUNTRIES.keys()),
                 'description': 'The name of the country',
+                'allowed_description': list(COUNTRIES.values()),
                 'doc': 'The addressCountry as per ISO 3166 (2 characters).'
             },
             'addressLocality': {
@@ -52,7 +56,8 @@ class Place(Physical):
                 'type': 'string',
                 'description': 'The street address. For example, C/Jordi Girona, 1-3.'
             }
-        }
+        },
+        'sink': -4
     }
     telephone = {
         'type': 'string'

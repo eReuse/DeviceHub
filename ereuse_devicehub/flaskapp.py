@@ -15,8 +15,8 @@ from eve.render import send_response
 from flask import json
 from flask import request
 from inflection import camelize
-from pydash import chain
 
+from ereuse_devicehub.dh_pydash import pydash
 from ereuse_devicehub.aggregation.settings import aggregate_view
 from ereuse_devicehub.data_layer import DataLayer, MongoEncoder
 from ereuse_devicehub.error_handler import ErrorHandlers
@@ -153,7 +153,7 @@ class DeviceHub(Eve):
             schemas = json.loads(response.data.decode())
             for resource_type, schema in schemas.items():
                 # Note that JSON keys are in camelCase
-                schema['_settings'] = chain(self.config['DOMAIN'][resource_type]) \
+                schema['_settings'] = pydash.chain(self.config['DOMAIN'][resource_type]) \
                     .pick(SETTINGS_TO_PICK) \
                     .map_keys(lambda _, key: camelize(key, False)) \
                     .value()

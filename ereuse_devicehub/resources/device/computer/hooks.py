@@ -47,7 +47,7 @@ def update_materialized_computer(device_or_id: str or dict, components_id: list,
     else:
         component_query = {'$pull': {'components': {'$in': components_id}}}
     update_query.update(component_query)
-    current_app.data.driver.db['devices'].update({'_id': device_id}, update_query)
+    DeviceDomain.update_one_raw(device_id, update_query)
 
     # Materialize fields in components
     set_materialized_parent_in_components(device_id, components_id, add)

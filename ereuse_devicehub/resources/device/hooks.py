@@ -1,8 +1,4 @@
 from bson import ObjectId
-from eve.utils import document_etag
-from flask import current_app as app
-from pydash import find
-
 from ereuse_devicehub.exceptions import RequestAnother, StandardError
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.schema import Device
@@ -10,13 +6,16 @@ from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.migrate.settings import Migrate
 from ereuse_devicehub.rest import execute_delete
 from ereuse_devicehub.utils import Naming
+from eve.utils import document_etag
+from flask import current_app
+from pydash import find
 
 
 def generate_etag(resource: str, items: list):
     if resource in Device.resource_types:
         for item in items:
-            item['_etag'] = document_etag(item,
-                                          app.config['DOMAIN'][Naming.resource(item['@type'])]['etag_ignore_fields'])
+            ignore_fields = current_app.config['DOMAIN'][Naming.resource(item['@type'])]['etag_ignore_fields']
+            item['_etag'] = document_etag(item, ignore_fields)
 
 
 def post_benchmark(resource: str, devices: list):
@@ -42,8 +41,13 @@ def autoincrement(resource: str, devices: list):
                 device['_id'] = str(get_next_sequence())
 
 
-def get_next_sequence():
-    return app.data.driver.db.device_sequence.find_and_modify(
+def get_next_sequence() -> int:
+    """Autoincrements the _id."""
+    # We force using the same database as the ones where devices are. This is needed as, unlike resources in their
+    # settings, we do not tell to python-eve at any moment where is this collection stored at.
+    # Note that if we do not put this, eve tries to guess scanning the URL for a resource name; this works
+    # if we are doing POST /register (register is in the same db) but not POST /account (different db)
+    return current_app.data.pymongo(Device.resource_name).db.device_sequence.find_and_modify(
         query={'_id': 1},
         update={'$inc': {'seq': 1}},
         new=True,

@@ -24,9 +24,10 @@ setup(
         'pyexcel-ods',
         'pyexcel-xlsx',
         'pydash>=3.4,<4',
-        'sortedcontainers',
+        'sortedcontainers>=1.5.7,<1.6',
         'geojson_utils',
-        'geojson'
+        'geojson>=1.3.4,<1.4',
+        'geoip2>=2.4.2,<2.5'
     ],
     keywords='eReuse.org DeviceHub devices devicehub reuse recycle it asset management',
     # http://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies

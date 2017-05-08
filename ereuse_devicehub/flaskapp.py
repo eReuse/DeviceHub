@@ -6,6 +6,7 @@ import os
 import sys
 
 import gnupg
+from ereuse_devicehub.resources.event.device.live.geoip_factory import GeoIPFactory
 from eve import Eve
 from eve.endpoints import schema_collection_endpoint
 from eve.exceptions import ConfigException
@@ -49,6 +50,7 @@ class DeviceHub(Eve):
         self.cache = cache
         self.cache.init_app(self)
         self.url_parse = url_parse()
+        self.geoip = GeoIPFactory(self)
         hooks(self)  # Set up hooks. You can add more hooks by doing something similar with app "hooks(app)"
         ErrorHandlers(self)
         self.add_url_rule('/login', 'login', view_func=login, methods=('POST', 'OPTIONS'))

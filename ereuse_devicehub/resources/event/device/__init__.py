@@ -12,4 +12,4 @@ from .register import settings
 from .remove import settings
 from .snapshot import settings
 from .test_hard_drive import settings
-
+from .live import settings

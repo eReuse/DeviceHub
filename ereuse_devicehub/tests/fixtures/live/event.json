@@ -1,0 +1,32 @@
+{
+  "geo": {
+    "coordinates": [
+      -3.684,
+      40.4172
+    ],
+    "accuracy": 1000,
+    "type": "Point"
+  },
+  "isp": "Orange Espana",
+  "organization": "Orange Espana",
+  "@type": "devices:Live",
+  "secured": false,
+  "continent": {
+    "sameAs": "http://sws.geonames.org/6255148",
+    "geoipCode": "EU",
+    "@type": "Continent",
+    "name": "Europe"
+  },
+  "country": {
+    "sameAs": "http://sws.geonames.org/2510769",
+    "confidence": 99,
+    "@type": "Country",
+    "isoCode": "ES",
+    "name": "Spain"
+  },
+  "device": "1",
+  "autonomousSystemNumber": 12479,
+  "incidence": false,
+  "userType": "residential",
+  "ip": null
+}

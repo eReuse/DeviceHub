@@ -50,6 +50,10 @@ class TestBase(TestMinimal):
         settings.AGENT_ACCOUNTS = {
             'self': ('self@ereuse.org', '12345')
         }
+        settings.MAXMIND_ACCOUNT = {
+            'user': 1,
+            'license key': 'license-key'
+        }
 
     def prepare(self):
         self.MONGO_DBNAME = self.app.config['MONGO_DBNAME']

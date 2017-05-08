@@ -118,6 +118,9 @@ def hooks(app):
     from ereuse_devicehub.resources.group.physical.place.hooks import avoid_deleting_if_has_event
     app.on_delete_item_places += avoid_deleting_if_has_event
 
+    from ereuse_devicehub.resources.event.device.live.hooks import save_ip
+    app.on_insert_devices_live += save_ip
+
     # Device materializations
     from ereuse_devicehub.resources.device.hooks import redirect_to_first_snapshot
     from ereuse_devicehub.resources.hooks import MaterializeEvents

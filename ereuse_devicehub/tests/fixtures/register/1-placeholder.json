@@ -1,5 +1,5 @@
 {
-  "@type": "Register",
+  "@type": "devices:Register",
   "device": {
     "@type": "Device",
     "placeholder": true

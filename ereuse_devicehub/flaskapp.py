@@ -32,6 +32,7 @@ from ereuse_devicehub.static import send_device_icon
 from ereuse_devicehub.url_parse import UrlParse
 from ereuse_devicehub.utils import cache
 from ereuse_devicehub.validation.validation import DeviceHubValidator
+from ereuse_devicehub.resources.event.device.register.placeholders import placeholders
 
 
 class DeviceHub(Eve):
@@ -50,10 +51,11 @@ class DeviceHub(Eve):
         self.url_parse = url_parse()
         hooks(self)  # Set up hooks. You can add more hooks by doing something similar with app "hooks(app)"
         ErrorHandlers(self)
-        self.add_url_rule('/login', 'login', view_func=login, methods=['POST', 'OPTIONS'])
+        self.add_url_rule('/login', 'login', view_func=login, methods=('POST', 'OPTIONS'))
         self.add_url_rule('/devices/icons/<file_name>', view_func=send_device_icon)
         self.add_url_rule('/<db>/aggregations/<resource>/<method>', 'aggregation', view_func=aggregate_view)
         self.add_url_rule('/<db>/export/<resource>', view_func=export)
+        self.add_url_rule('/<db>/events/<resource>/placeholders', view_func=placeholders, methods=('POST',))
         if self.config.get('GRD', True):
             self.grd_submitter_caller = SubmitterCaller(self, GRDSubmitter)
 

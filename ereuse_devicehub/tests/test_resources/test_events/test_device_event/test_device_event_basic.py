@@ -112,5 +112,8 @@ class TestDeviceEventBasic(TestStandard):
         assert_that(event).contains('devices')
         assert_that(event['devices']).contains_only(*computers_id)
         for computer_id in computers_id:
-            computer = self.get_and_check(self.DEVICES, item=computer_id)
+            computer = self.get_and_check(self.DEVICES, item=computer_id, embedded={'components': True})
             assert_that(computer['events']).contains(materialized_event)
+            # Let's ensure the events have been materialized for components too
+            for component in computer['components']:
+                assert_that(component['events']).contains(materialized_event)

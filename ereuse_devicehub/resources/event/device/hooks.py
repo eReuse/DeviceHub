@@ -58,7 +58,8 @@ def materialize_components(resource_name: str, events: list):
     if resource_name in Event.resource_types:
         for event in events:
             sub_schema = current_app.config['DOMAIN'][resource_name]['schema']
-            if 'components' in sub_schema and sub_schema['components'].get('readonly', False):
+            schema = sub_schema.get('components', {})
+            if schema.get('readonly', False) or schema.get('materialized', False):
                 event['components'] = list(ComponentDomain.get_components_in_set(event['devices']))
 
 

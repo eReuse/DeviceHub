@@ -1,5 +1,8 @@
+import copy
+
 from ereuse_devicehub.resources.event.device.domain import DeviceEventDomain
-from ereuse_devicehub.resources.event.device.settings import EventWithDevices, EventSubSettingsMultipleDevices
+from ereuse_devicehub.resources.event.device.settings import EventWithDevices, EventSubSettingsMultipleDevices, \
+    components
 from ereuse_devicehub.resources.resource import Resource
 
 """
@@ -9,5 +12,7 @@ from ereuse_devicehub.resources.resource import Resource
     EventSubSettingsMultipleDevices) as generic types are.
 """
 
-for (generic_type, settings) in DeviceEventDomain.GENERIC_TYPES.items():
-    Resource.create(generic_type, EventWithDevices, {}, EventSubSettingsMultipleDevices, settings)
+for generic_type, settings in DeviceEventDomain.GENERIC_TYPES.items():
+    schema = {'components': copy.deepcopy(components)}
+    schema['components']['materialized'] = True
+    Resource.create(generic_type, EventWithDevices, schema, EventSubSettingsMultipleDevices, settings)

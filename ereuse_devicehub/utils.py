@@ -191,13 +191,6 @@ def get_header_link(resource_type: str) -> ():
            '.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
 
 
-class ClassProperty(property):
-    """Defines *getting* properties from classes in python, from http://stackoverflow.com/a/29994957/2710757"""
-
-    def __get__(self, cls, owner):
-        return self.fget.__get__(None, owner)()
-
-
 def get_json_from_file(filename: str, directory: str = None, parse_json=True, mode='r',
                        same_directory_as_file: str = None) -> dict:
     """

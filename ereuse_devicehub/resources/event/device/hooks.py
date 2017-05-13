@@ -30,7 +30,7 @@ def get_place(resource_name: str, events: list):
     :param events:
     :return:
     """
-    if resource_name in Event.resource_types:
+    if resource_name in Event.resource_names:
         for event in events:
             if 'geo' in event:
                 try:
@@ -55,7 +55,7 @@ def materialize_components(resource_name: str, events: list):
     :param events:
     :return:
     """
-    if resource_name in Event.resource_types:
+    if resource_name in Event.resource_names:
         for event in events:
             sub_schema = current_app.config['DOMAIN'][resource_name]['schema']
             schema = sub_schema.get('components', {})
@@ -68,7 +68,7 @@ def materialize_parent(resource_name: str, events: list):
     Materializes the field 'parent', only when this field is set as 'materialized'. This is in case of events affecting
     components (such as TestHardDrive or EraseBasic).
     """
-    if resource_name in Event.resource_types:
+    if resource_name in Event.resource_names:
         for event in events:
             sub_schema = current_app.config['DOMAIN'][resource_name]['schema']
             if sub_schema.get('parent', {}).get('materialized', False):
@@ -84,7 +84,7 @@ def set_place(resource_name: str, events: list):
     :param events:
     :return:
     """
-    if resource_name in Event.resource_types:
+    if resource_name in Event.resource_names:
         for event in events:
             if 'place' in event:
                 place = PlaceDomain.get_one(event['place'])
@@ -95,7 +95,7 @@ def set_place(resource_name: str, events: list):
 
 
 def unset_place(resource_name: str, event: dict):
-    if resource_name in Event.resource_types:
+    if resource_name in Event.resource_names:
         if 'place' in event:
             place = PlaceDomain.get_one(event['place'])
             device = [event['device']] if 'device' in event else []
@@ -109,7 +109,7 @@ def delete_events_in_device(resource_name: str, device: dict):
     Deletes the references of the given device in all the events, and deletes the full event if it references only to
     the device.
     """
-    if resource_name in Device.resource_types:
+    if resource_name in Device.resource_names:
         _id = device['_id']
         qin = {'$in': [_id]}
         query = {'$or': [{'device': _id}, {'devices': qin}, {'components': qin}], '@type': {'$ne': 'devices:Register'}}
@@ -136,7 +136,7 @@ def delete_events_in_device(resource_name: str, device: dict):
 
 def remove_from_other_events(resource_name: str, event: dict):
     """Removes the event from other events (Snapshot's 'event' per example)"""
-    if resource_name in DeviceEvent.resource_types:
+    if resource_name in DeviceEvent.resource_names:
         update = {'$pull': {'events': {'$in': [event['_id']]}}}
         DeviceEventDomain.update_many_raw({}, update)
 
@@ -170,7 +170,7 @@ def fill_devices_field_from_groups(resource_name: str, events: list):
         grouped_descendants = map_values(grouped_descendants, lambda descendants: map_(descendants, 'label'))
         return devices_id, grouped_descendants
 
-    if resource_name in DeviceEvent.resource_types:
+    if resource_name in DeviceEvent.resource_names:
         for event in events:
             if 'groups' in event:
                 if event['devices']:

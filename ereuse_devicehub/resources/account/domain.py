@@ -1,16 +1,17 @@
 import base64
 
 from bson.objectid import ObjectId
-from ereuse_devicehub.exceptions import WrongCredentials, BasicError, StandardError
-from ereuse_devicehub.resources.account.role import Role
-from ereuse_devicehub.resources.account.settings import AccountSettings
-from ereuse_devicehub.resources.domain import Domain, ResourceNotFound
-from ereuse_devicehub.utils import ClassProperty
 from flask import current_app
 from flask import g
 from flask import request
 from passlib.handlers.sha2_crypt import sha256_crypt
+from passlib.utils import classproperty
 from werkzeug.http import parse_authorization_header
+
+from ereuse_devicehub.exceptions import WrongCredentials, BasicError, StandardError
+from ereuse_devicehub.resources.account.role import Role
+from ereuse_devicehub.resources.account.settings import AccountSettings
+from ereuse_devicehub.resources.domain import Domain, ResourceNotFound
 
 
 class AccountDomain(Domain):
@@ -24,9 +25,7 @@ class AccountDomain(Domain):
         else:
             return requested_database
 
-    # noinspection PyNestedDecorators
-    @ClassProperty
-    @classmethod
+    @classproperty
     def actual(cls) -> dict:
         try:
             # the values of g are inherited when doing inner requests so we need
@@ -50,9 +49,7 @@ class AccountDomain(Domain):
             if str(e) != 'working outside of application context':
                 raise e
 
-    # noinspection PyNestedDecorators
-    @ClassProperty
-    @classmethod
+    @classproperty
     def actual_token(cls) -> str:
         """Gets the **unhashed** token. Use `hash_token` to hash it."""
         try:

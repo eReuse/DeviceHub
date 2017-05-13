@@ -71,10 +71,10 @@ def avoid_deleting_if_not_last_event_or_more_x_minutes(resource_name: str, _, lo
     deleted prior Snapshot however Snapshot is the last event, which would cause error.
     """
     # Note that devices are only redirected to their first snapshot so this is going to be checked on there
-    is_device_event = resource_name in DeviceEvent.resource_types
+    is_device_event = resource_name in DeviceEvent.resource_names
     if is_device_event:
         resource = DeviceEventDomain.get_one(ObjectId(lookup['_id']))
-    elif resource_name in Device.resource_types:
+    elif resource_name in Device.resource_names:
         resource = DeviceDomain.get_one(lookup['_id'])
     else:
         return
@@ -122,7 +122,7 @@ class MaterializeEvents:
     @classmethod
     def materialize_events(cls, resource: str, events: list):
         """Materializes the event in their devices and groups."""
-        if resource in DeviceEvent.resource_types:
+        if resource in DeviceEvent.resource_names:
             for event in events:
                 QUERY = {'$push': {'events': {'$each': [pick(event, *cls.FIELDS)], '$position': 0}}}
                 cls._update_materializations(event, QUERY)

@@ -12,7 +12,7 @@ from pydash import find
 
 
 def generate_etag(resource: str, items: list):
-    if resource in Device.resource_types:
+    if resource in Device.resource_names:
         for item in items:
             ignore_fields = current_app.config['DOMAIN'][Naming.resource(item['@type'])]['etag_ignore_fields']
             item['_etag'] = document_etag(item, ignore_fields)
@@ -26,7 +26,7 @@ def post_benchmark(resource: str, devices: list):
     :param resource:
     :param devices:
     """
-    if resource in Device.resource_types:
+    if resource in Device.resource_names:
         for device in devices:
             if 'benchmark' in device:
                 device['benchmarks'] = [device['benchmark']]
@@ -34,7 +34,7 @@ def post_benchmark(resource: str, devices: list):
 
 
 def autoincrement(resource: str, devices: list):
-    if resource in Device.resource_types:
+    if resource in Device.resource_names:
         for device in devices:
             if '_id' not in device:
                 # string makes this compatible with other systems that use custom id
@@ -62,7 +62,7 @@ def materialize_public_in_components(resource: str, devices: list):
     :param devices:
     :return:
     """
-    if resource in Device.resource_types:
+    if resource in Device.resource_names:
         for device in devices:
             if device.get('components'):  # If empty do not try to execute
                 DeviceDomain.update_raw(device['components'], {'$set': {'public': device.get('public', False)}})
@@ -85,7 +85,7 @@ def materialize_public_in_components_update(resource: str, device: dict, origina
 
 def avoid_deleting_if_device_has_migrate(resource_name: str, device: dict):
     """Deleting a device that has a Migrate would mean to undo the migrate, something we are not ready to do."""
-    if resource_name in Device.resource_types:
+    if resource_name in Device.resource_names:
         event = find(device['events'], {'@type': Migrate.type_name})
         if event:
             raise DeviceHasMigrate(event['_id'], device['_id'])
@@ -96,7 +96,7 @@ def redirect_to_first_snapshot(resource, request, lookup):
     DELETE /device should be an internal method, but it is open to redirect to the door that is going to effictevely
     delete the device; this is the first Snapshot that made the Register that made the device.
     """
-    if resource in Device.resource_types:
+    if resource in Device.resource_names:
         snapshot_id = str(DeviceEventDomain.get_first_snapshot(lookup['_id'])['_id'])
         execute_delete(Naming.resource('devices:Snapshot'), snapshot_id)
         raise RequestAnother('', 204)

@@ -4,9 +4,11 @@ the UN/CEFACT Common Code.
 """
 import copy
 
+from passlib.utils import classproperty
+
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.resource import Resource
-from ereuse_devicehub.utils import Naming, NestedLookup, ClassProperty
+from ereuse_devicehub.utils import Naming, NestedLookup
 
 
 class UnitCodes:
@@ -41,8 +43,8 @@ class RDFS(Resource):
         'prefix': None,
         """JSON-LD prefix to use in type. Override it to use prefix for the class."""
         'abstract': True,
-        'attributes_to_remove': ('_settings', '_import_schemas', '_types', 'resource_types',
-                                 'type_name', 'types', 'resource_name', 'parent_type')
+        'attributes_to_remove': ('_settings', '_import_schemas', '_types',
+                                 'type_name', 'types', 'resource_name', 'parent_type', 'resource_names')
     }
     _import_schemas = True
     created = {
@@ -117,23 +119,17 @@ class RDFS(Resource):
             fields['@type']['allowed'] = {cls.type_name}
         return fields
 
-    # noinspection PyNestedDecorators
-    @ClassProperty
-    @classmethod
+    @classproperty
     def resource_name(cls):
         return Naming.resource(cls.type_name)
 
-    # noinspection PyNestedDecorators
-    @ClassProperty
-    @classmethod
+    @classproperty
     def type_name(cls):
         return Naming.new_type(cls.__name__, cls._settings['prefix'])
 
     """The following methods are not used to build the schema"""
 
-    # noinspection PyNestedDecorators
-    @ClassProperty
-    @classmethod
+    @classproperty
     def types(cls):
         """
             Obtains the resource type (e.g. Accept) of the actual class and its subclasses.
@@ -145,17 +141,13 @@ class RDFS(Resource):
         """
         return {_class.type_name for _class in cls.subclasses() + [cls]}
 
-    # noinspection PyNestedDecorators
-    @ClassProperty
-    @classmethod
+    @classproperty
     def parent_type(cls):
         """Like types but only for direct children, not returning the parent."""
         return cls._parent().type_name
 
-    # noinspection PyNestedDecorators
-    @ClassProperty
-    @classmethod
-    def resource_types(cls):
+    @classproperty
+    def resource_names(cls):
         return {Naming.resource(type_name) for type_name in cls.types}
 
 

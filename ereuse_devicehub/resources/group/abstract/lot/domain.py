@@ -15,12 +15,12 @@ class LotDomain(AbstractDomain):
         """If children are lots inherits everything, and if children are packages or devices, inherit only lots."""
         child_resource_name = child_domain.resource_settings.resource_name()
         groups_inherit_lot = (Lot.resource_name,)
-        if child_resource_name in Lot.resource_types:
+        if child_resource_name in Lot.resource_names:
             super().inherit(parent_label, parent_ancestors, child_domain, children)
-        elif child_resource_name in Package.resource_types:
+        elif child_resource_name in Package.resource_names:
             full_children = cls._inherit(groups_inherit_lot, parent_label, parent_ancestors, child_domain, children)
             cls._update_inheritance_grandchildren(full_children, child_domain)
-        elif child_resource_name in Device.resource_types:
+        elif child_resource_name in Device.resource_names:
             cls._inherit(groups_inherit_lot, parent_label, parent_ancestors, child_domain, children)
         else:
             raise KeyError('{} of {} cannot inherit a lot.'.format(children, child_resource_name))

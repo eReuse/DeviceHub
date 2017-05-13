@@ -191,7 +191,7 @@ class GroupDomain(Domain):
         :param full_children: The children whose children (our grand-children) will be updated
         :param child_domain: The domain of the children. Note that this forces all children to be the same @type.
         """
-        if child_domain.resource_settings.resource_name() in Group.resource_types:
+        if child_domain.resource_settings.resource_name() in Group.resource_names:
             for full_child in full_children:
                 for name in child_domain.children_resources.keys():
                     grandchildren_domain = child_domain.children_resources[name]
@@ -218,7 +218,7 @@ class GroupDomain(Domain):
                 ComponentDomain.resource_settings.resource_name(): ComponentDomain,
             }
             types = {DeviceDomain.resource_settings.resource_name(), ComponentDomain.resource_settings.resource_name()}
-            types |= cls.resource_settings._schema.resource_types
+            types |= cls.resource_settings._schema.resource_names
             cls._children_resources = pick(children_resources, *types)
         return cls._children_resources
 

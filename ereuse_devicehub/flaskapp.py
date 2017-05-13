@@ -5,8 +5,8 @@ import inspect
 import os
 import sys
 
+import flask_cors
 import gnupg
-from ereuse_devicehub.resources.event.device.live.geoip_factory import GeoIPFactory
 from eve import Eve
 from eve.endpoints import schema_collection_endpoint
 from eve.exceptions import ConfigException
@@ -17,14 +17,17 @@ from flask import json
 from flask import request
 from inflection import camelize
 
-from ereuse_devicehub.dh_pydash import pydash
 from ereuse_devicehub.aggregation.settings import aggregate_view
 from ereuse_devicehub.data_layer import DataLayer, MongoEncoder
+from ereuse_devicehub.dh_pydash import pydash
 from ereuse_devicehub.error_handler import ErrorHandlers
 from ereuse_devicehub.export.export import export
 from ereuse_devicehub.hooks import hooks
+from ereuse_devicehub.inventory import inventory
 from ereuse_devicehub.request import RequestSignedJson
 from ereuse_devicehub.resources.account.login.settings import login
+from ereuse_devicehub.resources.event.device.live.geoip_factory import GeoIPFactory
+from ereuse_devicehub.resources.event.device.register.placeholders import placeholders
 from ereuse_devicehub.resources.resource import ResourceSettings
 from ereuse_devicehub.resources.submitter.grd_submitter.grd_submitter import GRDSubmitter
 from ereuse_devicehub.resources.submitter.submitter_caller import SubmitterCaller
@@ -33,7 +36,6 @@ from ereuse_devicehub.static import send_device_icon
 from ereuse_devicehub.url_parse import UrlParse
 from ereuse_devicehub.utils import cache
 from ereuse_devicehub.validation.validation import DeviceHubValidator
-from ereuse_devicehub.resources.event.device.register.placeholders import placeholders
 
 
 class DeviceHub(Eve):
@@ -49,17 +51,27 @@ class DeviceHub(Eve):
         self.gpg = gnupg.GPG()
         self.cache = cache
         self.cache.init_app(self)
+        self.cross_origin = flask_cors.cross_origin(origins=self.config.get('DOMAINS', '*'),
+                                                    expose_headers=self.config['X_EXPOSE_HEADERS'],
+                                                    allow_headers=self.config['X_HEADERS'])
         self.url_parse = url_parse()
         self.geoip = GeoIPFactory(self)
         hooks(self)  # Set up hooks. You can add more hooks by doing something similar with app "hooks(app)"
         ErrorHandlers(self)
-        self.add_url_rule('/login', 'login', view_func=login, methods=('POST', 'OPTIONS'))
-        self.add_url_rule('/devices/icons/<file_name>', view_func=send_device_icon)
-        self.add_url_rule('/<db>/aggregations/<resource>/<method>', 'aggregation', view_func=aggregate_view)
-        self.add_url_rule('/<db>/export/<resource>', view_func=export)
-        self.add_url_rule('/<db>/events/<resource>/placeholders', view_func=placeholders, methods=('POST',))
+        self.add_cors_url_rule('/login', 'login', view_func=login, methods=('POST', 'OPTIONS'))
+        self.add_cors_url_rule('/devices/icons/<file_name>', view_func=send_device_icon)
+        self.add_cors_url_rule('/<db>/aggregations/<resource>/<method>', 'aggregation', view_func=aggregate_view)
+        self.add_cors_url_rule('/<db>/export/<resource>', view_func=export)
+        self.add_cors_url_rule('/<db>/events/<resource>/placeholders', view_func=placeholders, methods=('POST',))
         if self.config.get('GRD', True):
             self.grd_submitter_caller = SubmitterCaller(self, GRDSubmitter)
+
+    def add_cors_url_rule(self, rule, endpoint=None, view_func=None, **options):
+        """
+        Like add_url_rule but adding CORS information. Use only for custom flask views as eve's resources already
+        handle this.
+        """
+        return super().add_url_rule(rule, endpoint, self.cross_origin(view_func), **options)
 
     def register_resource(self, resource: str, settings: ResourceSettings):
         """

@@ -6,6 +6,7 @@ from assertpy import assert_that
 from bson.objectid import ObjectId
 from eve.methods.common import parse
 from eve.tests import TestMinimal
+from flask import json
 from flask.ext.pymongo import MongoClient
 
 from ereuse_devicehub import utils
@@ -133,13 +134,16 @@ class TestBase(TestMinimal):
         else:
             return self.app.config['DATABASES'][0]
 
-    def get(self, resource, query='', item=None, authorize=True, database=None):
+    def get(self, resource, query='', item=None, authorize=True, database=None, embedded=None):
+        if embedded:
+            query += ('&' if '?' in query else '?') + 'embedded=' + json.dumps(embedded)
         if resource in self.domain:
             resource = self.domain[resource]['url']
         if item:
             request = '/%s/%s%s' % (resource, item, query)
         else:
             request = '/%s%s' % (resource, query)
+
         database = database or self.select_database(resource)
         return self._get(database + request, self.token if authorize else None)
 
@@ -285,8 +289,8 @@ class TestStandard(TestBase):
             m += 'Response:\n{}'.format(response)
             raise AssertionError(m)
 
-    def get_and_check(self, resource, query='', item=None, authorize=True, database=None):
-        response, status_code = self.get(resource, query, item, authorize, database)
+    def get_and_check(self, resource, query='', item=None, authorize=True, database=None, embedded=None):
+        response, status_code = self.get(resource, query, item, authorize, database, embedded)
         self.assert200(status_code)
         return response
 

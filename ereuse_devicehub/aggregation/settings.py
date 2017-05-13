@@ -1,12 +1,12 @@
-from ereuse_devicehub.aggregation.aggregation import Aggregation, AggregationError
-from ereuse_devicehub.flask_decorators import crossdomain, cache
 from eve.auth import requires_auth
 from flask import jsonify
 from flask import request
 
+from ereuse_devicehub.aggregation.aggregation import Aggregation, AggregationError
+from ereuse_devicehub.header_cache import header_cache
 
-@cache(Aggregation.CACHE_TIMEOUT)
-@crossdomain(origin='*', headers=['Content-Type', 'Authorization'])
+
+@header_cache(expires=Aggregation.CACHE_TIMEOUT)
 @requires_auth('resource')
 def aggregate_view(db, resource, method):
     """
@@ -21,4 +21,4 @@ def aggregate_view(db, resource, method):
     except AttributeError as a:
         raise AggregationError(a.args)
     else:
-        return jsonify(m)
+        return jsonify({'_items': m})

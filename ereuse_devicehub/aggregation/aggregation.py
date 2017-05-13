@@ -105,7 +105,30 @@ class Aggregation:
             place['geo'] = centroid(place['geo'])
         # place_type = PlaceDomain.resource_settings._schema.type_name
         # descendants = PlaceDomain.get_descendants(place_type, pluck(places_with_geo, 'label'))
-        return {'_items': places_with_geo}
+        return places_with_geo
+
+    def type(self):
+        pipeline = [
+            {
+                '$project': {
+                    'event': {'$arrayElemAt': ['$events', 0]}
+                }
+            },
+            {
+                '$group': {
+                    '_id': '$event.@type',
+                    'count': {'$sum': 1}
+                }
+            },
+            {
+                '$project': {
+                    '@type': '$_id',
+                    'count': True,
+                    '_id': False
+                }
+            }
+        ]
+        return self._aggregate(pipeline)
 
     @cache.memoize(timeout=CACHE_TIMEOUT)
     def _aggregate(self, pipeline):

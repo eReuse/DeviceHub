@@ -1,8 +1,8 @@
-from ereuse_devicehub.exceptions import BasicError, RedirectToClient
-from ereuse_devicehub.flask_decorators import crossdomain
-from ereuse_devicehub.utils import get_header_link
 from flask import Response, redirect as flask_redirect, request
 from flask.json import jsonify
+
+from ereuse_devicehub.exceptions import BasicError, RedirectToClient
+from ereuse_devicehub.utils import get_header_link
 
 
 class ErrorHandlers:
@@ -12,7 +12,7 @@ class ErrorHandlers:
 
     def __init__(self, app):
         @app.errorhandler(BasicError)
-        @crossdomain(origin='*', headers=['Content-Type', 'Authorization'])
+        @app.cross_origin
         def handle_standard_error(error: BasicError) -> Response:
             """
                 Adapts the visualization of an standard error so it complies with the schema, Hydra.
@@ -24,7 +24,7 @@ class ErrorHandlers:
             return response
 
         @app.errorhandler(RedirectToClient)
-        @crossdomain(origin='*', headers=['Content-Type', 'Authorization'])
+        @app.cross_origin
         def redirect(error: RedirectToClient) -> Response:
             """
                 For Redirect exceptions, performs a redirection to the client.

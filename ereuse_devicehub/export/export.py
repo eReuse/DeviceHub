@@ -10,7 +10,7 @@ from pyexcel_webio import FILE_TYPE_MIME_TABLE as REVERSED_FILE_TYPE_MIME_TABLE
 from sortedcontainers import SortedSet
 from werkzeug.exceptions import NotAcceptable
 
-from ereuse_devicehub.flask_decorators import crossdomain
+from ereuse_devicehub.header_cache import header_cache
 from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.submitter.translator import ResourceTranslator, ResourcesTranslator
 from ereuse_devicehub.rest import execute_get
@@ -18,7 +18,7 @@ from ereuse_devicehub.rest import execute_get
 FILE_TYPE_MIME_TABLE = dict(zip(REVERSED_FILE_TYPE_MIME_TABLE.values(), REVERSED_FILE_TYPE_MIME_TABLE.keys()))
 
 
-@crossdomain(origin='*', headers=['Content-Type', 'Authorization'])
+@header_cache(expires=10)
 @requires_auth('resource')
 def export(db, resource):
     try:

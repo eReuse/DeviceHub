@@ -1,21 +1,20 @@
 import copy
 from pathlib import Path
 
-from ereuse_devicehub.exceptions import WrongQueryParam
-from ereuse_devicehub.flask_decorators import crossdomain
-from ereuse_devicehub.resources.event.device.register.settings import Register
-from ereuse_devicehub.rest import execute_post_internal
-from ereuse_devicehub.utils import get_json_from_file
 from eve.auth import requires_auth
 from flask import Response
 from flask import request, jsonify
+
+from ereuse_devicehub.exceptions import WrongQueryParam
+from ereuse_devicehub.resources.event.device.register.settings import Register
+from ereuse_devicehub.rest import execute_post_internal
+from ereuse_devicehub.utils import get_json_from_file
 
 # We use the placeholder fixture
 DIRECTORY = str(Path(__file__).parents[4].joinpath('tests', 'fixtures', 'register'))
 PLACEHOLDER = get_json_from_file('1-placeholder.json', DIRECTORY)
 
 
-@crossdomain(origin='*', headers=['Content-Type', 'Authorization'])
 @requires_auth('resource')
 def placeholders(db, resource) -> Response:
     """

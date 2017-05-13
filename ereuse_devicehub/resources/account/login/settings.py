@@ -1,10 +1,9 @@
-from ereuse_devicehub.exceptions import WrongCredentials
-from ereuse_devicehub.flask_decorators import crossdomain
-from ereuse_devicehub.resources.account.domain import AccountDomain, UserNotFound
 from flask import request, jsonify
 
+from ereuse_devicehub.exceptions import WrongCredentials
+from ereuse_devicehub.resources.account.domain import AccountDomain, UserNotFound
 
-@crossdomain(origin='*', headers=['Content-Type', 'Authorization'])
+
 def login():
     """
     Performs a login. We make this out of eve, being totally open.

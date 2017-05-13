@@ -63,6 +63,7 @@ class DeviceHub(Eve):
         self.add_cors_url_rule('/<db>/aggregations/<resource>/<method>', 'aggregation', view_func=aggregate_view)
         self.add_cors_url_rule('/<db>/export/<resource>', view_func=export)
         self.add_cors_url_rule('/<db>/events/<resource>/placeholders', view_func=placeholders, methods=('POST',))
+        self.add_cors_url_rule('/<db>/inventory', view_func=inventory)
         if self.config.get('GRD', True):
             self.grd_submitter_caller = SubmitterCaller(self, GRDSubmitter)
 

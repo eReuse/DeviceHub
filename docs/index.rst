@@ -8,12 +8,12 @@
 DeviceHub's documentation
 =========================
 
-This is the API and in-line documentation of the development version of  `DeviceHub <https://github.com/eReuse/DeviceHub/tree/modules>`_.
+This is the API and in-line documentation of the development version of  `DeviceHub <https://github.com/eReuse/DeviceHub>`_.
 
 Contents:
 
 ..  toctree::
-    :maxdepth: 1
+    :maxdepth: 5
 
     vocabulary
     api

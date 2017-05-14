@@ -1,11 +1,14 @@
 import copy
 from contextlib import suppress
+from urllib.parse import urlencode
 
-from ereuse_devicehub.exceptions import InnerRequestError
 from eve.methods.delete import deleteitem_internal
 from eve.methods.patch import patch_internal
 from eve.methods.post import post_internal
 from flask import request, current_app, json, g
+from pydash import map_values
+
+from ereuse_devicehub.exceptions import InnerRequestError
 
 
 def execute_post_internal(resource: str, payload: dict, skip_validation=False) -> dict:
@@ -34,13 +37,16 @@ def execute_post(absolute_path_ref: str, payload: dict, headers: list = None, co
         return data
 
 
-def execute_get(absolute_path_ref: str, token: str or bytes = None) -> dict:
+def execute_get(absolute_path_ref: str, token: str or bytes = None, params: dict = None) -> dict:
     """
     Executes GET to the same DeviceHub with a new connection.
+    :param params: A dict of key (param names) and values that, if they are dicts, will be passed to json
     :param absolute_path_ref: The absolute-path reference of the URI;
         `ref <https://tools.ietf.org/html/rfc3986#section-4.2>`_.
     :param token: The *hashed* token. If None it will be used the token of the actual request.
     """
+    if params:
+        absolute_path_ref += '?' + urlencode(map_values(params, lambda v: json.dumps(v) if type(v) is dict else v))
     if token is None:
         auth = request.headers.environ['HTTP_AUTHORIZATION']
     else:

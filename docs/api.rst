@@ -120,6 +120,7 @@ The following list describes the details of every endpoint in DeviceHub:
 .. toctree::
    :maxdepth: 4
 
+   other-endpoints
    api-endpoints
 
 
@@ -137,7 +138,7 @@ description of the error::
       '_error': {
           'message': 'message',
           'code': 401,
-          '@type': UnauthorizedToUseDatabase
+          '@type': UnauthorizedToUseDatab}ase
       }
       '_status': 'ERR'
     }

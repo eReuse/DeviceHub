@@ -7,8 +7,8 @@ from urllib.parse import quote_plus
 
 from ereuse_devicehub.resources.device.settings import HID_REGEX
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
+from ereuse_devicehub.resources.submitter.grd_submitter.old_translator import ResourceTranslator
 from ereuse_devicehub.resources.submitter.submitter import ThreadedSubmitter
-from ereuse_devicehub.resources.submitter.translator import ResourceTranslator
 from ereuse_devicehub.security.request_auth import Auth
 from ereuse_devicehub.utils import Naming
 
@@ -35,6 +35,30 @@ class GRDSubmitter(ThreadedSubmitter):
         else:
             url += '{}/{}'.format(device_identifier, Naming.resource(event_type))
         return url
+
+    def translate(self, resource: dict, database: str = None) -> list:
+        self.database = database
+        translated = []
+        if resource.get('devices', None) and resource['@type'] != DeviceEventDomain.new_type('Register'):
+            e = copy.deepcopy(resource)
+            del e['devices']
+            for device in resource['devices']:
+                e['device'] = device
+                translated.append((self._translate(e), copy.deepcopy(e)))
+        else:
+            translated.append((self._translate(resource), resource))
+        return translated
+
+    def device(self, device: dict) -> dict:
+        grd_device = {
+            '@type': device['@type'],
+            'url': self._get_resource_url(device['_id'], 'devices'),
+        }
+        if 'pid' in device:
+            grd_device['pid'] = device['pid']
+        if 'hid' in device:
+            grd_device['hid'] = device['hid']
+        return super().device(grd_device)
 
 
 class GRDTranslator(ResourceTranslator):
@@ -85,27 +109,3 @@ class GRDTranslator(ResourceTranslator):
             prefix('Migrate'): dict()
         }
         super().__init__(config, generic_resource, translation_dict)
-
-    def translate(self, resource: dict, database: str = None) -> list:
-        self.database = database
-        translated = []
-        if resource.get('devices', None) and resource['@type'] != DeviceEventDomain.new_type('Register'):
-            e = copy.deepcopy(resource)
-            del e['devices']
-            for device in resource['devices']:
-                e['device'] = device
-                translated.append((self._translate(e), copy.deepcopy(e)))
-        else:
-            translated.append((self._translate(resource), resource))
-        return translated
-
-    def device(self, device: dict) -> dict:
-        grd_device = {
-            '@type': device['@type'],
-            'url': self._get_resource_url(device['_id'], 'devices'),
-        }
-        if 'pid' in device:
-            grd_device['pid'] = device['pid']
-        if 'hid' in device:
-            grd_device['hid'] = device['hid']
-        return super().device(grd_device)

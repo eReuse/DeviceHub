@@ -1,14 +1,15 @@
 import copy
 
+from flask import current_app
+from flask import json
+
 from ereuse_devicehub.exceptions import SchemaError
 from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.device.domain import DeviceDomain
+from ereuse_devicehub.resources.submitter.grd_submitter.old_translator import ResourceTranslator
 from ereuse_devicehub.resources.submitter.submitter import Submitter
-from ereuse_devicehub.resources.submitter.translator import ResourceTranslator
 from ereuse_devicehub.rest import execute_get
 from ereuse_devicehub.utils import Naming
-from flask import current_app
-from flask import json
 
 
 class MigrateSubmitter(Submitter):

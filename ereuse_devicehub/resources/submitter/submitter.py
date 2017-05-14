@@ -1,10 +1,11 @@
 import requests
-from ereuse_devicehub.resources.submitter.translator import ResourceTranslator
-from ereuse_devicehub.rest import execute_get, execute_post
-from ereuse_devicehub.security.request_auth import Auth
 from flask import json
 from requests import HTTPError
 from werkzeug.urls import url_parse, URL, url_unparse
+
+from ereuse_devicehub.resources.submitter.grd_submitter.old_translator import ResourceTranslator
+from ereuse_devicehub.rest import execute_get, execute_post
+from ereuse_devicehub.security.request_auth import Auth
 
 
 class Submitter:
@@ -14,7 +15,8 @@ class Submitter:
     Prepares (translates) a resource to fit another agent's API and submits to it.
     """
 
-    def __init__(self, app: 'DeviceHub', translator: ResourceTranslator = None, auth: Auth = None, debug=False, **kwargs):
+    def __init__(self, app: 'DeviceHub', translator: ResourceTranslator = None, auth: Auth = None, debug=False,
+                 **kwargs):
         self.auth = auth
         self.app = app
         self.config = app.config
@@ -86,7 +88,8 @@ class ThreadedSubmitter(Submitter):
         submit with a way to retreive
     """
 
-    def __init__(self, app: 'DeviceHub', translator: ResourceTranslator = None, auth: Auth = None, debug=False, domain=None,
+    def __init__(self, app: 'DeviceHub', translator: ResourceTranslator = None, auth: Auth = None, debug=False,
+                 domain=None,
                  token=None, **kwargs):
         """
         :param translator: A translator instance.
@@ -98,19 +101,18 @@ class ThreadedSubmitter(Submitter):
         self.embedded = {'device': 1, 'devices': 1, 'components': 1}
         super().__init__(app, translator, auth, debug, **kwargs)
 
-    def submit(self, resource_id: str, database: str or None, resource_name: str='events'):
+    def submit(self, resource_id: str, database: str or None, resource_name: str = 'events'):
         """
         Submits the resource to the configured agent.
         :param resource_id: The identifier (_id) in DeviceHub of the resource.
         :param database: The database or inventory (db1...) to get the resource from.
         :param resource_name: The name of the resource.
         """
-        url = '{}/{}/{}{}'.format(database, resource_name, resource_id, '?embedded={}'.format(json.dumps(self.embedded)))
+        url = '{}/{}/{}{}'.format(database, resource_name, resource_id,
+                                  '?embedded={}'.format(json.dumps(self.embedded)))
         with self.app.app_context():
             resource = execute_get(url, self.token)
         super().submit(resource, database)
-
-
 
     def generate_url(self, original_resource, translated_resource) -> str:
         raise NotImplementedError()

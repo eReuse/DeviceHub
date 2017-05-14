@@ -1,18 +1,22 @@
-from collections import defaultdict
-from math import floor
+from collections import defaultdict, OrderedDict
 
 import flask_excel as excel
 from eve.auth import requires_auth
 from flask import current_app
-from flask import json
 from flask import request
+from pydash import keys
+from pydash import map_
+from pydash import py_
 from pyexcel_webio import FILE_TYPE_MIME_TABLE as REVERSED_FILE_TYPE_MIME_TABLE
-from sortedcontainers import SortedSet
 from werkzeug.exceptions import NotAcceptable
 
 from ereuse_devicehub.header_cache import header_cache
 from ereuse_devicehub.resources.account.domain import AccountDomain
-from ereuse_devicehub.resources.submitter.translator import ResourceTranslator, ResourcesTranslator
+from ereuse_devicehub.resources.device.component.settings import Component
+from ereuse_devicehub.resources.device.domain import DeviceDomain
+from ereuse_devicehub.resources.group.domain import GroupDomain
+from ereuse_devicehub.resources.group.settings import Group
+from ereuse_devicehub.resources.submitter.translator import Translator
 from ereuse_devicehub.rest import execute_get
 
 FILE_TYPE_MIME_TABLE = dict(zip(REVERSED_FILE_TYPE_MIME_TABLE.values(), REVERSED_FILE_TYPE_MIME_TABLE.keys()))
@@ -21,101 +25,77 @@ FILE_TYPE_MIME_TABLE = dict(zip(REVERSED_FILE_TYPE_MIME_TABLE.values(), REVERSED
 @header_cache(expires=10)
 @requires_auth('resource')
 def export(db, resource):
+    """
+    Exports devices as spreadsheets.
+    See the docs in non-resource-endpoints.rst
+    """
     try:
         file_type = FILE_TYPE_MIME_TABLE[request.accept_mimetypes.best]
     except KeyError:
         raise NotAcceptable()
     ids = request.args.getlist('ids')
     token = AccountDomain.hash_token(AccountDomain.actual_token)
-    group_by = request.args.get('groupBy')
-    default_group = request.args.get('defaultGroup', 'Others')
-    embedded = {'byUser': 1, 'events': 1, 'components': 1, 'owners': 1}  # todo we do not get places for now 'place': 1
-    translator = SpreadsheetTranslator(current_app.config, group_by=group_by, default_group=default_group)
-    exporter = Exporter(translator, embedded, token)
-    spreadsheets, _ = exporter.export(ids, db, resource)[0]
+    translator = SpreadsheetTranslator()
+    spreadsheets = OrderedDict()
+    if resource in Group.resource_names:
+        domain = GroupDomain.children_resources[resource]
+        f = py_().select(lambda d: d['@type'] not in Component.types and not d.get('placeholder', False)).map('_id')
+        # ids are groups and we want their inner devices, each of them in a page:
+        # page1 is group1 and contains its devices, page2 is group2 and contains its devices, and so on
+        for label in ids:
+            devices = domain.get_descendants(DeviceDomain, label)
+            # We fetch again devices as we want them embedded
+            spreadsheets[label] = translator.translate(get_devices(f(devices), db, token))
+    else:
+        spreadsheets['Devices'] = translator.translate(get_devices(ids, db, token))
     return excel.make_response_from_book_dict(spreadsheets, file_type, file_name=resource)
 
 
-class Exporter:
-    def __init__(self, translator: ResourcesTranslator, embedded: dict, token=None):
-        self.translator = translator
-        self.embedded = embedded
-        self.token = token
-
-    def export(self, resources_id: list, database: str or None, resource_name: str):
-        where = json.dumps({'_id': {'$in': resources_id}})
-        embedded = json.dumps(self.embedded)
-        url = '{}/{}{}'.format(database, resource_name, '?where={}&embedded={}'.format(where, embedded))
-        resources = execute_get(url, self.token)['_items']
-        return self.translator.translate(resources)
+def get_devices(ids, db, token) -> list:
+    # todo this is limited by pagination; redo with get_internal when updating python eve
+    PAGINATION_LIMIT = current_app.config['PAGINATION_LIMIT']
+    params = {'where': {'_id': {'$in': ids}}, 'embedded': {'components': 1}, 'max_results': PAGINATION_LIMIT}
+    return execute_get(db + '/devices', token, params=params)['_items']
 
 
-class SpreadsheetResourceTranslator(ResourceTranslator):
-    def __init__(self, config, generic_dict: dict = None, specific_dict: dict = None, **kwargs):
-        inner_fields = ['_id', 'serialNumber', 'model', 'manufacturer']
-        generic_dict = generic_dict or {
-            'Identifier': (self.identity, '_id'),
-            'Label ID': (self.identity, 'labelId'),
-            'Serial Number': (self.identity, 'serialNumber'),
-            'Model': (self.identity, 'model'),
-            'Manufacturer': (self.identity, 'manufacturer'),
-            # 'Actual place': (self.inner_field('label'), 'place'), todo we do not get places for now
-            'Actual state': (self.nth_resource(0, after=self.inner_fields(['@type', 'label', '_id'])), 'events'),
-            'Registered in': (self.identity, '_created'),
-            'Created by': (self.inner_field('email'), 'byUser'),
-            'CPU': (self.identity, 'processorModel'),
-            'RAM (GB)': (floor, 'totalRamSize'),
-            'HDD (MB)': (floor, 'totalHardDriveSize'),
-            'components': (self.for_all(self.inner_fields(inner_fields)),)
-        }
-        super().__init__(config, generic_dict, specific_dict, **kwargs)
+class SpreadsheetTranslator(Translator):
+    def __init__(self):
+        # Definition of the dictionary used to translate
+        p = py_()
+        d = OrderedDict()  # we want ordered dict as in translate we want to get the keys in this order
+        d['Identifier'] = p.get('_id')
+        d['Label ID'] = p.get('labelId')
+        d['Serial Number'] = p.get('serialNumber')
+        d['Model'] = p.get('model')
+        d['Manufacturer'] = p.get('manufacturer')
+        d['Actual State'] = p.get('events').first().pick('@type', 'label', '_id').implode(' ')
+        d['Registered in'] = p.get('_created')
+        d['Processor'] = p.get('processorModel')
+        d['RAM (GB)'] = p.get('totalRamSize').floor()
+        d['HDD (MB)'] = p.get('totalHardDriveSize').floor()
+        # Note that in translate_one we translate 'components'
+        super().__init__(d)
 
-    def _translate(self, resource: dict) -> dict:
-        """As super but decomposing each component to a column (Graphic Card 1, Graphic Card 2...)"""
-        translated = super()._translate(resource)
+    def translate(self, resources: list) -> list:
+        """Translates a spreadsheet, which is a table of resources as rows plus the field names as header."""
+        translated = super().translate(resources)
+        # Let's transform the dict to a table-like array
+        # Generation of table headers
+        field_names = list(self.dict.keys())  # We want first the keys we set in the translation dict
+        field_names += py_(translated).map(keys).flatten().uniq().difference(field_names).sort().value()
+        # compute the rows; header titles + fields (note we do not use pick as we don't want None but '' for empty)
+        return [field_names] + map_(translated, lambda res: [res.get(f, '') or '' for f in field_names])
+
+    def translate_one(self, resource: dict) -> dict:
+        translated = super().translate_one(resource)
+
+        # Translation of 'components'
+        component_translation = py_().pick('_id', 'serialNumber', 'model', 'manufacturer').implode(' ')
+        components = map_(resource.get('components', {}), lambda c: component_translation(c))
+        # Let's decompose components so we get ComponentTypeA 1: ..., ComponentTypeA 2: ...
         counter_each_type = defaultdict(int)
-        for pos, translated_component in enumerate(translated['components']):
+        for pos, translated_component in enumerate(components):
             component_type = resource['components'][pos]['@type']
             count = counter_each_type[component_type] = counter_each_type[component_type] + 1
             translated['{} {}'.format(component_type, count)] = translated_component
-        del translated['components']
         return translated
-
-
-class SpreadsheetTranslator(ResourcesTranslator):
-    def __init__(self, config: dict, resource_translator: SpreadsheetResourceTranslator = None,
-                 generic_dict: dict = None, specific_dict: dict = None, group_by: dict = None, default_group='Others',
-                 **kwargs):
-        self.group_by = group_by
-        self.default_group = default_group
-        resource_translator = resource_translator or SpreadsheetResourceTranslator(config)
-        super().__init__(config, resource_translator, generic_dict, specific_dict, **kwargs)
-
-    def _translate(self, resources: list) -> dict:
-        """
-        Given a list of id of resources, transforms them to Flask-Excel's
-        `book dict <http://flask-excel.readthedocs.io/en/latest/#flask_excel.make_response_from_book_dict>`_.
-        with the following structure:
-
-        {
-            'group1': [[row1], [row2], [row3]...],
-            'group2: [[row1], [row2], [row3]...]
-        }
-        """
-        resources = self._translate_resources(resources)
-        # We get all the field names, note that not all field_names are in all resources
-        # And we want the 'static_field_names' to be before other fields
-        field_names = ['Label ID', 'Identifier', 'Serial Number', 'Model', 'Manufacturer', 'CPU', 'RAM (GB)',
-                       'HDD (MB)']
-        other_field_names = SortedSet()
-        for resource, _ in resources:
-            other_field_names = other_field_names | resource.keys()
-        field_names += list(other_field_names - set(field_names))
-        spreadsheet = defaultdict(list)
-        for resource, _ in resources:
-            row = [resource.get(field_name, '') for field_name in field_names]
-            group = resource.get(self.group_by, self.default_group)
-            spreadsheet[group].append(row)
-            if len(spreadsheet[group]) == 1:
-                spreadsheet[group].insert(0, list(field_names))
-        return spreadsheet

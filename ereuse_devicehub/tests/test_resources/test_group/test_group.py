@@ -1,3 +1,5 @@
+from assertpy import assert_that
+
 from ereuse_devicehub.tests.test_resources.test_group import TestGroupBase
 
 
@@ -11,6 +13,12 @@ class TestGroup(TestGroupBase):
 
         _, status = self._get('{}/packages/package1'.format(self.db1), token=self.token)
         self.assert200(status)
+
+        pallet = self.get_fixture(self.GROUPS, 'pallet')
+        self.post_and_check(self.PALLETS, pallet)
+        db_pallet = self.get_and_check(self.PALLETS, item='pallet')
+        assert_that(db_pallet).has_label('pallet')
+        assert_that(db_pallet['@type']).is_equal_to('Pallet')
 
     def test_group_full(self):
         """

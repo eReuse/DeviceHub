@@ -3,7 +3,7 @@ import copy
 from ereuse_devicehub.resources.group.abstract.lot.policy import Policies
 from ereuse_devicehub.resources.group.abstract.settings import AbstractSettings, Abstract
 from ereuse_devicehub.resources.group.settings import place_fk, packages_fk, places_fk, lots_fk, \
-    devices_fk
+    devices_fk, pallets_fk
 
 
 class Lot(Abstract):
@@ -16,6 +16,7 @@ class Lot(Abstract):
     ancestors['schema']['schema']['lots'] = lots_fk
     children = copy.deepcopy(Abstract.children)
     children['schema']['packages'] = packages_fk
+    children['schema']['pallets'] = pallets_fk
     children['schema']['lots'] = lots_fk
     children['schema']['devices'] = devices_fk
     children['schema']['components'] = devices_fk

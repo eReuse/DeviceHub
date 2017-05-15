@@ -3,7 +3,7 @@ import copy
 import iso3166
 import pymongo
 from ereuse_devicehub.resources.group.physical.settings import Physical, PhysicalSettings
-from ereuse_devicehub.resources.group.settings import places_fk, lots_fk, packages_fk, devices_fk
+from ereuse_devicehub.resources.group.settings import places_fk, lots_fk, packages_fk, devices_fk, pallets_fk
 from sortedcontainers import SortedDict
 
 COUNTRIES = SortedDict()
@@ -30,6 +30,7 @@ class Place(Physical):
     children['schema']['devices'] = devices_fk
     children['schema']['places'] = places_fk
     children['schema']['components'] = devices_fk
+    children['schema']['pallets'] = pallets_fk
     address = {
         'type': 'dict',
         'schema': {

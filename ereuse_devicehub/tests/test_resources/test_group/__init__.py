@@ -15,6 +15,7 @@ class TestGroupBase(TestStandard):
     OUTPUT_LOT = 'output-lot'
     INPUT_LOT_URL = '{}/{}'.format(LOTS, INPUT_LOT)
     OUTPUT_LOT_URL = '{}/{}'.format(LOTS, OUTPUT_LOT)
+    PALLETS = 'pallets'
 
     def is_parent(self, parent_key: str or ObjectId, parent_resource_name: str, child_key: str or ObjectId,
                   child_resource_name: str):

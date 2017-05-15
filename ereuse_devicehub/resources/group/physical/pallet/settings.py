@@ -1,12 +1,11 @@
 import copy
 
 from ereuse_devicehub.resources.group.physical.settings import Physical, PhysicalSettings
-from ereuse_devicehub.resources.group.settings import place_fk, packages_fk, lots_fk, \
-    devices_fk, pallets_fk
+from ereuse_devicehub.resources.group.settings import place_fk, packages_fk, lots_fk, devices_fk
 from ereuse_devicehub.resources.schema import UnitCodes
 
 
-class Package(Physical):
+class Pallet(Physical):
     weight = {
         'type': 'float',
         'unitCode': UnitCodes.kgm,
@@ -34,21 +33,19 @@ class Package(Physical):
     ancestors = copy.deepcopy(Physical.ancestors)
     ancestors['schema']['schema']['places'] = place_fk
     ancestors['schema']['schema']['lots'] = lots_fk
-    ancestors['schema']['schema']['packages'] = packages_fk
-    ancestors['schema']['schema']['pallets'] = pallets_fk
     children = copy.deepcopy(Physical.children)
     children['schema']['packages'] = packages_fk
     children['schema']['devices'] = devices_fk
     children['schema']['components'] = devices_fk
 
 
-class PackageSettings(PhysicalSettings):
+class PalletSettings(PhysicalSettings):
     resource_methods = ['GET', 'POST']
     item_methods = ['GET', 'PATCH', 'DELETE', 'PUT']
-    _schema = Package
+    _schema = Pallet
     datasource = {
         'default_sort': [('_modified', -1)],
-        'source': 'packages'
+        'source': 'pallets'
     }
-    url = 'packages'
-    fa = 'fa-archive'
+    url = 'pallets'
+    fa = 'fa-align-justify'

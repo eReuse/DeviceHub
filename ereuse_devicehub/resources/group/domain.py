@@ -205,6 +205,7 @@ class GroupDomain(Domain):
         if not hasattr(cls, '_children_resources'):
             from ereuse_devicehub.resources.group.physical.place.domain import PlaceDomain
             from ereuse_devicehub.resources.group.physical.package.domain import PackageDomain
+            from ereuse_devicehub.resources.group.physical.pallet.domain import PalletDomain
             from ereuse_devicehub.resources.group.abstract.lot.domain import LotDomain
             from ereuse_devicehub.resources.group.abstract.lot.incoming_lot.domain import IncomingLotDomain
             from ereuse_devicehub.resources.group.abstract.lot.outgoing_lot.domain import OutgoingLotDomain
@@ -216,6 +217,7 @@ class GroupDomain(Domain):
                 IncomingLotDomain.resource_settings.resource_name(): IncomingLotDomain,
                 OutgoingLotDomain.resource_settings.resource_name(): OutgoingLotDomain,
                 ComponentDomain.resource_settings.resource_name(): ComponentDomain,
+                PalletDomain.resource_settings.resource_name(): PalletDomain
             }
             types = {DeviceDomain.resource_settings.resource_name(), ComponentDomain.resource_settings.resource_name()}
             types |= cls.resource_settings._schema.resource_names

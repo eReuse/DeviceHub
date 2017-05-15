@@ -124,6 +124,21 @@ packages_fk = {
     'unique_values': True
 }
 
+pallet_fk = {
+    'type': 'string',
+    'data_relation': {
+        'resource': 'pallets',
+        'embeddable': True,
+        'field': 'label'
+    }
+}
+
+pallets_fk = {
+    'type': 'list',
+    'schema': pallet_fk,
+    'unique_values': True
+}
+
 lot_fk = {
     'type': 'string',
     'data_relation': {

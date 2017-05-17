@@ -13,6 +13,8 @@ Export to spreadsheets
     Note that exporting is limited to PAGINATION_LIMIT (a thing to resolve when updating to next eve's version).
 
     :query ids: If resource is ``devices``, a list of device ids, otherwise a list of group labels.
+    :query type: Optional. Either ``detailed`` or ``basic``. The former retreives more information than the latter.
+                 By default it is ``detailed``.
     :reqheader Accept:
         An ordered list of mime types representing the type of returned file. It needs to be one accepted by
         pyexcel. Examples are: ``application/vnd.oasis.opendocument.spreadsheet`` for ods or

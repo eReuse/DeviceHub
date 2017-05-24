@@ -15,7 +15,7 @@ class GroupLogEntry(Thing):
             '@type': {
                 'type': 'string'
             },
-            'label': {
+            '_id': {
                 'type': 'string'
             }
         }

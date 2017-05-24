@@ -3,14 +3,6 @@ from contextlib import suppress
 from datetime import timedelta
 
 import flask_excel as excel
-from ereuse_devicehub.header_cache import header_cache
-from ereuse_devicehub.resources.account.domain import AccountDomain
-from ereuse_devicehub.resources.device.component.settings import Component
-from ereuse_devicehub.resources.device.domain import DeviceDomain
-from ereuse_devicehub.resources.group.domain import GroupDomain
-from ereuse_devicehub.resources.group.settings import Group
-from ereuse_devicehub.resources.submitter.translator import Translator
-from ereuse_devicehub.rest import execute_get
 from eve.auth import requires_auth
 from flask import request
 from inflection import humanize
@@ -19,6 +11,15 @@ from pydash import map_
 from pydash import py_
 from pyexcel_webio import FILE_TYPE_MIME_TABLE as REVERSED_FILE_TYPE_MIME_TABLE
 from werkzeug.exceptions import NotAcceptable
+
+from ereuse_devicehub.header_cache import header_cache
+from ereuse_devicehub.resources.account.domain import AccountDomain
+from ereuse_devicehub.resources.device.component.settings import Component
+from ereuse_devicehub.resources.device.domain import DeviceDomain
+from ereuse_devicehub.resources.group.domain import GroupDomain
+from ereuse_devicehub.resources.group.settings import Group
+from ereuse_devicehub.resources.submitter.translator import Translator
+from ereuse_devicehub.rest import execute_get
 
 FILE_TYPE_MIME_TABLE = dict(zip(REVERSED_FILE_TYPE_MIME_TABLE.values(), REVERSED_FILE_TYPE_MIME_TABLE.keys()))
 
@@ -43,12 +44,13 @@ def export(db, resource):
         f = py_().select(lambda d: d['@type'] not in Component.types and not d.get('placeholder', False))
         # ids are groups and we want their inner devices, each of them in a page:
         # page1 is group1 and contains its devices, page2 is group2 and contains its devices, and so on
-        for label in ids:
+        for _id in ids:
+            group = domain.get_one(_id)
             # Let's get the full devices and their components with embedded stuff
-            devices = f(domain.get_descendants(DeviceDomain, label))
+            devices = f(domain.get_descendants(DeviceDomain, _id))
             for device in devices:
                 device['components'] = get_components(device['components'], db, token)
-            spreadsheets[label] = translator.translate(devices)
+            spreadsheets[group['label']] = translator.translate(devices)
     else:
         # Let's get the full devices and their components with embedded stuff
         devices = DeviceDomain.get_in('_id', ids)

@@ -16,6 +16,7 @@ from eve.render import send_response
 from flask import json
 from flask import request
 from inflection import camelize
+from shortid import ShortId
 
 from ereuse_devicehub.aggregation.settings import aggregate_view
 from ereuse_devicehub.data_layer import DataLayer, MongoEncoder
@@ -51,6 +52,7 @@ class DeviceHub(Eve):
         self.gpg = gnupg.GPG()
         self.cache = cache
         self.cache.init_app(self)
+        self.sid = ShortId()  # Short id for groups
         self.cross_origin = flask_cors.cross_origin(origins=self.config.get('DOMAINS', '*'),
                                                     expose_headers=self.config['X_EXPOSE_HEADERS'],
                                                     allow_headers=self.config['X_HEADERS'])

@@ -90,7 +90,7 @@ def set_place(resource_name: str, events: list):
                 place = PlaceDomain.get_one(event['place'])
                 device = [event['device']] if 'device' in event else []
                 devices = uniq(place['children'].get('devices', []) + event.get('devices', []) + device)
-                patch = {'@type': 'Place', 'label': place['label'], 'children': {'devices': devices}}
+                patch = {'@type': 'Place', '_id': place['_id'], 'children': {'devices': devices}}
                 execute_patch('places', patch, identifier=place['_id'])
 
 
@@ -100,7 +100,7 @@ def unset_place(resource_name: str, event: dict):
             place = PlaceDomain.get_one(event['place'])
             device = [event['device']] if 'device' in event else []
             devices = list(set(place['children'].get('devices', [])) - set(event.get('devices', []) + device))
-            patch = {'@type': 'Place', 'label': place['label'], 'children': {'devices': devices}}
+            patch = {'@type': 'Place', '_id': place['_id'], 'children': {'devices': devices}}
             execute_patch('places', patch, event['place'])
 
 
@@ -159,15 +159,14 @@ class OnlyComponentsCanHaveParents(SchemaError):
 def fill_devices_field_from_groups(resource_name: str, events: list):
     """Gets all the devices from the passed-in groups and adds them to the 'devices' field so they are processed."""
 
-    def get_descendants(labels: list, group_name: str) -> (list, dict):
+    def get_descendants(ids: list, group_name: str) -> (list, dict):
         """Obtains devices :-)"""
         group_domain = GroupDomain.children_resources[group_name]
-
-        grouped_descendants = group_domain.get_all_descendants(labels)  # descendants per type: devices: [], lots: []
+        grouped_descendants = group_domain.get_all_descendants(ids)  # descendants per type: devices: [], lots: []
         del grouped_descendants['component']
         devices_id = grouped_descendants.pop('devices')
         devices_id = chain(devices_id).filter(lambda device: device['@type'] not in Component.types).map_('_id').value()
-        grouped_descendants = map_values(grouped_descendants, lambda descendants: map_(descendants, 'label'))
+        grouped_descendants = map_values(grouped_descendants, lambda descendants: map_(descendants, '_id'))
         return devices_id, grouped_descendants
 
     if resource_name in DeviceEvent.resource_names:
@@ -180,9 +179,9 @@ def fill_devices_field_from_groups(resource_name: str, events: list):
                 # todo try removing it after upgrading eve and cerberus
                 event['devices'] = []
                 event['originalGroups'] = copy.copy(event['groups'])
-                for group_name, labels in event['originalGroups'].items():  # So we don't iterate over changing 'groups'
+                for group_name, ids in event['originalGroups'].items():  # So we don't iterate over changing 'groups'
                     # move resources to event concatenating their arrays values
-                    devices, groups = get_descendants(labels, group_name)
+                    devices, groups = get_descendants(ids, group_name)
                     event['devices'].extend(devices)
                     # We need to add `dest or []` because https://github.com/dgilland/pydash/issues/95
                     merge(event['groups'], groups, callback=lambda dest, source: concat(dest or [], source))

@@ -144,8 +144,8 @@ class MaterializeEvents:
         DeviceDomain.update_raw(devices_id, query)
 
         # Update in groups, if any
-        for resource_name, labels in event.get('groups', {}).items():
-            GroupDomain.children_resources[resource_name].update_raw(labels, query, key='label')
+        for resource_name, ids in event.get('groups', {}).items():
+            GroupDomain.children_resources[resource_name].update_raw(ids, query)
 
 
 def check_type(_, resources: list):

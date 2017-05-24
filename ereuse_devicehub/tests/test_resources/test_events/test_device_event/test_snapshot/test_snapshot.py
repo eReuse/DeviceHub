@@ -31,19 +31,26 @@ class TestSnapshot(TestEvent, TestGroupBase):
     SNAPSHOT_URL = '{}/{}'.format(TestEvent.DEVICE_EVENT, TestEvent.SNAPSHOT)
 
     def post_snapshot(self, input_snapshot):
+        """Posts a Snapshot."""
         return self.post_and_check(self.SNAPSHOT_URL, input_snapshot)
 
-    def post_snapshot_get_full_events(self, input_snapshot, number_of_events_to_assert) -> tuple:
+    def post_snapshot_get_full_events(self, input_snapshot, number_of_events_to_assert) -> (dict, list):
+        """Pots a Snapshot and retrieves all the events generated from it."""
         snapshot = self.post_snapshot(copy.deepcopy(input_snapshot))
         self.assertEqual(len(snapshot['events']), number_of_events_to_assert)
-        events = []
-        for event_id in snapshot['events']:
-            event, status_code = self.get('events', '', event_id)
-            self.assert200(status_code)
-            events.append(event)
+        events = [self.get_and_check('events', item=event_id) for event_id in snapshot['events']]
         return snapshot, events
 
-    def creation(self, input_snapshot: dict, num_of_events: int = 1, do_second_time_snapshot=True) -> tuple:
+    def creation(self, input_snapshot: dict, num_of_events: int = 1, do_second_time_snapshot=True) -> (str, dict):
+        """
+        Posts a snapshot checking correctness.
+        :param input_snapshot: The Snapshot.
+        :param num_of_events: How many events should the snapshot create?
+        :param do_second_time_snapshot: Try performing the snapshot again. If the snapshot has an UUID the system
+        should return an error, otherwise the snapshot would be saved as a new one, but without creating any event.
+        :return: the id of the snapshot and its device.
+        """
+        # Creates
         snapshot, events = self.post_snapshot_get_full_events(input_snapshot, num_of_events)
         snapshot_id = snapshot['_id']
         self.assertLen(events, num_of_events)
@@ -51,8 +58,10 @@ class TestSnapshot(TestEvent, TestGroupBase):
         self.assertType(DeviceEventDomain.new_type('Register'), register)
         self.assertSimilarDevice(input_snapshot['device'], register['device'])
         device = self.get_and_check(self.DEVICES, item=register['device'])
+        # This could be an issue in older versions
         if 'hid' in device:
             assert_that(device['hid']).is_not_equal_to('dummy')
+        # Ensure components are consistent with what we introduced in the snapshot
         if 'components' in input_snapshot:
             self.assertSimilarDevices(input_snapshot['components'], register['components'])
         # We do a snapshot again. We should receive a new snapshot without any event on it.

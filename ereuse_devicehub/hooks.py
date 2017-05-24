@@ -109,11 +109,12 @@ def hooks(app):
     app.on_insert_devices_receive += set_organization
 
     from ereuse_devicehub.resources.group.hooks import set_children, delete_children, \
-        update_children
-    app.on_insert += set_children
-    app.on_update += update_children
-    app.on_delete_item += delete_children
-    app.on_replace += update_children
+        update_children, set_short_id
+    app.on_insert += set_short_id
+    app.on_inserted += set_children
+    app.on_updated += update_children
+    app.on_deleted_item += delete_children
+    app.on_replaced += update_children
 
     from ereuse_devicehub.resources.group.physical.place.hooks import avoid_deleting_if_has_event
     app.on_delete_item_places += avoid_deleting_if_has_event
@@ -125,7 +126,7 @@ def hooks(app):
     from ereuse_devicehub.resources.device.hooks import redirect_to_first_snapshot
     from ereuse_devicehub.resources.hooks import MaterializeEvents
     app.on_inserted += MaterializeEvents.materialize_events
-    app.on_delete_item += MaterializeEvents.dematerialize_event
+    app.on_deleted_item += MaterializeEvents.dematerialize_event
     app.on_pre_DELETE += redirect_to_first_snapshot
 
     from ereuse_devicehub.resources.hooks import set_date

@@ -1,6 +1,7 @@
 import contextlib
 import copy
 import os
+from urllib.parse import urlencode
 
 from assertpy import assert_that
 from bson.objectid import ObjectId
@@ -134,9 +135,12 @@ class TestBase(TestMinimal):
         else:
             return self.app.config['DATABASES'][0]
 
-    def get(self, resource, query='', item=None, authorize=True, database=None, embedded=None):
+    def get(self, resource, query='', item=None, authorize=True, database=None, params=None, embedded=None):
         if embedded:
-            query += ('&' if '?' in query else '?') + 'embedded=' + json.dumps(embedded)
+            params = params or {}
+            params['embedded'] = json.dumps(embedded)
+        if params:
+            query += ('&' if '?' in query else '?') + urlencode(params, True)
         if resource in self.domain:
             resource = self.domain[resource]['url']
         if item:
@@ -289,9 +293,13 @@ class TestStandard(TestBase):
             m += 'Response:\n{}'.format(response)
             raise AssertionError(m)
 
-    def get_and_check(self, resource, query='', item=None, authorize=True, database=None, embedded=None):
-        response, status_code = self.get(resource, query, item, authorize, database, embedded)
-        self.assert200(status_code)
+    def get_and_check(self, resource, query='', item=None, authorize=True, database=None, params=None, embedded=None):
+        response, status_code = self.get(resource, query, item, authorize, database, params, embedded)
+        try:
+            self.assert200(status_code)
+        except AssertionError:
+            text = '{} when HTTP 200 expected, resource {} q {} item {} params {} embedded {}'
+            raise AssertionError(text.format(status_code, resource, query, item, params, embedded))
         return response
 
     def get_fixtures_computers(self) -> list:
@@ -307,14 +315,14 @@ class TestStandard(TestBase):
         mounted = self.get_fixture(self.SNAPSHOT, 'mounted')
         mounted['device']['forceCreation'] = True
         mounted = self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), mounted)
-        return [self.get(self.EVENTS, '', event['events'][0])[0]['device'] for event in [vaio, vostro, xps13, mounted]]
+        return [self.get_and_check(self.EVENTS, item=event['events'][0])['device'] for event in [vaio, vostro, xps13, mounted]]
 
     def devices_do_not_contain_places(self, device_id: str):
         """ The opposite of `device_and_place_contain_each_other`."""
-        device, _ = self.get(self.DEVICES, '', device_id)
+        device = self.get_and_check(self.DEVICES, item=device_id)
         assert_that(device).does_not_contain('place')
         for component_id in device.get('components', []):
-            component, _ = self.get(self.DEVICES, '', component_id)
+            component = self.get_and_check(self.DEVICES, item=component_id)
             assert_that(component).does_not_contain('place')
 
     def set_superuser(self):

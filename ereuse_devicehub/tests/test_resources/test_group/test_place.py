@@ -21,7 +21,7 @@ class TestPlace(TestGroupBase):
         self.place['children'] = {'devices': [computers_id[0]]}
         label = self.place['label']
         place = self.post_and_check(self.PLACES, self.place)
-        self.is_parent(label, self.PLACES, computers_id[0], self.DEVICES)
+        self.is_parent(place['_id'], self.PLACES, computers_id[0], self.DEVICES)
         # Let's PATCH de place with the device 1 and 2
         patched_place = {
             '_id': place['_id'],
@@ -32,16 +32,16 @@ class TestPlace(TestGroupBase):
         self.patch_and_check('{}/{}'.format(self.PLACES, place['_id']), patched_place)
         # Now we have computers 0, 1 and 2
         for computer_id in computers_id[:2]:
-            self.is_parent(label, self.PLACES, computer_id, self.DEVICES)
+            self.is_parent(place['_id'], self.PLACES, computer_id, self.DEVICES)
         # Let's PUT adding the last device
         place = copy.deepcopy(self.place)  # We do not want any readonly values
         place['_id'] = patched_place['_id']
         place['children']['devices'] = computers_id
         self.put('{}/{}'.format(self.PLACES, place['_id']), place)
         for computer_id in computers_id:
-            self.is_parent(label, self.PLACES, computer_id, self.DEVICES)
+            self.is_parent(place['_id'], self.PLACES, computer_id, self.DEVICES)
         # Finally, let's remove the entire place. Devices must loose their place
         self.delete_and_check('{}/{}'.format(self.PLACES, place['_id']))
         for computer_id in computers_id:
-            self.child_does_not_have_parent(label, self.PLACES, computer_id, self.DEVICES)
+            self.child_does_not_have_parent(place['_id'], self.PLACES, computer_id, self.DEVICES)
 

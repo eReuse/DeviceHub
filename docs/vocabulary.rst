@@ -32,10 +32,12 @@ Device partly extends IndividualProduct, from Schema.org. The result is a class 
 device (width, weight...), identifiers (serial number, HID, synthetic identifier, URL...), and other metadata
 (model, manufacturer name...). Device is extended by:
 
-- :ref:`ComputerMonitor`
-- :ref:`Mobile`: smartphones and tablets, for which we can record the IMEI and MEID.
-- :ref:`Computer`: Desktop, laptops, servers...
+- :ref:`ComputerMonitor`. Subtypes are: ``CRT``, ``LCD``, ``LED``, ``OLED``, ``Plasma``.
+- :ref:`Mobile`: smartphones and tablets, for which we can record the IMEI and MEID. Subtypes are ``Smartphone``, ``Tablet``.
+- :ref:`Computer`: Subtypes are ``Desktop``, ``Laptop``, ``Netbook``, ``Server``, ``Microtower``.
 - :ref:`Peripheral`: a wildcard for any “device that is used to put information into or get information out of the computer”.
+  Subtypes are ``Router``,``Switch``, ``Printer``, ``Scanner``, ``MultifunctionPrinter``, ``Terminal``, ``HUB``, ``SAI``,
+  ``Keyboard``, ``Mouse``, ``WirelessAccessPoint``, ``LabelPrinter``, ``Projector``, ``VideoconferenceDevice``.
 - :ref:`Component`
 
     - :ref:`GraphicCard`: Future work is to incorporate, or to link to existing benchmarks about the model of graphic card.

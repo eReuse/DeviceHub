@@ -50,7 +50,7 @@ class Domain:
 
     @classmethod
     @mongo_encode('operation')
-    def update_raw(cls, ids: str or ObjectId or list, operation: dict, key='_id'):
+    def update_raw(cls, ids: str or ObjectId or list, operation: dict):
         """
         Sets the properties of a resource using directly the database layer.
         :param ids:
@@ -60,7 +60,7 @@ class Domain:
         resources_id = [ids] if type(ids) is str or type(ids) is ObjectId else ids
         count = 0
         for resource_id in resources_id:
-            count += cls.collection.update_one({key: resource_id}, operation).modified_count
+            count += cls.collection.update_one({'_id': resource_id}, operation).modified_count
         return count
 
     @classmethod

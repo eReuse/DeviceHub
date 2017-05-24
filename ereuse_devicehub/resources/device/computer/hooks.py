@@ -1,6 +1,5 @@
 from collections import defaultdict
 
-from flask import current_app
 from pydash import is_empty
 
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
@@ -70,4 +69,4 @@ def inherit_group(computer_ancestors_id: list, components_id: list):
         ComponentDomain.update_raw(components_id, {'$set': {'ancestors': computer_ancestors_id}})
         for parent in computer_ancestors_id:
             query = {'$addToSet': {'children.components': components_id}}
-            GroupDomain.children_resources[Naming.resource(parent['@type'])].update_one_raw(parent['label'], query)
+            GroupDomain.children_resources[Naming.resource(parent['@type'])].update_one_raw(parent['_id'], query)

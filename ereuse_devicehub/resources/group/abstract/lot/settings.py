@@ -11,6 +11,8 @@ class Lot(Abstract):
         'type': 'dict',
         'schema': Policies()
     }
+    label = copy.copy(Abstract.label)
+    label['required'] = True
     ancestors = copy.deepcopy(Abstract.ancestors)
     ancestors['schema']['schema']['places'] = place_fk
     ancestors['schema']['schema']['lots'] = lots_fk

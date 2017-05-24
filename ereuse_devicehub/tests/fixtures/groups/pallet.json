@@ -1,6 +1,5 @@
 {
   "@type": "Pallet",
-  "label": "pallet",
   "children": {
     "devices": []
   }

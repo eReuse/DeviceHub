@@ -27,21 +27,21 @@ class TestLot(TestGroupBase):
             '@type': 'Lot',
             'children': {'devices': computers_id}
         }
-        self.patch_and_check('{}/{}'.format(self.LOTS, lot_id), copy.deepcopy(patched_lot))
+        lot1_id = self.patch_and_check('{}/{}'.format(self.LOTS, lot_id), copy.deepcopy(patched_lot))['_id']
         for computer_id in computers_id:
-            self.is_parent('lot1', self.LOTS, computer_id, self.DEVICES)
+            self.is_parent(lot1_id, self.LOTS, computer_id, self.DEVICES)
 
         # Let's just make another patch removing a device
         removed_device = patched_lot['children']['devices'].pop(-1)
         self.patch_and_check('{}/{}'.format(self.LOTS, lot_id), patched_lot)
         # All the computers except the last one are accounted
         for computer_id in computers_id[:-1]:
-            self.is_parent('lot1', self.LOTS, computer_id, self.DEVICES)
+            self.is_parent(lot1_id, self.LOTS, computer_id, self.DEVICES)
         self.is_not_parent(lot_id, self.LOTS, removed_device, self.DEVICES)
         # Finally let's remove the entire lot; devices must loose their place
         self.delete_and_check('{}/{}'.format(self.LOTS, lot_id))
         for computer_id in computers_id:
-            self.child_does_not_have_parent('lot1', self.LOTS, computer_id, self.DEVICES)
+            self.child_does_not_have_parent(lot_id, self.LOTS, computer_id, self.DEVICES)
 
     def test_lot_moving_devices(self):
         """Creates two lots (input and output) and moves multiple devices from one to another"""
@@ -60,16 +60,16 @@ class TestLot(TestGroupBase):
         patched_input = {'@type': 'IncomingLot', 'children': {'devices': computers_id}}
         self.patch_and_check('{}/{}'.format(self.LOTS, input_id), patched_input)
         for computer_id in computers_id:
-            self.is_parent(input_label, self.LOTS, computer_id, self.DEVICES)
+            self.is_parent(input_id, self.LOTS, computer_id, self.DEVICES)
 
         # Let's add them to the output lot
         patched_output = {'@type': 'OutgoingLot', 'children': {'devices': computers_id}}
         self.patch_and_check('{}/{}'.format(self.LOTS, output_id), patched_output)
         for computer_id in computers_id:
-            self.is_parent(output_label, self.LOTS, computer_id, self.DEVICES)
+            self.is_parent(output_id, self.LOTS, computer_id, self.DEVICES)
         # They are in the first lot too
         for computer_id in computers_id:
-            self.is_parent(input_label, self.LOTS, computer_id, self.DEVICES)
+            self.is_parent(input_id, self.LOTS, computer_id, self.DEVICES)
 
             # And now with input/output lots
             # Devices can have only one input/output lot at the same time as parent

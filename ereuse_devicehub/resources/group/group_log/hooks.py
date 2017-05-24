@@ -17,7 +17,7 @@ def add_group_change_to_log(_, updated: dict, original: dict):
         upd = updated.get('children', {})
         entry = {
             '@type': UpdateGroupLogEntry.type_name,
-            'parent': pick(original if '@type' in original else updated, '@type', 'label'),
+            'parent': pick(original if '@type' in original else updated, '@type', '_id'),
             # Compute the difference between updated and original, removing empty '[]'
             'added': omit(map_values(RESOURCES, lambda _, t: difference(upd.get(t, []), orig.get(t, []))), is_empty),
             'removed': omit(map_values(RESOURCES, lambda _, t: difference(orig.get(t, []), upd.get(t, []))), is_empty)

@@ -15,7 +15,7 @@ class TestLocate(TestDeviceEvent, TestGroupBase):
         locate = self.post_and_check(self.POST_LOCATE, locate)
         # Let's check the place has been correctly materialized in the devices
         for device_id in self.devices_id:
-            self.is_parent(self.place['label'], self.PLACES, device_id, self.DEVICES)
+            self.is_parent(self.place['_id'], self.PLACES, device_id, self.DEVICES)
         return locate
 
     def test_delete(self):
@@ -49,7 +49,7 @@ class TestLocate(TestDeviceEvent, TestGroupBase):
         for device_id in self.devices_id:
             device, _ = self.get(self.DEVICES, item=device_id)
             place, _ = self.get(self.PLACES, item=place['_id'])
-            self.is_parent(place['label'], self.PLACES, device_id, self.DEVICES)
+            self.is_parent(place['_id'], self.PLACES, device_id, self.DEVICES)
             assert_that(device['events'][0]).is_subset_of(locate)
 
     def test_monitor(self):
@@ -71,5 +71,5 @@ class TestLocate(TestDeviceEvent, TestGroupBase):
         # Let's assure that the materializations of computerMonitor are correct
         computer_monitor, _ = self.get(self.DEVICES, '', snapshot['device'])
         place, _ = self.get(self.PLACES, item=place['_id'])
-        self.is_parent(place['label'], self.PLACES, computer_monitor['_id'], self.DEVICES)
+        self.is_parent(place['_id'], self.PLACES, computer_monitor['_id'], self.DEVICES)
         assert_that(computer_monitor['events'][0]).is_subset_of(locate)

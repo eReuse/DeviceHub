@@ -65,7 +65,10 @@ class TestDeviceEventBasic(TestStandard):
         package = self.post_and_check(self.PACKAGES, package)
         # Let's post the event
         READY_URL = '{}/{}'.format(self.DEVICE_EVENT, 'ready')
-        ready = self.post_fixture(self.GROUPS, READY_URL, 'ready')
+        ready = self.get_fixture(self.GROUPS, 'ready')
+        ready['groups']['lots'] = [lot['_id']]
+        ready['groups']['packages'] = [package['_id']]
+        ready = self.post_and_check(READY_URL, ready)
 
         self._check(lot['_id'], package['_id'], computers_id, ready['_id'])
 
@@ -81,10 +84,10 @@ class TestDeviceEventBasic(TestStandard):
         package['children']['devices'].append(snapshot['device'])
         self.patch_and_check(self.PACKAGES, item=package['_id'], payload=pick(package, 'children', '@type'))
         # adding package inside lot and event with only lot. The event should be done to package and its devices
-        lot['children']['packages'] = ['package']
+        lot['children']['packages'] = [package['_id']]
         self.patch_and_check(self.LOTS, item=lot['_id'], payload=pick(lot, 'children', '@type'))
         receive = self.get_fixture('receive', 'receive')
-        receive['groups'] = {'lots': ['lot']}
+        receive['groups'] = {'lots': [lot['_id']]}
         receive['receiver'] = self.get_first('accounts')['_id']
         receive = self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, 'receive'), receive)
 
@@ -96,14 +99,14 @@ class TestDeviceEventBasic(TestStandard):
         _, status = self.patch(self.PACKAGES, item=package['_id'], data=pick(package, 'children', '@type'))
         self.assert422(status)
 
-    def _check(self, lot_id: ObjectId, package_id: ObjectId, computers_id: list, event_id: ObjectId):
+    def _check(self, lot_id: str, package_id: str, computers_id: list, event_id: ObjectId):
         """Checks that the event contains the devices and groups, and otherwise."""
         event = self.get_and_check(self.EVENTS, item=event_id)
         materialized_event = pick(event, *MaterializeEvents.FIELDS)
         lot = self.get_and_check(self.LOTS, item=lot_id)
         package = self.get_and_check(self.PACKAGES, item=package_id)
         # Both event and groups contain each other
-        assert_that(event['groups']).has_lots([lot['label']]).has_packages([package['label']])
+        assert_that(event['groups']).has_lots([lot_id]).has_packages([package_id])
         lot = self.get_and_check(self.LOTS, item=lot['_id'])
         assert_that(lot['events']).contains(materialized_event)
         package = self.get_and_check(self.PACKAGES, item=package['_id'])

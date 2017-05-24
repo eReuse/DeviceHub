@@ -22,6 +22,8 @@ class Place(Physical):
         'type': 'string',
         'allowed': {'Department', 'Zone', 'Warehouse', 'CollectionPoint'}
     }
+    label = copy.copy(Physical.label)
+    label['required'] = True
     ancestors = copy.deepcopy(Physical.ancestors)
     ancestors['schema']['schema']['places'] = places_fk
     children = copy.deepcopy(Physical.children)

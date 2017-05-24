@@ -33,12 +33,12 @@ class TestExport(TestStandard):
         inner_lot = self.get_fixture('groups', 'lot')
         inner_lot['label'] = 'inner lot'
         inner_lot['children']['devices'] = computers_id[0:2]
-        self.post_and_check('lots', inner_lot)
+        inner_lot = self.post_and_check('lots', inner_lot)
         lot = self.get_fixture('groups', 'lot')
         lot['children']['devices'] = computers_id[2:4]
-        lot['children']['lots'] = ['inner lot']  # Inner lot is inside lot
-        self.post_and_check('lots', lot)
-        book_dict = self._get_spreadsheet('lots', ['lot', 'inner lot'])
+        lot['children']['lots'] = [inner_lot['_id']]  # Inner lot is inside lot
+        lot = self.post_and_check('lots', lot)
+        book_dict = self._get_spreadsheet('lots', [lot['_id'], inner_lot['_id']])
         assert_that(book_dict).contains_only('inner lot', 'lot')
         # Inner lot has devices 1, 11, and lot has 25 and 35, plus the ones of 'inner lot'
         get_ids = py_().map_(lambda row: row[0])

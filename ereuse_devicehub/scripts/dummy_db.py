@@ -51,16 +51,16 @@ class DummyDB:
             package = self.test.get_fixture(self.test.PACKAGES, 'package')
             package['label'] = 'package' + str(i)
             package['children'] = {'devices': [computer]}
-            self.test.post_and_check(self.test.PACKAGES, package)
+            package_id = self.test.post_and_check(self.test.PACKAGES, package)['_id']
             lot = self.test.get_fixture(self.test.LOTS, 'lot')
             lot['label'] = 'lot' + str(i)
-            lot['children'] = {'packages': ['package' + str(i)]}
-            self.test.post_and_check(self.test.LOTS, lot)
+            lot['children'] = {'packages': [package_id]}
+            lot_id = self.test.post_and_check(self.test.LOTS, lot)['_id']
             place = self.test.get_fixture(self.test.PLACES, 'place')
             place['label'] = 'place' + str(i)
             place['geo'] = utils.generate_random(Polygon.__name__)
             # Remember that we need to explicitly add the package to the place
-            place['children'] = {'lots': ['lot' + str(i)], 'packages': ['package' + str(i)]}
+            place['children'] = {'lots': [lot_id], 'packages': [package_id]}
             self.test.post_and_check(self.test.PLACES, place)
 
         self.test.post_fixture(self.test.LOTS, self.test.LOTS, 'lot')

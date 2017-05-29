@@ -89,7 +89,7 @@ There are the following events:
 - :ref:`devices-Ready`: A device is ready when it has been assured that it works correctly.
 - :ref:`devices-Receive`: The receiver, a user or an organization, confirms that the device has arrived. There are the following types of reception: RecyclingPoint, CollectionPoint and FinalUser.
 - :ref:`devices-Recycle`: The device has been recycled. This is the end of its lifetime.
-- :ref:`devices-Register`: The device has been registered (created) on the system. This event cannot be triggered directly; use :ref:`devices-Snapshot` instead.
+- :ref:`devices-Register`: The device has been registered (created) on the system.
 - :ref:`devices-Reject`: A user or an organization refuses a ToAllocate done to it.
 - :ref:`devices-Remove`: A component has been removed from a device.
 - :ref:`devices-Repair`: A device has been repaired.

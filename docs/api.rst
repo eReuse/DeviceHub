@@ -16,6 +16,7 @@ Perform ``POST /login`` with the email and password fields filled::
 
     POST /login
     Content-Type: application/json
+    Accept: application/json
     {
         "email": "example@example.com",
         "password": "example"
@@ -25,8 +26,8 @@ Upon success, you will be answered with the account object, containing a Token f
 
     {
       "databases": [
-        "example_database",
-        "example_database_2"
+        "database1",
+        "database2"
       ],
       "defaultDatabase": "example_database",
       "password": "sha256 codified password",
@@ -38,7 +39,34 @@ Upon success, you will be answered with the account object, containing a Token f
     }
 
 From this moment, any other following operation against the API will require the following HTTP Header:
-``Authorization: Basic token``.
+``Authorization: Basic token``. This is, the word **Basic** followed with a **space** and then the **token**,
+obtained from the account object above, **exactly as it is**.
+
+Authenticate requests
+---------------------
+To explain how to operate with resources like events or devices, we use one as an example: obtaining a particular
+device. The template of a request is::
+
+   GET <database>/devices/<deviceId>
+   Accept: application/json
+   Authorization: Basic <token>
+
+And an example is::
+
+    GET acme/devices/1
+    Accept: application/json
+    Authorization: Basic myToken
+
+Let's go through the variables:
+
+- ``<database>`` is the name of the database (so called inventory) where you operate.
+  You get this value from the ``Account`` object returned from the login. The ``databases`` field contains
+  a set of databases the account can operate with, and ``defaultDatabase`` the one a client should use per default.
+  DeviceHubClient and the app use ``defaultDatabase`` per default and let the user change the current database using
+  a selector. In the example we use the database ``acme``.
+- ``<deviceId>`` is the identifier of the device.
+- ``<token>`` is the token of the account. We get it, as with ``databases``, from the ``Account`` object after
+  performing login.
 
 Filter, order, embed, and project
 =================================
@@ -151,12 +179,7 @@ You have some real example to catch-on fast.
 
 Device
 ------
-The following example illustrates how to retreive a resource, like a device. The request is::
-
-    GET /devices/1
-    Accept: application/json
-    Authorization: Basic myToken
-
+The following example illustrates how to retreive a resource, like a device.
 And the result::
 
     {
@@ -255,6 +278,65 @@ The following example shows two things, first the structure when GET collection 
       ]
     }
 
+Creating a device
+=================
+To create a device you need to create (to post) an event. In DeviceHub, you usually don't work directly through devices,
+but perform events on them –we feed the traceability log with events.
+
+To create a device you do it through the event :ref:`devices-Register`. Register internally POST a device, so
+``Register`` is only **performed once per device**. ``Register`` is used when creating a device manually through
+DeviceHubClient, but not when using Workbench or the App. This is because in the Workbench, for example, we
+collect information of the device; we don't know if the device existed before,
+we only want to update the information DeviceHub has from such device (for example, if a component changed). Because
+of this, in this case we use the event :ref:`devices-Snapshot`. ``Snapshot`` updates the information a DeviceHub
+has from the device, performing internally ``Register`` and other events if needed.
+
+
+To just create a device, like a placeholder, use ``Register`` (and avoid two events). To update information of
+a device, including benchmarks, erasures... and possibly a Register, use ``Snapshot``.
+
+See in :ref:`event` a definition for ``Register`` and ``Snapshot``.
+
+Snapshot
+--------
+An example of a Snapshot is::
+
+    POST <database>/events/devices/snapshot
+    Content-type: application/json
+    Accept: application/json
+    Authorization: Basic <token>
+
+You have an example of the body of a Snapshot request
+`here <https://github.com/eReuse/DeviceHub/blob/master/ereuse_devicehub/tests/fixtures/snapshot/8a1.json>`_.
+
+DeviceHub requires the device in the ``device`` property (not its components) to generate a HID.
+This is, the computer has a S/N, model and manufacturer. Otherwise the computer is rejected (``HTTP 422``).
+
+.. todo:: Show response for 422 NeedsId
+
+A device can be accepted even if some rules are broken. If such case, DeviceHub will response with information about
+the broken rules. As an example (see the ``ruling`` property)::
+
+   HTTP 201
+   Content-Type: application-json
+   {
+      "device": "1",
+      "_id": "xxxxxxxxxxxxxxxxx",
+      "@type": "devices:Snapshot",
+      "components": [],
+      "events": [],
+      "ruling": {
+         "status": "error",
+         "label": "",
+         "description": "",
+         "color": ""
+      }
+      "_status": "OK"
+      "_created": "1492-01-01T00:00:00",
+      "_updated": "1492-01-01T00:00:00",
+   }
+
+.. todo:: rules are an unimplemented proposal that can be changed
 
 Deleting resources
 ==================
@@ -263,7 +345,7 @@ can modify it and delete it? So, we usually don't let deleting anything. However
 an event or device if:
 
 - It has been created in lesser than X seconds (per default, 10 minutes). We only want to allow deleting for
-  correcting human mistakes ("ups! I forgot to add a field to that event!").
+  correcting human mistakes (*"I forgot to add a field to that event!"*).
 - In the case of deleting an event:
 
   - It is the last event performed on all of the devices it affects, unless it is a Snapshot and all the events

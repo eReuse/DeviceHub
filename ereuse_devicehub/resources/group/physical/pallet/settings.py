@@ -47,8 +47,6 @@ class Pallet(Physical):
 
 
 class PalletSettings(PhysicalSettings):
-    resource_methods = ['GET', 'POST']
-    item_methods = ['GET', 'PATCH', 'DELETE', 'PUT']
     _schema = Pallet
     datasource = {
         'default_sort': [('_modified', -1)],

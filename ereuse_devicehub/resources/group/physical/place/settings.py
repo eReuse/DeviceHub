@@ -68,8 +68,6 @@ class Place(Physical):
 
 
 class PlaceSettings(PhysicalSettings):
-    resource_methods = ['GET', 'POST']
-    item_methods = ['GET', 'PATCH', 'DELETE', 'PUT']
     _schema = Place
     datasource = {
         'default_sort': [('_modified', -1)],

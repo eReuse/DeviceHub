@@ -1,4 +1,5 @@
 import copy
+
 import pymongo
 
 from ereuse_devicehub.resources import events_pk_schema
@@ -82,7 +83,7 @@ class Group(Thing):
 
 class GroupSettings(ResourceSettings):
     resource_methods = ['GET', 'POST']
-    item_methods = ['GET', 'PATCH', 'DELETE', 'PUT']
+    item_methods = ['GET', 'PATCH', 'PUT', 'DELETE']
     _schema = Group
     datasource = {
         'default_sort': [('_created', -1)],
@@ -94,8 +95,6 @@ class GroupSettings(ResourceSettings):
         'Group: updated': [('_updated', pymongo.DESCENDING)],
         'Group: updated, label': [('label', pymongo.TEXT), ('_updated', pymongo.DESCENDING)],
     }
-
-
 
 
 place_fk = {

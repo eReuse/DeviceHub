@@ -43,8 +43,6 @@ class Package(Physical):
 
 
 class PackageSettings(PhysicalSettings):
-    resource_methods = ['GET', 'POST']
-    item_methods = ['GET', 'PATCH', 'DELETE', 'PUT']
     _schema = Package
     datasource = {
         'default_sort': [('_modified', -1)],

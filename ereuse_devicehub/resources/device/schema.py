@@ -72,7 +72,7 @@ class Device(IndividualProduct):
         'type': 'string',
         'unique': True,
         'sink': 5,
-        'short': 'Platform ID',
+        'short': 'PID',
         'description': 'The PID identifies a device under a circuit or platform.',
         'uid': True,
         'externalSynthetic': True
@@ -80,7 +80,7 @@ class Device(IndividualProduct):
     rid = {
         'type': 'string',
         'unique': True,
-        'short': 'Receiver ID',
+        'short': 'RID',
         'description': 'The Receiver ID is the internal identifier a Refurbisher uses.',
         'uid': True,
         'externalSynthetic': True
@@ -88,7 +88,7 @@ class Device(IndividualProduct):
     gid = {
         'type': 'string',
         'unique': True,
-        'short': 'Giver ID',
+        'short': 'GID',
         'description': 'The Giver ID links the device to the giver\'s (donor, seller) internal inventory.',
         'uid': True,
         'externalSynthetic': True

@@ -33,7 +33,7 @@ class Computer(Device):
         'type': 'float',
         'materialized': True,
         'description': 'The total amount of hard-drive capacity the computer has.',
-        'short': 'Capacity',
+        'short': 'HDD',
         'unitCode': UnitCodes.mbyte,
         'default': 0,
         'sink': 1

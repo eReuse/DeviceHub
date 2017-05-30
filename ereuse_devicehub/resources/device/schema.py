@@ -54,7 +54,6 @@ class Device(IndividualProduct):
         'unique': True,
         'device_id': True,
         'sink': 4,
-        'teaser': False,
         'short': 'ID',
         'description': 'The System ID, or simply ID, is an easy-to-read internal id.',
         'uid': True

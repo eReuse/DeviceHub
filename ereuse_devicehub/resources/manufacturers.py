@@ -16,6 +16,13 @@ class Manufacturer(Organization):
 
 
 class ManufacturerSettings(ResourceSettings):
+    """
+    Manufacturers don't have pagination, so if we do GET /manufacturers we obtain *all* manufacturers. To fetch
+    manufacturers in a typeahead we can still do GET /manufactures?max_results=6.
+    
+    Not having pagination enables to get all manufactures in a GET and speeds up eve, as it does not need to count
+    totals nor pages.
+    """
     _schema = Manufacturer
     resource_methods = ['GET']
     item_methods = ['GET']
@@ -27,8 +34,8 @@ class ManufacturerSettings(ResourceSettings):
         'source': 'manufacturers',
         'default_sort': [('label', pymongo.ASCENDING)]
     }
-
-    cache_control = 'max-age={}, public'.format(3 * 24 * 60 * 60)
+    pagination = False
+    cache_control = 'max-age={}, public'.format(7 * 24 * 60 * 60)
     mongo_indexes = {
         'Man: label': [('label', pymongo.TEXT)]
     }

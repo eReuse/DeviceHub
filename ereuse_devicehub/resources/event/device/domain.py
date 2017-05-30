@@ -63,9 +63,14 @@ class DeviceEventDomain(EventDomain):
         return Naming.new_type(type_name, DeviceEvent._settings['prefix'])
 
     @staticmethod
-    def get_first_snapshot(device_id: str):
+    def get_first_event(resource_type: str, device_id: str) -> dict:
+        """
+        Gets the first event of type resource_type that was performed on the device_id.
+        :raise EventNotFound: If no event of such type has been performed on the device.
+        """
         return DeviceEventDomain.get_one(
-            {'$query': {'device': device_id, '@type': 'devices:Snapshot'}, '$orderby': {'_created': pymongo.ASCENDING}})
+            {'$query': {'device': device_id, '@type': resource_type}, '$orderby': {'_created': pymongo.ASCENDING}}
+        )
 
     @classmethod
     def devices_id(cls, event: dict, fields=('device', 'devices')) -> list:

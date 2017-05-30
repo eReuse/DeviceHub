@@ -1,14 +1,16 @@
 from bson import ObjectId
+from eve.utils import document_etag
+from flask import current_app
+from pydash import find
+
 from ereuse_devicehub.exceptions import RequestAnother, StandardError
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.migrate.settings import Migrate
+from ereuse_devicehub.resources.event.domain import EventNotFound
 from ereuse_devicehub.rest import execute_delete
 from ereuse_devicehub.utils import Naming
-from eve.utils import document_etag
-from flask import current_app
-from pydash import find
 
 
 def generate_etag(resource: str, items: list):
@@ -91,14 +93,22 @@ def avoid_deleting_if_device_has_migrate(resource_name: str, device: dict):
             raise DeviceHasMigrate(event['_id'], device['_id'])
 
 
-def redirect_to_first_snapshot(resource, request, lookup):
+def redirect_to_first_snapshot_or_register(resource, _, lookup):
     """
-    DELETE /device should be an internal method, but it is open to redirect to the door that is going to effictevely
-    delete the device; this is the first Snapshot that made the Register that made the device.
+    DELETE /device should be an internal method, but it is open to redirect to the door that is going to effectively
+    delete the device; this is, or the first Snapshot that made the Register that made the device, or directly
+    such Register, if the device was not created through a Snapshot.
     """
+    # todo can we just always go to the first Register regardless the device was created with a Snapshot or not?
+    def _redirect_to_first_event(event_resource_name: str):
+        event_id = str(DeviceEventDomain.get_first_event(event_resource_name, lookup['_id'])['_id'])
+        execute_delete(Naming.resource(event_resource_name), event_id)
+
     if resource in Device.resource_names:
-        snapshot_id = str(DeviceEventDomain.get_first_snapshot(lookup['_id'])['_id'])
-        execute_delete(Naming.resource('devices:Snapshot'), snapshot_id)
+        try:
+            _redirect_to_first_event('devices:Snapshot')
+        except EventNotFound:
+            _redirect_to_first_event('devices:Register')
         raise RequestAnother('', 204)
 
 

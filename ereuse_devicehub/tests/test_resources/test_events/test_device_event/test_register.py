@@ -48,3 +48,8 @@ class TestRegister(TestEvent, TestGroupBase):
             device = self.get_and_check(self.DEVICES, item=device_id)
             assert_that(device['@type']).is_equal_to('Device')
             assert_that(device).has_placeholder(True)
+        # Let's delete one placeholder
+        _, status = self.delete(self.DEVICES, item='2')
+        self.assert204(status)
+        _, status = self.get('devices', item='2')
+        self.assert404(status)

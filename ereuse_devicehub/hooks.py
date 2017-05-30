@@ -123,11 +123,11 @@ def hooks(app):
     app.on_insert_devices_live += save_ip
 
     # Device materializations
-    from ereuse_devicehub.resources.device.hooks import redirect_to_first_snapshot
+    from ereuse_devicehub.resources.device.hooks import redirect_to_first_snapshot_or_register
     from ereuse_devicehub.resources.hooks import MaterializeEvents
     app.on_inserted += MaterializeEvents.materialize_events
     app.on_deleted_item += MaterializeEvents.dematerialize_event
-    app.on_pre_DELETE += redirect_to_first_snapshot
+    app.on_pre_DELETE += redirect_to_first_snapshot_or_register
 
     from ereuse_devicehub.resources.hooks import set_date
     app.on_insert += set_date

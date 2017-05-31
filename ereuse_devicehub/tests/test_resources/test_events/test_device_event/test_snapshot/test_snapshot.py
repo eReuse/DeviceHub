@@ -700,3 +700,19 @@ class TestSnapshot(TestEvent, TestGroupBase):
         snapshot_component['parent'] = 'this id does not exist'
         _, status = self.post(self.SNAPSHOT_URL, snapshot_component)
         self.assert422(status)
+
+    def test_9(self):
+        """Tests an eReuse.org Workbench 9 file."""
+        snapshot = self.post_fixture(self.SNAPSHOT, self.SNAPSHOT_URL, '9')
+        snapshot = self.get_and_check(self.SNAPSHOT_URL, item=snapshot['_id'])
+        assert_that(snapshot).has_autoUploaded(True).has_date('2017-05-25T12:03:45').has_osInstallation({
+            "elapsed": "1:38:26",
+            "label": "linux-mint-1801-ca.fsa",
+            "success": True
+        }).has_tests([
+            {
+                "elapsed": "1:38:26",
+                "success": True,
+                "@type": "StressTest"
+            }
+        ])

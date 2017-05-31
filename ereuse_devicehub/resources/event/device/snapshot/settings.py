@@ -137,6 +137,56 @@ class Snapshot(EventWithOneDevice):
         'doc': 'Disabled for now as incoming lot provides this functionality, want to see if it is really needed.',
         'readonly': True
     }
+    elapsed = {
+        'type': 'time'
+    }
+    osInstallation = {
+        'type': 'dict',
+        'schema': {
+            'elapsed': {
+                'type': 'time',
+            },
+            'label': {
+                'type': 'string'
+            },
+            'success': {
+                'type': 'boolean'
+            }
+        }
+    }
+    tests = {
+        'type': 'list',
+        'schema': {
+            'type': 'dict',
+            'schema': {
+                'elapsed': {
+                    'type': 'time'
+                },
+                'success': {
+                    'type': 'boolean'
+                },
+                '@type': {
+                    'type': 'string',
+                    'allowed': ['StressTest']
+                }
+            }
+        }
+    }
+    inventory = {
+        'type': 'dict',
+        'schema': {
+            'elapsed': {
+                'type': 'time'
+            }
+        }
+    }
+    date = {
+        'type': 'datetime'
+    }
+    autoUploaded = {
+        'type': 'boolean',
+        'default': False
+    }
 
     @classmethod
     def _clean(cls, attributes: dict, attributes_to_remove: tuple = None) -> dict:

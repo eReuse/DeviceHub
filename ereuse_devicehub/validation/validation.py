@@ -2,6 +2,9 @@ import copy
 from contextlib import suppress
 from distutils import version
 
+import datetime
+from uuid import UUID
+
 import validators
 from bson import json_util, ObjectId
 from bson.errors import InvalidId
@@ -211,7 +214,9 @@ class DeviceHubValidator(Validator):
 
     def _validate_type_uuid(self, field, value):
         """Validates that the value is an UUID."""
-        if not validators.uuid(value):
+        try:
+            UUID(value)
+        except ValueError:
             self._error(field, errors.ERROR_BAD_TYPE.format('uuid'))
 
     def _validate_type_version(self, field, value):
@@ -220,6 +225,13 @@ class DeviceHubValidator(Validator):
             version.StrictVersion(value)
         except ValueError:
             self._error(field, '{} is not a valid python strict version.'.format(value))
+
+    def _validate_type_time(self, field, value):
+        """Validates and **coerces** time (this is, modifies the value with a time() object)"""
+        try:
+            datetime.datetime.strptime(value, '%H:%M:%S')
+        except ValueError:
+            self._error(field, '{} is not a valid time (HH:MM:SS)'.format(value))
 
     def _validate_sink(self, nothing, field, value):
         """Order fields by setting a priority value, where the field with lowest value 'sinks' to the bottom."""

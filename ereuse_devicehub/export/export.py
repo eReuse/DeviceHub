@@ -50,7 +50,7 @@ def export(db, resource):
             devices = f(domain.get_descendants(DeviceDomain, _id))
             for device in devices:
                 device['components'] = get_components(device['components'], db, token)
-            spreadsheets[group['label']] = translator.translate(devices)
+            spreadsheets[group.get('label', group['_id'])] = translator.translate(devices)
     else:
         # Let's get the full devices and their components with embedded stuff
         devices = DeviceDomain.get_in('_id', ids)

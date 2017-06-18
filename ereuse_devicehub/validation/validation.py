@@ -1,8 +1,7 @@
 import copy
+import datetime
 from contextlib import suppress
 from distutils import version
-
-import datetime
 from uuid import UUID
 
 import validators
@@ -230,7 +229,7 @@ class DeviceHubValidator(Validator):
         """Validates and **coerces** time (this is, modifies the value with a time() object)"""
         try:
             datetime.datetime.strptime(value, '%H:%M:%S')
-        except ValueError:
+        except (ValueError, TypeError):
             self._error(field, '{} is not a valid time (HH:MM:SS)'.format(value))
 
     def _validate_sink(self, nothing, field, value):

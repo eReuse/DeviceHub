@@ -13,6 +13,7 @@ def login():
         account = AccountDomain.get_one({'email': request.json['email']})
         if not AccountDomain.verify_password(request.json['password'], account['password']):
             raise WrongCredentials()
+        del account['password']
         account['token'] = AccountDomain.hash_token(account['token'])
         account['_id'] = str(account['_id'])
         return jsonify(account)

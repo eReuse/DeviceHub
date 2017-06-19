@@ -118,6 +118,8 @@ class SpreadsheetTranslator(Translator):
                         lifetime = round(timedelta(hours=component['tests'][0]['lifetime']).days / 365, 2)
                         translated[header + ' lifetime (Years)'] = lifetime
                         translated[header + ' test result'] = component['tests'][0]['status']
+        if 'Registered in' in translated:
+            translated['Registered in'] = str(translated['Registered in'])
         return translated
 
     def translate(self, devices: list) -> list:

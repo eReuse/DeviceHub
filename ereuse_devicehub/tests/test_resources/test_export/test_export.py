@@ -17,6 +17,8 @@ class TestExport(TestStandard):
         assert_that(book_dict).contains_only('Devices')
         first_computer = self.get_and_check('devices', '', computers_id[0])
         assert_that(book_dict['Devices'][1]).contains(*at(first_computer, 'serialNumber', 'model', 'manufacturer'))
+        book_dict_ods = self._get_spreadsheet('devices', computers_id, xlsx=False)
+        assert_that(book_dict_ods).is_equal_to(book_dict)
 
     def test_export_computers_wrong_accept(self):
         """Handles queries requesting a wrong file type."""
@@ -26,6 +28,13 @@ class TestExport(TestStandard):
         headers.add('Accept', ','.join(['foo', 'bar']))
         response = self.test_client.get(url, headers=headers)
         assert_that(response.status_code).is_equal_to(406)
+
+    def test_export_brief(self):
+        computers_id = self.get_fixtures_computers()
+        book_dict = self._get_spreadsheet('devices', computers_id, detailed=False)
+        assert_that(book_dict).contains_only('Devices')
+        first_computer = self.get_and_check('devices', '', computers_id[0])
+        assert_that(book_dict['Devices'][1]).contains(*at(first_computer, 'model', 'manufacturer'))
 
     def test_export_groups(self):
         """Exports two lots; which generates all devices within them, grouped by lot in every page."""
@@ -44,15 +53,17 @@ class TestExport(TestStandard):
         get_ids = py_().map_(lambda row: row[0])
         assert_that(get_ids(book_dict['inner lot'])).is_equal_to(['Identifier', '1', '11'])
         assert_that(get_ids(book_dict['lot'])).is_equal_to(['Identifier', '1', '11', '25', '35'])
+        book_dict_ods = self._get_spreadsheet('lots', [lot['_id'], inner_lot['_id']], xlsx=False)
+        assert_that(book_dict_ods).is_equal_to(book_dict)
 
-    def _get_spreadsheet(self, resource_name: str, ids: list):
-        """Requests an spreadsheet to the server in open xlsx format."""
-        url = '/{}/export/{}?{}'.format(self.db1, resource_name, urlencode({'ids': ids}, True))
+    def _get_spreadsheet(self, resource_name: str, ids: list, detailed: bool = True, xlsx: bool = True):
+        _type = 'detailed' if detailed else 'brief'
+        url = '/{}/export/{}?{}'.format(self.db1, resource_name, urlencode({'ids': ids, 'type': _type}, True))
         headers = Headers()
         headers.add('Authorization', 'Basic ' + self.token)
-        headers.add('Accept', ','.join([_XLSX_MIME, FILE_TYPE_MIME_TABLE['ods']]))
+        headers.add('Accept', _XLSX_MIME if xlsx else FILE_TYPE_MIME_TABLE['ods'])
         response = self.test_client.get(url, headers=headers)
         self.assert200(response.status_code)
-        assert_that(response.content_type).is_equal_to(_XLSX_MIME)
-        book = pyexcel.get_book(file_type='xlsx', file_content=response.data)
+        assert_that(response.content_type).is_equal_to(_XLSX_MIME if xlsx else FILE_TYPE_MIME_TABLE['ods'])
+        book = pyexcel.get_book(file_type='xlsx' if xlsx else 'ods', file_content=response.data)
         return book.to_dict()

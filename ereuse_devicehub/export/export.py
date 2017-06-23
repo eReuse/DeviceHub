@@ -87,8 +87,8 @@ class SpreadsheetTranslator(Translator):
             d['Serial Number'] = p.get('serialNumber')
         d['Model'] = p.get('model')
         d['Manufacturer'] = p.get('manufacturer')
+        d['State'] = p.get('events').first().pick('@type', 'label').implode(' ')
         if not brief:
-            d['Actual State'] = p.get('events').first().pick('@type', 'label').implode(' ')
             d['Registered in'] = p.get('_created')
         d['Processor'] = p.get('processorModel')
         d['RAM (GB)'] = p.get('totalRamSize').floor()

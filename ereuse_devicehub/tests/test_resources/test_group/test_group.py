@@ -511,6 +511,14 @@ class TestGroup(TestGroupBase):
         self.is_parent(place1_id, self.PLACES, device4_id, self.DEVICES)
         self.is_not_parent(place4_id, self.PLACES, device4_id, self.DEVICES)
 
+    def test_update_label(self):
+        lot = self.get_fixture(self.LOTS, 'lot')
+        lot_id = self.post_and_check(self.LOTS, lot)['_id']
+        patch = {'_id': lot_id, '@type': 'Lot', 'label': 'A new label'}
+        self.patch_and_check(self.LOTS, item=lot_id, payload=patch)
+        lot = self.get_and_check(self.LOTS, item=lot_id)
+        assert_that(lot).has_label('A new label')
+
     def test_prohibited_actions(self):
         # Add a place in a lot
         lot = self.get_fixture(self.LOTS, 'lot')

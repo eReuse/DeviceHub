@@ -253,6 +253,10 @@ class DeviceHubValidator(Validator):
         """Technical description of a field."""
         pass
 
+    def _validate_editable(self, nothing, field, value):
+        """Let the user edit the field after the resource has been created."""
+        pass
+
     def _validate_placeholder_disallowed(self, _, field, device_id):
         from ereuse_devicehub.resources.device.domain import DeviceDomain
         device = DeviceDomain.get_one(device_id)

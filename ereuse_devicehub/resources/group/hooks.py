@@ -14,8 +14,9 @@ def set_children(_, groups: list):
 
 def update_children(_, updated: dict, original: dict):
     if updated.get('@type', None) in Group.types:
-        domain = GroupDomain.children_resources[Naming.resource(original['@type'])]
-        domain.update_children(original['children'], updated['children'], original['ancestors'], original['_id'])
+        if updated.get('children', None) is not None:  # Is this patch updating children info or another field?
+            domain = GroupDomain.children_resources[Naming.resource(original['@type'])]
+            domain.update_children(original['children'], updated['children'], original['ancestors'], original['_id'])
 
 
 def delete_children(_, group):

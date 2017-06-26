@@ -57,5 +57,39 @@ condition = {
                 'description': 'How difficult it has been to set the bios to boot from the network.'
             }
         }
+    },
+    'general': {
+        'type': 'dict',
+        'schema': {
+            'score': {
+                'type': 'number',
+                'min': 0,
+                'max': 10,
+                'readonly': True,
+                'description': 'The overall grade of the device.',
+                'doc': 'If null, it means that the score was not computed.'
+            },
+            'range': {
+                'type': 'number',
+                'readonly': True,
+                'allowed': ['High', 'Medium', 'Low', 'Unacceptable'],
+                'description': 'An easier way to see the grade.'
+            }
+        }
+    },
+    'scoringSoftware': {
+        'type': 'dict',
+        'schema': {
+            'label': {
+                'type': 'string'
+            },
+            'version': {
+                'type': 'version'
+            }
+        }
+    },
+    '_created': {
+        'type': 'datetime',
+        'readonly': True
     }
 }

@@ -6,6 +6,7 @@ import flask_excel as excel
 from eve.auth import requires_auth
 from flask import request
 from inflection import humanize
+from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
 from pydash import keys
 from pydash import map_
 from pydash import py_
@@ -35,7 +36,7 @@ def export(db, resource):
         file_type = FILE_TYPE_MIME_TABLE[request.accept_mimetypes.best]
     except KeyError:
         raise NotAcceptable()
-    ids = request.args.getlist('ids')
+    ids = request.args.getlist('ids', [])
     token = AccountDomain.hash_token(AccountDomain.actual_token)
     translator = SpreadsheetTranslator(request.args.get('type', 'detailed') == 'brief')
     spreadsheets = OrderedDict()
@@ -53,7 +54,7 @@ def export(db, resource):
             spreadsheets[group.get('label', group['_id'])] = translator.translate(devices)
     else:
         # Let's get the full devices and their components with embedded stuff
-        devices = DeviceDomain.get_in('_id', ids)
+        devices = DeviceDomain.get_in('_id', ids) if ids else DeviceDomain.get({'@type': {'$nin': Component.types}})
         for device in devices:
             device['components'] = get_components(device['components'], db, token)
         spreadsheets['Devices'] = translator.translate(devices)
@@ -80,6 +81,7 @@ class SpreadsheetTranslator(Translator):
         p = py_()
         d = OrderedDict()  # we want ordered dict as in translate we want to preserve this order in the spreadsheet
         d['Identifier'] = p.get('_id')
+        d['type'] = p.get('@type')
         if not brief:
             d['Label ID'] = p.get('labelId')
             d['Giver ID'] = p.get('gid')
@@ -98,16 +100,26 @@ class SpreadsheetTranslator(Translator):
 
     def translate_one(self, device: dict) -> dict:
         translated = super().translate_one(device)
-
+        # Avoid exception in openpyxl/cell/cell.py line 156 for using illegal characters
+        for key, value in translated.items():
+            if type(value) is str:
+                if next(ILLEGAL_CHARACTERS_RE.finditer(value), None):
+                    translated[key] = '**'
         # Component translation
         # Let's decompose components so we get ComponentTypeA 1: ..., ComponentTypeA 2: ...
         pick = py_().pick(([] if self.brief else ['_id', 'serialNumber']) + ['model', 'manufacturer']).implode(' ')
+        # For david
         counter_each_type = defaultdict(int)
         for pos, component in enumerate(device['components']):
             _type = device['components'][pos]['@type']
+            count = counter_each_type[_type] = counter_each_type[_type] + 1
+            header = '{} {}'.format(_type, count)
+            translated[header + ' system id'] = component.get('_id', '')
+            translated[header + ' serial number'] = component.get('serialNumber', '')
+            translated[header + ' model'] = component.get('model', '')
+            translated[header + ' manufacturer'] = component.get('manufacturer', '')
             if not self.brief or _type not in {'Motherboard', 'RamModule', 'Processor'}:
-                count = counter_each_type[_type] = counter_each_type[_type] + 1
-                header = '{} {}'.format(_type, count)
+
                 translated[header] = pick(component)
                 if _type == 'HardDrive':
                     with suppress(KeyError):
@@ -116,8 +128,22 @@ class SpreadsheetTranslator(Translator):
                         translated[header + ' erasure'] = t
                     with suppress(KeyError):
                         lifetime = round(timedelta(hours=component['tests'][0]['lifetime']).days / 365, 2)
-                        translated[header + ' lifetime (Years)'] = lifetime
+                        translated[header + ' lifetime (years)'] = lifetime
                         translated[header + ' test result'] = component['tests'][0]['status']
+                        # For david
+                        translated[header + ' lifetime (hours)'] = component['tests'][0]['lifetime']
+                        translated[header + ' reading speed'] = component['benchmarks'][0]['readingSpeed']
+                        translated[header + ' writing speed'] = component['benchmarks'][0]['writingSpeed']
+                elif _type == 'Processor':
+                    with suppress(KeyError):
+                        translated[header + ' number of cores'] = component['numberOfCores']
+                    with suppress(KeyError):
+                        translated[header + ' score'] = component['benchmarks'][0]['score']
+                elif _type == 'RamModule':
+                    for field in 'size', 'speed':
+                        with suppress(KeyError):
+                            translated[header + ' ' + field] = component[field]
+
         if 'Registered in' in translated:
             translated['Registered in'] = str(translated['Registered in'])
         return translated

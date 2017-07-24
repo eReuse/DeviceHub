@@ -9,10 +9,6 @@ from ereuse_devicehub.tests.test_resources.test_events import TestEventWithPrede
 class TestDeviceHubLive(TestEventWithPredefinedDevices):
     def setUp(self, settings_file=None, url_converters=None):
         super().setUp(settings_file, url_converters)
-        self.app.config['MAXMIND_ACCOUNT'] = {
-            'user': 'example',
-            'license key': 'example'
-        }
         self.client = self.app.geoip.client
 
     def test_init(self):

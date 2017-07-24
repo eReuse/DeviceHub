@@ -2,6 +2,7 @@ from bson import ObjectId
 from eve.utils import document_etag
 from flask import current_app
 from pydash import find
+from pymongo import ReturnDocument
 
 from ereuse_devicehub.exceptions import RequestAnother, StandardError
 from ereuse_devicehub.resources.device.domain import DeviceDomain
@@ -49,11 +50,8 @@ def get_next_sequence() -> int:
     # settings, we do not tell to python-eve at any moment where is this collection stored at.
     # Note that if we do not put this, eve tries to guess scanning the URL for a resource name; this works
     # if we are doing POST /register (register is in the same db) but not POST /account (different db)
-    return current_app.data.pymongo(Device.resource_name).db.device_sequence.find_and_modify(
-        query={'_id': 1},
-        update={'$inc': {'seq': 1}},
-        new=True,
-        upsert=True
+    return current_app.data.pymongo(Device.resource_name).db.device_sequence.find_one_and_update(
+        filter={'_id': 1}, update={'$inc': {'seq': 1}}, return_document=ReturnDocument.AFTER, upsert=True
     ).get('seq')
 
 
@@ -99,6 +97,7 @@ def redirect_to_first_snapshot_or_register(resource, _, lookup):
     delete the device; this is, or the first Snapshot that made the Register that made the device, or directly
     such Register, if the device was not created through a Snapshot.
     """
+
     # todo can we just always go to the first Register regardless the device was created with a Snapshot or not?
     def _redirect_to_first_event(event_resource_name: str):
         event_id = str(DeviceEventDomain.get_first_event(event_resource_name, lookup['_id'])['_id'])

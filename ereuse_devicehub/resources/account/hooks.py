@@ -11,7 +11,7 @@ from passlib.handlers.sha2_crypt import sha256_crypt
 def hash_password(accounts: list):
     for account in accounts:
         if 'password' in account:
-            account['password'] = sha256_crypt.encrypt(account['password'])
+            account['password'] = sha256_crypt.hash(account['password'])
 
 
 def add_token(documents: list):

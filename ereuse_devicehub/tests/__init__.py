@@ -87,7 +87,7 @@ class TestBase(TestMinimal):
         # self.app.grd_submitter_caller.process = None
 
     def create_dummy_user(self):
-        self.db.accounts.insert(
+        self.db.accounts.insert_one(
             {
                 'email': "a@a.a",
                 'password': AccountDomain.encrypt_password('1234'),
@@ -102,7 +102,7 @@ class TestBase(TestMinimal):
 
     def create_self_machine_account(self):
         email, password = self.app.config['AGENT_ACCOUNTS']['self']
-        self.db.accounts.insert(
+        self.db.accounts.insert_one(
             {
                 'role': 'superuser',
                 'token': 'QYADFBPNZZDFJEWAFGGF',

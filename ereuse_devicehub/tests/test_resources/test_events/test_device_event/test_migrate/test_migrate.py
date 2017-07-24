@@ -25,10 +25,10 @@ class TestMigrate(TestDeviceEvent):
     def setUp(self, settings_file=None, url_converters=None):
         super().setUp(settings_file, url_converters)
         # Let's add another account
-        self.db.accounts.insert(
+        self.db.accounts.insert_one(
             {
                 'email': 'b@b.b',
-                'password': sha256_crypt.encrypt('1234'),
+                'password': sha256_crypt.hash('1234'),
                 'role': 'admin',
                 'token': 'TOKENB',
                 'databases': self.app.config['DATABASES'][1],
@@ -142,10 +142,10 @@ class TestMigrate(TestDeviceEvent):
         self.assert400(status)
 
     def add_accounts_dht3and4(self):
-        self.db.accounts.insert(
+        self.db.accounts.insert_one(
             {
                 'email': 'c@c.c',
-                'password': sha256_crypt.encrypt('1234'),
+                'password': sha256_crypt.hash('1234'),
                 'role': 'admin',
                 'token': 'TOKENC',
                 'databases': self.app.config['DATABASES'][2],
@@ -154,10 +154,10 @@ class TestMigrate(TestDeviceEvent):
             }
         )
         self.token_c = super(TestBase, self).post('/login', {'email': 'c@c.c', 'password': '1234'})[0]['token']
-        self.db.accounts.insert(
+        self.db.accounts.insert_one(
             {
                 'email': 'd@d.d',
-                'password': sha256_crypt.encrypt('1234'),
+                'password': sha256_crypt.hash('1234'),
                 'role': 'admin',
                 'token': 'TOKEND',
                 'databases': self.app.config['DATABASES'][3],

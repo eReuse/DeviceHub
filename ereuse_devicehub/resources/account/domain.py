@@ -85,7 +85,7 @@ class AccountDomain(Domain):
 
     @staticmethod
     def encrypt_password(password: str) -> str:
-        return sha256_crypt.encrypt(password)
+        return sha256_crypt.hash(password)
 
     @staticmethod
     def verify_password(password: str, original: str) -> bool:

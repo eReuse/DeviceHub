@@ -56,7 +56,20 @@ class TestExport(TestStandard):
         book_dict_ods = self._get_spreadsheet('lots', [lot['_id'], inner_lot['_id']], xlsx=False)
         assert_that(book_dict_ods).is_equal_to(book_dict)
 
-    def _get_spreadsheet(self, resource_name: str, ids: list, detailed: bool = True, xlsx: bool = True):
+    def test_export_all_devices(self):
+        """Exports all devices from database."""
+        computers_id = self.get_fixtures_computers()  # Create 4 computers
+        book_dict = self._get_spreadsheet('devices', [])  # Empty list equals not sending 'ids' directly
+        assert_that(book_dict).contains_only('Devices')
+        # Same test as test_export_basic, as it shouldn't change
+        # Note we only have the 4 exact devices that in that test in the whole database
+        first_computer = self.get_and_check('devices', '', computers_id[0])
+        assert_that(book_dict['Devices'][1]).contains(*at(first_computer, 'serialNumber', 'model', 'manufacturer'))
+        book_dict_ods = self._get_spreadsheet('devices', computers_id, xlsx=False)
+        assert_that(book_dict_ods).is_equal_to(book_dict)
+
+    def _get_spreadsheet(self, resource_name: str, ids: list, detailed: bool = True, xlsx: bool = True) -> dict:
+        """Helper method to request the spreadsheet to DeviceHub and return a dict"""
         _type = 'detailed' if detailed else 'brief'
         url = '/{}/export/{}?{}'.format(self.db1, resource_name, urlencode({'ids': ids, 'type': _type}, True))
         headers = Headers()

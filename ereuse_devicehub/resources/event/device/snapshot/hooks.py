@@ -59,7 +59,7 @@ def set_secured(snapshots: list):
     :return:
     """
     for snapshot in snapshots:
-        snapshot['secured'] = g.trusted_json
+        snapshot['secured'] = g.get('trusted_json', False)
 
 
 def delete_events(_, snapshot: dict):

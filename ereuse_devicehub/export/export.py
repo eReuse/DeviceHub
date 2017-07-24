@@ -36,7 +36,7 @@ def export(db, resource):
         file_type = FILE_TYPE_MIME_TABLE[request.accept_mimetypes.best]
     except KeyError:
         raise NotAcceptable()
-    ids = request.args.getlist('ids', [])
+    ids = request.args.getlist('ids')  # Returns empty list by default
     token = AccountDomain.hash_token(AccountDomain.actual_token)
     translator = SpreadsheetTranslator(request.args.get('type', 'detailed') == 'brief')
     spreadsheets = OrderedDict()

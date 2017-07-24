@@ -30,13 +30,11 @@ class TestDeviceHubLive(TestEventWithPredefinedDevices):
         setting it to the right device.
         """
         # Let's mock insights of geoip so it doesn't call to Maxmind
-        return_insights = pickle.loads(
-            self.get_fixture('live', 'live_insights', parse_json=False, extension='pickle', mode='rb'))
+        fixture = self.get_fixture('live', 'live_insights', parse_json=False, extension='pickle', mode='rb')
+        return_insights = pickle.loads(fixture)
         self.client.insights = MagicMock(return_value=return_insights)
         post = {'device': '1', '@type': 'devices:Live'}
         result = self.post_and_check('{}/live'.format(self.DEVICE_EVENT), post)
         # Let's check the registered event.
         live = self.get_and_check(self.EVENTS, '', result['_id'])
-        # todo replace when assertpy hits 1.0
-        # assert_that(self.get_fixture('live', 'event', True, actual_directory)).is_subset_of(live)
-        self.assertDictContainsSubset(self.get_fixture('live', 'event'), live)
+        assert_that(self.get_fixture('live', 'event')).is_subset_of(live)

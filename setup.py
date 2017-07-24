@@ -11,7 +11,7 @@ setup(
     description='DeviceHub is a system to manage devices focused in reusing them. ',
     install_requires=[
         'inflection>=0.3.1,<0.4',
-        'eve>=0.6.3,<7.0',
+        'eve>=0.6.3,<0.7.0',
         'passlib>=1.6.5,<2.0',
         'validators>=0.10,<0.20',
         'flask>=0.10,<0.11',
@@ -20,7 +20,7 @@ setup(
         'flask-cache>=0.13.1',
         'python-gnupg',
         'iso3166',
-        'flask-excel',
+        'flask-excel>=0.0.7,<0.0.8',
         'pyexcel-ods',
         'pyexcel-xlsx',
         'pydash>=3.4,<4',

@@ -6,6 +6,7 @@ import os
 import sys
 
 import flask_cors
+import flask_excel
 import gnupg
 from eve import Eve
 from eve.endpoints import schema_collection_endpoint
@@ -57,6 +58,7 @@ class DeviceHub(Eve):
                                                     expose_headers=self.config['X_EXPOSE_HEADERS'],
                                                     allow_headers=self.config['X_HEADERS'])
         self.url_parse = url_parse()
+        flask_excel.init_excel(self)  # required since version 0.0.7
         self.geoip = GeoIPFactory(self)
         hooks(self)  # Set up hooks. You can add more hooks by doing something similar with app "hooks(app)"
         ErrorHandlers(self)

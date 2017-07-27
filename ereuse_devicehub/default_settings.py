@@ -66,7 +66,6 @@ X_HEADERS = ['Content-Type', 'Authorization']
 X_EXPOSE_HEADERS = ['Authorization']
 MONGO_QUERY_BLACKLIST = ['$where']
 GRD_DOMAIN = 'https://sandbox.ereuse.org'
-THREADS_PER_PAGE = 2
 BULK_ENABLED = False  # Some events cannot work with it todo fix
 CSRF_ENABLED = True
 # We do not need concurrency control for PUT (if true, we need to provide an etag (include it in x-headers!))

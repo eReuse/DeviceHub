@@ -68,6 +68,9 @@ class SubmitterCaller:
         js = json.loads(response.data.decode())
         return js['token']
 
+    def __del__(self):
+        self.process.terminate()
+
 
 def _process(queue: Queue, token: str, app, submitter_class=ThreadedSubmitter):
     """

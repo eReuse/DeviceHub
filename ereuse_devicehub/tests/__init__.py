@@ -81,8 +81,9 @@ class TestBase(TestMinimal):
         self.drop_databases()
         self.create_dummy_user()
         self.create_self_machine_account()
-        # We call the method again as we have erased the DB
-        self.app.grd_submitter_caller = SubmitterCaller(self.app, GRDSubmitter)
+        if self.app.config.get('GRD', False):
+            # We call the method again as we have erased the DB
+            self.app.grd_submitter_caller = SubmitterCaller(self.app, GRDSubmitter)
         # self.app.grd_submitter_caller.token = self.app.grd_submitter_caller.prepare_user(self.app)
         # self.app.grd_submitter_caller.process = None
 
@@ -114,17 +115,17 @@ class TestBase(TestMinimal):
         )
 
     def tearDown(self):
-        self.dropDB()
+        self.drop_databases()
+        if hasattr(self.app, 'grd_submitter_caller'):
+            # We terminate the child process
+            del self.app.grd_submitter_caller
         del self.app
+
 
     def drop_databases(self):
         self.connection.drop_database(self.MONGO_DBNAME)
         for database in self.DATABASES:
             self.connection.drop_database(self.app.config[database.upper().replace('-', '') + '_DBNAME'])
-
-    def dropDB(self):
-        self.drop_databases()
-        self.connection.close()
 
     def full(self, resource_name: str, resource: dict or str or ObjectId) -> dict:
         return resource if type(resource) is dict else self.get(resource_name, '', str(resource))[0]
@@ -162,9 +163,10 @@ class TestBase(TestMinimal):
         headers = headers or []
         return self._post(full_url, data, self.token, headers, content_type)
 
-    def _post(self, url, data, token, headers=None, content_type='application/json'):
+    def _post(self, url, data, token: str=None, headers=None, content_type='application/json'):
         headers = headers or []
-        headers.append(('authorization', 'Basic ' + token))
+        if token:
+            headers.append(('authorization', 'Basic ' + token))
         if type(data) is str:
             headers.append(('Content-Type', content_type))
             r = self.test_client.post(url, data=data, headers=headers)

@@ -29,7 +29,9 @@ setup(
         'geojson>=1.3.4,<1.4',
         'geoip2>=2.4.2,<2.5',
         'flask-cors>=3.0.2,<3.1',
-        'shortid>=0.1.2,<0.2'
+        'shortid>=0.1.2,<0.2',
+        'beautifulsoup4',
+        'wikipedia'
     ],
     keywords='eReuse.org DeviceHub devices devicehub reuse recycle it asset management',
     # http://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies

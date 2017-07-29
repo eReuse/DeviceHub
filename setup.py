@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='eReuse-DeviceHub',
-    version='0.1.1',
+    version='0.4',
     packages=find_packages(exclude=('contrib', 'docs', 'scripts')),
     url='https://github.com/eReuse/DeviceHub',
     license='AGPLv3 License',
@@ -41,9 +41,10 @@ setup(
             'sphinxcontrib-httpdomain>=1.5'
         ]
     },
+    # Use `python setup.py test` to run the tests
     # http://setuptools.readthedocs.io/en/latest/setuptools.html#test-build-package-and-run-a-unittest-suite
     test_suite='ereuse_devicehub.tests',
-    test_require=[
+    tests_require=[
         'assertpy'
     ],
     include_package_data=True,
@@ -55,8 +56,8 @@ setup(
         'License :: OSI Approved :: GNU Affero General Public License v3',
         'Natural Language :: English',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Office/Business',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content'

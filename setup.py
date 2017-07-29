@@ -9,8 +9,9 @@ setup(
     author='eReuse.org team',
     author_email='x.bustamante@ereuse.org',
     description='DeviceHub is a system to manage devices focused in reusing them. ',
+    # Updated in 2017-07-29
     install_requires=[
-        'inflection>=0.3.1,<0.4',
+        'inflection>=0.3.1',
         'eve>=0.6.3,<0.7.0',
         'passlib>=1.6.5,<2.0',
         'validators>=0.10,<0.20',
@@ -27,11 +28,11 @@ setup(
         'sortedcontainers>=1.5.7,<1.6',
         'geojson_utils',
         'geojson>=1.3.4,<1.4',
-        'geoip2>=2.4.2,<2.5',
-        'flask-cors>=3.0.2,<3.1',
+        'geoip2>=2.4.2,<3',
+        'flask-cors>=3.0.2,<4',
         'shortid>=0.1.2,<0.2',
-        'beautifulsoup4',
-        'wikipedia'
+        'beautifulsoup4>=4.6,<5',
+        'wikipedia>=1.4,<2'
     ],
     keywords='eReuse.org DeviceHub devices devicehub reuse recycle it asset management',
     # http://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies

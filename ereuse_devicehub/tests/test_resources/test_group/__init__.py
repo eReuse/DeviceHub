@@ -1,4 +1,7 @@
+from pprint import pprint
+
 import pymongo
+import sys
 from assertpy import assert_that
 from flask import json
 
@@ -113,12 +116,22 @@ class TestGroupBase(TestStandard):
         sort = [('_created', pymongo.DESCENDING)]
         params = {'where': json.dumps(where), 'sort': json.dumps(sort), 'max_results': '1'}
         try:
-            entry = self.get_and_check('group-log-entry', params=params)['_items'][0]
+            response = self.get_and_check('group-log-entry', params=params)
+            entry = response['_items'][0]
             if added:
                 assert_that(entry).has_added(added)
             if removed:
                 assert_that(entry).has_removed(removed)
         except Exception as e:
+            # There is a really strange bug that happens few times when running (not debugging!) tests
+            # The following lines can help trace it when it happens
+            # Note that they must be deleted once the bug has been resolved
+            pprint(parent_id, stream=sys.stderr)
+            pprint(parent_type, stream=sys.stderr)
+            pprint(added, stream=sys.stderr)
+            pprint(removed, stream=sys.stderr)
+            pprint(response, stream=sys.stderr)
+            pprint(self.get_and_check('group-log-entry'), stream=sys.stderr)
             raise AssertionError('Last log entry is not as described.') from e
 
 

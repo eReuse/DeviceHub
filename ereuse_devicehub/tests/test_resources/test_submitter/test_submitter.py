@@ -9,7 +9,7 @@ class TestSubmitter(TestStandard):
         Tests submitter through the GRD implementation.
     """
 
-    def test_creation(self):
+    def _test_creation(self):
         assert_that(hasattr(self.app, 'grd_submitter_caller')).is_true()
         assert_that(hasattr(self.app, 'submit_events_to_grd')).is_true()
         assert_that(self.app.grd_submitter_caller.token).is_not_none()

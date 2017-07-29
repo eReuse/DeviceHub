@@ -1,0 +1,11 @@
+{
+  "defaultDatabase": "dht1_",
+  "email": "n@n.com",
+  "databases": [
+    "dht1",
+    "dht2"
+  ],
+  "role": "employee",
+  "password": "12345",
+  "@type": "Account"
+}

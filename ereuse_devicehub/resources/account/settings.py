@@ -109,7 +109,7 @@ class AccountSettings(ResourceSettings):
     cache_expires = 0
 
     # Allow 'token' to be returned with POST responses
-    extra_response_fields = ResourceSettings.extra_response_fields + ['token', 'email', 'role', 'active', 'name',
+    extra_response_fields = ResourceSettings.extra_response_fields + ['email', 'role', 'active', 'name',
                                                                       'databases', 'defaultDatabase', 'organization',
                                                                       'isOrganization']
 

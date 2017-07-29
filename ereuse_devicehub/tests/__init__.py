@@ -166,7 +166,7 @@ class TestBase(TestMinimal):
     def _post(self, url, data, token: str=None, headers=None, content_type='application/json'):
         headers = headers or []
         if token:
-            headers.append(('authorization', 'Basic ' + token))
+            headers.append(('Authorization', 'Basic ' + token))
         if type(data) is str:
             headers.append(('Content-Type', content_type))
             r = self.test_client.post(url, data=data, headers=headers)
@@ -278,7 +278,7 @@ class TestStandard(TestBase):
             self.assert204(status_code)
         return response
 
-    def assert_error(self, response: dict, status_code: int, error_class: StandardError):
+    def assert_error(self, response: dict, status_code: int, error_class: type(StandardError)):
         """Ensures that the response (a dict from a JSON) represents the *error_class*."""
         name = error_class.__name__
         if error_class.status_code != status_code or response['_error']['@type'] != name:

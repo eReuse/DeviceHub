@@ -1,0 +1,9 @@
+{
+  "email": "foo@foo.org",
+  "password": "1234",
+  "role": "admin",
+  "databases": [
+    "dht1"
+  ],
+  "@type": "Account"
+}

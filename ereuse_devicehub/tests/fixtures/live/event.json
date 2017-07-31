@@ -28,5 +28,5 @@
   "autonomousSystemNumber": 12479,
   "incidence": false,
   "userType": "residential",
-  "ip": null
+  "ip": "127.0.0.1"
 }

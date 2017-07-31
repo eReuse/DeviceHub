@@ -2,8 +2,6 @@
 DeviceHub app
 """
 import inspect
-import os
-import sys
 
 import flask_cors
 import flask_excel
@@ -36,11 +34,13 @@ from ereuse_devicehub.resources.submitter.submitter_caller import SubmitterCalle
 from ereuse_devicehub.security.authentication import RolesAuth
 from ereuse_devicehub.static import send_device_icon
 from ereuse_devicehub.url_parse import UrlParse
-from ereuse_devicehub.utils import cache
+from ereuse_devicehub.utils import cache, DeviceHubConfig
 from ereuse_devicehub.validation.validation import DeviceHubValidator
 
 
 class DeviceHub(Eve):
+    config_class = DeviceHubConfig
+
     def __init__(self, import_name=__package__, settings='settings.py', validator=DeviceHubValidator, data=DataLayer,
                  auth=RolesAuth, redis=None, url_converters=None, json_encoder=None, media=GridFSMediaStorage,
                  url_parse=UrlParse, mongo_encoder=MongoEncoder, **kwargs):
@@ -124,39 +124,6 @@ class DeviceHub(Eve):
         if not isinstance(roles, set) and not isinstance(roles, list):
             raise ConfigException("'%s' must be set"
                                   "[%s]." % (directive, resource))
-
-    def load_config(self):
-        """
-            Same as eve's, just adding our default_settings
-        """
-
-        # load defaults
-        self.config.from_object('eve.default_settings')
-
-        self.config.from_object(
-            'ereuse_devicehub.default_settings')  # We just add this line todo way to avoid writing all method?
-
-        # overwrite the defaults with custom user settings
-        if isinstance(self.settings, dict):
-            self.config.update(self.settings)
-        else:
-            if os.path.isabs(self.settings):
-                pyfile = self.settings
-            else:
-                abspath = os.path.abspath(os.path.dirname(sys.argv[0]))
-                pyfile = os.path.join(abspath, self.settings)
-            try:
-                self.config.from_pyfile(pyfile)
-            except IOError:
-                # assume envvar is going to be used exclusively
-                pass
-            except:
-                raise
-
-        # overwrite settings with custom environment variable
-        envvar = 'EVE_SETTINGS'
-        if os.environ.get(envvar):
-            self.config.from_envvar(envvar)
 
     def _init_schema_endpoint(self):
         """Adds '_settings' field to every schema."""

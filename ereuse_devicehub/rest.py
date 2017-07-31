@@ -30,9 +30,9 @@ def execute_post(absolute_path_ref: str, payload: dict, headers: list = None, co
         response = current_app.test_client().post(absolute_path_ref, data=data, content_type=content_type,
                                                   headers=headers or [])
     data = json.loads(response.data.decode())
-    if not (200 <= response._status_code < 300):
+    if not (200 <= response.status_code < 300):
         data['url'] = absolute_path_ref
-        raise InnerRequestError(response._status_code, data)
+        raise InnerRequestError(response.status_code, data)
     else:
         return data
 

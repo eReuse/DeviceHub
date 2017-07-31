@@ -3,7 +3,7 @@ from pprint import pprint
 import pymongo
 import sys
 from assertpy import assert_that
-from flask import json
+from flask import json, app
 
 from ereuse_devicehub.resources.group.group_log.settings import UpdateGroupLogEntry
 from ereuse_devicehub.tests import TestStandard
@@ -131,6 +131,8 @@ class TestGroupBase(TestStandard):
             pprint(added, stream=sys.stderr)
             pprint(removed, stream=sys.stderr)
             pprint(response, stream=sys.stderr)
+            with app.test_request_context('/{}/devices'.format(self.db1)):
+                pprint(list(app.data.find_raw('group-log', {})))
             pprint(self.get_and_check('group-log-entry'), stream=sys.stderr)
             raise AssertionError('Last log entry is not as described.') from e
 

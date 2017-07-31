@@ -3,8 +3,8 @@ import os
 import sys
 
 import inflection as inflection
-from flask import json
-from flask.ext.cache import Cache
+from flask import json, Config
+from flask_caching import Cache
 
 cache = Cache(config={'CACHE_TYPE': 'simple'})
 
@@ -208,3 +208,12 @@ def get_json_from_file(filename: str, directory: str = None, parse_json=True, mo
     with open(os.path.abspath(os.path.join(directory, filename)), mode=mode) as data_file:
         value = json.load(data_file) if parse_json else data_file.read()
     return value
+
+
+class DeviceHubConfig(Config):
+    """Configuration class for DeviceHub. We only extend it to add our settings when eve loads its settings."""
+
+    def from_object(self, obj):
+        super().from_object(obj)  # 1. Load settings as normal
+        if obj == 'eve.default_settings':
+            super().from_object('ereuse_devicehub.default_settings')  # 2. If those were eve's, then load ours

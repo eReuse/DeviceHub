@@ -10,8 +10,9 @@ def login():
     :return:
     """
     try:
-        account = AccountDomain.get_one({'email': request.json['email']})
-        if not AccountDomain.verify_password(request.json['password'], account['password']):
+        json = request.get_json()
+        account = AccountDomain.get_one({'email': json['email']})
+        if not AccountDomain.verify_password(json['password'], account['password']):
             raise WrongCredentials()
         del account['password']
         account['token'] = AccountDomain.hash_token(account['token'])

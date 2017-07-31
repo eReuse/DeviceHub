@@ -12,13 +12,12 @@ setup(
     # Updated in 2017-07-29
     install_requires=[
         'inflection>=0.3.1',
-        'eve>=0.6.3,<0.7.0',
+        'eve>=0.6.3,<0.8',
         'passlib>=1.6.5,<2.0',
         'validators>=0.10,<0.20',
-        'flask>=0.10,<0.11',
         'requests>=2.9.1,<3.0',
         'python-gnupg>=0.3.8,<0.4',  # To use gnupg, install gpg2
-        'flask-cache>=0.13.1',
+        'flask-caching',
         'python-gnupg',
         'iso3166',
         'flask-excel>=0.0.7,<0.0.8',

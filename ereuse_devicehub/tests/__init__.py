@@ -8,7 +8,7 @@ from bson.objectid import ObjectId
 from eve.methods.common import parse
 from eve.tests import TestMinimal
 from flask import json
-from flask.ext.pymongo import MongoClient
+from flask_pymongo import MongoClient
 
 from ereuse_devicehub import utils
 from ereuse_devicehub.exceptions import StandardError
@@ -34,7 +34,7 @@ class TestBase(TestMinimal):
         # noinspection PyUnresolvedReferences
         from ereuse_devicehub import default_settings as settings
         self.set_settings(settings)
-        self.app = DeviceHub()
+        self.app = DeviceHub(settings=vars(settings))
         self.prepare()
 
     @staticmethod

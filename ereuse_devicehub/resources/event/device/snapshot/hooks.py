@@ -85,9 +85,10 @@ SNAPSHOT_SOFTWARE = {
 
 def move_id(payload: LocalProxy):
     """Moves the _id and pid from the snapshot to the inner device of the snapshot, as a hotfix for Workbench's bug"""
-    if '_id' in payload.json:
-        payload.json['device']['_id'] = payload.json.pop('_id')
-    if 'pid' in payload.json:  # todo workbench hotfix for pid
-        payload.json['device']['pid'] = payload.json.pop('pid')
-    if payload.json.get('snapshotSoftware', None) in SNAPSHOT_SOFTWARE:
-        payload.json['snapshotSoftware'] = SNAPSHOT_SOFTWARE[payload.json['snapshotSoftware']]
+    snapshot = payload.get_json()
+    if '_id' in snapshot:
+        snapshot['device']['_id'] = snapshot.pop('_id')
+    if 'pid' in snapshot:  # todo workbench hotfix for pid
+        snapshot['device']['pid'] = snapshot.pop('pid')
+    if snapshot.get('snapshotSoftware', None) in SNAPSHOT_SOFTWARE:
+        snapshot['snapshotSoftware'] = SNAPSHOT_SOFTWARE[snapshot['snapshotSoftware']]

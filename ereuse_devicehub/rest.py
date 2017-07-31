@@ -90,13 +90,10 @@ class BlankG:
     # The with statement: http://preshing.com/20110920/the-python-with-statement-by-example/
     # G gets inherited by child requests (not siblings): http://stackoverflow.com/a/33382823/2710757
     def __enter__(self):
-        # todo in flask 0.11 you can use .pop() as a dict
         with suppress(AttributeError):
-            self._actual_user = copy.deepcopy(g._actual_user)
-            del g._actual_user
+            self._actual_user = copy.deepcopy(g.pop('_actual_user'))
         with suppress(AttributeError):
-            self.mongo_prefix = copy.deepcopy(g.mongo_prefix)
-            del g.mongo_prefix
+            self.mongo_prefix = copy.deepcopy(g.pop('mongo_prefix'))
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         with suppress(AttributeError):

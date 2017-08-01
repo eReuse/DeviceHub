@@ -61,9 +61,11 @@ def execute_get(absolute_path_ref: str, token: str or bytes = None, params: dict
         return data
 
 
-def execute_patch(resource: str, payload: dict, identifier) -> dict:
+def execute_patch(resource: str, payload: dict, identifier, copy_id: bool = True) -> dict:
     """Executes PATCH to the same DeviceHub with a new connection."""
-    payload['_id'] = str(identifier)
+    # todo we shouldn't have to copy the id, as eve thinks you are updating the _id
+    if copy_id:
+        payload['_id'] = str(identifier)
     response = patch_internal(resource, payload, False, False, **{'_id': str(identifier)})
     if not (200 <= response[3] < 300):
         raise InnerRequestError(response[3], response[0])

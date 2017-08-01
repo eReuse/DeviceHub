@@ -101,7 +101,7 @@ def unset_place(resource_name: str, event: dict):
             device = [event['device']] if 'device' in event else []
             devices = list(set(place['children'].get('devices', [])) - set(event.get('devices', []) + device))
             patch = {'@type': 'Place', '_id': place['_id'], 'children': {'devices': devices}}
-            execute_patch('places', patch, event['place'])
+            execute_patch('places', patch, identifier=event['place'])
 
 
 def delete_events_in_device(resource_name: str, device: dict):

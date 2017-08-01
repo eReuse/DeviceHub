@@ -143,4 +143,4 @@ def remove_devices_from_place(migrates: dict):
                     '@type': Place.type_name,
                     'children': {'devices': list(set(place['children'].get('devices', [])) - devices_to_remove)}
                 }
-                execute_patch(Place.resource_name, payload, place['_id'])
+                execute_patch(Place.resource_name, payload, identifier=place['_id'])

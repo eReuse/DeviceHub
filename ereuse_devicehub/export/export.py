@@ -42,7 +42,7 @@ def export(db, resource):
     spreadsheets = OrderedDict()
     if resource in Group.resource_names:
         domain = GroupDomain.children_resources[resource]
-        f = py_().select(lambda d: d['@type'] not in Component.types and not d.get('placeholder', False))
+        f = py_().filter(lambda d: d['@type'] not in Component.types and not d.get('placeholder', False))
         # ids are groups and we want their inner devices, each of them in a page:
         # page1 is group1 and contains its devices, page2 is group2 and contains its devices, and so on
         for _id in ids:
@@ -92,7 +92,7 @@ class SpreadsheetTranslator(Translator):
             d['Serial Number'] = p.get('serialNumber')
         d['Model'] = p.get('model')
         d['Manufacturer'] = p.get('manufacturer')
-        d['State'] = p.get('events').first().pick('@type', 'label').implode(' ')
+        d['State'] = p.get('events').head().pick('@type', 'label').join(' ')
         if not brief:
             d['Registered in'] = p.get('_created')
         d['Processor'] = p.get('processorModel')
@@ -110,7 +110,7 @@ class SpreadsheetTranslator(Translator):
                     translated[key] = '**'
         # Component translation
         # Let's decompose components so we get ComponentTypeA 1: ..., ComponentTypeA 2: ...
-        pick = py_().pick(([] if self.brief else ['_id', 'serialNumber']) + ['model', 'manufacturer']).implode(' ')
+        pick = py_().pick(([] if self.brief else ['_id', 'serialNumber']) + ['model', 'manufacturer']).join(' ')
         # For david
         counter_each_type = defaultdict(int)
         for pos, component in enumerate(device['components']):

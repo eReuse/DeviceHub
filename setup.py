@@ -26,7 +26,7 @@ setup(
         'flask-excel>=0.0.7,<0.0.8',
         'pyexcel-ods',
         'pyexcel-xlsx',
-        'pydash>=3.4,<4',
+        'pydash>=4.0,5.0',
         'sortedcontainers>=1.5.7,<1.6',
         'geojson_utils',
         'geojson>=1.3.4,<1.4',

@@ -1,5 +1,5 @@
 import pydash
-from pydash.objects import path_keys
+from pydash import to_path
 
 
 def deep_pick(obj, *properties: str, discard_falsey: bool = False) -> dict:
@@ -11,7 +11,7 @@ def deep_pick(obj, *properties: str, discard_falsey: bool = False) -> dict:
     """
     ret = dict()
     for path in properties:
-        dest_name = path_keys(path)[-1]
+        dest_name = to_path(path)[-1]
         value = pydash.get(obj, path)
         if value or not discard_falsey:
             ret[dest_name] = value

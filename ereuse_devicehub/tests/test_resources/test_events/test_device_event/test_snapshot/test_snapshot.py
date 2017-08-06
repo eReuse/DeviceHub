@@ -6,7 +6,7 @@ from assertpy import assert_that
 from bson import objectid
 from pydash import map_
 from pydash import pick
-from pydash import select
+from pydash import filter_
 
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
@@ -97,7 +97,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
         def check_relationship(all_components: list, components_sn: set, device_id: str, snapshot: dict = None):
             """Checks that the components whose SerialNumber are in *components_sn* are in device and otherwise."""
             device = self.get_and_check(self.DEVICES, item=device_id)
-            _components = select(all_components, lambda c: c[SN] in components_sn)
+            _components = filter_(all_components, lambda c: c[SN] in components_sn)
             assert_that(_components).is_length(len(components_sn))
             components_id = map_(_components, '_id')
             # Components and parent are in Snapshot

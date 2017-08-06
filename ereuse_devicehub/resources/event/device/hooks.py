@@ -2,11 +2,10 @@ import copy
 
 import pymongo
 from flask import current_app
-from pydash import chain
+from pydash import chain, merge_with
 from pydash import concat
 from pydash import map_
 from pydash import map_values
-from pydash import merge
 from pydash import uniq
 
 from ereuse_devicehub.exceptions import SchemaError
@@ -184,4 +183,4 @@ def fill_devices_field_from_groups(resource_name: str, events: list):
                     devices, groups = get_descendants(ids, group_name)
                     event['devices'].extend(devices)
                     # We need to add `dest or []` because https://github.com/dgilland/pydash/issues/95
-                    merge(event['groups'], groups, callback=lambda dest, source: concat(dest or [], source))
+                    merge_with(event['groups'], groups, callback=lambda dest, source: concat(dest or [], source))

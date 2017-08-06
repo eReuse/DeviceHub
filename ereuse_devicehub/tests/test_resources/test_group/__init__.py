@@ -1,7 +1,7 @@
+import sys
 from pprint import pprint
 
 import pymongo
-import sys
 from assertpy import assert_that
 from flask import json, app
 
@@ -119,9 +119,9 @@ class TestGroupBase(TestStandard):
             response = self.get_and_check('group-log-entry', params=params)
             entry = response['_items'][0]
             if added:
-                assert_that(entry).has_added(added)
+                assert_that(added).is_subset_of(entry.get('added', None))
             if removed:
-                assert_that(entry).has_removed(removed)
+                assert_that(removed).is_subset_of(entry.get('removed', None))
         except Exception as e:
             # There is a really strange bug that happens few times when running (not debugging!) tests
             # The following lines can help trace it when it happens

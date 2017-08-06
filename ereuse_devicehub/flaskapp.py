@@ -2,6 +2,7 @@
 DeviceHub app
 """
 import inspect
+import locale
 
 import flask_cors
 import flask_excel
@@ -47,6 +48,7 @@ class DeviceHub(Eve):
         kwargs.setdefault('static_url_path', '/static')
         super().__init__(import_name, settings, validator, data, auth, redis, url_converters, json_encoder, media,
                          **kwargs)
+        self.check()
         self.json_encoder = MongoJSONEncoder
         self.request_class = RequestSignedJson
         self.mongo_encoder = mongo_encoder()
@@ -146,3 +148,18 @@ class DeviceHub(Eve):
                     .map_keys(lambda _, key: camelize(key, False)) \
                     .value()
         return send_response(None, (schemas,))
+
+    @staticmethod
+    def check():
+        """Performs startup generic checks"""
+        if locale.getpreferredencoding().lower() != 'utf-8':
+            """
+            Python3 uses by default the system set, but it expects it to be ‘utf-8’ to work correctly.
+            An example how to 'fix' it:
+
+            nano .bash_profile and add the following:
+            export LC_CTYPE=en_US.UTF-8
+            export LC_ALL=en_US.UTF-8
+            """
+            raise OSError('DeviceHub will only work well with UTF-8 systems, however yours is {}'
+                          .format(locale.getpreferredencoding()))

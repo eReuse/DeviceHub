@@ -1,12 +1,14 @@
 from bson.objectid import ObjectId
-from ereuse_devicehub.data_layer import mongo_encode
-from ereuse_devicehub.exceptions import StandardError
-from ereuse_devicehub.resources.resource import ResourceSettings
 from flask import current_app
 from passlib.utils import classproperty
 from pydash import merge
 from pymongo import ReturnDocument
 from pymongo.collection import Collection
+from pymongo.cursor import Cursor
+
+from ereuse_devicehub.data_layer import mongo_encode
+from ereuse_devicehub.exceptions import StandardError
+from ereuse_devicehub.resources.resource import ResourceSettings
 
 
 class Domain:
@@ -35,16 +37,18 @@ class Domain:
 
     @classmethod
     @mongo_encode('query_filter')
-    def get(cls, query_filter: dict) -> list:
+    def get(cls, query_filter: dict, as_list: bool = True) -> list or Cursor:
         """
         Obtains several resources.
         :param query_filter: A Mongo filter to obtain the resources.
+        :param as_list: Should be returned as a list or as a generator?
         """
-        return list(current_app.data.find_raw(cls.resource_name, query_filter))
+        result = current_app.data.find_raw(cls.resource_name, query_filter)
+        return list(result) if as_list else result
 
     @classmethod
     @mongo_encode('values')
-    def get_in(cls, field: str, values: list):
+    def get_in(cls, field: str, values: list, as_list: bool = True):
         """The same as get({field: {$in: values}})."""
         return cls.get({field: {'$in': values}})
 

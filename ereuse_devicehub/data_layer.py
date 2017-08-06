@@ -5,6 +5,7 @@ from bson.objectid import ObjectId
 from eve.io.mongo import Mongo
 from flask import current_app
 from pydash import transform
+from pymongo.cursor import Cursor
 
 
 class MongoEncoder:
@@ -74,9 +75,9 @@ class DataLayer(Mongo):
         return list(self.pymongo(resource).db[datasource].aggregate(pipeline))
 
     @mongo_encode('query_filter')
-    def find_raw(self, resource, query_filter):
+    def find_raw(self, resource, query_filter) -> Cursor:
         datasource, *_ = self.datasource(resource)
-        return list(self.pymongo(resource).db[datasource].find(query_filter))
+        return self.pymongo(resource).db[datasource].find(query_filter)
 
     @mongo_encode('id_or_query')
     def find_one_raw(self, resource, id_or_query: ObjectId or dict or str):

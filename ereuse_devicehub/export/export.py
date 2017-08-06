@@ -1,4 +1,4 @@
-from collections import defaultdict, OrderedDict
+from collections import defaultdict, OrderedDict, Iterator
 from contextlib import suppress
 from datetime import timedelta
 
@@ -49,27 +49,30 @@ def export(db, resource):
             group = domain.get_one(_id)
             # Let's get the full devices and their components with embedded stuff
             devices = f(domain.get_descendants(DeviceDomain, _id))
-            for device in devices:
-                device['components'] = get_components(device['components'], db, token)
-            spreadsheets[group.get('label', group['_id'])] = translator.translate(devices)
+            devices_with_components = map(lambda device: get_components(device, db, token), devices)
+            spreadsheets[group.get('label', group['_id'])] = translator.translate(devices_with_components)
     else:
         # Let's get the full devices and their components with embedded stuff
-        devices = DeviceDomain.get_in('_id', ids) if ids else DeviceDomain.get({'@type': {'$nin': Component.types}})
-        for device in devices:
-            device['components'] = get_components(device['components'], db, token)
-        spreadsheets['Devices'] = translator.translate(devices)
+        QUERY = {'@type': {'$nin': Component.types}}
+        devices = DeviceDomain.get_in('_id', ids, False) if ids else DeviceDomain.get(QUERY, False)
+        devices_with_components = map(lambda device: get_components(device, db, token), devices)
+        spreadsheets['Devices'] = translator.translate(devices_with_components)
     return excel.make_response_from_book_dict(spreadsheets, file_type, file_name=resource)
 
 
-def get_components(ids, db, token) -> list:
-    """Get the passed-in components with their tests and erasures embedded"""
-    if not ids:
-        return []
+def get_components(device, db, token) -> dict:
+    """
+    Get the passed-in components with their tests and erasures embedded
+    :return The device
+    """
+    if not device['components']:
+        return device
     params = {
-        'where': {'_id': {'$in': ids}},
+        'where': {'_id': {'$in': device['components']}},
         'embedded': {'tests': 1, 'erasures': 1}
     }
-    return execute_get(db + '/devices', token, params=params)['_items']
+    device['components'] = execute_get(db + '/devices', token, params=params)['_items']
+    return device
 
 
 class SpreadsheetTranslator(Translator):
@@ -119,7 +122,6 @@ class SpreadsheetTranslator(Translator):
             translated[header + ' model'] = component.get('model', '')
             translated[header + ' manufacturer'] = component.get('manufacturer', '')
             if not self.brief or _type not in {'Motherboard', 'RamModule', 'Processor'}:
-
                 translated[header] = pick(component)
                 if _type == 'HardDrive':
                     with suppress(KeyError):
@@ -143,12 +145,11 @@ class SpreadsheetTranslator(Translator):
                     for field in 'size', 'speed':
                         with suppress(KeyError):
                             translated[header + ' ' + field] = component[field]
-
         if 'Registered in' in translated:
             translated['Registered in'] = str(translated['Registered in'])
         return translated
 
-    def translate(self, devices: list) -> list:
+    def translate(self, devices: Iterator) -> list:
         """Translates a spreadsheet, which is a table of resources as rows plus the field names as header."""
         translated = super().translate(devices)
         # Let's transform the dict to a table-like array

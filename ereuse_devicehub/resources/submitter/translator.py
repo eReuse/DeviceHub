@@ -1,3 +1,5 @@
+from collections import Iterator
+
 from pydash import map_values, py_
 
 
@@ -17,7 +19,7 @@ class Translator:
         self._translate_many = py_().map(lambda r: self.translate_one(r)).compact()
         self.dict = dictionary
 
-    def translate(self, resources: list) -> list:
+    def translate(self, resources: Iterator) -> list:
         """
         Translates many resources.
         @:return A list of translated resources.

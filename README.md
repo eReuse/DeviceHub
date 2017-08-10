@@ -28,10 +28,20 @@ events to them. We can *Repair* a device, *Allocate* it to an employee, etc.
 ### Requirements
 * Python 3.5 or newer.
 * MongoDB 3.4 or newer.
+* GnuPG. For debian, ``gpg2``.
+* Weasyprint requires some system packages. 
+  [Their docs explain which ones and how to install them](http://weasyprint.readthedocs.io/en/stable/install.html).
 
-To install it just type in a console:
 
-``pip install eReuse-DeviceHub``
+### Installing
+
+After installing the above requirements, type in a console:
+
+```bash
+    pip3 install git+https://github.com/eReuse/DeviceHub.git
+```
+
+### Running
 
 And to use it create a python file with the following and run it:
 
@@ -42,5 +52,7 @@ app.run()
 ```
 
 ### Testing
+Ensure first you have the requirements of the above section.
+
 To test it, download it from git through `git clone ...` and execute the following in the project directory:
- `python setup.py test`. This will install everything required for running the tests and execute them. 
+ `python3 setup.py test`. This will install everything required for running the tests and execute them. 

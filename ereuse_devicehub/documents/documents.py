@@ -1,7 +1,7 @@
 from eve.auth import requires_auth
 from flask import Blueprint, request, render_template, Response, make_response
 from flask_weasyprint import HTML, render_pdf
-from lazy_object_proxy import identity
+from pydash import identity
 
 from ereuse_devicehub.exceptions import WrongQueryParam
 from ereuse_devicehub.header_cache import header_cache

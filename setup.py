@@ -13,7 +13,7 @@ setup(
     install_requires=[
         'inflection>=0.3.1',
         'eve>=0.6.3,<0.8',
-        'flask>=0.11'
+        'flask>=0.11',
         'passlib>=1.6.5,<2.0',
         'validators>=0.10,<0.20',
         'requests>=2.9.1,<3.0',

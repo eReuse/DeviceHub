@@ -26,7 +26,7 @@ setup(
         'flask-excel>=0.0.7,<0.0.8',
         'pyexcel-ods',
         'pyexcel-xlsx',
-        'pydash>=4.0,5.0',
+        'pydash>=4.0,<5.0',
         'sortedcontainers>=1.5.7,<1.6',
         'geojson_utils',
         'geojson>=1.3.4,<1.4',
@@ -34,7 +34,8 @@ setup(
         'flask-cors>=3.0.2,<4',
         'shortid>=0.1.2,<0.2',
         'beautifulsoup4>=4.6,<5',
-        'wikipedia>=1.4,<2'
+        'wikipedia>=1.4,<2',
+        'WeasyPrint'
     ],
     keywords='eReuse.org DeviceHub devices devicehub reuse recycle it asset management',
     # http://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies

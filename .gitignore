@@ -45,6 +45,9 @@ coverage.xml
 *.log
 *.pot
 
+# Compiled python
+*.pyc
+
 # Sphinx documentation
 docs/_build/
 docs/modules
@@ -52,8 +55,12 @@ docs/modules
 # Logs
 logs/**
 
+# Testing stuff
 /app.py
 /settings.py
 /dummy.py
 /update.py
 .DS_Store
+/documents
+/templates
+/static

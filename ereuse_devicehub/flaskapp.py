@@ -21,6 +21,7 @@ from shortid import ShortId
 from ereuse_devicehub.aggregation.settings import aggregate_view
 from ereuse_devicehub.data_layer import DataLayer, MongoEncoder
 from ereuse_devicehub.dh_pydash import pydash
+from ereuse_devicehub.documents.documents import documents
 from ereuse_devicehub.error_handler import ErrorHandlers
 from ereuse_devicehub.export.export import export
 from ereuse_devicehub.hooks import hooks
@@ -70,6 +71,8 @@ class DeviceHub(Eve):
         self.add_cors_url_rule('/<db>/export/<resource>', view_func=export)
         self.add_cors_url_rule('/<db>/events/<resource>/placeholders', view_func=placeholders, methods=('POST',))
         self.add_cors_url_rule('/<db>/inventory', view_func=inventory)
+        self.register_blueprint(documents)
+        self._load_jinja_filters()
         if self.config.get('GRD', True):
             self.grd_submitter_caller = SubmitterCaller(self, GRDSubmitter)
 
@@ -163,3 +166,12 @@ class DeviceHub(Eve):
             """
             raise OSError('DeviceHub will only work well with UTF-8 systems, however yours is {}'
                           .format(locale.getpreferredencoding()))
+
+    def _load_jinja_filters(self):
+        """
+        Adds globally useful jinja filters.
+
+        The only way to use regular functions in jinja is by passing them through here and converting them
+        to a jinja filter.
+        """
+        self.jinja_env.filters['pydash_get'] = pydash.get

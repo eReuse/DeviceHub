@@ -5,10 +5,11 @@ from urllib.parse import urlencode
 from eve.methods.delete import deleteitem_internal
 from eve.methods.patch import patch_internal
 from eve.methods.post import post_internal
-from flask import request, current_app, json, g
+from flask import current_app, json, g
 from pydash import map_values
 
 from ereuse_devicehub.exceptions import InnerRequestError
+from ereuse_devicehub.resources.account.domain import AccountDomain
 
 
 def execute_post_internal(resource: str, payload: dict, skip_validation=False) -> dict:
@@ -48,7 +49,7 @@ def execute_get(absolute_path_ref: str, token: str or bytes = None, params: dict
     if params:
         absolute_path_ref += '?' + urlencode(map_values(params, lambda v: json.dumps(v) if type(v) is dict else v))
     if token is None:
-        auth = request.headers.environ['HTTP_AUTHORIZATION']
+        auth = AccountDomain.auth_header
     else:
         auth = b'Basic ' + (token if type(token) == bytes else bytes(token, 'utf8'))
     with BlankG():

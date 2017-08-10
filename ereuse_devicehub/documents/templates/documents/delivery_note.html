@@ -1,0 +1,23 @@
+{% extends "documents/layout.html" %}
+{% import 'documents/macros.html' as macros %}
+{% block body %}
+  <section>
+    <table class="table table-bordered">
+      <tr>
+        <th>Date</th>
+        <td>2017-01-01</td>
+        <th>Deliver to</th>
+        <td>Organization</td>
+        <th>Sales person</th>
+        <td>XYZ</td>
+      </tr>
+      <tr>
+        <th>Shipping date</th>
+        <td>2017-01-023</td>
+        <th>Shipping items</th>
+        <td>{{ devices|length }}</td>
+      </tr>
+    </table>
+    {{ macros.device_table(devices, fields) }}
+  </section>
+{% endblock %}

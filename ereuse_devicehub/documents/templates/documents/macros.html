@@ -1,0 +1,26 @@
+{% macro device_table(devices, fields) %}
+  <table class="table table-striped table-condensed">
+    <thead>
+      <tr>
+        {% for field in fields %}
+          <th>{{ field.name }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for device in devices %}
+        <tr>
+          {% for field in fields %}
+            <td>
+              {% if 'macro' in field %}
+                {{ fields['macro'](device) }}
+              {% else %}
+                {{ device|pydash_get(field['path']) }}
+              {% endif %}
+            </td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endmacro %}

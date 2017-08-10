@@ -1,0 +1,31 @@
+{#
+  The layout is the base template for documents.
+  Extend it (like it is done in 'delivery_note') to create your own documents.
+
+  Weasyprint (the library used to create DPFs) relies on CSS commands. Go to ../static/style.css for more info.
+
+  Override the templates to customize them, using flask's default way of doing so, and note that by overriding
+  this template
+
+#}
+{% import 'documents/base_macros.html' as base_macros %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('Documents.static', filename='style.css') }}">
+    {{ base_macros.head() }}
+  </head>
+  <body>
+    {{ base_macros.pre_container() }}
+    <div class="container">
+      <div class="row">
+        <header class="page-header">
+          <h1>{{ title }}</h1>
+        </header>
+        {% block body %}{% endblock %}
+      </div>
+    </div>
+  </body>
+</html>

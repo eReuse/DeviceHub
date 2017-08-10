@@ -84,8 +84,8 @@ class TestBase(TestMinimal):
         if self.app.config.get('GRD', False):
             # We call the method again as we have erased the DB
             self.app.grd_submitter_caller = SubmitterCaller(self.app, GRDSubmitter)
-        # self.app.grd_submitter_caller.token = self.app.grd_submitter_caller.prepare_user(self.app)
-        # self.app.grd_submitter_caller.process = None
+            # self.app.grd_submitter_caller.token = self.app.grd_submitter_caller.prepare_user(self.app)
+            # self.app.grd_submitter_caller.process = None
 
     def create_dummy_user(self):
         self.db.accounts.insert_one(
@@ -120,7 +120,6 @@ class TestBase(TestMinimal):
             # We terminate the child process
             del self.app.grd_submitter_caller
         del self.app
-
 
     def drop_databases(self):
         self.connection.drop_database(self.MONGO_DBNAME)
@@ -163,7 +162,7 @@ class TestBase(TestMinimal):
         headers = headers or []
         return self._post(full_url, data, self.token, headers, content_type)
 
-    def _post(self, url, data, token: str=None, headers=None, content_type='application/json'):
+    def _post(self, url, data, token: str = None, headers=None, content_type='application/json'):
         headers = headers or []
         if token:
             headers.append(('Authorization', 'Basic ' + token))
@@ -295,7 +294,8 @@ class TestStandard(TestBase):
             m += 'Response:\n{}'.format(response)
             raise AssertionError(m)
 
-    def get_and_check(self, resource, query='', item=None, authorize=True, database=None, params=None, embedded=None):
+    def get_and_check(self, resource: str, query: str = '', item: str = None, authorize: bool = True,
+                      database: str = None, params: dict = None, embedded: dict = None):
         response, status_code = self.get(resource, query, item, authorize, database, params, embedded)
         try:
             self.assert200(status_code)
@@ -317,7 +317,8 @@ class TestStandard(TestBase):
         mounted = self.get_fixture(self.SNAPSHOT, 'mounted')
         mounted['device']['forceCreation'] = True
         mounted = self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), mounted)
-        return [self.get_and_check(self.EVENTS, item=event['events'][0])['device'] for event in [vaio, vostro, xps13, mounted]]
+        devices = vaio, vostro, xps13, mounted
+        return [self.get_and_check(self.EVENTS, item=event['events'][0])['device'] for event in devices]
 
     def devices_do_not_contain_places(self, device_id: str):
         """ The opposite of `device_and_place_contain_each_other`."""

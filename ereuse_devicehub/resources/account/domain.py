@@ -51,12 +51,24 @@ class AccountDomain(Domain):
 
     @classproperty
     def actual_token(cls) -> str:
-        """Gets the **unhashed** token. Use `hash_token` to hash it."""
+        """
+        Gets the **unhashed** token. Use `hash_token` to hash it.
+        :raise StandardError: The authorization header is invalid or missing.
+        """
         try:
             x = request.headers.environ['HTTP_AUTHORIZATION']
             return parse_authorization_header(x)['username']
         except (KeyError, TypeError) as e:
             raise StandardError('The Authorization header is not well written or missing', 400) from e
+
+    @classproperty
+    def auth_header(cls) -> str:
+        """
+        The actual authentication header.
+        :raise StandardError: The authorization header is invalid or missing.
+        """
+        cls.actual_token  # Actual token will parse the header and ensure it is valid
+        return request.headers.environ['HTTP_AUTHORIZATION']
 
     @classmethod
     def get_one(cls, id_or_filter: dict or ObjectId or str):

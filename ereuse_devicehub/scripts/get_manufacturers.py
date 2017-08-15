@@ -10,7 +10,6 @@ from pydash import py_
 from requests import HTTPError
 from wikipedia import wikipedia
 
-from ereuse_devicehub import DeviceHub
 from ereuse_devicehub.resources.manufacturers import ManufacturerDomain
 from ereuse_devicehub.utils import get_json_from_file
 
@@ -118,6 +117,8 @@ if __name__ == '__main__':
     epilog = 'Minimum example: python get_manufacturers.py'
     parser = argparse.ArgumentParser(description=desc, epilog=epilog)
     parser.parse_args()
+
+    from ereuse_devicehub import DeviceHub
 
     app = DeviceHub()
     ManufacturersGetter().execute(app)

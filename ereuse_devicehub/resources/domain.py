@@ -98,7 +98,6 @@ class Domain:
         return cls.collection.delete_one(query)
 
     @classmethod
-    @mongo_encode('query')
     def delete_all(cls):
         return cls.collection.drop()
 
@@ -117,6 +116,12 @@ class Domain:
     def insert(cls, document: dict):
         """Inserts a document."""
         current_app.data.insert(cls.resource_name, document)
+
+    @classmethod
+    @mongo_encode('filter')
+    def count(cls, filter:dict=None, **kwargs):
+        """The same as in pymongo.collection.Collection.count"""
+        return cls.collection.count(filter, **kwargs)
 
     @classproperty
     def resource_name(cls) -> str:

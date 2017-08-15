@@ -30,9 +30,11 @@ from ereuse_devicehub.request import RequestSignedJson
 from ereuse_devicehub.resources.account.login.settings import login
 from ereuse_devicehub.resources.event.device.live.geoip_factory import GeoIPFactory
 from ereuse_devicehub.resources.event.device.register.placeholders import placeholders
+from ereuse_devicehub.resources.manufacturers import ManufacturerDomain
 from ereuse_devicehub.resources.resource import ResourceSettings
 from ereuse_devicehub.resources.submitter.grd_submitter.grd_submitter import GRDSubmitter
 from ereuse_devicehub.resources.submitter.submitter_caller import SubmitterCaller
+from ereuse_devicehub.scripts.get_manufacturers import ManufacturersGetter
 from ereuse_devicehub.security.authentication import RolesAuth
 from ereuse_devicehub.static import send_device_icon
 from ereuse_devicehub.url_parse import UrlParse
@@ -75,6 +77,10 @@ class DeviceHub(Eve):
         self._load_jinja_filters()
         if self.config.get('GRD', True):
             self.grd_submitter_caller = SubmitterCaller(self, GRDSubmitter)
+        # Load manufacturers to database if manufacturer's collection in db is empty
+        with self.app_context():
+            if ManufacturerDomain.count() == 0:
+                ManufacturersGetter().execute(self)
 
     def add_cors_url_rule(self, rule, endpoint=None, view_func=None, **options):
         """

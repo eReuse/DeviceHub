@@ -17,7 +17,7 @@ setup(
         'passlib>=1.6.5,<2.0',
         'validators>=0.10,<0.20',
         'requests>=2.9.1,<3.0',
-        'python-gnupg>=0.3.8,<0.4',  # To use gnupg, install gpg2
+        'python-gnupg>=0.3.8',  # To use gnupg, install gpg2
         # Superior versions have a version mismatch of werkzeug with eve
         # Only update flask-caching when updating eve to >=0.8
         'flask-caching<=1.2.0',

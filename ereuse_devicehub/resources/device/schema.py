@@ -1,5 +1,6 @@
 from ereuse_devicehub.resources import events_pk_schema
 from ereuse_devicehub.resources.group.physical.package.settings import Package
+from ereuse_devicehub.resources.condition import condition
 from ..schema import UnitCodes, Thing
 
 
@@ -139,6 +140,14 @@ class Device(IndividualProduct):
         'type': 'boolean',
         'default': False,
         'doc': 'Invalid for components.'
+    }
+    condition = {
+        'type': 'dict',
+        'schema': condition,
+        'sink': 1,
+        'teaser': True,
+        'materialized': True,
+        'doc': 'Materialized condition from the last snapshot.'
     }
 
     @classmethod

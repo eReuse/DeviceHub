@@ -157,20 +157,20 @@ class TestBase(TestMinimal):
         r = self.test_client.get(url, environ_base=environ_base, **kwargs)
         return self.parse_response(r)
 
-    def post(self, url, data, headers=None, content_type='application/json'):
+    def post(self, url: str, data, headers: list = None, content_type='application/json', **kwargs):
         full_url = self.select_database(url) + '/' + url
-        headers = headers or []
-        return self._post(full_url, data, self.token, headers, content_type)
+        return self._post(full_url, data, self.token, headers, content_type, **kwargs)
 
-    def _post(self, url, data, token: str = None, headers=None, content_type='application/json'):
+    def _post(self, url, data, token: str = None, headers: list = None, content_type='application/json', **kwargs):
         headers = headers or []
         if token:
             headers.append(('Authorization', 'Basic ' + token))
-        if type(data) is str:
-            headers.append(('Content-Type', content_type))
-            r = self.test_client.post(url, data=data, headers=headers)
-            return self.parse_response(r)
-        return super(TestBase, self).post(url, data, headers, content_type)
+        if type(data) is not str:
+            data = json.dumps(data)
+        # from super method
+        headers.append(('Content-Type', content_type))
+        r = self.test_client.post(url, data=data, headers=headers, **kwargs)
+        return self.parse_response(r)
 
     def patch(self, url, data, headers=None, item=None):
         headers = headers or []

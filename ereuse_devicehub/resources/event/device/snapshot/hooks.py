@@ -1,14 +1,14 @@
 from contextlib import suppress
 
+from flask import request, g
+from werkzeug.local import LocalProxy
+
 from ereuse_devicehub.exceptions import InnerRequestError
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.domain import EventNotFound
 from ereuse_devicehub.rest import execute_delete
 from ereuse_devicehub.utils import Naming
-from flask import request, g
-from werkzeug.local import LocalProxy
-
 from .snapshot import Snapshot, SnapshotWithoutComponents
 
 
@@ -50,6 +50,13 @@ def materialize_erase_basic(_):
 
 def _materialize_event_in_device(event, field_name):
     DeviceDomain.update_one_raw(event['device'], {'$push': {field_name: event['_id']}})
+
+
+def materialize_condition(snapshots: list):
+    """Materializes condition of devices after successful snapshot"""
+    for snapshot in snapshots:
+        if 'condition' in snapshot:
+            DeviceDomain.update_one_raw(snapshot['device'], {'$set': {'condition': snapshot['condition']}})
 
 
 def set_secured(snapshots: list):

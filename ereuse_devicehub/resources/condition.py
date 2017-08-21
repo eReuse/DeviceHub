@@ -38,7 +38,6 @@ condition = {
     },
     'labelling': {
         'type': 'boolean',
-        'default': False,
         'description': 'Sets if there are labels stuck that should be removed.'
     },
     'bios': {

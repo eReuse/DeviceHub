@@ -95,6 +95,13 @@ class SpreadsheetTranslator(Translator):
         d['State'] = p.get('events').head().pick('@type', 'label').join(' ')
         if not brief:
             d['Registered in'] = p.get('_created')
+        d['Condition'] = p.get('condition.general.score')
+        d['Condition Range'] = p.get('condition.general.range')
+        if not brief:
+            d['Appearance'] = p.get('condition.appearance')
+            d['Functionality'] = p.get('condition.functionality')
+            d['Labelling'] = p.get('condition.labelling')
+            d['Bios'] = p.get('condition.bios')
         d['Processor'] = p.get('processorModel')
         d['RAM (GB)'] = p.get('totalRamSize').floor()
         d['HDD (MB)'] = p.get('totalHardDriveSize').floor()

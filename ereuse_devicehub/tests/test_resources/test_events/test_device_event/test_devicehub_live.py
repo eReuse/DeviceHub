@@ -2,6 +2,7 @@ import pickle
 from unittest.mock import MagicMock
 
 from assertpy import assert_that
+
 from ereuse_devicehub.resources.event.device.live.hooks import save_ip
 from ereuse_devicehub.tests.test_resources.test_events import TestEventWithPredefinedDevices
 
@@ -30,7 +31,11 @@ class TestDeviceHubLive(TestEventWithPredefinedDevices):
         return_insights = pickle.loads(fixture)
         self.client.insights = MagicMock(return_value=return_insights)
         post = {'device': '1', '@type': 'devices:Live'}
-        result = self.post_and_check('{}/live'.format(self.DEVICE_EVENT), post)
+        uri = '{}/live'.format(self.DEVICE_EVENT)
+        # We need to emulate through environ_base our IP, as test_client sets environ_base to None
+        # https://stackoverflow.com/questions/14872829
+        result, status = self.post(uri, post, environ_base={'REMOTE_ADDR': '127.0.0.1'})
+        self.assert201(status)
         # Let's check the registered event.
         live = self.get_and_check(self.EVENTS, '', result['_id'])
         assert_that(self.get_fixture('live', 'event')).is_subset_of(live)

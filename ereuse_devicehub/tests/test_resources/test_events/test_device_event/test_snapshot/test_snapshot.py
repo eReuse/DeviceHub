@@ -1,12 +1,13 @@
 import copy
 import os
 import uuid
+from random import choice
 
 from assertpy import assert_that
 from bson import objectid
+from pydash import filter_
 from pydash import map_
 from pydash import pick
-from pydash import filter_
 
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
@@ -270,16 +271,21 @@ class TestSnapshot(TestEvent, TestGroupBase):
     def test_snapshot_2015_12_09(self, maximum: int = None, extra_fields_snapshot: dict = None):
         this_directory = os.path.dirname(os.path.realpath(__file__))
         file_directory = os.path.join(this_directory, 'resources', '2015-12-09')
-        i = 0
-        for filename in os.listdir(file_directory):
+        for i, filename in enumerate(os.listdir(file_directory)):
             if maximum is not None and i >= maximum:
                 break
             if 'json' in filename:
                 snapshot = self.get_json_from_file(filename, file_directory)
+                if choice((True, False)): # Randomly adds condition
+                    snapshot['condition'] = {
+                        'appearance': {'general': choice(('A', 'B', 'C', 'D', 'E', '0'))},
+                        'functionality': {'general': choice(('A', 'B', 'C', 'D'))},
+                        'labelling': choice((True, False)),
+                        'bios': {'general': choice(('A', 'B', 'C', 'D', 'E'))}
+                    }
                 snapshot.update(extra_fields_snapshot or {})
                 num_events = self.get_num_events(snapshot)
                 self.creation(snapshot, num_events)
-                i += 1
 
     def test_benchmark(self):
         # todo add benchmark for processors (which is done in `test_erase_sectors`
@@ -419,19 +425,26 @@ class TestSnapshot(TestEvent, TestGroupBase):
         See their definition in :func:`ereuse_devicehub.resources.condition.condition`
         """
         snapshot = self.get_fixture(self.SNAPSHOT, 'vaio')
-        snapshot['condition'] = condition = {
+        snapshot['condition'] = {
             'appearance': {'general': 'A'},
             'functionality': {'general': 'C'},
             'labelling': False,
             'bios': {'general': 'E'}
         }
+        condition = copy.deepcopy(snapshot['condition'])
         result = self.post_snapshot(snapshot)
         snapshot_result = self.get_and_check(self.EVENTS, item=result['_id'])
         assert_that(snapshot_result).has_condition(condition)
+        # Ensure the materialization is correct
+        device = self.get_and_check(self.DEVICES, item=snapshot_result['device'])
+        assert_that(device).has_condition(condition)
         # Now let's make it wrong
         snapshot['condition']['bios'] = 'X'
         _, status = self.post(self.SNAPSHOT_URL, snapshot)
         self.assert422(status)
+        # The materialization has not changed
+        device = self.get_and_check(self.DEVICES, item=snapshot_result['device'])
+        assert_that(device).has_condition(condition)
 
     def _test_giver(self, snapshot, account_email):
         _, device_id = self.creation(snapshot, 2, False)

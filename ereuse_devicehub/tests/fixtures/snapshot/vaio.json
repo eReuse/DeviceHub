@@ -58,6 +58,18 @@
       "model": "7 Series/C210 Series Chipset Family High Definition Audio Controller"
     }
   ],
+  "condition": {
+    "appearance": {
+      "general": "A"
+    },
+    "functionality": {
+      "general": "C"
+    },
+    "labelling": false,
+    "bios": {
+      "general": "E"
+    }
+  },
   "device": {
     "@type": "Computer",
     "label": "",

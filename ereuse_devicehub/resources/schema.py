@@ -29,27 +29,6 @@ class UnitCodes:
             if code == code_to_search:
                 return human_name
 
-
-class ResourceCache:
-    """Simple cache for classproperties of resources."""
-    _cache = defaultdict(dict)
-
-    @classmethod
-    def cache(cls):
-        def decorator(f):
-            property_name = f.__name__
-
-            @functools.wraps(f)
-            def wrapped(other_cls, *args, **kwargs):
-                if property_name not in cls._cache[other_cls.__name__]:
-                    cls._cache[other_cls.__name__][property_name] = f(other_cls, *args, **kwargs)
-                return cls._cache[other_cls.__name__][property_name]
-
-            return wrapped
-
-        return decorator
-
-
 class RDFS(Resource):
     label = {
         'type': 'string',
@@ -152,7 +131,6 @@ class RDFS(Resource):
     """The following methods are not used to build the schema"""
 
     @classproperty
-    @ResourceCache.cache()
     def types(cls):
         """
             Obtains the resource type (e.g. Accept) of the actual class and its subclasses.
@@ -170,7 +148,6 @@ class RDFS(Resource):
         return cls._parent().type_name
 
     @classproperty
-    @ResourceCache.cache()
     def resource_names(cls):
         return {Naming.resource(type_name) for type_name in cls.types}
 

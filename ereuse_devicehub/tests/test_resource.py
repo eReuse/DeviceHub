@@ -1,4 +1,5 @@
 from assertpy import assert_that
+
 from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.device.settings import DeviceSubSettings
 from ereuse_devicehub.resources.resource import Resource
@@ -12,20 +13,18 @@ class TestResource(TestStandard):
     dummy_device_class = {dummy_field: {'type': 'string'}}
     dummy_device_settings = {dummy_field: 'just to try'}
 
-    def setUp(self, settings_file=None, url_converters=None):
-        """
-        Creates a dummy sub-type of device. Note that we need to do it before instantiating the app.
-        :param settings_file:
-        :param url_converters:
-        :return:
-        """
-        self.create_dummy_type_of_device()
-        super().setUp(settings_file, url_converters)
-
-    def create_dummy_type_of_device(self):
-        # todo this method will fail if TestResource is not the **first** test executed
-        Resource.create(self.dummy_device_name, Device, self.dummy_device_class, DeviceSubSettings,
-                        self.dummy_device_settings)
+    def prepare(self):
+        DummyDevice, DummyDeviceSettings = Resource.create(self.dummy_device_name, Device, self.dummy_device_class,
+                                                 DeviceSubSettings, self.dummy_device_settings)
+        self.DummyDevice = DummyDevice
+        self.DummyDeviceSettings = DummyDeviceSettings
+        # If this test is not called as the first method it is not automatically added to DeviceHub
+        # And we need to register the resource directly by executing the following method manually:
+        # Note that this method is not needed if Resource.create is called before app = DeviceHub()
+        # and that we can't add id in setUp() before calling app = DeviceHub() as python is reusing stuff from memory
+        # between tests causing this to fail (can know why?)
+        self.app.register_resource(DummyDeviceSettings.resource_name(), DummyDeviceSettings)
+        super().prepare()
 
     def test_resource(self):
         """
@@ -36,7 +35,7 @@ class TestResource(TestStandard):
         # The endpoint is defined in setUp and created as part of the regular workflow in DeviceHub.
         # Let's validate it.
         resource_name = Naming.resource(self.dummy_device_name)
-        self.assertIn(resource_name, self.domain)
+        assert_that(self.domain).contains(resource_name)
         settings = self.domain[resource_name]
         assert_that(self.dummy_device_class).is_subset_of(settings['schema'])
         assert_that(self.dummy_device_settings).is_subset_of(settings)

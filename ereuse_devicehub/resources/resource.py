@@ -110,7 +110,7 @@ class Resource:
 
     @classmethod
     def create(cls, name: str, parent_schema: object, schema: dict, parent_resource_settings: object,
-               resource_settings: dict):
+               resource_settings: dict) -> (type, type):
         """
         Defines a new resource, setting its endpoint settings and schema.
 
@@ -126,6 +126,7 @@ class Resource:
         resource_settings_name = '{}Settings'.format(name)
         resource_settings['_schema'] = globals()[name]
         globals()[resource_settings_name] = type(resource_settings_name, (parent_resource_settings,), resource_settings)
+        return globals()[name], globals()[resource_settings_name]
 
 
 class ResourceSettings(Resource):

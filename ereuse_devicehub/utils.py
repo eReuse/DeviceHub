@@ -61,6 +61,7 @@ class Naming:
             prefix = ''
             resulting_type = string
         resulting_type = inflection.singularize(resulting_type) if Naming._pluralize(resulting_type) else resulting_type
+        resulting_type = resulting_type.replace('-', '_')  # camelize does not convert '-' but '_'
         return prefix + inflection.camelize(resulting_type)
 
     @staticmethod

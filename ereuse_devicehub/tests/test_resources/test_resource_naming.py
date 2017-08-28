@@ -19,6 +19,9 @@ class TestResourceNaming(TestBase):
         equal = supposed_resource_name if prefix is None else '{}{}{}'.format(prefix, Naming.RESOURCE_PREFIX,
                                                                               supposed_resource_name)
         assert_that(resource_name).is_equal_to(equal)
+        # Now let's try just generating a type from the resource name
+        type_name = Naming.type(supposed_resource_name)
+        assert_that(type_name).is_equal_to(original_type)
 
     def test_prefix(self):
         """

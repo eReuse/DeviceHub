@@ -132,7 +132,7 @@ class TestGroupBase(TestStandard):
             pprint(removed, stream=sys.stderr)
             pprint(response, stream=sys.stderr)
             with self.app.test_request_context('/{}/devices'.format(self.db1)):
-                pprint(list(self.app.data.find_raw('group-log', {})))
+                pprint(list(self.app.data.find_raw('group-log-entry', {})))
             pprint(self.get_and_check('group-log-entry'), stream=sys.stderr)
             raise AssertionError('Last log entry is not as described.') from e
 

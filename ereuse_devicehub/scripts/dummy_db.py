@@ -52,9 +52,12 @@ class DummyDB:
             package['label'] = 'package' + str(i)
             package['children'] = {'devices': [computer]}
             package_id = self.test.post_and_check(self.test.PACKAGES, package)['_id']
+            pallet = self.test.get_fixture(self.test.GROUPS, 'pallet')
+            pallet['children'] = {'packages': [package_id]}
+            pallet_id = self.test.post_and_check(self.test.PALLETS, pallet)['_id']
             lot = self.test.get_fixture(self.test.LOTS, 'lot')
             lot['label'] = 'lot' + str(i)
-            lot['children'] = {'packages': [package_id]}
+            lot['children'] = {'pallets': [pallet_id]}
             lot_id = self.test.post_and_check(self.test.LOTS, lot)['_id']
             place = self.test.get_fixture(self.test.PLACES, 'place')
             place['label'] = 'place' + str(i)
@@ -62,7 +65,6 @@ class DummyDB:
             # Remember that we need to explicitly add the package to the place
             place['children'] = {'lots': [lot_id], 'packages': [package_id]}
             self.test.post_and_check(self.test.PLACES, place)
-
         self.test.post_fixture(self.test.LOTS, self.test.LOTS, 'lot')
         pprint('Finished basic creation of devices.')
 

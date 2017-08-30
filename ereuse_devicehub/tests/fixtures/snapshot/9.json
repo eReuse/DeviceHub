@@ -13,6 +13,7 @@
   	"label": "linux-mint-1801-ca.fsa",
   	"success": true
   },
+  "licenseKey": "foo-bar-foo",
   "tests": [
   	{
   		"elapsed": "1:38:26",

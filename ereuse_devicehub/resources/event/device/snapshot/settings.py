@@ -187,6 +187,9 @@ class Snapshot(EventWithOneDevice):
         'type': 'boolean',
         'default': False
     }
+    licenseKey = {
+        'type': 'string'
+    }
 
     @classmethod
     def _clean(cls, attributes: dict, attributes_to_remove: tuple = None) -> dict:

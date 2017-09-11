@@ -14,8 +14,10 @@ from ereuse_devicehub import utils
 from ereuse_devicehub.exceptions import StandardError
 from ereuse_devicehub.flaskapp import DeviceHub
 from ereuse_devicehub.resources.account.domain import AccountDomain
+from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.submitter.grd_submitter.grd_submitter import GRDSubmitter
 from ereuse_devicehub.resources.submitter.submitter_caller import SubmitterCaller
+from ereuse_devicehub.security.perms import ADMIN, ACCESS
 from ereuse_devicehub.utils import Naming
 
 
@@ -29,6 +31,7 @@ class TestBase(TestMinimal):
     GROUPS = 'groups'
     LOTS = 'lots'
     PACKAGES = 'packages'
+    DEVICE_EVENT_SNAPSHOT = DEVICE_EVENT + '/' + SNAPSHOT
 
     def setUp(self, settings_file=None, url_converters=None):
         # noinspection PyUnresolvedReferences
@@ -92,11 +95,12 @@ class TestBase(TestMinimal):
             {
                 'email': "a@a.a",
                 'password': AccountDomain.encrypt_password('1234'),
-                'role': 'admin',
+                'role': Role.ADMIN,
                 'token': 'NOFATDNNUB',
-                'databases': self.app.config['DATABASES'],
+                'databases': {db: ADMIN for db in self.app.config['DATABASES']},
                 'defaultDatabase': self.app.config['DATABASES'][0],
-                '@type': 'Account'
+                '@type': 'Account',
+                'shared': []
             }
         )
         self.account = self.db.accounts.find_one({'email': 'a@a.a'})
@@ -105,12 +109,13 @@ class TestBase(TestMinimal):
         email, password = self.app.config['AGENT_ACCOUNTS']['self']
         self.db.accounts.insert_one(
             {
-                'role': 'superuser',
+                'role': Role.SUPERMACHINE,
                 'token': 'QYADFBPNZZDFJEWAFGGF',
-                'databases': self.app.config['DATABASES'],
+                'databases': {db: ACCESS for db in self.app.config['DATABASES']},
                 '@type': 'Account',
                 'email': email,
-                'password': AccountDomain.encrypt_password(password)
+                'password': AccountDomain.encrypt_password(password),
+                'shared': []
             }
         )
 
@@ -135,7 +140,8 @@ class TestBase(TestMinimal):
         else:
             return self.app.config['DATABASES'][0]
 
-    def get(self, resource, query='', item=None, authorize=True, database=None, params=None, embedded=None):
+    def get(self, resource: str, query='', item: str = None, authorize: bool = True, db: str = None,
+            params: dict = None, embedded: dict = None, token: str = None, **kwargs) -> (dict, int):
         if embedded:
             params = params or {}
             params['embedded'] = json.dumps(embedded)
@@ -147,21 +153,22 @@ class TestBase(TestMinimal):
             request = '/%s/%s%s' % (resource, item, query)
         else:
             request = '/%s%s' % (resource, query)
+        db = db or self.select_database(resource)
+        return self._get(db + request, (token or self.token) if authorize else None)
 
-        database = database or self.select_database(resource)
-        return self._get(database + request, self.token if authorize else None)
-
-    def _get(self, url, token=None, **kwargs):
+    def _get(self, url: str, token: str = None, **kwargs) -> (dict, int):
         environ_base = {'HTTP_AUTHORIZATION': 'Basic ' + token} if token else {}
         environ_base.update(kwargs.pop('environ_base', {}))
         r = self.test_client.get(url, environ_base=environ_base, **kwargs)
         return self.parse_response(r)
 
-    def post(self, url: str, data, headers: list = None, content_type='application/json', **kwargs):
-        full_url = self.select_database(url) + '/' + url
-        return self._post(full_url, data, self.token, headers, content_type, **kwargs)
+    def post(self, url: str, data, headers: list = None, content_type='application/json', token: str = None,
+             db: str = None, **kwargs) -> (dict, int):
+        full_url = (db or self.select_database(url)) + '/' + url
+        return self._post(full_url, data, token or self.token, headers, content_type, **kwargs)
 
-    def _post(self, url, data, token: str = None, headers: list = None, content_type='application/json', **kwargs):
+    def _post(self, url, data, token: str = None, headers: list = None,
+              content_type='application/json', **kwargs) -> (dict, int):
         headers = headers or []
         if token:
             headers.append(('Authorization', 'Basic ' + token))
@@ -172,25 +179,29 @@ class TestBase(TestMinimal):
         r = self.test_client.post(url, data=data, headers=headers, **kwargs)
         return self.parse_response(r)
 
-    def patch(self, url, data, headers=None, item=None):
+    def patch(self, url: str, data: dict, headers: list = None, item: str = None, token: str = None,
+              db: str = None) -> (dict, int):
         headers = headers or []
         url = url + '/' + str(item) if item else url
-        return self._patch(self.select_database(url) + '/' + url, data, self.token, headers)
+        db = db or self.select_database(url)
+        return self._patch(db + '/' + url, data, token or self.token, headers)
 
-    def _patch(self, url, data, token, headers=None):
+    def _patch(self, url, data, token, headers=None) -> (dict, int):
         headers = headers or []
         headers.append(('authorization', 'Basic ' + token))
         return super(TestBase, self).patch(url, data, headers)
 
-    def put(self, url, data, headers=None):
+    def put(self, url, data, headers=None) -> (dict, int):
         headers = headers or []
         return super(TestBase, self).put(self.select_database(url) + '/' + url, data, headers + [self.auth_header])
 
-    def delete(self, url, headers=None, item=None):
+    def delete(self, url, headers=None, item=None, token: str = None, db: str = None) -> (dict, int):
         headers = headers or []
+        db = db or self.select_database(url)
+        headers.append(('authorization', 'Basic ' + (token or self.token)))
         if item:
             url = url + '/' + item
-        return super(TestBase, self).delete(self.select_database(url) + '/' + url, headers + [self.auth_header])
+        return super(TestBase, self).delete(db + '/' + url, headers + [self.auth_header])
 
     def _login(self) -> str:
         return super(TestBase, self).post('/login', {"email": "a@a.a", "password": "1234"})[0]['token']
@@ -240,28 +251,31 @@ class TestStandard(TestBase):
         return self.get_json_from_file('fixtures/{}/{}.{}'.format(resource_name, file_name, extension), directory,
                                        parse_json, mode)
 
-    def post_fixture(self, resource_name, url, file_name):
-        return self.post_and_check(url, self.get_fixture(resource_name, file_name))
+    def post_fixture(self, resource_name, url, file_name) -> dict:
+        return self.post_201(url, self.get_fixture(resource_name, file_name))
 
     def get_first(self, resource_name):
         return self.get_n(resource_name, 0)
 
     def get_n(self, resource_name, num):
-        resources = self.get(resource_name)
-        return resources[0]['_items'][num]
+        resources = self.get_200(resource_name)
+        return resources['_items'][num]
 
     def get_list(self, resource_name: str, identifiers: list):
         return [self.get(resource_name, '', identifier)[0] for identifier in identifiers]
 
-    def post_and_check(self, url, payload):
-        response, status_code = self.post(url, payload)
-        with self._print_unsuccessful_request(url, response, status_code, payload):
+    def post_201(self, url: str, data, headers: list = None, content_type='application/json', token: str = None,
+                 db: str = None, **kwargs) -> dict:
+        """POSTS and asserts for 201. Returns the response of the POST."""
+        response, status_code = self.post(url, data, headers, content_type, token, db, **kwargs)
+        with self._print_unsuccessful_request(url, response, status_code, data):
             self.assert201(status_code)
         return response
 
-    def patch_and_check(self, url, payload, item=None):
-        response, status_code = self.patch(url, payload, item=item)
-        with self._print_unsuccessful_request(url, response, status_code, payload):
+    def patch_200(self, url: str, data: dict, headers: list = None, item: str = None, token: str = None,
+                  db: str = None) -> dict:
+        response, status_code = self.patch(url, data, headers, item, token, db)
+        with self._print_unsuccessful_request(url, response, status_code, data):
             self.assert200(status_code)
         return response
 
@@ -294,9 +308,10 @@ class TestStandard(TestBase):
             m += 'Response:\n{}'.format(response)
             raise AssertionError(m)
 
-    def get_and_check(self, resource: str, query: str = '', item: str = None, authorize: bool = True,
-                      database: str = None, params: dict = None, embedded: dict = None):
-        response, status_code = self.get(resource, query, item, authorize, database, params, embedded)
+    def get_200(self, resource: str, query: str = '', item: str = None, authorize: bool = True,
+                db: str = None, params: dict = None, embedded: dict = None, token: str = None, **kwargs) -> dict:
+        """Performs a normal GET and then asserts for status code to be 200. Returns the response of the GET."""
+        response, status_code = self.get(resource, query, item, authorize, db, params, embedded, token, **kwargs)
         try:
             self.assert200(status_code)
         except AssertionError:
@@ -316,18 +331,18 @@ class TestStandard(TestBase):
         xps13 = self.post_fixture(self.SNAPSHOT, '{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), 'xps13')
         mounted = self.get_fixture(self.SNAPSHOT, 'mounted')
         mounted['device']['forceCreation'] = True
-        mounted = self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), mounted)
+        mounted = self.post_201('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), mounted)
         devices = vaio, vostro, xps13, mounted
-        return [self.get_and_check(self.EVENTS, item=event['events'][0])['device'] for event in devices]
+        return [self.get_200(self.EVENTS, item=event['events'][0])['device'] for event in devices]
 
     def devices_do_not_contain_places(self, device_id: str):
         """ The opposite of `device_and_place_contain_each_other`."""
-        device = self.get_and_check(self.DEVICES, item=device_id)
+        device = self.get_200(self.DEVICES, item=device_id)
         assert_that(device).does_not_contain('place')
         for component_id in device.get('components', []):
-            component = self.get_and_check(self.DEVICES, item=component_id)
+            component = self.get_200(self.DEVICES, item=component_id)
             assert_that(component).does_not_contain('place')
 
     def set_superuser(self):
         with self.app.app_context():
-            AccountDomain.update_raw(self.account['_id'], {'$set': {'role': 'superuser'}})
+            AccountDomain.update_raw(self.account['_id'], {'$set': {'role': Role.SUPERUSER}})

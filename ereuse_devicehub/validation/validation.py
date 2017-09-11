@@ -16,7 +16,7 @@ from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.utils import coerce_type
 from . import errors as dh_errors
 
-ALLOWED_WRITE_ROLES = 'dh_allowed_write_roles'
+ALLOWED_WRITE_ROLE = 'dh_allowed_write_role'
 COERCE_WITH_CONTEXT = 'coerce_with_context'
 
 
@@ -84,10 +84,10 @@ class DeviceHubValidator(Validator):
             self._validate_definition(other_definition, to, value)  # As the value changed we need to re-do it
         del self._current[field]
 
-    def _validate_dh_allowed_write_roles(self, roles, field, value):
+    def _validate_dh_allowed_write_role(self, role: Role, field: str, _):
         """Only the specified roles can write the field."""
         from ereuse_devicehub.resources.account.domain import AccountDomain
-        if not AccountDomain.actual['role'].has_role(roles):
+        if AccountDomain.actual['role'] < role:
             self._error(field, json_util.dumps({'ForbiddenToWrite': self.document}))
 
     def _validate_or(self, document):
@@ -179,7 +179,7 @@ class DeviceHubValidator(Validator):
         if len(databases) != len(set(databases)):
             self._error(field, json_util.dumps({'DuplicatedDatabases': 'Databases are duplicated'}))
         from ereuse_devicehub.resources.account.domain import AccountDomain
-        if AccountDomain.actual['role'] < Role.SUPERUSER and \
+        if AccountDomain.actual['role'] < Role(Role.SUPERUSER) and \
                 not set(databases).issubset(set(AccountDomain.actual['databases'])):
             self._error(field, json_util.dumps(dh_errors.not_enough_privilege))
 

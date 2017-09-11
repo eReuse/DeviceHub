@@ -37,7 +37,7 @@ def submit_migrate(migrates: dict):
             auth = AgentAuth(migrate['to']['baseUrl'])
             submitter = MigrateSubmitter(current_app, MigrateTranslator(current_app.config), auth=auth)
             try:
-                response, *_ = submitter.submit(migrate, AccountDomain.get_requested_database())
+                response, *_ = submitter.submit(migrate, AccountDomain.requested_database)
                 migrate['to']['url'] = migrate['to']['baseUrl'] + response['_links']['self']['href']
                 _update_same_as(response['returnedSameAs'])
             except InnerRequestError as e:

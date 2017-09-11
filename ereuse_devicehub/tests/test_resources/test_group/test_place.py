@@ -9,7 +9,7 @@ class TestPlace(TestGroupBase):
         self.place = self.get_fixture(self.PLACES, 'place')
 
     def test_create_place_with_coordinates(self):
-        self.post_and_check(self.PLACES, self.place)
+        self.post_201(self.PLACES, self.place)
 
     def test_place_with_devices(self):
         """
@@ -20,7 +20,7 @@ class TestPlace(TestGroupBase):
         computers_id = self.get_fixtures_computers()
         self.place['children'] = {'devices': [computers_id[0]]}
         label = self.place['label']
-        place = self.post_and_check(self.PLACES, self.place)
+        place = self.post_201(self.PLACES, self.place)
         self.is_parent(place['_id'], self.PLACES, computers_id[0], self.DEVICES)
         # Let's PATCH de place with the device 1 and 2
         patched_place = {
@@ -29,7 +29,7 @@ class TestPlace(TestGroupBase):
             'label': label,
             'children': {'devices': computers_id[0:2]}
         }
-        self.patch_and_check('{}/{}'.format(self.PLACES, place['_id']), patched_place)
+        self.patch_200('{}/{}'.format(self.PLACES, place['_id']), patched_place)
         # Now we have computers 0, 1 and 2
         for computer_id in computers_id[:2]:
             self.is_parent(place['_id'], self.PLACES, computer_id, self.DEVICES)
@@ -44,4 +44,3 @@ class TestPlace(TestGroupBase):
         self.delete_and_check('{}/{}'.format(self.PLACES, place['_id']))
         for computer_id in computers_id:
             self.child_does_not_have_parent(place['_id'], self.PLACES, computer_id, self.DEVICES)
-

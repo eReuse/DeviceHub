@@ -1,3 +1,5 @@
+.. _api:
+
 API
 ###
 
@@ -41,6 +43,8 @@ Upon success, you will be answered with the account object, containing a Token f
 From this moment, any other following operation against the API will require the following HTTP Header:
 ``Authorization: Basic token``. This is, the word **Basic** followed with a **space** and then the **token**,
 obtained from the account object above, **exactly as it is**.
+
+.. _authenticate-requests:
 
 Authenticate requests
 ---------------------
@@ -146,10 +150,10 @@ The following list describes the details of every endpoint in DeviceHub:
 
 
 .. toctree::
-   :maxdepth: 4
+:maxdepth: 4
 
-   other-endpoints
-   api-endpoints
+       other-endpoints
+       api-endpoints
 
 
 Errors

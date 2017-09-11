@@ -35,7 +35,7 @@ from ereuse_devicehub.resources.resource import ResourceSettings
 from ereuse_devicehub.resources.submitter.grd_submitter.grd_submitter import GRDSubmitter
 from ereuse_devicehub.resources.submitter.submitter_caller import SubmitterCaller
 from ereuse_devicehub.scripts.get_manufacturers import ManufacturersGetter
-from ereuse_devicehub.security.authentication import RolesAuth
+from ereuse_devicehub.security.auth import Auth
 from ereuse_devicehub.static import send_device_icon
 from ereuse_devicehub.url_parse import UrlParse
 from ereuse_devicehub.utils import cache, DeviceHubConfig
@@ -46,7 +46,7 @@ class DeviceHub(Eve):
     config_class = DeviceHubConfig
 
     def __init__(self, import_name=__package__, settings='settings.py', validator=DeviceHubValidator, data=DataLayer,
-                 auth=RolesAuth, redis=None, url_converters=None, json_encoder=None, media=GridFSMediaStorage,
+                 auth=Auth, redis=None, url_converters=None, json_encoder=None, media=GridFSMediaStorage,
                  url_parse=UrlParse, mongo_encoder=MongoEncoder, **kwargs):
         kwargs.setdefault('static_url_path', '/static')
         super().__init__(import_name, settings, validator, data, auth, redis, url_converters, json_encoder, media,

@@ -45,18 +45,18 @@ class TestDevice(TestStandard):
         other_device_total_hdd = other_device['totalHardDriveSize']
         hard_drive, *_ = [hdd for hdd in other_device['components'] if hdd['@type'] == HardDrive.type_name]
         remove = {'@type': Remove.type_name, 'device': other_device['_id'], 'components': [hard_drive['_id']]}
-        self.post_and_check('{}/remove'.format(self.DEVICE_EVENT), remove)
+        self.post_201('{}/remove'.format(self.DEVICE_EVENT), remove)
         other_device, _ = self.get(self.DEVICES, '', devices[1])
         assert_that(other_device['totalHardDriveSize']).is_equal_to(other_device_total_hdd - hard_drive['size'])
         add = {'@type': Add.type_name, 'device': vaio['_id'], 'components': [hard_drive['_id']]}
-        self.post_and_check('{}/add'.format(self.DEVICE_EVENT), add)
+        self.post_201('{}/add'.format(self.DEVICE_EVENT), add)
         vaio_after, _ = self.get(self.DEVICES, '', devices[0])
         assert_that(vaio_after['totalHardDriveSize']).is_equal_to(122104.3359375 + 15296.0 + hard_drive['size'])
 
     def test_delete(self):
         """Deletes a device."""
         snapshot = self.post_fixture(self.SNAPSHOT, '{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), 'vaio')
-        device = self.get_and_check(self.DEVICES, item=snapshot['device'])
+        device = self.get_200(self.DEVICES, item=snapshot['device'])
         _, status = self.delete(self.DEVICES, item=device['_id'])
         self.assert204(status)
         # Let's check that any event is there

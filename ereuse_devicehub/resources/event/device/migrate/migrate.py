@@ -59,7 +59,7 @@ class MigrateTranslator(ResourceTranslator):
         for field in copy.copy(device):
             if '_' in field or not {'materialized', 'readonly'}.isdisjoint(set(schema[field].keys())):
                 del device[field]
-        device['url'] = DeviceDomain.url_agent_for(AccountDomain.get_requested_database(), _id)
+        device['url'] = DeviceDomain.url_agent_for(AccountDomain.requested_database, _id)
 
 
 class DeviceHasMigrated(SchemaError):

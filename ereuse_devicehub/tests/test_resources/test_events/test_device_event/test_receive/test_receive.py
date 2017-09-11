@@ -7,4 +7,4 @@ class TestReceive(TestDeviceEvent):
         receive['receiver'] = self.get_first('accounts')['_id']
         receive['devices'] = self.devices_id
         receive['place'] = self.place['_id']
-        self.post_and_check(self.DEVICE_EVENT + '/receive', receive)
+        self.post_201(self.DEVICE_EVENT + '/receive', receive)

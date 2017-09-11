@@ -3,8 +3,6 @@ We mimic https://schema.org/unitCode, in concrete
 the UN/CEFACT Common Code.
 """
 import copy
-import functools
-from collections import defaultdict
 
 from passlib.utils import classproperty
 
@@ -29,6 +27,7 @@ class UnitCodes:
             if code == code_to_search:
                 return human_name
 
+
 class RDFS(Resource):
     label = {
         'type': 'string',
@@ -50,7 +49,7 @@ class RDFS(Resource):
     _import_schemas = True
     created = {
         'type': 'datetime',
-        'dh_allowed_write_roles': Role.SUPERUSER,
+        'dh_allowed_write_role': Role(Role.SUPERUSER),
         'writeonly': True,
         'doc': 'Sets the _created and _updated, thought to be used in imports.'
     }

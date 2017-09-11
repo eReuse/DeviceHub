@@ -3,7 +3,8 @@ import pymongo
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.resource import ResourceSettings
 from ereuse_devicehub.resources.schema import Thing
-from ereuse_devicehub.validation.validation import ALLOWED_WRITE_ROLES
+from ereuse_devicehub.security.perms import DB_PERMS
+from ereuse_devicehub.validation.validation import ALLOWED_WRITE_ROLE
 
 
 class Account(Thing):
@@ -26,9 +27,9 @@ class Account(Thing):
     role = {
         'type': 'string',
         'allowed': set(Role.ROLES),
-        'default': Role.BASIC,
+        'default': Role.USER,
         'doc': 'See the Roles section to get more info.',
-        ALLOWED_WRITE_ROLES: Role.MANAGERS
+        ALLOWED_WRITE_ROLE: Role(Role.ADMIN)
     }
     token = {
         'type': 'string',
@@ -56,24 +57,55 @@ class Account(Thing):
         'default': True,
         'sink': -2,
         'description': 'As a manager, you need to specifically accept the user by unblocking it\'s account.',
-        ALLOWED_WRITE_ROLES: Role.MANAGERS
+        ALLOWED_WRITE_ROLE: Role(Role.ADMIN)
     }
     isOrganization = {
         'type': 'boolean',
         'sink': 2
     }
-    databases = {  # todo set allowed for the active databases
-        'type': 'databases',
+    databases = {  # todo make admin worthy
+        'type': 'dict',
+        'valueschema': {
+            'type': 'string',
+            'allowed': list(DB_PERMS)
+        },
         'required': True,
-        ALLOWED_WRITE_ROLES: Role.MANAGERS,
+        ALLOWED_WRITE_ROLE: Role(Role.ADMIN),
         'teaser': False,
         'sink': -4,
     }
     defaultDatabase = {
         'type': 'string',  # todo If this is not set, the first databased in 'databases' it should be used
-        ALLOWED_WRITE_ROLES: Role.MANAGERS,
+        ALLOWED_WRITE_ROLE: Role(Role.ADMIN),
         'teaser': False,
         'sink': -5
+    }
+    shared = {
+        'type': 'list',
+        'schema': {
+            'type': 'dict',
+            'schema': {
+                'db': {
+                    'type': 'string'
+                },
+                '@type': {
+                    'type': 'string'
+                },
+                'label': {
+                    'type': 'string'
+                },
+                '_id': {
+                    'type': 'string'
+                },
+                'baseUrl': {
+                    'type': 'url',
+                    'doc': 'The scheme, domain, any path to reach the DeviceHub.'
+                }
+            }
+        },
+        'default': [],
+        'materialized': True,
+        'description': 'The groups (eg: lots, packages...) other people shared to this account.'
     }
     fingerprints = {
         'type': 'list',
@@ -109,7 +141,7 @@ class AccountSettings(ResourceSettings):
     cache_expires = 0
 
     # Allow 'token' to be returned with POST responses
-    extra_response_fields = ResourceSettings.extra_response_fields + ['email', 'role', 'active', 'name',
+    extra_response_fields = ResourceSettings.extra_response_fields + ['email', 'active', 'name',
                                                                       'databases', 'defaultDatabase', 'organization',
                                                                       'isOrganization']
 
@@ -122,14 +154,7 @@ class AccountSettings(ResourceSettings):
         'email and name': [('email', pymongo.DESCENDING), ('name', pymongo.DESCENDING)]
     }
 
-    get_projection_blacklist = {  # whitelist has more preference than blacklist
-        '*': ('password',),  # No one can see password
-        Role.EMPLOYEE: ('active',)  # Regular users cannot see if someone is active or not
-    }
-    get_projection_whitelist = {
-        'author': ('password', 'active')  # Except the own author
-    }
-    allowed_item_write_roles = {Role.AMATEUR}  # Amateur can write it's account
+    allowed_write_roles = {Role.ADMIN}  # Only admins or above can POST, PUT or DELETE
     use_default_database = True  # We have a common shared database with accounts
     fa = 'fa-user-o'
 

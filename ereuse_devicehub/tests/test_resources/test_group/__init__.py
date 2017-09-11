@@ -28,11 +28,11 @@ class TestGroupBase(TestStandard):
         """
         parent_type = Naming.type(parent_resource_name)
 
-        child = self.get_and_check(child_resource_name, item=child_id, embedded={'components': True})
+        child = self.get_200(child_resource_name, item=child_id, embedded={'components': True})
         assert_that(child).contains('ancestors')
 
         # parent, status = self.get(parent_resource_name, item=parent_label)
-        parent = self.get_and_check(parent_resource_name, item=parent_id)
+        parent = self.get_200(parent_resource_name, item=parent_id)
         parent_id = parent['_id']
         assert_that(parent).contains('children')
 
@@ -63,7 +63,7 @@ class TestGroupBase(TestStandard):
 
     def is_grandpa_or_above(self, parent_id: str, parent_resource_name: str, child_id: str, child_resource_name: str):
         child, status = self.get(child_resource_name, item=child_id, embedded={'components': True})
-        parent = self.get_and_check(parent_resource_name, item=parent_id)
+        parent = self.get_200(parent_resource_name, item=parent_id)
         self.assert200(status)
         children = child.get('components', []) + [child]
         orphans = []
@@ -89,7 +89,7 @@ class TestGroupBase(TestStandard):
     def child_does_have_parent(self, parent_id: str, parent_resource_name: str, child_id: str,
                                child_resource_name: str):
         """Use this only when the parent does not exist anymore. Use *is_parent* when possible."""
-        child = self.get_and_check(child_resource_name, item=child_id, embedded={'components': True})
+        child = self.get_200(child_resource_name, item=child_id, embedded={'components': True})
         parent_type = Naming.type(parent_resource_name)
         try:
             assert_that(child['ancestors']).extracting('@type', '_id').contains((parent_type, parent_id))
@@ -111,12 +111,12 @@ class TestGroupBase(TestStandard):
 
     def assert_last_log_entry(self, parent_id: str, parent_type: str, added: dict = None, removed: dict = None):
         """Asserts that the last log entry is correctly set."""
-        parent = self.get_and_check(Naming.resource(parent_type), item=parent_id)
+        parent = self.get_200(Naming.resource(parent_type), item=parent_id)
         where = {'parent': {'_id': parent['_id'], '@type': parent_type}, '@type': UpdateGroupLogEntry.type_name}
         sort = [('_created', pymongo.DESCENDING)]
         params = {'where': json.dumps(where), 'sort': json.dumps(sort), 'max_results': '1'}
         try:
-            response = self.get_and_check('group-log-entry', params=params)
+            response = self.get_200('group-log-entry', params=params)
             entry = response['_items'][0]
             if added:
                 assert_that(added).is_subset_of(entry.get('added', None))
@@ -133,7 +133,7 @@ class TestGroupBase(TestStandard):
             pprint(response, stream=sys.stderr)
             with self.app.test_request_context('/{}/devices'.format(self.db1)):
                 pprint(list(self.app.data.find_raw('group-log-entry', {})))
-            pprint(self.get_and_check('group-log-entry'), stream=sys.stderr)
+            pprint(self.get_200('group-log-entry'), stream=sys.stderr)
             raise AssertionError('Last log entry is not as described.') from e
 
 

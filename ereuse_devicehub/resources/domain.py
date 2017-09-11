@@ -73,7 +73,7 @@ class Domain:
         return cls.collection.update_many(filter, operation)
 
     @classmethod
-    @mongo_encode('id_or_filter')
+    @mongo_encode('id_or_filter', 'operation')
     def update_one_raw(cls, resource_id: str or ObjectId, operation, key='_id'):
         count = cls.collection.update_one({key: resource_id}, operation).matched_count
         if count == 0:
@@ -119,7 +119,7 @@ class Domain:
 
     @classmethod
     @mongo_encode('filter')
-    def count(cls, filter:dict=None, **kwargs):
+    def count(cls, filter: dict = None, **kwargs):
         """The same as in pymongo.collection.Collection.count"""
         return cls.collection.count(filter, **kwargs)
 

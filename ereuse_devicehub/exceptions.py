@@ -1,3 +1,8 @@
+from typing import List
+
+from bson import ObjectId
+
+
 class BasicError(Exception):
     status_code = None
 
@@ -54,6 +59,24 @@ class SchemaError(StandardError):
 class UnauthorizedToUseDatabase(StandardError):
     status_code = 401
     message = 'User has no access to this database.'
+
+
+class InsufficientDatabasePerm(StandardError):
+    status_code = 401
+
+    def __init__(self, resource_name: str, db: str, _id: str or ObjectId):
+        from ereuse_devicehub.resources.account.domain import AccountDomain
+        db = db or AccountDomain.requested_database
+        message = 'Account has not enough database access {} {} in {}.'.format(resource_name, _id, db)
+        super().__init__(message)
+
+
+class UserHasExplicitDbPerms(SchemaError):
+    def __init__(self, db: str, resource_id: str, resource_type: str, accounts: List[dict]):
+        field = 'perms'
+        message = 'Cannot share {} {} with accounts {} as they have full (explicit) access to the database already.' \
+            .format(resource_type, resource_id, pluck(accounts, 'email'))
+        super().__init__(field, message)
 
 
 class InnerRequestError(BasicError):

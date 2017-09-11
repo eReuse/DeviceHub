@@ -5,6 +5,7 @@ import pymongo
 from ereuse_devicehub.resources import events_pk_schema
 from ereuse_devicehub.resources.resource import ResourceSettings
 from ereuse_devicehub.resources.schema import Thing
+from ereuse_devicehub.security.perms import perms
 
 
 class Group(Thing):
@@ -80,6 +81,15 @@ class Group(Thing):
         'materialized': True
     }
     events = events_pk_schema.events
+    perms = perms
+    sharedWith = {
+        'type': 'list',
+        'readonly': True,
+        'default': [],
+        'description': 'A list of accounts that this group is explicitly shared with.',
+        'doc': 'Explicitly means that an user performed shared with to this resource, '
+               'in contraposition of inherit the permission.'
+    }
 
 
 class GroupSettings(ResourceSettings):

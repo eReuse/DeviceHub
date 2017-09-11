@@ -19,7 +19,7 @@ note that you can `get here <https://github.com/eReuse/DeviceHub/blob/master/ere
 Device
 ------
 
-Definition in :ref:py:`ereuse_devicehub.resources.device.schema.Device`.
+Definition in :class:`ereuse_devicehub.resources.device.schema.Device`.
 
 Device is a meticulously chosen word by its generic definition, which represents our purpose to be able to reuse almost
 anything, although we start with a subset of electronic devices. Some devices can have inner devices called components.

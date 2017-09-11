@@ -1,12 +1,14 @@
 from contextlib import suppress
 from multiprocessing import Process, Queue
 
-from ereuse_devicehub.resources.account.role import Role
-from ereuse_devicehub.resources.submitter.submitter import ThreadedSubmitter
-from ereuse_devicehub.utils import get_last_exception_info
 from eve.methods.post import post_internal
 from flask import json
 from pymongo.errors import DuplicateKeyError
+
+from ereuse_devicehub.resources.account.role import Role
+from ereuse_devicehub.resources.submitter.submitter import ThreadedSubmitter
+from ereuse_devicehub.security.perms import ADMIN
+from ereuse_devicehub.utils import get_last_exception_info
 
 
 class SubmitterCaller:
@@ -59,7 +61,7 @@ class SubmitterCaller:
             account = app.config['SUBMITTER_ACCOUNT']
             account.update({'role': Role.SUPERUSER})
             account['@type'] = 'Account'
-            account['databases'] = app.config['DATABASES']
+            account['databases'] = {db: ADMIN for db in app.config['DATABASES']}
             if app.data.find_one_raw('accounts', {'email': account['email']}) is None:
                 with suppress(DuplicateKeyError):
                     post_internal('accounts', dict(account),

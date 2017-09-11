@@ -112,5 +112,5 @@ class MigrateCreator(Snapshot):
             device = DeviceDomain.get_one(device['_id'])
             same_as = set(device['sameAs'])
             same_as.remove(url)
-            same_as.add(DeviceDomain.url_agent_for(AccountDomain.get_requested_database(), device['_id']))
+            same_as.add(DeviceDomain.url_agent_for(AccountDomain.requested_database, device['_id']))
             self.returned_same_as[url] = list(same_as)

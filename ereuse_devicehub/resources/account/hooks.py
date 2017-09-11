@@ -1,11 +1,13 @@
 import random
 import string
 
+from flask import current_app as app
+from passlib.handlers.sha2_crypt import sha256_crypt
+
 from ereuse_devicehub.resources.account.domain import AccountDomain, UserNotFound
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.rest import execute_post_internal
-from flask import current_app as app
-from passlib.handlers.sha2_crypt import sha256_crypt
+from ereuse_devicehub.security.perms import READ
 
 
 def hash_password(accounts: list):
@@ -48,9 +50,10 @@ def set_byOrganization(resource_name: str, items: list):
 
 
 def set_default_database_if_empty(accounts: list):
+    """Sets a default database getting a random database from *databases*"""
     for account in accounts:
-        if 'defaultDatabase' not in account and account['role'] != Role.SUPERUSER:
-            account['defaultDatabase'] = account['databases'][0]
+        if 'defaultDatabase' not in account and account['role'] != Role(Role.SUPERUSER):
+            account['defaultDatabase'] = next(iter(account['databases'].keys()))
 
 
 def add_or_get_inactive_account_receive(events: list):
@@ -80,7 +83,7 @@ def _add_or_get_inactive_account_id(event, field_name):
                 # 'databases': {'$in': AccountDomain.actual['databases']} todo review this
             })['_id']
         except UserNotFound:
-            event[field_name]['databases'] = [AccountDomain.get_requested_database()]
+            event[field_name]['databases'] = {AccountDomain.requested_database: READ}
             event[field_name]['active'] = False
             event[field_name]['@type'] = 'Account'
             _id = execute_post_internal('accounts', event[field_name], True)['_id']

@@ -59,16 +59,16 @@ class TestDeviceEventBasic(TestStandard):
         computers_id = self.get_fixtures_computers()
         lot = self.get_fixture(self.GROUPS, 'lot')
         lot['children']['devices'] = computers_id[0:2]
-        lot = self.post_and_check(self.LOTS, lot)
+        lot = self.post_201(self.LOTS, lot)
         package = self.get_fixture(self.GROUPS, 'package')
         package['children']['devices'] = computers_id[2:4]
-        package = self.post_and_check(self.PACKAGES, package)
+        package = self.post_201(self.PACKAGES, package)
         # Let's post the event
         READY_URL = '{}/{}'.format(self.DEVICE_EVENT, 'ready')
         ready = self.get_fixture(self.GROUPS, 'ready')
         ready['groups']['lots'] = [lot['_id']]
         ready['groups']['packages'] = [package['_id']]
-        ready = self.post_and_check(READY_URL, ready)
+        ready = self.post_201(READY_URL, ready)
 
         self._check(lot['_id'], package['_id'], computers_id, ready['_id'])
 
@@ -82,14 +82,14 @@ class TestDeviceEventBasic(TestStandard):
         # We add one new extra device to package
         snapshot = self.post_fixture(self.SNAPSHOT, '{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), 'vaio')
         package['children']['devices'].append(snapshot['device'])
-        self.patch_and_check(self.PACKAGES, item=package['_id'], payload=pick(package, 'children', '@type'))
+        self.patch_200(self.PACKAGES, item=package['_id'], data=pick(package, 'children', '@type'))
         # adding package inside lot and event with only lot. The event should be done to package and its devices
         lot['children']['packages'] = [package['_id']]
-        self.patch_and_check(self.LOTS, item=lot['_id'], payload=pick(lot, 'children', '@type'))
+        self.patch_200(self.LOTS, item=lot['_id'], data=pick(lot, 'children', '@type'))
         receive = self.get_fixture('receive', 'receive')
         receive['groups'] = {'lots': [lot['_id']]}
         receive['receiver'] = self.get_first('accounts')['_id']
-        receive = self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, 'receive'), receive)
+        receive = self.post_201('{}/{}'.format(self.DEVICE_EVENT, 'receive'), receive)
 
         # Preparing to check
         self._check(lot['_id'], package['_id'], computers_id + [snapshot['device']], receive['_id'])
@@ -101,21 +101,21 @@ class TestDeviceEventBasic(TestStandard):
 
     def _check(self, lot_id: str, package_id: str, computers_id: list, event_id: ObjectId):
         """Checks that the event contains the devices and groups, and otherwise."""
-        event = self.get_and_check(self.EVENTS, item=event_id)
+        event = self.get_200(self.EVENTS, item=event_id)
         materialized_event = pick(event, *MaterializeEvents.FIELDS)
-        lot = self.get_and_check(self.LOTS, item=lot_id)
-        package = self.get_and_check(self.PACKAGES, item=package_id)
+        lot = self.get_200(self.LOTS, item=lot_id)
+        package = self.get_200(self.PACKAGES, item=package_id)
         # Both event and groups contain each other
         assert_that(event['groups']).has_lots([lot_id]).has_packages([package_id])
-        lot = self.get_and_check(self.LOTS, item=lot['_id'])
+        lot = self.get_200(self.LOTS, item=lot['_id'])
         assert_that(lot['events']).contains(materialized_event)
-        package = self.get_and_check(self.PACKAGES, item=package['_id'])
+        package = self.get_200(self.PACKAGES, item=package['_id'])
         assert_that(package['events']).contains(materialized_event)
         # Both event and devices contain each other
         assert_that(event).contains('devices')
         assert_that(event['devices']).contains_only(*computers_id)
         for computer_id in computers_id:
-            computer = self.get_and_check(self.DEVICES, item=computer_id, embedded={'components': True})
+            computer = self.get_200(self.DEVICES, item=computer_id, embedded={'components': True})
             assert_that(computer['events']).contains(materialized_event)
             # Let's ensure the events have been materialized for components too
             for component in computer['components']:

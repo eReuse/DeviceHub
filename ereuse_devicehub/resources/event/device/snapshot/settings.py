@@ -28,7 +28,7 @@ class Snapshot(EventWithOneDevice):
     }
     snapshotSoftware = {
         'type': 'string',
-        'allowed': ['Workbench', 'AndroidApp', 'Web', 'WorkbenchAuto'],
+        'allowed': ['Workbench', 'AndroidApp', 'Web', 'WorkbenchAuto', 'DesktopApp'],
         'default': 'Workbench'
     }
     events = {

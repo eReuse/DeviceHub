@@ -12,7 +12,7 @@ class TestLocate(TestDeviceEvent, TestGroupBase):
         locate = self.get_fixture(self.LOCATE, 'locate')
         locate['place'] = self.place['_id']
         locate['devices'] = self.devices_id
-        locate = self.post_and_check(self.POST_LOCATE, locate)
+        locate = self.post_201(self.POST_LOCATE, locate)
         # Let's check the place has been correctly materialized in the devices
         for device_id in self.devices_id:
             self.is_parent(self.place['_id'], self.PLACES, device_id, self.DEVICES)
@@ -40,7 +40,7 @@ class TestLocate(TestDeviceEvent, TestGroupBase):
         # Now we create the place
         place = self.post_fixture(self.PLACES, self.PLACES, 'place_with_coordinates')
         # We repeat the location. As the coordinates are in the area of the place, we can create it
-        locate = self.post_and_check(self.POST_LOCATE, locate)
+        locate = self.post_201(self.POST_LOCATE, locate)
         # Let's check if locate has been assigned to the place
         locate, _ = self.get(self.DEVICE_EVENT, '', locate['_id'])
         self.assertIn('place', locate)
@@ -63,7 +63,7 @@ class TestLocate(TestDeviceEvent, TestGroupBase):
         # Let's directly create a place
         place = self.post_fixture(self.PLACES, self.PLACES, 'place_with_coordinates')
         # We repeat the location. As the coordinates are in the area of the place, we can create it
-        locate = self.post_and_check(self.POST_LOCATE, locate)
+        locate = self.post_201(self.POST_LOCATE, locate)
         # Let's check if locate has been assigned to the place
         locate, _ = self.get(self.DEVICE_EVENT, '', locate['_id'])
         self.assertIn('place', locate)

@@ -21,19 +21,19 @@ class TestLot(TestGroupBase):
         lot = self.get_fixture(self.LOTS, 'lot')
         lot['label'] = 'lot1'
         lot['children'] = {'devices': computers_id[0:2]}
-        lot_id = self.post_and_check(self.LOTS, lot)['_id']
+        lot_id = self.post_201(self.LOTS, lot)['_id']
         # Let's PATCH the lot
         patched_lot = {
             '@type': 'Lot',
             'children': {'devices': computers_id}
         }
-        lot1_id = self.patch_and_check('{}/{}'.format(self.LOTS, lot_id), copy.deepcopy(patched_lot))['_id']
+        lot1_id = self.patch_200('{}/{}'.format(self.LOTS, lot_id), copy.deepcopy(patched_lot))['_id']
         for computer_id in computers_id:
             self.is_parent(lot1_id, self.LOTS, computer_id, self.DEVICES)
 
         # Let's just make another patch removing a device
         removed_device = patched_lot['children']['devices'].pop(-1)
-        self.patch_and_check('{}/{}'.format(self.LOTS, lot_id), patched_lot)
+        self.patch_200('{}/{}'.format(self.LOTS, lot_id), patched_lot)
         # All the computers except the last one are accounted
         for computer_id in computers_id[:-1]:
             self.is_parent(lot1_id, self.LOTS, computer_id, self.DEVICES)
@@ -50,21 +50,21 @@ class TestLot(TestGroupBase):
         # Devices can be in regular lots and at the end devices will be in both lots
         input = self.get_fixture(self.LOTS, 'lot')
         input_label = input['label'] = 'lot1'
-        input_id = self.post_and_check(self.LOTS, input)['_id']
+        input_id = self.post_201(self.LOTS, input)['_id']
         output = self.get_fixture(self.LOTS, 'lot')
         output_label = output['label'] = 'lot2'
-        output_id = self.post_and_check(self.LOTS, output)['_id']
+        output_id = self.post_201(self.LOTS, output)['_id']
         computers_id = self.get_fixtures_computers()
 
         # Let's add the computers to the input lot
         patched_input = {'@type': 'IncomingLot', 'children': {'devices': computers_id}}
-        self.patch_and_check('{}/{}'.format(self.LOTS, input_id), patched_input)
+        self.patch_200('{}/{}'.format(self.LOTS, input_id), patched_input)
         for computer_id in computers_id:
             self.is_parent(input_id, self.LOTS, computer_id, self.DEVICES)
 
         # Let's add them to the output lot
         patched_output = {'@type': 'OutgoingLot', 'children': {'devices': computers_id}}
-        self.patch_and_check('{}/{}'.format(self.LOTS, output_id), patched_output)
+        self.patch_200('{}/{}'.format(self.LOTS, output_id), patched_output)
         for computer_id in computers_id:
             self.is_parent(output_id, self.LOTS, computer_id, self.DEVICES)
         # They are in the first lot too

@@ -1,3 +1,4 @@
+from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.event.device.settings import EventWithDevices, \
     EventSubSettingsMultipleDevices
 
@@ -28,7 +29,7 @@ class Migrate(EventWithDevices):
     _from = {
         'excludes': 'to',
         'type': 'url',
-        'dh_allowed_write_roles': 'superuser',  # todo it should be a 'machine' role
+        'dh_allowed_write_role': Role(Role.MACHINE),
         'doc': 'This value is only filled by other DeviceHub when transmitting the Migrate'
     }
     returnedSameAs = {

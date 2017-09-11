@@ -15,7 +15,7 @@ class TestResource(TestStandard):
 
     def prepare(self):
         DummyDevice, DummyDeviceSettings = Resource.create(self.dummy_device_name, Device, self.dummy_device_class,
-                                                 DeviceSubSettings, self.dummy_device_settings)
+                                                           DeviceSubSettings, self.dummy_device_settings)
         self.DummyDevice = DummyDevice
         self.DummyDeviceSettings = DummyDeviceSettings
         # If this test is not called as the first method it is not automatically added to DeviceHub
@@ -44,7 +44,7 @@ class TestResource(TestStandard):
         dummy_device = {'serialNumber': '33', 'model': 'model1', 'manufacturer': '234', self.dummy_field: 'dummyField',
                         '@type': self.dummy_device_name}
         register = {'@type': 'Register', 'device': dummy_device}
-        self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, 'register'), register)
+        self.post_201('{}/{}'.format(self.DEVICE_EVENT, 'register'), register)
         # And now without the necessary new field
         # wrong_dummy_device = dummy_device
         # del wrong_dummy_device[self.dummy_field]

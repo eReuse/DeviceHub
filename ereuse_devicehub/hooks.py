@@ -7,11 +7,9 @@ def hooks(app):
     app.on_pre_GET += redirect_on_browser
     app.on_insert += check_type
 
-    from ereuse_devicehub.security.hooks import project_item, project_resource, authorize_public, deny_public
-    app.on_fetched_item += authorize_public
-    app.on_fetched_resource += deny_public
-    app.on_fetched_item += project_item
-    app.on_fetched_resource += project_resource
+    from ereuse_devicehub.security.hooks import check_perms_for_list_of_items, check_perms_for_item
+    app.on_pre_GET += check_perms_for_list_of_items
+    app.on_fetched_item += check_perms_for_item
 
     from ereuse_devicehub.resources.hooks import avoid_deleting_if_not_last_event_or_more_x_minutes
     app.on_pre_DELETE += avoid_deleting_if_not_last_event_or_more_x_minutes
@@ -111,12 +109,14 @@ def hooks(app):
     app.on_insert_devices_receive += set_organization
 
     from ereuse_devicehub.resources.group.hooks import set_children, delete_children, \
-        update_children, set_short_id
+        update_children, set_short_id, update_perms, set_perms
     app.on_insert += set_short_id
     app.on_inserted += set_children
     app.on_updated += update_children
     app.on_deleted_item += delete_children
     app.on_replaced += update_children
+    app.on_insert += set_perms
+    app.on_update += update_perms
 
     from ereuse_devicehub.resources.group.physical.place.hooks import avoid_deleting_if_has_event
     app.on_delete_item_places += avoid_deleting_if_has_event

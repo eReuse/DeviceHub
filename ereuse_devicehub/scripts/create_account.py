@@ -38,7 +38,7 @@ def create_account(email: str, password: str, databases: list,
     account = {
         'email': email,
         'password': password,
-        'databases': databases,
+        'databases': {db: "a" for db in databases},
         'defaultDatabase': default_database or databases[0],
         '@type': 'Account',
         'blocked': eval(blocked) if type(blocked) is str else blocked,

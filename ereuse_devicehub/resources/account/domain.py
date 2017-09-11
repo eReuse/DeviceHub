@@ -1,4 +1,5 @@
 import base64
+from typing import List, Set
 
 from bson.objectid import ObjectId
 from flask import current_app
@@ -8,22 +9,16 @@ from passlib.handlers.sha2_crypt import sha256_crypt
 from passlib.utils import classproperty
 from werkzeug.http import parse_authorization_header
 
-from ereuse_devicehub.exceptions import WrongCredentials, BasicError, StandardError
+from ereuse_devicehub.exceptions import WrongCredentials, BasicError, StandardError, UserHasExplicitDbPerms
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.account.settings import AccountSettings
 from ereuse_devicehub.resources.domain import Domain, ResourceNotFound
+# noinspection PyMethodParameters
+from ereuse_devicehub.security.perms import PARTIAL_ACCESS, EXPLICIT_DB_PERMS
 
 
 class AccountDomain(Domain):
     resource_settings = AccountSettings
-
-    @staticmethod
-    def get_requested_database():
-        requested_database = request.path.split('/')[1]
-        if requested_database not in current_app.config['DATABASES']:
-            raise NotADatabase({'requested_path': requested_database})
-        else:
-            return requested_database
 
     @classproperty
     def actual(cls) -> dict:
@@ -56,10 +51,24 @@ class AccountDomain(Domain):
         :raise StandardError: The authorization header is invalid or missing.
         """
         try:
+            # todo use g.user to get the token, something eve puts for us already
             x = request.headers.environ['HTTP_AUTHORIZATION']
             return parse_authorization_header(x)['username']
         except (KeyError, TypeError) as e:
             raise StandardError('The Authorization header is not well written or missing', 400) from e
+
+    @classproperty
+    def requested_database(cls) -> str:
+        """
+        Gets the requested database in the URL. This is, the database name that is on the first path of the URL:
+        www.foo.bar/db1.
+        :raise NotADatabase: If the first path of the URL is not a database (ex. a neutral endpoint not tied to a db).
+        """
+        requested_database = request.path.split('/')[1]
+        if requested_database not in current_app.config['DATABASES']:
+            raise NotADatabase(requested_database)
+        else:
+            return requested_database
 
     @classproperty
     def auth_header(cls) -> str:
@@ -103,6 +112,50 @@ class AccountDomain(Domain):
     def verify_password(password: str, original: str) -> bool:
         return sha256_crypt.verify(password, original)
 
+    @classmethod
+    def add_shared(cls, accounts_id: List[ObjectId] or Set[ObjectId], resource_type: str, db: str, _id: str or ObjectId,
+                   label: str):
+        """
+        Materializes resource access to *shared* property of the account, and sets PARTIAL_ACCESS to
+        the accounts. This method will raise an exception if there is an account with EXPLICIT_DB_PERMS.
+
+        :raise UserHasExplicitDbPerms: You can't share to accounts that already have full access to this database.
+        """
+        q = {'_id': {'$in': accounts_id}, 'databases.' + db: {'$in': EXPLICIT_DB_PERMS}}
+        accounts_explicit_access = cls.get(q)
+        if len(list(accounts_explicit_access)) > 0:
+            raise UserHasExplicitDbPerms(db, _id, resource_type, accounts_explicit_access)
+        q = {
+            '$push': {
+                'shared': {
+                    '_id': _id,
+                    '@type': resource_type,
+                    'db': db,
+                    'label': label,
+                    'baseUrl': current_app.config['BASE_URL_FOR_AGENTS']
+                }
+            },
+            '$set': {
+                'databases.{}'.format(db): PARTIAL_ACCESS
+            }
+        }
+        cls.update_many_raw({'_id': {'$in': accounts_id}}, q)
+
+    @classmethod
+    def remove_shared(cls, db: str, accounts_id: Set[ObjectId], _id: str or ObjectId, type_name: str):
+        """
+        Removes devices from the *shared* field and removes PARTIAL_ACCESS from the database if there is
+        no other shared resource in that database.
+        """
+        base_url = current_app.config['BASE_URL_FOR_AGENTS']
+        for account_id in accounts_id:
+            q = {'$pull': {'shared': {'_id': _id, '@type': type_name, 'db': db, 'baseUrl': base_url}}}
+            cls.update_one_raw(account_id, q)
+            try:
+                cls.get_one({'shared': {'$elemMatch': {'db': db, 'baseUrl': base_url}}})
+            except UserNotFound:
+                cls.update_one_raw(account_id, {'$unset': {'shared.{}'.format(db): ''}})
+
 
 class UserIsAnonymous(WrongCredentials):
     pass
@@ -114,6 +167,13 @@ class NoUserForGivenToken(WrongCredentials):
 
 class NotADatabase(BasicError):
     status_code = 400
+
+    def __init__(self, element: str):
+        """
+        :param element: The element that should have been a database.
+        """
+        self.element = element
+        super().__init__({'element': element})
 
 
 class CannotImportKey(StandardError):

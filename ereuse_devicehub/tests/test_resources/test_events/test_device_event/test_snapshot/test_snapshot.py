@@ -12,6 +12,7 @@ from pydash import pick
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.remove.hooks import ComponentIsNotInside
+from ereuse_devicehub.security.perms import ADMIN
 from ereuse_devicehub.tests.test_resources.test_events import TestEvent
 from ereuse_devicehub.tests.test_resources.test_group import TestGroupBase
 from ereuse_devicehub.utils import NestedLookup
@@ -33,13 +34,13 @@ class TestSnapshot(TestEvent, TestGroupBase):
 
     def post_snapshot(self, input_snapshot):
         """Posts a Snapshot."""
-        return self.post_and_check(self.SNAPSHOT_URL, input_snapshot)
+        return self.post_201(self.SNAPSHOT_URL, input_snapshot)
 
     def post_snapshot_get_full_events(self, input_snapshot, number_of_events_to_assert) -> (dict, list):
         """Pots a Snapshot and retrieves all the events generated from it."""
         snapshot = self.post_snapshot(copy.deepcopy(input_snapshot))
         self.assertEqual(len(snapshot['events']), number_of_events_to_assert)
-        events = [self.get_and_check('events', item=event_id) for event_id in snapshot['events']]
+        events = [self.get_200('events', item=event_id) for event_id in snapshot['events']]
         return snapshot, events
 
     def creation(self, input_snapshot: dict, num_of_events: int = 1, do_second_time_snapshot=True) -> (str, dict):
@@ -58,7 +59,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
         register = events[0]
         self.assertType(DeviceEventDomain.new_type('Register'), register)
         self.assertSimilarDevice(input_snapshot['device'], register['device'])
-        device = self.get_and_check(self.DEVICES, item=register['device'])
+        device = self.get_200(self.DEVICES, item=register['device'])
         # This could be an issue in older versions
         if 'hid' in device:
             assert_that(device['hid']).is_not_equal_to('dummy')
@@ -67,7 +68,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
             self.assertSimilarDevices(input_snapshot['components'], register['components'])
         # We do a snapshot again. We should receive a new snapshot without any event on it.
         if do_second_time_snapshot:
-            snapshot = self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), input_snapshot)
+            snapshot = self.post_201('{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), input_snapshot)
             self.assertLen(snapshot['events'], num_of_events - 1)
         return snapshot_id, register['device']
 
@@ -93,11 +94,11 @@ class TestSnapshot(TestEvent, TestGroupBase):
 
         # todo create add/remove test with components and computers without hid
         def get_components() -> list:
-            return self.get_and_check(self.DEVICES, '?where={"@type": {"$nin": ["Computer"]}}')['_items']
+            return self.get_200(self.DEVICES, '?where={"@type": {"$nin": ["Computer"]}}')['_items']
 
         def check_relationship(all_components: list, components_sn: set, device_id: str, snapshot: dict = None):
             """Checks that the components whose SerialNumber are in *components_sn* are in device and otherwise."""
-            device = self.get_and_check(self.DEVICES, item=device_id)
+            device = self.get_200(self.DEVICES, item=device_id)
             _components = filter_(all_components, lambda c: c[SN] in components_sn)
             assert_that(_components).is_length(len(components_sn))
             components_id = map_(_components, '_id')
@@ -117,7 +118,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
         # in the two computers at play should be:
         # PC 0: p1c2s, p1c2s, p1c3s. PC 1: ø
         snapshot0_id, device0_id = self.creation(snapshots[0], self.get_num_events(snapshots[0]))
-        snapshot0 = self.get_and_check(self.EVENTS, item=snapshot0_id)
+        snapshot0 = self.get_200(self.EVENTS, item=snapshot0_id)
         # Let's check if the device contains the components and otherwise
         check_relationship(get_components(), {'p1c1s', 'p1c2s', 'p1c3s'}, device0_id, snapshot0)
 
@@ -156,16 +157,16 @@ class TestSnapshot(TestEvent, TestGroupBase):
         snapshot = self.get_fixture(self.SNAPSHOT, 'snapshot-simple')
         _, computer_id = self.creation(snapshot)
         snapshot_components_fixture = self.get_fixture(self.SNAPSHOT, 'snapshot-simple-components')
-        snapshot_components = self.post_and_check(self.SNAPSHOT_URL, snapshot_components_fixture)
-        computer = self.get_and_check(self.DEVICES, item=computer_id)
+        snapshot_components = self.post_201(self.SNAPSHOT_URL, snapshot_components_fixture)
+        computer = self.get_200(self.DEVICES, item=computer_id)
         # We check that the parent contains the components
         assert_that(computer['components']).contains(*snapshot_components['components'])
         # And that the components contain the parent
-        components = [self.get_and_check(self.DEVICES, item=_id) for _id in snapshot_components['components']]
+        components = [self.get_200(self.DEVICES, item=_id) for _id in snapshot_components['components']]
         assert_that(components).extracting('parent').contains_only(computer_id)
 
         # We check the same in events
-        events = [self.get_and_check(self.EVENTS, item=_id) for _id in snapshot_components['events']]
+        events = [self.get_200(self.EVENTS, item=_id) for _id in snapshot_components['events']]
         # The expected events have been created (apart from the Snapshot)...
         assert_that(events).extracting('@type').is_equal_to(
             ['devices:Register', 'devices:EraseBasic', 'devices:TestHardDrive'])
@@ -214,7 +215,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
         # If we set the id to vostro in vostro everything is ok
         # We could say we have a redundancy of ids
         vostro['device']['_id'] = vostro_id
-        self.post_and_check(self.SNAPSHOT_URL, vostro)
+        self.post_201(self.SNAPSHOT_URL, vostro)
         # Let's create another device
         _, vaio_id = self.creation(self.get_fixture(self.SNAPSHOT, 'vaio'))
         # Let's set the _id of vostro to vaio (for example because the user wrote misspelled it)
@@ -245,20 +246,20 @@ class TestSnapshot(TestEvent, TestGroupBase):
         snapshot = self.get_fixture(self.SNAPSHOT, 'monitor')
         _, _id = self.creation(snapshot, self.get_num_events(snapshot))
         snapshot['device']['rid'] = 'rid1'
-        self.post_and_check(self.SNAPSHOT_URL, snapshot)
-        monitor = self.get_and_check(self.DEVICES, item=_id)
+        self.post_201(self.SNAPSHOT_URL, snapshot)
+        monitor = self.get_200(self.DEVICES, item=_id)
         assert_that(monitor).has_rid('rid1')
         # Let's remove a field of the device, like the S/N, so it cannot generate HID
         # The system should be able to identify it with another uid, like the RID
         serial_number = snapshot['device'].pop('serialNumber')
-        self.post_and_check(self.SNAPSHOT_URL, snapshot)
-        monitor = self.get_and_check(self.DEVICES, item=_id)
+        self.post_201(self.SNAPSHOT_URL, snapshot)
+        monitor = self.get_200(self.DEVICES, item=_id)
         assert_that(monitor).has_rid('rid1').has_serialNumber(serial_number)
         # Or by only the _id, of course
         del snapshot['device']['rid']
         snapshot['device']['_id'] = _id
-        self.post_and_check(self.SNAPSHOT_URL, snapshot)
-        monitor = self.get_and_check(self.DEVICES, item=_id)
+        self.post_201(self.SNAPSHOT_URL, snapshot)
+        monitor = self.get_200(self.DEVICES, item=_id)
         assert_that(monitor).has_rid('rid1').has_serialNumber(serial_number)
 
     def test_snapshot_real_devices(self):
@@ -276,7 +277,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
                 break
             if 'json' in filename:
                 snapshot = self.get_json_from_file(filename, file_directory)
-                if choice((True, False)): # Randomly adds condition
+                if choice((True, False)):  # Randomly adds condition
                     snapshot['condition'] = {
                         'appearance': {'general': choice(('A', 'B', 'C', 'D', 'E', '0'))},
                         'functionality': {'general': choice(('A', 'B', 'C', 'D'))},
@@ -433,17 +434,17 @@ class TestSnapshot(TestEvent, TestGroupBase):
         }
         condition = copy.deepcopy(snapshot['condition'])
         result = self.post_snapshot(snapshot)
-        snapshot_result = self.get_and_check(self.EVENTS, item=result['_id'])
+        snapshot_result = self.get_200(self.EVENTS, item=result['_id'])
         assert_that(snapshot_result).has_condition(condition)
         # Ensure the materialization is correct
-        device = self.get_and_check(self.DEVICES, item=snapshot_result['device'])
+        device = self.get_200(self.DEVICES, item=snapshot_result['device'])
         assert_that(device).has_condition(condition)
         # Now let's make it wrong
         snapshot['condition']['bios'] = 'X'
         _, status = self.post(self.SNAPSHOT_URL, snapshot)
         self.assert422(status)
         # The materialization has not changed
-        device = self.get_and_check(self.DEVICES, item=snapshot_result['device'])
+        device = self.get_200(self.DEVICES, item=snapshot_result['device'])
         assert_that(device).has_condition(condition)
 
     def _test_giver(self, snapshot, account_email):
@@ -466,8 +467,8 @@ class TestSnapshot(TestEvent, TestGroupBase):
         """
         snapshot = self.get_fixture(self.SNAPSHOT, 'vostro')
         account = {'email': 'r@r.com', 'name': 'R Registered', 'organization': 'R ORG', '@type': 'Account',
-                   'databases': ['dht1']}
-        account = self.post_and_check(self.ACCOUNTS, account)
+                   'databases': {'dht1': ADMIN}}
+        account = self.post_201(self.ACCOUNTS, account)
         snapshot['from'] = account['_id']
         self._test_giver(snapshot, 'r@r.com')
 
@@ -498,7 +499,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
         # snapshot['from'] = {
         #    'email': 'hello@hello.com'
         # }
-        snapshot['place'] = self.post_and_check(self.PLACES, self.get_fixture(self.PLACES, 'place'))['_id']
+        snapshot['place'] = self.post_201(self.PLACES, self.get_fixture(self.PLACES, 'place'))['_id']
         num_events = self.get_num_events(snapshot)
         _, device_id = self.creation(snapshot, num_events)
         device, _ = self.get(self.DEVICES, '', device_id)
@@ -592,24 +593,24 @@ class TestSnapshot(TestEvent, TestGroupBase):
         snapshot = self.get_fixture(self.SNAPSHOT, 'workbench-80a1-pid')
         placeholder = self.get_fixture('register', '1-placeholder')
         placeholder['device']['_id'] = snapshot['_id']
-        self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, 'register'), placeholder)
-        result = self.post_and_check(self.SNAPSHOT_URL, snapshot)
-        device = self.get_and_check(self.DEVICES, item=result['device'])
+        self.post_201('{}/{}'.format(self.DEVICE_EVENT, 'register'), placeholder)
+        result = self.post_201(self.SNAPSHOT_URL, snapshot)
+        device = self.get_200(self.DEVICES, item=result['device'])
         assert_that(device).has_hid('asustek_computer_inc-8boaaq191999-1000h')
         assert_that(device).has_pid(snapshot['pid'])
         assert_that(device).has__id(snapshot['_id'])
         # Let's try a second snapshot, just in case
         snapshot['_uuid'] = str(uuid.uuid4())  # Let's change the uuid or we won't be able to submit it
-        self.post_and_check(self.SNAPSHOT_URL, snapshot)
+        self.post_201(self.SNAPSHOT_URL, snapshot)
 
     def test_placeholder_snapshot_hid(self):
         """Tests that hid is correctly computed in placeholders."""
         placeholder = self.get_fixture('register', '1-placeholder')
         placeholder['device']['_id'] = '1192'
-        self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, 'register'), placeholder)
+        self.post_201('{}/{}'.format(self.DEVICE_EVENT, 'register'), placeholder)
         snapshot = self.get_fixture(self.SNAPSHOT, 'lenovo-6072')
-        result = self.post_and_check(self.SNAPSHOT_URL, snapshot)
-        device = self.get_and_check(self.DEVICES, item=result['device'])
+        result = self.post_201(self.SNAPSHOT_URL, snapshot)
+        device = self.get_200(self.DEVICES, item=result['device'])
         assert_that(device).has_hid(DeviceDomain.hid(device['manufacturer'], device['serialNumber'], device['model']))
 
     def test_snapshot_software_old(self):
@@ -632,9 +633,9 @@ class TestSnapshot(TestEvent, TestGroupBase):
         """
         workbench = self.get_fixture(self.SNAPSHOT, 'vaio')
         workbench = self.post_snapshot(workbench)
-        workbench = self.get_and_check(self.EVENTS, item=workbench['_id'])
-        device_after_workbench = self.get_and_check(self.DEVICES, item=workbench['device'])
-        components_after_workbench = [self.get_and_check(self.DEVICES, item=component_id) for component_id in
+        workbench = self.get_200(self.EVENTS, item=workbench['_id'])
+        device_after_workbench = self.get_200(self.DEVICES, item=workbench['device'])
+        components_after_workbench = [self.get_200(self.DEVICES, item=component_id) for component_id in
                                       device_after_workbench['components']]
         # Let's create our App Snapshot
         app = self.get_fixture(self.SNAPSHOT, 'vaio')
@@ -643,9 +644,9 @@ class TestSnapshot(TestEvent, TestGroupBase):
         del app['components']  # '[]' is set by default if this is None
         # The rest of values of Snapshot can be the same, they won't affect
         app = self.post_snapshot(app)
-        app = self.get_and_check(self.EVENTS, item=app['_id'])
-        device_after_app = self.get_and_check(self.DEVICES, item=app['device'])
-        components_after_app = [self.get_and_check(self.DEVICES, item=component_id) for component_id in
+        app = self.get_200(self.EVENTS, item=app['_id'])
+        device_after_app = self.get_200(self.DEVICES, item=app['device'])
+        components_after_app = [self.get_200(self.DEVICES, item=component_id) for component_id in
                                 device_after_app['components']]
 
         assert_that(device_after_app.pop('events')).contains(*device_after_workbench.pop('events'))
@@ -675,21 +676,21 @@ class TestSnapshot(TestEvent, TestGroupBase):
         snapshot_component['parent'] = snapshot['device']
         snapshot_component_result = self.post_snapshot(snapshot_component)
         # Computer has component
-        computer = self.get_and_check(self.DEVICES, item=snapshot['device'])
+        computer = self.get_200(self.DEVICES, item=snapshot['device'])
         assert_that(computer).has_components([snapshot_component_result['device']])
         # Component is in computer
-        component = self.get_and_check(self.DEVICES, item=snapshot_component_result['device'])
+        component = self.get_200(self.DEVICES, item=snapshot_component_result['device'])
         assert_that(component).has_parent(computer['_id'])
         # 4. Remove the component
         remove = {
             '@type': 'devices:Remove', 'device': snapshot['device'], 'components': [snapshot_component_result['device']]
         }
-        self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, 'remove'), remove)
+        self.post_201('{}/{}'.format(self.DEVICE_EVENT, 'remove'), remove)
         # Computer has not component
-        computer = self.get_and_check(self.DEVICES, item=snapshot['device'])
+        computer = self.get_200(self.DEVICES, item=snapshot['device'])
         assert_that(computer).has_components([])
         # Component is not in computer
-        component = self.get_and_check(self.DEVICES, item=snapshot_component_result['device'])
+        component = self.get_200(self.DEVICES, item=snapshot_component_result['device'])
         assert_that(component).does_not_contain('parent')
 
         # Let's check common mistakes:
@@ -717,7 +718,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
     def test_9(self):
         """Tests an eReuse.org Workbench 9 file."""
         snapshot = self.post_fixture(self.SNAPSHOT, self.SNAPSHOT_URL, '9')
-        snapshot = self.get_and_check(self.SNAPSHOT_URL, item=snapshot['_id'])
+        snapshot = self.get_200(self.SNAPSHOT_URL, item=snapshot['_id'])
         assert_that(snapshot).has_autoUploaded(True).has_date('2017-05-25T12:03:45').has_osInstallation({
             "elapsed": "1:38:26",
             "label": "linux-mint-1801-ca.fsa",

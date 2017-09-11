@@ -37,5 +37,5 @@ class TestDeviceHubLive(TestEventWithPredefinedDevices):
         result, status = self.post(uri, post, environ_base={'REMOTE_ADDR': '127.0.0.1'})
         self.assert201(status)
         # Let's check the registered event.
-        live = self.get_and_check(self.EVENTS, '', result['_id'])
+        live = self.get_200(self.EVENTS, '', result['_id'])
         assert_that(self.get_fixture('live', 'event')).is_subset_of(live)

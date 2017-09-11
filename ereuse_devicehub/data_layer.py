@@ -2,10 +2,12 @@ import copy
 import inspect
 
 from bson.objectid import ObjectId
-from eve.io.mongo import Mongo
+from eve.io.mongo import Mongo, MongoJSONEncoder
 from flask import current_app
 from pydash import transform
 from pymongo.cursor import Cursor
+
+from ereuse_devicehub.resources.account.role import Role
 
 
 class MongoEncoder:
@@ -54,7 +56,16 @@ def mongo_encode(*args_to_transform):
     return decorator
 
 
+class DhMongoJSONEncoder(MongoJSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Role):
+            return str(obj)
+        return super().default(obj)
+
+
 class DataLayer(Mongo):
+    json_encoder_class = DhMongoJSONEncoder
+
     def current_mongo_prefix(self, resource=None):
         """
         Overrides the default Eve's database selection process, by forcing the resources that use the default database

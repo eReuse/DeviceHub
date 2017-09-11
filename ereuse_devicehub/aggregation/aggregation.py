@@ -4,9 +4,13 @@ import datetime
 from flask import current_app
 from geojson_utils import centroid
 from pymongo import DESCENDING
+from toolz import compose
+from toolz.curried import groupby, countby
 from werkzeug.datastructures import ImmutableList
 
 from ereuse_devicehub.exceptions import StandardError
+from ereuse_devicehub.resources.device.domain import DeviceDomain
+from ereuse_devicehub.resources.group.domain import GroupDomain
 from ereuse_devicehub.resources.group.physical.place.domain import PlaceDomain
 from ereuse_devicehub.utils import cache
 
@@ -107,27 +111,36 @@ class Aggregation:
         # descendants = PlaceDomain.get_descendants(place_type, pluck(places_with_geo, 'label'))
         return places_with_geo
 
-    def type(self):
-        pipeline = [
-            {
-                '$project': {
-                    'event': {'$arrayElemAt': ['$events', 0]}
+    def types(self, groups_id: str = None):
+        if groups_id:
+            domain = GroupDomain.children_resources[self.resource_name]
+            descendants = domain.get_descendants(DeviceDomain, groups_id)
+            group_and_count = compose(
+                groupby(lambda device: device['events'][0]['@type']),
+                countby(len)
+            )
+            return group_and_count(descendants)
+        else:
+            pipeline = [
+                {
+                    '$project': {
+                        'event': {'$arrayElemAt': ['$events', 0]}
+                    }
+                },
+                {
+                    '$group': {
+                        '_id': '$event.@type',
+                        'count': {'$sum': 1}
+                    }
+                },
+                {
+                    '$project': {
+                        '@type': '$_id',
+                        'count': True,
+                        '_id': False
+                    }
                 }
-            },
-            {
-                '$group': {
-                    '_id': '$event.@type',
-                    'count': {'$sum': 1}
-                }
-            },
-            {
-                '$project': {
-                    '@type': '$_id',
-                    'count': True,
-                    '_id': False
-                }
-            }
-        ]
+            ]
         return self._aggregate(pipeline)
 
     @cache.memoize(timeout=CACHE_TIMEOUT)

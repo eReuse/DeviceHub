@@ -4,8 +4,10 @@ from uuid import uuid4
 from assertpy import assert_that
 from passlib.handlers.sha2_crypt import sha256_crypt
 
+from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.event.device.migrate.settings import Migrate
 from ereuse_devicehub.resources.event.device.register.settings import Register
+from ereuse_devicehub.security.perms import ACCESS
 from ereuse_devicehub.tests import TestBase
 from ereuse_devicehub.tests.test_resources.test_events.test_device_event import TestDeviceEvent
 from ereuse_devicehub.utils import Naming
@@ -29,10 +31,10 @@ class TestMigrate(TestDeviceEvent):
             {
                 'email': 'b@b.b',
                 'password': sha256_crypt.hash('1234'),
-                'role': 'admin',
+                'role': Role.USER,
                 'token': 'TOKENB',
-                'databases': self.app.config['DATABASES'][1],
-                'defaultDatabase': self.app.config['DATABASES'][1],
+                'databases': {self.db2: ACCESS},
+                'defaultDatabase': self.db2,
                 '@type': 'Account'
             }
         )
@@ -44,7 +46,7 @@ class TestMigrate(TestDeviceEvent):
         fixture_migrate_to = self.get_fixture('migrate', 'migrate_to')
         fixture_migrate_to['devices'] = self.devices_id
         fixture_migrate_to['to']['database'] = self.db2
-        migrate_db1_to_db2 = self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, self.MIGRATE), fixture_migrate_to)
+        migrate_db1_to_db2 = self.post_201('{}/{}'.format(self.DEVICE_EVENT, self.MIGRATE), fixture_migrate_to)
         migrate_db1_to_db2, _ = self.get(Migrate.resource_name, '', migrate_db1_to_db2['_id'])
         del fixture_migrate_to['to']  # to contains a new field
         assert_that(fixture_migrate_to).is_subset_of(migrate_db1_to_db2)
@@ -146,9 +148,9 @@ class TestMigrate(TestDeviceEvent):
             {
                 'email': 'c@c.c',
                 'password': sha256_crypt.hash('1234'),
-                'role': 'admin',
+                'role': Role.ADMIN,
                 'token': 'TOKENC',
-                'databases': self.app.config['DATABASES'][2],
+                'databases': {self.app.config['DATABASES'][2]: ACCESS},
                 'defaultDatabase': self.app.config['DATABASES'][2],
                 '@type': 'Account'
             }
@@ -158,9 +160,9 @@ class TestMigrate(TestDeviceEvent):
             {
                 'email': 'd@d.d',
                 'password': sha256_crypt.hash('1234'),
-                'role': 'admin',
+                'role': Role.ADMIN,
                 'token': 'TOKEND',
-                'databases': self.app.config['DATABASES'][3],
+                'databases': {self.app.config['DATABASES'][3]: ACCESS},
                 'defaultDatabase': self.app.config['DATABASES'][3],
                 '@type': 'Account'
             }
@@ -189,14 +191,14 @@ class TestMigrate(TestDeviceEvent):
         devices_id = []
         for i in range(1, 15):
             placeholder = self.get_fixture('register', '1-placeholder')
-            event = self.post_and_check('{}/{}'.format(self.DEVICE_EVENT, 'register'), placeholder)
+            event = self.post_201('{}/{}'.format(self.DEVICE_EVENT, 'register'), placeholder)
             devices_id.append(event['device'])
         tokens = self.token_b, self.token_c, self.token_d
         for db, token, i in zip(self.app.config['DATABASES'][1:], tokens, range(0, 3)):
             f_migrate_to = self.get_fixture('migrate', 'migrate_to')
             f_migrate_to['devices'] = devices_id[(i * 5):(i * 5 + 5)]
             f_migrate_to['to']['database'] = db
-            migrate_to = self.post_and_check(self.MIGRATE_URL, f_migrate_to)
+            migrate_to = self.post_201(self.MIGRATE_URL, f_migrate_to)
             migrate_other_db, status = self._get(migrate_to['to']['url'], token)
             self.assert200(status)
             for device_id in migrate_other_db['devices']:
@@ -204,5 +206,3 @@ class TestMigrate(TestDeviceEvent):
                 full_snapshot['device']['_id'] = device_id
                 _, status = self._post('{}/{}/{}'.format(db, self.DEVICE_EVENT, self.SNAPSHOT), full_snapshot, token)
                 self.assert201(status)
-
-

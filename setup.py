@@ -36,10 +36,13 @@ setup(
         'shortid>=0.1.2,<0.2',
         'beautifulsoup4>=4.6,<5',
         'wikipedia>=1.4,<2',
-        'Flask-WeasyPrint'
+        'Flask-WeasyPrint',
+        'toolz>=0.8,<1.0',
+        'geojson_utils'
     ],
     keywords='eReuse.org DeviceHub devices devicehub reuse recycle it asset management',
     # http://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies
+    # Install it with pip install .[docs] or pip install -e .[docs]
     extras_require={
         'docs': [
             'sphinx>=1.4.7',

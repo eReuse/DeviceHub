@@ -16,7 +16,9 @@ class TestExport(TestStandard):
         book_dict = self._get_spreadsheet('devices', computers_id)
         assert_that(book_dict).contains_only('Devices')
         first_computer = self.get_200('devices', '', computers_id[0])
-        assert_that(book_dict['Devices'][1]).contains(*at(first_computer, 'serialNumber', 'model', 'manufacturer'))
+        assert_that(book_dict['Devices'][1]).contains(
+            *at(first_computer, 'serialNumber', 'model', 'manufacturer', 'type', '@type')
+        )
         book_dict_ods = self._get_spreadsheet('devices', computers_id, xlsx=False)
         assert_that(book_dict_ods).is_equal_to(book_dict)
 

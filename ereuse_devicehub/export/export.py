@@ -84,7 +84,8 @@ class SpreadsheetTranslator(Translator):
         p = py_()
         d = OrderedDict()  # we want ordered dict as in translate we want to preserve this order in the spreadsheet
         d['Identifier'] = p.get('_id')
-        d['type'] = p.get('@type')
+        d['Type'] = p.get('@type')
+        d['Subtype'] = p.get('type')
         if not brief:
             d['Label ID'] = p.get('labelId')
             d['Giver ID'] = p.get('gid')

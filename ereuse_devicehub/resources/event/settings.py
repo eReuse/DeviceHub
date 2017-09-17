@@ -1,5 +1,3 @@
-import pymongo
-
 from ereuse_devicehub.resources.resource import ResourceSettings
 from ereuse_devicehub.resources.schema import Thing
 from ereuse_devicehub.validation.coercer import Coercer
@@ -50,12 +48,6 @@ class EventSettings(ResourceSettings):
     datasource = {
         'source': 'events',
         'default_sort': [('_created', -1)]
-    }
-    mongo_indexes = {
-        'Event: updated': [('_updated', pymongo.DESCENDING)],
-        'Event: @type, updated': [('@type', pymongo.DESCENDING), ('_updated', pymongo.DESCENDING)],
-        'Event: device': [('device', pymongo.HASHED)],
-        'Event: components': [('components', pymongo.DESCENDING)],
     }
     cache_control = 'max-age=15, must-revalidate'
     fa = 'fa-bookmark-o'

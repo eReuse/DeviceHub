@@ -142,6 +142,14 @@ class Domain:
             # This invokes data_layer.current_mongo_prefix, which selects the db
             return current_app.data.pymongo(cls.resource_name).db[collection_name]
 
+    @classmethod
+    def create_indexes(cls, indexes):
+        cls.collection.create_indexes(indexes)
+
+    @classmethod
+    def drop_indexes(cls):
+        cls.collection.drop_indexes()
+
 
 class ResourceNotFound(StandardError):
     status_code = 422

@@ -73,8 +73,5 @@ class PlaceSettings(PhysicalSettings):
         'default_sort': [('_modified', -1)],
         'source': 'places'
     }
-    mongo_indexes = {
-        'geo': [('components', pymongo.GEO2D)]
-    }
     url = 'places'
     fa = 'fa-map-marker'

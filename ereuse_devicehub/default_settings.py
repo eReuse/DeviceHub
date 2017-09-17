@@ -5,8 +5,22 @@
 """
 from datetime import timedelta
 
+from pymongo import IndexModel, HASHED, ASCENDING, DESCENDING
+from pymongo.collation import Collation, CollationStrength
+
+from ereuse_devicehub.resources.account.domain import AccountDomain
+from ereuse_devicehub.resources.account.settings import AccountSettings
+from ereuse_devicehub.resources.device.domain import DeviceDomain
+from ereuse_devicehub.resources.device.settings import DeviceSettings
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
+from ereuse_devicehub.resources.event.settings import EventSettings
+from ereuse_devicehub.resources.group.abstract.lot.domain import LotDomain
+from ereuse_devicehub.resources.group.group_log.settings import GroupLogEntrySettings
+from ereuse_devicehub.resources.group.physical.package.domain import PackageDomain
+from ereuse_devicehub.resources.group.physical.pallet.domain import PalletDomain
+from ereuse_devicehub.resources.group.physical.place.domain import PlaceDomain
 from ereuse_devicehub.resources.group.settings import GroupSettings
+from ereuse_devicehub.resources.manufacturers import ManufacturerDomain, ManufacturerSettings
 from ereuse_devicehub.utils import Naming
 
 CLIENT = None
@@ -86,12 +100,6 @@ TIME_TO_DELETE_RESOURCES = timedelta(minutes=5)  # How much time do users have t
 _events_in_grd = ('Deallocate', 'Migrate', 'Allocate', 'Receive',
                   'Remove', 'Add', 'Register', 'Locate', 'UsageProof', 'Recycle')
 EVENTS_IN_GRD = [Naming.resource(DeviceEventDomain.new_type(event)) for event in _events_in_grd]
-# Generation of the API (DOMAIN)
-from ereuse_devicehub.resources.device.settings import DeviceSettings
-from ereuse_devicehub.resources.account.settings import AccountSettings
-from ereuse_devicehub.resources.event.settings import EventSettings
-from ereuse_devicehub.resources.manufacturers import ManufacturerSettings
-from ereuse_devicehub.resources.group.group_log.settings import GroupLogEntrySettings
 
 DOMAIN = {
     'devices': DeviceSettings,
@@ -101,3 +109,52 @@ DOMAIN = {
     'manufacturers': ManufacturerSettings,
     'group-log-entry': GroupLogEntrySettings
 }
+
+# Indexing
+_INSENSITIVE = Collation('en_US', strength=CollationStrength.SECONDARY)
+PERMS_INDEX = ('perms.account', ASCENDING), ('perms.perm', ASCENDING)
+"""Insensitive caps and accents collation, suited for searches with $regex of single text fields"""
+_DESCENDING_UPDATE = ('_updated', DESCENDING),
+_GROUP_INDEXES = [
+    IndexModel(_DESCENDING_UPDATE, name='default group view'),
+    IndexModel(_DESCENDING_UPDATE + PERMS_INDEX, name='default group view with perms'),
+    IndexModel((('ancestors.lots', HASHED),), name='all lots ancestors'),
+    IndexModel('label', name='ranged label searches', collation=_INSENSITIVE, background=True)
+]
+INDEXES = [
+    (ManufacturerDomain, [IndexModel('label', name='ranged label searches', collation=_INSENSITIVE)]),
+    (AccountDomain, [IndexModel('email', name='ranged email searches', collation=_INSENSITIVE)]),
+    (
+        DeviceDomain,
+        [
+            IndexModel((('@type', ASCENDING), ('events.@type', ASCENDING), ('events._updated', DESCENDING)),
+                       name='default device info'),
+            IndexModel(PERMS_INDEX, name='perms')
+        ]
+    ),
+    (
+        DeviceEventDomain,
+        [
+            IndexModel((('device', HASHED),), name='device relationship'),
+            IndexModel('devices', name='devices relationship'),
+            IndexModel('components', name='components relationship')
+        ]
+    ),
+    (LotDomain, _GROUP_INDEXES),
+    (PackageDomain, _GROUP_INDEXES),
+    (PalletDomain, _GROUP_INDEXES),
+    (PlaceDomain, _GROUP_INDEXES)
+]
+"""
+Mongo indexes. Drawback of defining in ResourceSettings would be inheriting all indexes for children resources,
+so instead we define them here one time for each collection, by defining any domain that uses that collection.
+For example, DeviceDomain acts on 'devices' collection, so we define its events there, but we don't need to re-define
+the indexes for ComponentDomain, as they use the same db. For Group is otherwise; each type of group works in each
+type of collection and need their indexes set especially.
+
+Note we don't use eve 'mongo_indexes' as they are not database (inventory) aware and they are re-computed every time
+the app starts (even eve docs do not recommend using them in big apps).
+
+Instead, our indexes are re-set and re-computed only in specific Update scripts that require it (usually software
+updates that modify indexes).  
+"""

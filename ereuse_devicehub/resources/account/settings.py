@@ -1,5 +1,3 @@
-import pymongo
-
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.resource import ResourceSettings
 from ereuse_devicehub.resources.schema import Thing
@@ -147,12 +145,6 @@ class AccountSettings(ResourceSettings):
 
     # Finally, let's add the schema definition for this endpoint.
     _schema = Account
-
-    mongo_indexes = {
-        'email': [('email', pymongo.DESCENDING)],
-        'name': [('name', pymongo.DESCENDING)],
-        'email and name': [('email', pymongo.DESCENDING), ('name', pymongo.DESCENDING)]
-    }
 
     allowed_write_roles = {Role.ADMIN}  # Only admins or above can POST, PUT or DELETE
     use_default_database = True  # We have a common shared database with accounts

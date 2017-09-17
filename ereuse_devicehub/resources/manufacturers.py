@@ -1,4 +1,4 @@
-import pymongo
+from pymongo import ASCENDING
 
 from ereuse_devicehub.resources.domain import Domain
 from ereuse_devicehub.resources.resource import ResourceSettings
@@ -32,13 +32,10 @@ class ManufacturerSettings(ResourceSettings):
     }
     datasource = {
         'source': 'manufacturers',
-        'default_sort': [('label', pymongo.ASCENDING)]
+        'default_sort': [('label', ASCENDING)]
     }
     pagination = False
     cache_control = 'max-age={}, public'.format(7 * 24 * 60 * 60)
-    mongo_indexes = {
-        'Man: label': [('label', pymongo.TEXT)]
-    }
     use_default_database = True
 
 

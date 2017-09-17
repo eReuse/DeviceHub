@@ -1,5 +1,3 @@
-import pymongo
-
 from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.resource import ResourceSettings
 
@@ -15,10 +13,6 @@ class DeviceSettings(ResourceSettings):
         'url': 'regex("' + HID_REGEX + '")'
     }
     item_url = 'regex("[\w]+")'
-    mongo_indexes = {
-        'Device: @type and subtype': [('@type', pymongo.DESCENDING), ('type', pymongo.DESCENDING)],
-        'Device: @type and _updated': [('@type', pymongo.DESCENDING), ('_updated', pymongo.DESCENDING)]
-    }
     etag_ignore_fields = ['hid', '_id', 'components', 'isUidSecured', '_created', '_updated', '_etag', 'speed',
                           'busClock', 'labelId', 'owners', 'place', 'benchmark', 'benchmarks', 'public', '_links',
                           'forceCreation', 'parent', 'events', 'created', 'sameAs', 'placeholder', 'ancestors',

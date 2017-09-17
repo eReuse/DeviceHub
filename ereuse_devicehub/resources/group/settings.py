@@ -1,7 +1,5 @@
 import copy
 
-import pymongo
-
 from ereuse_devicehub.resources import events_pk_schema
 from ereuse_devicehub.resources.resource import ResourceSettings
 from ereuse_devicehub.resources.schema import Thing
@@ -102,10 +100,6 @@ class GroupSettings(ResourceSettings):
     }
     item_url = 'regex("[0-z_-]{7,14}")'  # Shortid regex (shouldn't be with ^ at the beginning and & at the end?)
     extra_response_fields = ResourceSettings.extra_response_fields + ['children', 'ancestors', 'byUser', 'devices']
-    mongo_indexes = {
-        'Group: updated': [('_updated', pymongo.DESCENDING)],
-        'Group: updated, label': [('label', pymongo.TEXT), ('_updated', pymongo.DESCENDING)],
-    }
 
 
 place_fk = {

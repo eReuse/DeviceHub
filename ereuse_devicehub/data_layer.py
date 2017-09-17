@@ -109,6 +109,3 @@ class DataLayer(Mongo):
     @mongo_encode('document', 'original')
     def replace(self, resource, id_, document, original):
         return super().replace(resource, id_, document, original)
-
-    def drop_dtabases(self):
-        self.pymongo().db.dropDatabases()

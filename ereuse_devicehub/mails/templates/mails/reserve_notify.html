@@ -1,0 +1,10 @@
+{% extends "mails/layout.html" %}
+{% import 'documents/macros.html' as macros %}
+{% block body %}
+  <p>
+    User {{ for | accountTitle }}
+    <a href="{{ reserve_url }}">has reserved</a> the following devices.
+    Please,
+  </p>
+  {{ macros.device_table(devices, fields) }}
+{% endblock %}

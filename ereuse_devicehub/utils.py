@@ -3,6 +3,7 @@ import os
 import sys
 
 import inflection as inflection
+from bson import ObjectId
 from flask import json, Config
 from flask_caching import Cache
 
@@ -218,3 +219,12 @@ class DeviceHubConfig(Config):
         super().from_object(obj)  # 1. Load settings as normal
         if obj == 'eve.default_settings':
             super().from_object('ereuse_devicehub.default_settings')  # 2. If those were eve's, then load ours
+
+
+def url_for_resource(resource_name: str, _id: str or ObjectId, db: str = None, base_url: str = None) -> str:
+    """Url for a resource"""
+    from ereuse_devicehub.resources.account.domain import AccountDomain
+    from flask import current_app
+    db = db or AccountDomain.requested_database
+    base_url = base_url or current_app.config['BASE_URL_FOR_AGENTS']
+    return '{}/{}/{}/{}'.format(base_url, db, current_app.config['DOMAIN'][resource_name]['url'], _id)

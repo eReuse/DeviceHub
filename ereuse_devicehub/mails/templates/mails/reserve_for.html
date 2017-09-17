@@ -1,0 +1,13 @@
+{% extends "mails/layout.html" %}
+{% import 'documents/macros.html' as macros %}
+{% block body %}
+  <p>
+    We have received your reservation for {{ devices | length }}. Please,
+    await another e-mail confirming the reservation.
+  </p>
+  <p>
+    <a href="{{ reserve_url }}">Here you can access the reservation</a>.
+    The devices are as follows:
+  </p>
+  {{ macros.device_table(devices, fields) }}
+{% endblock %}

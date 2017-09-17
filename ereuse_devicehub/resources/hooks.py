@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 from bson import ObjectId
-from flask import current_app, json
+from flask import current_app, json, Request
 from pydash import pick
 from requests import Response
 
@@ -157,3 +157,25 @@ def check_type(_, resources: list):
 
 class TypeIsInvalid(SchemaError):
     message = '@type is missing or misspelled.'
+
+
+def convert_dh_operators(_, request: Request, __):
+    """
+    Devicehub defines mongo-like operators that simplify writing queries when getting resources.
+
+    For example, ``where={"dh$eventOfDevice": "23"}`` maps to ``{"$or": ["device": "23"], ...}``.
+    """
+    # todo write tests
+    # We write in the 'where' request argument as python-eve will validate it after
+    # and this way we don't override any lookup another func added it before us
+    if 'where' in request.args:
+        request.args = request.args.copy()
+        where = json.loads(request.args['where'])
+        if 'dh$eventOfDevice' in where:
+            val = where.pop('dh$eventOfDevice')
+            where['$or'] = where.setdefault('$or', []) + [
+                {'device': val},
+                {'devices': {'$in': [val]}},
+                {'components': {'$in': [val]}}
+            ]
+        request.args['where'] = json.dumps(where)

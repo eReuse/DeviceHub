@@ -89,3 +89,13 @@ account. There are three purposes for this:
      ``READ`` for user B. As you can note, group 3 changed its permission from ``READ`` to ``WRITE``.
   7. We remove group 2 from group 1. Group 2 looses ``READ`` permission, and although group 3 should loose it too,
      as it was explicitly set in step 3, it keeps the permission. Note that it keeps ``WRITE`` and not ``READ``.
+
+Accessing events
+----------------
+Events are tied to the permissions of their devices; you can't set a permission to an event per se.
+
+- To access an event you need to be able to access to **any** of its devices.
+
+As version 0.6, you can create ``Reserve`` events when you don't have full access to an inventory.
+To create them you need to be able to access to all of the devices you want to reserve. Other events will
+be added in the future.

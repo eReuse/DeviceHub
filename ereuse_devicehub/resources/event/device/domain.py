@@ -72,6 +72,7 @@ class DeviceEventDomain(EventDomain):
             {'$query': {'device': device_id, '@type': resource_type}, '$orderby': {'_created': pymongo.ASCENDING}}
         )
 
+    DEVICES_ID_COMPONENTS = 'device', 'devices', 'components'
     @classmethod
     def devices_id(cls, event: dict, fields=('device', 'devices')) -> list:
         """Gets a list of devices of the event, independently if they are in *device* or *devices* fields."""

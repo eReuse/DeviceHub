@@ -245,6 +245,52 @@ class TestSecurity(TestGroupBase):
 
         self.get_200(self.DEVICES, item=choice(devices_id_in_lot), token=self.token2)
 
+    def test_performing_events(self):
+        """Checks performing events when """
+        lot = self.get_fixture(self.LOTS, 'lot')
+        accessible_devices = self.devices_id[:2]
+        non_accessible_devices = self.devices_id[2:]
+        lot['children'] = {'devices': accessible_devices}
+        lot['perms'] = [{'account': self.account2['_id'], 'perm': READ}]
+        lot_id = self.post_201(self.LOTS, lot)['_id']
+
+        # account2 can reserve the devices it can access
+        reserve = {'@type': 'devices:Reserve', 'devices': accessible_devices}
+        reserve1_id = self.post_201(self.DEVICE_EVENT_RESERVE, reserve, token=self.token2)['_id']
+
+        # but it can't if there are some devices it can't access
+        reserve['devices'] = accessible_devices + non_accessible_devices
+        _, status = self.post(self.DEVICE_EVENT_RESERVE, reserve, token=self.token2)
+        self.assert401(status)
+
+        # If we remove one of the acccessible devices from the lot
+        new_non_accessible_device = accessible_devices.pop(0)
+        lot['children'] = {'devices': accessible_devices}
+        lot_patch = {'@type': 'Lot', 'children': {'devices': accessible_devices}}
+        self.patch_200(self.LOTS, lot_patch, item=lot_id)
+
+        # account2 won't be able to reserve the device we removed, although it reserved it before
+        reserve2 = {'@type': 'devices:Reserve', 'devices': accessible_devices + [new_non_accessible_device]}
+        _, status = self.post(self.DEVICE_EVENT_RESERVE, reserve2, token=self.token2)
+        self.assert401(status)
+
+        # account1 can reserve it without problems
+        reserve2_id = self.post_201(self.DEVICE_EVENT_RESERVE, reserve2)['_id']
+
+        # Account2 can get the first reserve and second reserve, as the user has access to some of its devices
+        self.get_200(self.EVENTS, item=reserve1_id)
+        self.get_200(self.EVENTS, item=reserve2_id)
+
+        # But if we remove all devices from the lot (or we stop sharing the lot)
+        # The account2 won't be able to access that event
+        lot_patch = {'@type': 'Lot', 'children': {'devices': []}}
+        self.patch_200(self.LOTS, item=lot_id, data=lot_patch)
+
+        _, status = self.get(self.EVENTS, item=reserve1_id, token=self.token2)
+        self.assert401(status)
+        # The owner of course it can access the resource
+        self.get_200(self.EVENTS, item=reserve1_id)
+
     def _test_unauthorized_sharing(self):
         # todo we will let sharing in a future update
         # Let's start by creating a lot with some devices, and sharing it to account2

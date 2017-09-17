@@ -15,6 +15,7 @@ from eve.io.mongo import MongoJSONEncoder
 from eve.render import send_response
 from flask import json
 from flask import request
+from flask_mail import Mail
 from inflection import camelize
 from shortid import ShortId
 
@@ -26,6 +27,7 @@ from ereuse_devicehub.error_handler import ErrorHandlers
 from ereuse_devicehub.export.export import export
 from ereuse_devicehub.hooks import hooks
 from ereuse_devicehub.inventory import inventory
+from ereuse_devicehub.mails.mails import mails
 from ereuse_devicehub.request import RequestSignedJson
 from ereuse_devicehub.resources.account.login.settings import login
 from ereuse_devicehub.resources.event.device.live.geoip_factory import GeoIPFactory
@@ -74,7 +76,9 @@ class DeviceHub(Eve):
         self.add_cors_url_rule('/<db>/events/<resource>/placeholders', view_func=placeholders, methods=('POST',))
         self.add_cors_url_rule('/<db>/inventory', view_func=inventory)
         self.register_blueprint(documents)
-        self._load_jinja_filters()
+        self.register_blueprint(mails)
+        self.mail = Mail(self)
+        self._load_jinja_stuff()
         if self.config.get('GRD', True):
             self.grd_submitter_caller = SubmitterCaller(self, GRDSubmitter)
         # Load manufacturers to database if manufacturer's collection in db is empty
@@ -173,11 +177,25 @@ class DeviceHub(Eve):
             raise OSError('DeviceHub will only work well with UTF-8 systems, however yours is {}'
                           .format(locale.getpreferredencoding()))
 
-    def _load_jinja_filters(self):
+    def _load_jinja_stuff(self):
         """
-        Adds globally useful jinja filters.
+        Adds global functions and filters for jinja.
 
         The only way to use regular functions in jinja is by passing them through here and converting them
         to a jinja filter.
         """
+        # Filters
         self.jinja_env.filters['pydash_get'] = pydash.get
+
+        self.jinja_env.filters['accountTitle'] = lambda account: account.get('name', account['email'])
+        """Gets the name or email of the account."""
+        self.jinja_env.filters['resourceTitle'] = lambda r: r['@type'] + ' ' + r.get('label', r['_id'])
+        """A title for the resource like 'Event 23' or 'Lot donation of Laura'"""
+
+        # Global functions
+        def get_resource_as_string(name, charset='utf-8'):
+            # From http://flask.pocoo.org/snippets/77/
+            with self.open_resource(name) as f:
+                return f.read().decode(charset)
+
+        self.jinja_env.globals['get_resource_as_string'] = get_resource_as_string

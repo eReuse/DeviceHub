@@ -32,12 +32,13 @@ class TestBase(TestMinimal):
     LOTS = 'lots'
     PACKAGES = 'packages'
     DEVICE_EVENT_SNAPSHOT = DEVICE_EVENT + '/' + SNAPSHOT
+    RESERVE = 'reserve'
+    DEVICE_EVENT_RESERVE = DEVICE_EVENT + '/' + RESERVE
 
     def setUp(self, settings_file=None, url_converters=None):
-        # noinspection PyUnresolvedReferences
-        from ereuse_devicehub import default_settings as settings
-        self.set_settings(settings)
-        self.app = DeviceHub(settings=vars(settings))
+        from ereuse_devicehub import default_settings
+        self.set_settings(default_settings)
+        self.app = DeviceHub(settings=vars(default_settings))
         self.prepare()
 
     @staticmethod
@@ -59,6 +60,7 @@ class TestBase(TestMinimal):
             'user': 1,
             'license key': 'license-key'
         }
+        settings.MAIL_DEFAULT_SENDER = 'foo@ereuse.org'
 
     def prepare(self):
         self.MONGO_DBNAME = self.app.config['MONGO_DBNAME']

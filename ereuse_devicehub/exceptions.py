@@ -1,6 +1,7 @@
 from typing import List
 
 from bson import ObjectId
+from pydash import pluck
 
 
 class BasicError(Exception):
@@ -64,10 +65,10 @@ class UnauthorizedToUseDatabase(StandardError):
 class InsufficientDatabasePerm(StandardError):
     status_code = 401
 
-    def __init__(self, resource_name: str, db: str, _id: str or ObjectId):
+    def __init__(self, resource_name: str, ids: List[str or ObjectId] = [], db: str = None):
         from ereuse_devicehub.resources.account.domain import AccountDomain
         db = db or AccountDomain.requested_database
-        message = 'Account has not enough database access {} {} in {}.'.format(resource_name, _id, db)
+        message = 'Account has not enough database permissions to access {} {} in {}.'.format(resource_name, ids, db)
         super().__init__(message)
 
 

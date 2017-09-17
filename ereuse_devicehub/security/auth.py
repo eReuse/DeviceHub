@@ -1,3 +1,5 @@
+from contextlib import contextmanager, suppress
+
 from eve.auth import TokenAuth
 from flask import current_app as app
 from werkzeug.exceptions import NotFound
@@ -10,6 +12,7 @@ class Auth(TokenAuth):
     """
     Authorization module for DeviceHub. Handles Authorization and sets the database from the segment of the URL.
     """
+    METHODS = {'GET', 'POST'}
 
     def check_auth(self, token: str, _, resource: str, method: str) -> bool:
         """
@@ -24,7 +27,8 @@ class Auth(TokenAuth):
         """
         _ = AccountDomain.actual
         requested_db = self.set_database_from_url()
-        return (self.has_full_db_access() or method == 'GET' and self.db_access()) if requested_db else True
+
+        return (self.has_full_db_access() or method in self.METHODS and self.db_access()) if requested_db else True
 
     def set_database_from_url(self) -> str or None:
         """
@@ -95,3 +99,17 @@ class Auth(TokenAuth):
         account = account or AccountDomain.actual
         db = db or AccountDomain.requested_database
         return account['databases'].get(db, None) in EXPLICIT_DB_PERMS
+
+    @contextmanager
+    def database(self, database: str, headers=None):
+        """Set the actual database, reverting after to the old database, if need it. To use with 'with'."""
+        # We need to have an active request to 'trick' set_database and work with the database we want
+        from flask import current_app as app
+        with suppress(NotADatabase):
+            # Let's get the old
+            mongo_prefix = self.get_mongo_prefix()
+        with app.test_request_context('/{}/devices'.format(database), headers=headers):
+            self.set_database_from_url()
+            yield
+        if mongo_prefix:
+            self.set_mongo_prefix(mongo_prefix)

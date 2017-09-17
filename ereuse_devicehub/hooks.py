@@ -7,9 +7,12 @@ def hooks(app):
     app.on_pre_GET += redirect_on_browser
     app.on_insert += check_type
 
-    from ereuse_devicehub.security.hooks import check_perms_for_list_of_items, check_perms_for_item
-    app.on_pre_GET += check_perms_for_list_of_items
-    app.on_fetched_item += check_perms_for_item
+    from ereuse_devicehub.security.hooks import check_get_perms_for_list_of_items, check_get_perms_for_item
+    app.on_pre_GET += check_get_perms_for_list_of_items
+    app.on_fetched_item += check_get_perms_for_item
+
+    from ereuse_devicehub.resources.hooks import convert_dh_operators
+    app.on_pre_GET += convert_dh_operators
 
     from ereuse_devicehub.resources.hooks import avoid_deleting_if_not_last_event_or_more_x_minutes
     app.on_pre_DELETE += avoid_deleting_if_not_last_event_or_more_x_minutes
@@ -19,6 +22,9 @@ def hooks(app):
 
     from ereuse_devicehub.resources.event.device.hooks import fill_devices_field_from_groups
     app.on_insert += fill_devices_field_from_groups  # This needs to go before any insert device event hook
+
+    from ereuse_devicehub.security.hooks import check_post_perms
+    app.on_insert += check_post_perms
 
     from ereuse_devicehub.resources.event.device.migrate.hooks import check_migrate, create_migrate, submit_migrate, \
         check_migrate_insert, check_migrate_update, remove_devices_from_place, return_same_as
@@ -140,3 +146,7 @@ def hooks(app):
     app.on_deleted_item += delete_children
     app.on_updated += add_group_change_to_log
     app.on_replaced += add_group_change_to_log
+
+    from ereuse_devicehub.resources.event.device.reserve.hooks import notify, set_for_and_notify
+    app.on_insert_devices_reserve += set_for_and_notify
+    app.on_inserted_devices_reserve += notify

@@ -1,8 +1,6 @@
-import copy
-
 from ereuse_devicehub.resources.account.settings import unregistered_user, unregistered_user_doc
-from ereuse_devicehub.resources.event.device.settings import components, EventWithDevices, \
-    EventSubSettingsMultipleDevices
+from ereuse_devicehub.resources.event.device.settings import EventWithDevices, \
+    EventSubSettingsMultipleDevices, materialized_components
 
 
 class Allocate(EventWithDevices):
@@ -25,10 +23,7 @@ class Allocate(EventWithDevices):
         'materialized': True,
         'doc': 'Materialization of the organization that, by the time of the allocation, the user worked in.'
     }
-    components = copy.deepcopy(components)
-
-
-Allocate.components['readonly'] = True
+    components = materialized_components
 
 
 class AllocateSettings(EventSubSettingsMultipleDevices):

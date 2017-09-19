@@ -1,3 +1,5 @@
+from typing import List
+
 import pymongo
 from pydash import chain
 
@@ -73,7 +75,8 @@ class DeviceEventDomain(EventDomain):
         )
 
     DEVICES_ID_COMPONENTS = 'device', 'devices', 'components'
+
     @classmethod
-    def devices_id(cls, event: dict, fields=('device', 'devices')) -> list:
+    def devices_id(cls, event: dict, fields=('device', 'devices')) -> List[str]:
         """Gets a list of devices of the event, independently if they are in *device* or *devices* fields."""
         return chain(event).pick(*fields).values().flatten().compact().value()

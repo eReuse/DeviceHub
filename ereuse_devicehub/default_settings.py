@@ -91,6 +91,7 @@ CACHE_CONTROL = 'private, max-age=' + str(60 * 60 * 12)
 PAGINATION_DEFAULT = 30
 PAGINATION_LIMIT = 100
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
+SECONDARY_DATE_FORMAT = DATE_FORMAT + '.%fZ'
 SCHEMA_ENDPOINT = 'schema'
 VALIDATION_ERROR_AS_LIST = True  # We always use list to show errors
 ITEM_CACHE = 120  # We differentiate from Resource cache (Cache setting from Eve) from Item cache
@@ -101,6 +102,15 @@ _events_in_grd = ('Deallocate', 'Migrate', 'Allocate', 'Receive',
                   'Remove', 'Add', 'Register', 'Locate', 'UsageProof', 'Recycle')
 EVENTS_IN_GRD = [Naming.resource(DeviceEventDomain.new_type(event)) for event in _events_in_grd]
 
+# Files
+# From http://python-eve.org/features.html#serving-media-files-at-a-dedicated-endpoint
+RETURN_MEDIA_AS_BASE64_STRING = False
+RETURN_MEDIA_AS_URL = True
+MULTIPART_FORM_FIELDS_AS_JSON = True
+AUTO_COLLAPSE_MULTI_KEYS = True
+AUTO_CREATE_LISTS = True
+
+# Resources
 DOMAIN = {
     'devices': DeviceSettings,
     'events': EventSettings,

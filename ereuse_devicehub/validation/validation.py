@@ -1,6 +1,6 @@
 import copy
-import datetime
 from contextlib import suppress
+from datetime import datetime
 from distutils import version
 from uuid import UUID
 
@@ -136,6 +136,13 @@ class DeviceHubValidator(Validator):
         if response:
             self._error(field, json_util.dumps({'NotUnique': response}))
 
+    def _validate_type_datetime(self, field, value):
+        """In DH, we try to apply the secondary date format before validating."""
+        with suppress(ValueError):
+            if not isinstance(value, datetime):
+                self._current[field] = value = datetime.strptime(value, app.config['SECONDARY_DATE_FORMAT'])
+        super()._validate_type_datetime(field, value)
+
     def _validate_type_hid(self, field, _):
         """
         General validation for inserting devices (the name of the function is forced by Cerberus, not a good one).
@@ -228,7 +235,7 @@ class DeviceHubValidator(Validator):
     def _validate_type_time(self, field, value):
         """Validates and **coerces** time (this is, modifies the value with a time() object)"""
         try:
-            datetime.datetime.strptime(value, '%H:%M:%S')
+            datetime.strptime(value, '%H:%M:%S')
         except (ValueError, TypeError):
             self._error(field, '{} is not a valid time (HH:MM:SS)'.format(value))
 
@@ -242,6 +249,10 @@ class DeviceHubValidator(Validator):
 
     def _validate_short(self, nothing, field, value):
         """An abbreviation for a field name. Ex: *SerialNumber* -> *S/N*"""
+        pass
+
+    def _validate_accept(self, nothing, field, value):
+        """Accept for HTML input fields."""
         pass
 
     # noinspection PyPep8Naming

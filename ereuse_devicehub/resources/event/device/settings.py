@@ -1,7 +1,8 @@
+import copy
+
 from ereuse_devicehub.resources.event.settings import Event, EventSettings
 from ereuse_devicehub.resources.group.settings import lots_fk
 from ereuse_devicehub.resources.group.settings import packages_fk
-from ereuse_devicehub.validation.coercer import Coercer
 
 prefix = {'prefix': 'devices'}
 
@@ -102,6 +103,9 @@ components = {
     'description': 'Components affected by the event.',
     'teaser': False
 }
+materialized_components = copy.deepcopy(components)
+materialized_components['materialized'] = True
+
 parent_materialized = {
     'type': 'string',
     'data_relation': {

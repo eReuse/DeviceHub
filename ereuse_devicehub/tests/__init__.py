@@ -9,6 +9,7 @@ from eve.methods.common import parse
 from eve.tests import TestMinimal
 from flask import json
 from flask_pymongo import MongoClient
+from simplejson.scanner import JSONDecodeError
 
 from ereuse_devicehub import utils
 from ereuse_devicehub.exceptions import StandardError
@@ -33,7 +34,10 @@ class TestBase(TestMinimal):
     PACKAGES = 'packages'
     DEVICE_EVENT_SNAPSHOT = DEVICE_EVENT + '/' + SNAPSHOT
     RESERVE = 'reserve'
+    SELL = 'sell'
     DEVICE_EVENT_RESERVE = DEVICE_EVENT + '/' + RESERVE
+    DEVICE_EVENT_SELL = DEVICE_EVENT + '/' + SELL
+    MEDIA = 'media'
 
     def setUp(self, settings_file=None, url_converters=None):
         from ereuse_devicehub import default_settings
@@ -174,7 +178,7 @@ class TestBase(TestMinimal):
         headers = headers or []
         if token:
             headers.append(('Authorization', 'Basic ' + token))
-        if type(data) is not str:
+        if type(data) is not str and content_type == 'application/json':
             data = json.dumps(data)
         # from super method
         headers.append(('Content-Type', content_type))
@@ -210,6 +214,12 @@ class TestBase(TestMinimal):
 
     def assert308(self, status):
         self.assertEqual(status, 308)
+
+    def parse_response(self, r):
+        v = r.get_data()
+        with contextlib.suppress(JSONDecodeError):
+            v = json.loads(v)
+        return v, r.status_code
 
 
 class TestStandard(TestBase):

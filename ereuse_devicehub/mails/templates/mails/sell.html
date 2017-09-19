@@ -1,0 +1,12 @@
+{% extends "mails/layout.html" %}
+{% import 'documents/macros.html' as macros %}
+{% block body %}
+  <p>
+    Selling invoice.
+  </p>
+  <p>
+    <a href="{{ sell_url }}">Here you can access the sell</a>.
+                                                             The devices are as follows:
+  </p>
+  {{ macros.device_table(devices, fields) }}
+{% endblock %}

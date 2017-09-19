@@ -47,19 +47,14 @@ def get_place(resource_name: str, events: list):
 
 
 def materialize_components(resource_name: str, events: list):
-    """
-    Materializes the field 'components' of selected events (not all of them) with the union of all the affected
-    components, when the event is performed to computers
-    :param resource_name:
-    :param events:
-    :return:
-    """
+    """Materializes the field 'components' of those events that require them to be materialized."""
     if resource_name in Event.resource_names:
         for event in events:
             sub_schema = current_app.config['DOMAIN'][resource_name]['schema']
             schema = sub_schema.get('components', {})
-            if schema.get('readonly', False) or schema.get('materialized', False):
-                event['components'] = list(ComponentDomain.get_components_in_set(event['devices']))
+            if schema.get('materialized', False):
+                devices_id = DeviceEventDomain.devices_id(event)
+                event['components'] = list(ComponentDomain.get_components_in_set(devices_id))
 
 
 def materialize_parent(resource_name: str, events: list):

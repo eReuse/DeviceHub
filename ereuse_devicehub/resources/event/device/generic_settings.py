@@ -1,8 +1,6 @@
-import copy
-
 from ereuse_devicehub.resources.event.device.domain import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.settings import EventWithDevices, EventSubSettingsMultipleDevices, \
-    components
+    materialized_components
 from ereuse_devicehub.resources.resource import Resource
 
 """
@@ -13,6 +11,5 @@ from ereuse_devicehub.resources.resource import Resource
 """
 
 for generic_type, settings in DeviceEventDomain.GENERIC_TYPES.items():
-    schema = {'components': copy.deepcopy(components)}
-    schema['components']['materialized'] = True
+    schema = {'components': materialized_components}
     Resource.create(generic_type, EventWithDevices, schema, EventSubSettingsMultipleDevices, settings)

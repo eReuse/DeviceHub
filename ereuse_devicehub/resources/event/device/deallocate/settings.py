@@ -1,7 +1,5 @@
-import copy
-
-from ereuse_devicehub.resources.event.device.settings import components, EventWithDevices, \
-    EventSubSettingsMultipleDevices
+from ereuse_devicehub.resources.event.device.settings import EventWithDevices, \
+    EventSubSettingsMultipleDevices, materialized_components
 
 
 class Deallocate(EventWithDevices):
@@ -19,6 +17,7 @@ class Deallocate(EventWithDevices):
         'type': 'string',
         'readonly': True
     }
+    components = materialized_components
 
     @classmethod
     def _clean(cls, attributes: dict, attributes_to_remove: tuple = None) -> dict:
@@ -26,10 +25,6 @@ class Deallocate(EventWithDevices):
         full_dict['from'] = full_dict['_from']
         del full_dict['_from']
         return full_dict
-
-
-Deallocate.components = copy.deepcopy(components)
-Deallocate.components['readonly'] = True
 
 
 # Receiver OR ReceiverEmail. We need to hook this in a required field so it is always executed

@@ -1,11 +1,9 @@
-import copy
-
-from ereuse_devicehub.resources.event.device.settings import components, EventWithDevices, \
-    EventSubSettingsMultipleDevices
+from ereuse_devicehub.resources.event.device.settings import EventWithDevices, \
+    EventSubSettingsMultipleDevices, materialized_components
 
 
 class Reserve(EventWithDevices):
-    components = copy.deepcopy(components)
+    components = materialized_components
     deadline = {
         'type': 'datetime'
     }

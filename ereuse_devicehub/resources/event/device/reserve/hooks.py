@@ -17,10 +17,10 @@ from ereuse_devicehub.utils import url_for_resource
 def set_for_and_notify(reserves: List[dict]):
     """Sets the fields 'for' and 'notify' of the reserves."""
     for reserve in reserves:
-        # for
+        # 'for'
         if 'for' not in reserve or not Auth.has_full_db_access():
             reserve['for'] = AccountDomain.actual['_id']
-        # notify
+        # 'notify'
         db = AccountDomain.requested_database
         # We notify to accounts that own the database and represent real users (not machines)
         q = {'databases.{}'.format(db): {'$in': EXPLICIT_DB_PERMS}, 'role': {'$nin': Role.MACHINES}}
@@ -33,8 +33,7 @@ def notify(reserves: List[dict]):
     """Sends e-mails to the 'notify' and 'for' accounts of the reserves."""
 
     def create_email(title: str, template_name: str, recipient: dict) -> Message:
-        context['title'] = title
-        html = render_mail_template(template_name, _for, **context)
+        html = render_mail_template(title, template_name, _for, **context)
         return Message(html=html, recipients=[recipient['email']])
 
     msgs = []

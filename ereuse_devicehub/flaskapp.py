@@ -3,12 +3,15 @@ DeviceHub app
 """
 import inspect
 import locale
+from contextlib import contextmanager
+from datetime import timedelta
 
 import flask_cors
 import flask_excel
 import gnupg
 from eve import Eve
-from eve.endpoints import schema_collection_endpoint
+from eve.auth import requires_auth
+from eve.endpoints import schema_collection_endpoint, media_endpoint
 from eve.exceptions import ConfigException
 from eve.io.mongo import GridFSMediaStorage
 from eve.io.mongo import MongoJSONEncoder
@@ -25,6 +28,7 @@ from ereuse_devicehub.dh_pydash import pydash
 from ereuse_devicehub.documents.documents import documents
 from ereuse_devicehub.error_handler import ErrorHandlers
 from ereuse_devicehub.export.export import export
+from ereuse_devicehub.header_cache import header_cache
 from ereuse_devicehub.hooks import hooks
 from ereuse_devicehub.inventory import inventory
 from ereuse_devicehub.mails.mails import mails
@@ -119,17 +123,39 @@ class DeviceHub(Eve):
             Check the attribute 'use_default_database' in class :class:`app.resources.resource.ResourceSettings`,
             which forces the resource to just use the default database.
         """
-        if settings.get('use_default_database', False):
-            super(DeviceHub, self)._add_resource_url_rules(resource, settings)
-        else:
+
+        @contextmanager
+        def prefixed_db(db):
             real_url_prefix = self.config['URL_PREFIX']
-            for database in self.config['DATABASES']:
-                if real_url_prefix:
-                    self.config['URL_PREFIX'] += '/{}'.format(database)
-                else:
-                    self.config['URL_PREFIX'] = database
-                super(DeviceHub, self)._add_resource_url_rules(resource, settings)
+            if real_url_prefix:
+                self.config['URL_PREFIX'] += '/{}'.format(db)
+            else:
+                self.config['URL_PREFIX'] = db
+            yield
             self.config['URL_PREFIX'] = real_url_prefix
+
+        if settings.get('use_default_database', False):
+            super()._add_resource_url_rules(resource, settings)
+        else:
+            for db in self.config['DATABASES']:
+                with prefixed_db(db):
+                    super()._add_resource_url_rules(resource, settings)
+
+    def _init_media_endpoint(self):
+        """
+        The media endpoint. In DeviceHub we add database support, authorization and cache headers.
+        :return:
+        """
+
+        @header_cache(expires=timedelta(weeks=1).total_seconds())
+        @requires_auth('')
+        def _media_endpoint(db, _id):
+            return media_endpoint(_id)
+
+        endpoint = self.config['MEDIA_ENDPOINT']
+        if endpoint:
+            url = '{}/<db>/{}/<{}:_id>'.format(self.api_prefix, endpoint, self.config['MEDIA_URL'])
+            self.add_url_rule(url, 'media', view_func=_media_endpoint, methods=['GET'])
 
     def validate_roles(self, directive, candidate, resource):
         """

@@ -1,4 +1,5 @@
-from ereuse_devicehub.resources.event.device.settings import EventWithOneDevice, components, EventSubSettingsOneDevice
+from ereuse_devicehub.resources.event.device.settings import EventWithOneDevice, EventSubSettingsOneDevice, \
+    materialized_components
 from ereuse_devicehub.resources.group.physical.place.places_schema import Country, AdministrativeArea, Continent, City
 
 
@@ -43,7 +44,7 @@ class Live(EventWithOneDevice):
         'type': 'natural',
         'readonly': True
     }
-    components = components
+    components = materialized_components
 
 
 class LiveSettings(EventSubSettingsOneDevice):

@@ -76,7 +76,11 @@ class Group(Thing):
             }
         },
         'default': [],
-        'materialized': True
+        'materialized': True,
+        'doc': 'The schema.schema of ancestors is populated with all subgroups. For example, Lot adds: '
+               'ancestors.places and ancestors.lots. Which reads as follows:'
+               'I inherit the following descendants form ancestor._id of type ancestor.@type:'
+               'ancestor.places = [p1,p2...], ancestor.lots = [l1, l2...]'
     }
     events = events_pk_schema.events
     perms = perms

@@ -3,10 +3,10 @@ from random import choice
 
 from assertpy import assert_that
 from passlib.handlers.sha2_crypt import sha256_crypt
-from pydash import every
+from pydash import every, pluck, py_
 
 from ereuse_devicehub.resources.account.role import Role
-from ereuse_devicehub.security.perms import READ, PARTIAL_ACCESS, ACCESS
+from ereuse_devicehub.security.perms import ACCESS, PARTIAL_ACCESS, READ
 from ereuse_devicehub.tests import TestBase
 from ereuse_devicehub.tests.test_resources.test_group import TestGroupBase
 
@@ -99,6 +99,11 @@ class TestSecurity(TestGroupBase):
         assert_that(computers_in_lot['_items']).is_length(2)
         for device in computers_in_lot['_items']:
             assert_that(device['_id']).is_not_equal_to(computers_id_not_in_lot[0])
+            # with its events
+            self.get_200(self.EVENTS, params={'where': json.dumps({'_id': {'$in': pluck(device['events'], '_id')}})},
+                         token=self.token2)
+        # Let's try getting only one event
+        self.get_200(self.EVENTS, item=choice(choice(computers_in_lot['_items'])['events'])['_id'])
 
         # But not other resources not in the lot
         where = {
@@ -107,11 +112,16 @@ class TestSecurity(TestGroupBase):
                 {'ancestors': {'$elemMatch': {'lots': {'$elemMatch': {'$in': ['_id']}}}}}
             ]
         }
-        devices_in_lot = self.get_200(self.DEVICES, params={'where': json.dumps(where)}, token=self.token2)
-        all_devices = self.get_200(self.DEVICES, token=self.token2)
+        devices_in_lot = self.get_200(self.DEVICES, params={'where': json.dumps(where)}, token=self.token2)['_items']
+        all_devices = self.get_200(self.DEVICES, token=self.token2)['_items']
         # Note that in this case we won't get 401 when getting resources
         # We will only get those resources we can access to
-        assert_that(all_devices['_items']).is_equal_to(devices_in_lot['_items'])
+        assert_that(all_devices).is_equal_to(devices_in_lot)
+        # with their events
+        events = self.get_200(self.EVENTS, token=self.token2)['_items']
+        # We get all ids of the events of our devices and check that the are the same that the ones we take
+        number_events = py_(all_devices).pluck('events').flatten().pluck('_id').uniq().value()
+        assert_that(pluck(events, '_id')).contains_only(*number_events)
 
         # If the user tries to get a specific resource that does not have access to,
         # we will get 401
@@ -190,10 +200,12 @@ class TestSecurity(TestGroupBase):
         package_patch = {'@type': 'Package', 'children': {'devices': removed_devices_id}}
         self.patch_200(self.PACKAGES, item=package['_id'], data=package_patch)
         params = {'where': json.dumps({'_id': {'$in': removed_devices_id}})}
-        devices = self.get_200(self.DEVICES, params=params, token=self.token2)
-        assert_that(devices['_items']).is_length(2)
+        devices = self.get_200(self.DEVICES, params=params, token=self.token2)['_items']
+        assert_that(devices).is_length(2)
+        # We can access its events
+        self.get_200(self.EVENTS, item=choice(choice(devices)['events'])['_id'])
         # Let's access specifically one of the devices
-        self.get_200(self.DEVICES, item=choice(removed_devices_id), token=self.token2)
+        removed_device = self.get_200(self.DEVICES, item=choice(removed_devices_id), token=self.token2)
 
         # Note that we can still access the other devices
         devices_token2 = self.get_200(self.DEVICES, token=self.token2)
@@ -206,11 +218,16 @@ class TestSecurity(TestGroupBase):
         self.patch_200(self.PACKAGES, item=package['_id'], data=package_patch)
         package = self.get_200(self.PACKAGES, item=package['_id'])
         assert_that(package).has_perms([])
-        # We can't access the package or devices
+        # We can't access the package, devices neither their events
         _, status = self.get(self.PACKAGES, item=package['_id'], token=self.token2)
         self.assert401(status)
         _, status = self.get(self.DEVICES, item=choice(removed_devices_id), token=self.token2)
         self.assert401(status)
+        _, status = self.get(self.EVENTS, item=choice(removed_device['events'])['_id'], token=self.token2)
+        self.assert401(status)
+        # The only events we can take are from the devices_id_in_lot
+        events = self.get_200(self.EVENTS, token=self.token2)['_items']
+        assert_that(pluck(events, 'device')).contains_only(*devices_id_in_lot)
 
         params = {'where': json.dumps({'_id': {'$in': removed_devices_id}})}
         devices = self.get_200(self.DEVICES, params=params, token=self.token2)
@@ -246,7 +263,21 @@ class TestSecurity(TestGroupBase):
         self.get_200(self.DEVICES, item=choice(devices_id_in_lot), token=self.token2)
 
     def test_performing_events(self):
-        """Checks performing events when """
+        """
+        Checks performing events and accessing them adding/removing permissions in devices and groups.
+        Tests, in order:
+
+        1. Perform Reserve to devices from a group when user has READ access to a group.
+        2. Unable to perform Reserve to a mix of devices that user can and can't access (READ).
+        3. Unable to perform Reserve to a mix of devices the user could access before but now it can't, because
+           they were removed from the group.
+        4. Getting two events when the user has READ access and can't access to some of the devices
+           of the event; one event is from the user and the other from another user
+        5. Unable to access an event where the user had READ access to some of the events, but not anymore.
+
+        Note that when we say the user has READ access we assume that the user does not have explicit access to the
+        database, otherwise READ access is useless.
+        """
         lot = self.get_fixture(self.LOTS, 'lot')
         accessible_devices = self.devices_id[:2]
         non_accessible_devices = self.devices_id[2:]
@@ -254,6 +285,8 @@ class TestSecurity(TestGroupBase):
         lot['perms'] = [{'account': self.account2['_id'], 'perm': READ}]
         lot_id = self.post_201(self.LOTS, lot)['_id']
 
+        # 1. Perform Reserve to devices from a group when user has READ access to a group
+        # -------------------------------------------------------------------------------
         # account2 can reserve the devices it can access
         reserve = {'@type': 'devices:Reserve', 'devices': accessible_devices}
         reserve1_id = self.post_201(self.DEVICE_EVENT_RESERVE, reserve, token=self.token2)['_id']
@@ -263,24 +296,35 @@ class TestSecurity(TestGroupBase):
         _, status = self.post(self.DEVICE_EVENT_RESERVE, reserve, token=self.token2)
         self.assert401(status)
 
-        # If we remove one of the acccessible devices from the lot
+        # 2. Try to perform Reserve to a mix of devices that user can and can't access (READ)
+        # -----------------------------------------------------------------------------------
+        # If we remove one of the accessible devices from the lot
         new_non_accessible_device = accessible_devices.pop(0)
         lot['children'] = {'devices': accessible_devices}
         lot_patch = {'@type': 'Lot', 'children': {'devices': accessible_devices}}
         self.patch_200(self.LOTS, lot_patch, item=lot_id)
 
+        # 3. Try to perform Reserve to a mix of devices the user could access before but now
+        #    it can't, because they were removed from the group
+        # ----------------------------------------------------------------------------------
         # account2 won't be able to reserve the device we removed, although it reserved it before
         reserve2 = {'@type': 'devices:Reserve', 'devices': accessible_devices + [new_non_accessible_device]}
         _, status = self.post(self.DEVICE_EVENT_RESERVE, reserve2, token=self.token2)
         self.assert401(status)
 
+        # 4. Getting two events when the user has READ access and can't access to some of the devices
+        #    of the event; one event is from the user and the other from another user
+        # -------------------------------------------------------------------------------------------
         # account1 can reserve it without problems
         reserve2_id = self.post_201(self.DEVICE_EVENT_RESERVE, reserve2)['_id']
 
         # Account2 can get the first reserve and second reserve, as the user has access to some of its devices
-        self.get_200(self.EVENTS, item=reserve1_id)
-        self.get_200(self.EVENTS, item=reserve2_id)
+        self.get_200(self.EVENTS, item=reserve1_id, token=self.token2)
+        self.get_200(self.EVENTS, item=reserve2_id, token=self.token2)
+        self.get_200(self.EVENTS, token=self.token2)
 
+        # 5. Unable to access an event where the user had READ access to some of the events, but not anymore
+        # --------------------------------------------------------------------------------------------------
         # But if we remove all devices from the lot (or we stop sharing the lot)
         # The account2 won't be able to access that event
         lot_patch = {'@type': 'Lot', 'children': {'devices': []}}

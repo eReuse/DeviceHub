@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from pydash import is_empty
+from pydash import py_
 
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
 from ereuse_devicehub.resources.device.component.hard_drive.settings import HardDrive
@@ -54,7 +54,10 @@ def update_materialized_computer(device_or_id: str or dict, components_id: list,
     # Inherit groups
     if add:
         device = device_or_id if type(device_or_id) is dict else DeviceDomain.get_one(device_id)
-        inherit_group(device['ancestors'], components_id)
+        inherit_group_and_perms(device['ancestors'], device['perms'], components_id)
+        # Note that we do not anything on 'remove' regarding groups and permissions
+        # We don't consider that, by removing a component, this should loose access to the group
+        # it was.
 
 
 def set_materialized_parent_in_components(parent_id: str, components_id: list, add: bool = True):
@@ -63,10 +66,19 @@ def set_materialized_parent_in_components(parent_id: str, components_id: list, a
     ComponentDomain.update_many_raw({'_id': {'$in': components_id}}, {op: {'parent': parent_id}})
 
 
-def inherit_group(computer_ancestors_id: list, components_id: list):
-    """Copies the place from the parent device to the new components and materializes them in the place"""
-    if not is_empty(computer_ancestors_id):
-        ComponentDomain.update_raw(components_id, {'$set': {'ancestors': computer_ancestors_id}})
-        for parent in computer_ancestors_id:
-            query = {'$addToSet': {'children.components': components_id}}
-            GroupDomain.children_resources[Naming.resource(parent['@type'])].update_one_raw(parent['_id'], query)
+def inherit_group_and_perms(computer_ancestors_id: list, perms: list, components_id: list):
+    """
+        Copies the group from the parent device to the new components, adds the components to the
+        parent's children.components, and materializes the permissions to components, and groups and permissions
+        to their events.
+    """
+    # update components' ``ancestors`` and ``perms``
+    components = ComponentDomain.update_raw_get(components_id,
+                                                {'$set': {'ancestors': computer_ancestors_id, 'perms': perms}})
+    for parent in computer_ancestors_id:
+        # update parent's property ``children.components``
+        query = {'$addToSet': {'children.components': components_id}}
+        GroupDomain.children_resources[Naming.resource(parent['@type'])].update_one_raw(parent['_id'], query)
+    # update components' events' ``permissions``
+    events_id = py_(components).pluck('events').flatten().pluck('_id').value()
+    GroupDomain.add_perms_to_events(events_id, perms)

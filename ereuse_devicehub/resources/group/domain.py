@@ -3,11 +3,7 @@ from typing import Dict, List, Set, Type
 
 from bson import ObjectId
 from passlib.utils import classproperty
-from pydash import compact, difference, union_by, difference_with, py_
-from pydash import flatten
-from pydash import map_values
-from pydash import pick
-from pydash import pluck
+from pydash import compact, difference, difference_with, flatten, map_values, pick, pluck, py_, union_by
 from pymongo.errors import OperationFailure
 
 from ereuse_devicehub.resources.account.domain import AccountDomain
@@ -15,7 +11,8 @@ from ereuse_devicehub.resources.device.component.domain import ComponentDomain
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.domain import Domain, ResourceNotFound
-from ereuse_devicehub.resources.group.settings import GroupSettings, Group
+from ereuse_devicehub.resources.event.device import DeviceEventDomain
+from ereuse_devicehub.resources.group.settings import Group, GroupSettings
 from ereuse_devicehub.utils import Naming
 
 Perms = List[Dict[str, str]]
@@ -23,13 +20,18 @@ Perms = List[Dict[str, str]]
 
 # noinspection PyProtectedMember
 class GroupDomain(Domain):
+    """
+    Manages group-device-event inheritance with permissions.
+
+    - Use ``update_children()`` to create
+    """
     resource_settings = GroupSettings
 
     @classmethod
     def update_children(cls, original: dict, updated: dict, ancestors: list, _id: str or None, perms: Perms):
         """
-        Updates the children of a group to reflect what says in the *original* field, materializing and affecting other
-        resources.
+        Updates the children of a group to reflect what says in the ``original`` field, materializing and affecting
+        other resources and their permissions.
 
         :param original: The original *children* field.
         :param updated: The new *children* field.
@@ -37,13 +39,17 @@ class GroupDomain(Domain):
         :param _id: The id of the group.
         :param perms: The *perms* field.
         """
+        # todo there is no control (only in client) to prevent "shared parenting"
+        # todo (resources can only have 1 parent, except when their parent is lots
+        # groups other than lots
+        # todo to "share" children (one children - multiple lots)
         for resource_name in cls.children_resources.keys():
             resource_original = set(original.get(resource_name, []))
             resource_updated = set(updated.get(resource_name, []))
             new_orphans = resource_original - resource_updated
             new_adopted = resource_updated - resource_original
 
-            if len(new_orphans) != 0 or len(new_adopted) != 0:
+            if new_orphans or new_adopted:
                 child_domain = cls.children_resources[resource_name]
                 # We remove our foreign key (with our ancestors) in the orphans' documents
                 parent_accounts = py_(perms).pluck('account').uniq().value()
@@ -58,7 +64,7 @@ class GroupDomain(Domain):
                 cls.inherit(_id, ancestors, child_domain, new_adopted, perms)
 
     @classmethod
-    def disinherit(cls, parent_id: str, child_domain: Type[Domain], children: Iterable, parent_accounts: List[str]):
+    def disinherit(cls, parent_id: str, child_domain: Type[Domain], children: Set[str], parent_accounts: List[str]):
         """
         Removes the *ancestors* dict the children inherited from the parent, and then recursively updates
         the ancestors of the descendants of the children.
@@ -71,19 +77,18 @@ class GroupDomain(Domain):
         q = {'$pull': {'ancestors': {'@type': cls.resource_settings._schema.type_name, '_id': parent_id}}}
         full_children = child_domain.update_raw_get(children, q)
 
-        cls._remove_children_perms(full_children, parent_accounts, child_domain)
+        cls._remove_perms(full_children, parent_accounts, child_domain)
 
         # We disinherit any component the devices have (only devices have components)
-        # todo materialize 'components' field into group
         components = compact(flatten(pluck(full_children, 'components')))
-        if len(components) > 0:
-            cls.disinherit(parent_id, ComponentDomain, components, parent_accounts)
+        if components:
+            cls.disinherit(parent_id, ComponentDomain, set(components), parent_accounts)
         # Inherit children groups
         if issubclass(child_domain, GroupDomain):
             cls._update_inheritance_grandchildren(full_children, child_domain, accounts_to_remove=parent_accounts)
 
     @classmethod
-    def remove_other_parents_of_type(cls, child_domain: Type[Domain], children: Iterable):
+    def remove_other_parents_of_type(cls, child_domain: Type[Domain], children: Set[str]):
         """
         Removes any parent of the same type of the parent children have.
 
@@ -101,11 +106,15 @@ class GroupDomain(Domain):
         child_domain.update_raw(children, query)
 
     @classmethod
-    def inherit(cls, parent_id: str, parent_ancestors: list, child_domain: Type[Domain], children: Iterable,
+    def inherit(cls, parent_id: str, parent_ancestors: list, child_domain: Type[Domain], children: Set[str],
                 parent_perms: Perms = None, accounts_to_remove: List[str] = None):
         """
-        Copies all the ancestors of the parent to the children (adding the parent as an ancestor), and then
-        recursively updates the ancestors of the descendants of the children.
+        Copies all the ancestors of the parent to the children (adding the parent as an ancestor), adding the
+        *parents_perms* to the children xor removing accounts. Then, recursively it calls itself to update the
+        descendants of the children.
+
+        Note that inherit is called too when **dis**inheriting, because this method will transmit the result of
+        the "disinheritance" to the descendants. This is why this method supports *accounts_to_remove* property.
 
         Certain kind of groups behave differently here and they override this method.
         :param parent_id: The id of the parent, used as FK.
@@ -134,71 +143,107 @@ class GroupDomain(Domain):
 
     @classmethod
     def _inherit(cls, groups_to_inherit: Iterable, parent_id: str, parent_ancestors: list, child_domain: Type[Domain],
-                 children: Iterable, parent_perms: Perms = None, accounts_to_remove: List[str] = None) -> list:
+                 resources: Set[str], parent_perms: Perms = None, accounts_to_remove: List[str] = None) -> list:
         """
-        Copies the passed-in ancestors to the children.
+        Copies the passed-in ancestors to the resources with the new permissions xor accounts to remove.
 
-        Ancestors are merged in a set, avoiding repetition of ancestors for resources with multiple parents.
+        This method specifically computes the *ancestors* property for each children and then calls to _update_db
+        to update their value.
 
-        When pasting the copy, it tries to identify an existing ancestors dictionary given by the parent,
+        Ancestors are merged in a set, avoiding repetition of ancestors for resources with multiple parents. When
+        pasting the copy, it tries to identify an existing ancestors dictionary given by the parent,
         otherwise creates a new one.
         """
-        # The child_ancestors for the 'new' db query
-        child_ancestors_new = {'@type': cls.resource_settings._schema.type_name, '_id': parent_id}
-        # The child_ancestors for the 'update' db query
-        child_ancestors_update = {'$set': {}}
+        # update_db needs 2 queries:
+        # ancestors is a query that will be used when creating a relationship resource - parent
+        # (the resource has a new parent)
+        ancestors = {'@type': cls.resource_settings._schema.type_name, '_id': parent_id}
+        # update_query is used to replace the ancestors of my parent
+        update_query = {'$set': {}}
         for resource_name in groups_to_inherit:
-            child_ancestors_new[resource_name] = set()  # We want to explicitly 'set' for the db
+            ancestors[resource_name] = set()  # We want to explicitly 'set' for the db
+            # for all the parents of my parent
             for grandparent in parent_ancestors:
                 if resource_name in grandparent:
-                    child_ancestors_new[resource_name] |= set(grandparent[resource_name])
+                    ancestors[resource_name] |= set(grandparent[resource_name])
                 if grandparent['@type'] == Naming.type(resource_name):  # We add the grandparent itself
-                    child_ancestors_new[resource_name].add(grandparent['_id'])
+                    ancestors[resource_name].add(grandparent['_id'])
             # Let's copy the result of the iteration to the update query
-            child_ancestors_update['$set']['ancestors.$.' + resource_name] = child_ancestors_new[resource_name]
+            update_query['$set']['ancestors.$.' + resource_name] = ancestors[resource_name]
 
-            # Permissions
-            if parent_perms:
-                child_ancestors_update['$set']['perms'] = parent_perms
-        return cls._update_db(parent_id, children, child_ancestors_new, child_ancestors_update, child_domain,
+        # ADDING PERMISSIONS
+        # ------------------
+        # Note that adding permissions is an easy query so we can do it here,
+        # removing permissions is more difficult and is done inside _remove_perms(), executed inside of
+        # _update_db
+        if parent_perms:
+            # inherit is executed after an ancestor moved to another one
+            # in this case we override the perms of the descendants
+            # todo if inherit is produced because a resource was **added** (not moved) to another lot
+            # todo we are loosing the perms of the first lot, this should only be happening when moving
+            # todo and not copying
+            update_query['$set']['perms'] = parent_perms
+        return cls._update_db(parent_id, resources, ancestors, update_query, child_domain,
                               parent_perms, accounts_to_remove)
 
     @classmethod
-    def _update_db(cls, parent_id: str, children: Iterable, ancestors_new: dict, ancestors_update: dict,
-                   child_domain: Type[Domain], parent_perms: Perms = None, parent_accounts_remove: List[str] = None):
+    def _update_db(cls, parent_id: str, resources: Set[str], ancestors_new: dict, update_query: dict,
+                   child_domain: Type[Domain], parent_perms: Perms = None,
+                   parent_accounts_remove: List[str] = None) -> List[dict]:
+        """
+        Executes in database for the passed-in resources and, for devices, their components too:
+
+        - The query (the passed-in *ancestors_update*) computed in *_inherit*. This query
+          updates *ancestors* and **adds** permissions.
+        - Removes permissions when passing in *parent_acounts_remove* (internally calling *_remove_perms*)
+        - For devices, adds and removes permissions for accounts when necessary (internally calling *_remove_perms*)
+        """
         new_children = []
-        for child in children:  # We cannot run all the children at once when catching exceptions
+        for resource in resources:  # We cannot run all the resources at once when catching exceptions
             try:
                 # Let's try to update an existing ancestor dict (this is with the same _id and @type),
                 # Note that this only will succeed when a relationship child-parent already exists, and this happens
                 # when we are updating the grandchilden (and so on) after adding/deleting a relationship
                 eq = {'ancestors.@type': ancestors_new['@type'], 'ancestors._id': parent_id}
-                full_child, *_ = child_domain.update_raw_get(child, ancestors_update, extra_query=eq, upsert=True)
+                full_child, *_ = child_domain.update_raw_get(resource, update_query, extra_query=eq, upsert=True)
             except OperationFailure as e:
                 if e.code == 16836:
                     # There is not an ancestor dict, so let's create one
                     # This only happens when creating a relationship parent-child
-                    update_query = {
+                    new_query = {
                         '$push': {'ancestors': {'$each': [ancestors_new], '$position': 0}},
                     }
                     if parent_perms is not None:
-                        # We are inheriting new permissions
-                        update_query['$set'] = {'perms': parent_perms}
-                    full_child, *_ = child_domain.update_raw_get(child, update_query)
+                        # ADDING PERMISSIONS (bis)
+                        # ------------------------
+                        new_query['$set'] = {'perms': parent_perms}
+                    full_child, *_ = child_domain.update_raw_get(resource, new_query)
                 else:
                     raise e
-            if full_child is None:
-                raise GroupNotFound('{} couldn\'t inheritance because it does not exist'.format(child))
             new_children.append(full_child)
-            # todo materialize components
-            components = full_child.get('components', [])  # Let's update the components
-            cls._update_db(parent_id, components, ancestors_new, ancestors_update, ComponentDomain, parent_perms,
-                           parent_accounts_remove)
 
+            # UPDATE COMPONENTS
+            # -----------------
+            # Components of devices inherit exactly the same way as their parents, so
+            # let's re-call this method with the components
+            components = full_child.get('components', [])  # Let's update the components
+            if components:
+                cls._update_db(parent_id, components, ancestors_new, update_query, ComponentDomain, parent_perms,
+                               parent_accounts_remove)
+
+        # REMOVING PERMISSIONS
+        # --------------------
         # Update perms for all children
-        if parent_accounts_remove is not None:
+        # Note that we took profit of the update above to add permissions
+        if parent_accounts_remove:
             # We are inheriting the removal of permissions
-            cls._remove_children_perms(new_children, parent_accounts_remove, child_domain)
+            cls._remove_perms(new_children, parent_accounts_remove, child_domain)
+
+        # ADDING PERMISSIONS TO EVENTS
+        # ----------------------------
+        if parent_perms:
+            events_id = py_(new_children).pluck('events').flatten().pluck('_id').value()
+            cls.add_perms_to_events(events_id, parent_perms)
 
         return new_children
 
@@ -218,7 +263,7 @@ class GroupDomain(Domain):
                 for name in child_domain.children_resources.keys():
                     grandchildren_domain = child_domain.children_resources[name]
                     grandchildren = set(full_child['children'][name]) if name in full_child['children'] else set()
-                    if len(grandchildren) > 0:
+                    if grandchildren:
                         child_domain.inherit(full_child['_id'], full_child['ancestors'], grandchildren_domain,
                                              grandchildren, parent_perms, accounts_to_remove)
 
@@ -279,15 +324,56 @@ class GroupDomain(Domain):
         return map_values(cls.children_resources, lambda domain: cls.get_descendants(domain, parent_ids))
 
     @classmethod
-    def _remove_children_perms(cls, full_children, parent_accounts, child_domain):
+    def _remove_perms(cls, resources: List[dict], accounts: List[str], child_domain: Type[Domain]):
+        """
+        Remove the permissions of the passed-in accounts from the resources.
+
+        We drop the perm for those accounts that don't have explicit access.
+
+        :param resources: Resources to remove permissions from.
+        :param accounts: The accounts to remove, if don't have explicit access.
+        :param child_domain: The child domain.
+        """
         # Remove permissions
-        for child in full_children:
-            accounts_to_remove = difference(parent_accounts, child.get('sharedWith', []))
-            comparator = lambda a, b: a['account'] == b
-            perms = difference_with(child['perms'], accounts_to_remove, comparator=comparator)
-            if len(perms) != len(child['perms']):
-                child_domain.update_one_raw(child['_id'], {'$set': {'perms': perms}})
-                child['perms'] = perms  # As we pass it into another function, just in case it is used later
+        for resource in resources:
+            # Compute which accounts we remove
+            accounts_to_remove = difference(accounts, resource.get('sharedWith', []))
+            # Get the perms referencing those accounts
+            perms = difference_with(resource['perms'], accounts_to_remove, comparator=lambda a, b: a['account'] == b)
+            if len(perms) != len(resource['perms']):
+                # We have lost some permissions
+                child_domain.update_one_raw(resource['_id'], {'$set': {'perms': perms}})
+                resource['perms'] = perms  # As we pass it into another function, just in case it is used later
+                if resource['@type'] in Device.types:
+                    # For devices, we need to update their events too
+                    cls._remove_perms_in_event(accounts_to_remove, resource['_id'])
+
+    @classmethod
+    def _remove_perms_in_event(cls, accounts_to_remove_from_device: List[ObjectId], device_id: str):
+        """
+        Removes the permissions for the passed-in accounts, which the device is loosing, from the events.
+
+        The accounts loose their permission only if, apart from the passed-in device (where the accounts are lost),
+        the accounts don't have permissions on the other devices.
+
+        :param accounts_to_remove_from_device: The accounts that we want to remove.
+        :param device_id: The device that is dropping access for the accounts.
+        :param events_id: The affected events.
+        """
+        from ereuse_devicehub.resources.event.device import DeviceEventDomain
+        for event in DeviceEventDomain.get_devices_components_id([device_id]):
+            # Which accounts have access to any of the other devices?
+            # Those accounts with access will be saved, as it means the user can access the event because this
+            # event represents a device that the account can access to.
+            # Accounts that don't have access to other devices mean that they only had access to the
+            # device we are removing, so we will drop access to the account as well.
+            devices_id = DeviceEventDomain.devices_id(event, DeviceEventDomain.DEVICES_ID_COMPONENTS)
+            devices_id.remove(device_id)
+            devices = DeviceDomain.get_in('_id', devices_id)
+            accounts_to_remove_from_event = difference(accounts_to_remove_from_device,
+                                                       py_(devices).pluck('perms').flatten().pluck('account').value())
+            if accounts_to_remove_from_event:
+                cls._remove_perms([event], accounts_to_remove_from_event, DeviceEventDomain)
 
     @classmethod
     def update_and_inherit_perms(cls, resource_id: dict, resource_type: str, label: str, shared_with: Set[ObjectId],
@@ -327,12 +413,18 @@ class GroupDomain(Domain):
 
                     q = {'$set': {'perms': perms}}
 
-                    # Remove accounts that lost permission from sharedWith
-                    if resource_name != Device.resource_name:
+                    if resource_name not in Device.resource_names:
+                        # Remove accounts that lost permission from sharedWith
                         descendant_shared_with = set(descendant.get('sharedWith', set()))
                         descendant_shared_with = cls.remove_shared_with(descendant['@type'], descendant['_id'],
                                                                         descendant_shared_with, accounts_to_remove)
                         q['$set']['sharedWith'] = descendant_shared_with
+                    else:
+                        # For devices, remove the perms from the events
+                        cls._remove_perms_in_event(list(accounts_to_remove), descendant['_id'])
+                        # add new perms to events
+                        events_id = pluck(descendant['events'], '_id')
+                        cls.add_perms_to_events(events_id, perms)
 
                     # Update the changes of the descendant in the database
                     domain.update_one_raw(descendant['_id'], q)
@@ -345,6 +437,13 @@ class GroupDomain(Domain):
         db = AccountDomain.requested_database
         AccountDomain.remove_shared(db, shared_with.intersection(accounts_to_remove), _id, type_name)
         return set(shared_with) - accounts_to_remove
+
+    @staticmethod
+    def add_perms_to_events(events_id: List[str], perms: List[dict]):
+        """Adds the perms to the events."""
+        for event in DeviceEventDomain.get_in('_id', events_id):
+            _perms = union_by(event['perms'], perms, iteratee=lambda x: x['account'])
+            DeviceEventDomain.update_one_raw(event['_id'], {'$set': {'perms': _perms}})
 
 
 class GroupNotFound(ResourceNotFound):

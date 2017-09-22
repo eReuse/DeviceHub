@@ -60,7 +60,7 @@ def hooks(app):
     app.on_pre_POST_devices_snapshot = move_id
 
     from ereuse_devicehub.resources.event.device.hooks import get_place, materialize_components, materialize_parent, \
-        set_place, unset_place, delete_events_in_device, remove_from_other_events
+        set_place, unset_place, delete_events_in_device, remove_from_other_events, inherit_permissions_from_devices
     app.on_insert += get_place
     app.on_inserted += set_place
     app.on_delete_item += unset_place
@@ -68,6 +68,7 @@ def hooks(app):
     app.on_insert += materialize_parent
     app.on_delete_item += delete_events_in_device
     app.on_delete_item += remove_from_other_events
+    app.on_insert += inherit_permissions_from_devices
 
     from ereuse_devicehub.resources.event.device.add.hooks import add_components, delete_components
     app.on_inserted_devices_add += add_components

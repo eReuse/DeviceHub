@@ -1,24 +1,21 @@
 import copy
+from typing import List
 
 import pymongo
 from flask import current_app
-from pydash import chain, merge_with
-from pydash import concat
-from pydash import map_
-from pydash import map_values
-from pydash import uniq
+from pydash import chain, concat, map_, map_values, merge_with, py_, uniq
 
 from ereuse_devicehub.exceptions import SchemaError
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
 from ereuse_devicehub.resources.device.component.settings import Component
+from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
-from ereuse_devicehub.resources.event.device.settings import Event, DeviceEvent
+from ereuse_devicehub.resources.event.device.settings import DeviceEvent, Event
 from ereuse_devicehub.resources.group.domain import GroupDomain
-from ereuse_devicehub.resources.group.physical.place.domain import NoPlaceForGivenCoordinates, \
-    CoordinatesAndPlaceDoNotMatch
-from ereuse_devicehub.resources.group.physical.place.domain import PlaceDomain
-from ereuse_devicehub.rest import execute_patch, execute_delete
+from ereuse_devicehub.resources.group.physical.place.domain import CoordinatesAndPlaceDoNotMatch, \
+    NoPlaceForGivenCoordinates, PlaceDomain
+from ereuse_devicehub.rest import execute_delete, execute_patch
 from ereuse_devicehub.utils import Naming
 
 
@@ -179,3 +176,12 @@ def fill_devices_field_from_groups(resource_name: str, events: list):
                     event['devices'].extend(devices)
                     # We need to add `dest or []` because https://github.com/dgilland/pydash/issues/95
                     merge_with(event['groups'], groups, callback=lambda dest, source: concat(dest or [], source))
+
+
+def inherit_permissions_from_devices(resource_name: str, events: List[dict]):
+    """When POSTing, inherits the permissions of the devices and components."""
+    if resource_name in DeviceEvent.resource_names:
+        for event in events:
+            devices_id = DeviceEventDomain.devices_id(event, DeviceEventDomain.DEVICES_ID_COMPONENTS)
+            devices = DeviceDomain.get_in('_id', devices_id)
+            event['perms'] = py_(devices).pluck('perms').flatten().uniq_by(iteratee=lambda x: x['account']).value()

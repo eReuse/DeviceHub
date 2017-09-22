@@ -74,7 +74,7 @@ account. There are three purposes for this:
 - User is granted automatically ``partial access`` to a database when someone shares a group from it,
   and the user will loose access to that database when it looses access to those **explicit** groups.
 - Clients and the system can know which databases and groups the user has access to by looking
-  to ``datbases`` and ``shared`` account fields.
+  to ``databases`` and ``shared`` account fields.
 - When removing resources from a group, they loose all their permissions recursively except those that were
   explicitly set. For example:
 
@@ -90,11 +90,21 @@ account. There are three purposes for this:
   7. We remove group 2 from group 1. Group 2 looses ``READ`` permission, and although group 3 should loose it too,
      as it was explicitly set in step 3, it keeps the permission. Note that it keeps ``WRITE`` and not ``READ``.
 
-Accessing events
-----------------
-Events are tied to the permissions of their devices; you can't set a permission to an event per se.
+Inheriting groups and permissions for components
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- To access an event you need to be able to access to **any** of its devices.
+- Devices that are added into other devices (e.g. components) copy-paste all the groups and permissions of the parent,
+  loosing any access they had before. From that point, they will inherit all permissions and groups from the parent.
+- When removing components, they won't loose any group or permissions they had with the parents, but from that moment
+  on they are *on their own* –they won't receive any new group or permission from the parent.
+
+Accessing events
+~~~~~~~~~~~~~~~~
+
+Events are closely tied to the devices they represent; you can't set a permission to an event per se and they
+inherit groups and permissions of the devices they represent.
+
+To access an event you need to be able to access to **any** of its devices or components.
 
 As version 0.6, you can create ``Reserve`` events when you don't have full access to an inventory.
 To create them you need to be able to access to all of the devices you want to reserve. Other events will

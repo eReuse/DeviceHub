@@ -2,19 +2,16 @@ import base64
 from typing import List, Set
 
 from bson.objectid import ObjectId
-from flask import current_app
-from flask import g
-from flask import request
+from flask import current_app, g, request
 from passlib.handlers.sha2_crypt import sha256_crypt
 from passlib.utils import classproperty
 from werkzeug.http import parse_authorization_header
 
-from ereuse_devicehub.exceptions import WrongCredentials, BasicError, StandardError, UserHasExplicitDbPerms
+from ereuse_devicehub.exceptions import BasicError, StandardError, UserHasExplicitDbPerms, WrongCredentials
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.account.settings import AccountSettings
 from ereuse_devicehub.resources.domain import Domain, ResourceNotFound
-# noinspection PyMethodParameters
-from ereuse_devicehub.security.perms import PARTIAL_ACCESS, EXPLICIT_DB_PERMS
+from ereuse_devicehub.security.perms import EXPLICIT_DB_PERMS, PARTIAL_ACCESS
 
 
 class AccountDomain(Domain):

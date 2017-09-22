@@ -1,8 +1,10 @@
+import copy
+
 from ereuse_devicehub.resources import events_pk_schema
 from ereuse_devicehub.resources.condition import condition
 from ereuse_devicehub.resources.group.physical.package.settings import Package
 from ereuse_devicehub.security.perms import perms
-from ..schema import UnitCodes, Thing
+from ..schema import Thing, UnitCodes
 
 
 class Product(Thing):
@@ -150,7 +152,8 @@ class Device(IndividualProduct):
         'materialized': True,
         'doc': 'Materialized condition from the last snapshot.'
     }
-    perms = perms
+    perms = copy.copy(perms)
+    perms['materialized'] = True
 
     @classmethod
     def subclasses_fields(cls):

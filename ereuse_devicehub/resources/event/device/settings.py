@@ -1,8 +1,8 @@
 import copy
 
 from ereuse_devicehub.resources.event.settings import Event, EventSettings
-from ereuse_devicehub.resources.group.settings import lots_fk
-from ereuse_devicehub.resources.group.settings import packages_fk
+from ereuse_devicehub.resources.group.settings import lots_fk, packages_fk
+from ereuse_devicehub.security.perms import perms
 
 prefix = {'prefix': 'devices'}
 
@@ -14,6 +14,12 @@ class DeviceEvent(Event):
         'description': 'Where did it happened'
         # 'anyof': [{'required': True}, {'dependencies': ['place']}]  # me OR places
     }
+    perms = copy.copy(perms)
+    # We always create this value through our hooks, but if set per 'default' for events
+    # eve creates it in situations we don't want
+    del perms['default']
+    perms['materialized'] = True
+
 
 
 settings = DeviceEvent._settings.copy()

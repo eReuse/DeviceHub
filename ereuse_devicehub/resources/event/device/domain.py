@@ -74,7 +74,13 @@ class DeviceEventDomain(EventDomain):
             {'$query': {'device': device_id, '@type': resource_type}, '$orderby': {'_created': pymongo.ASCENDING}}
         )
 
+    @classmethod
+    def get_devices_components_id(cls, devices_id: List[str]):
+        """Like ``devices_id`` but getting it from db using ``device`` and ``devices`` properties."""
+        return cls.get({'$or': [{'device': {'$in': devices_id}}, {'devices': {'$in': devices_id}}, {'components': {'$in': devices_id}}]})
+
     DEVICES_ID_COMPONENTS = 'device', 'devices', 'components'
+    DEVICES_ID_COMPONENTS_PARENT = DEVICES_ID_COMPONENTS + ('parent',)
 
     @classmethod
     def devices_id(cls, event: dict, fields=('device', 'devices')) -> List[str]:

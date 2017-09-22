@@ -18,7 +18,7 @@ class DeviceSettings(ResourceSettings):
                           'forceCreation', 'parent', 'events', 'created', 'sameAs', 'placeholder', 'ancestors',
                           'condition', 'perms']
     cache_control = 'max-age=1, must-revalidate'
-    extra_response_fields = ResourceSettings.extra_response_fields + ['hid', 'pid', 'ancestors', 'gid', 'rid']
+    extra_response_fields = ResourceSettings.extra_response_fields + ['hid', 'pid', 'ancestors', 'gid', 'rid', 'perms']
     datasource = {
         'source': 'devices'
     }

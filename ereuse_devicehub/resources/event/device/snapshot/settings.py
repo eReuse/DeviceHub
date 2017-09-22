@@ -6,6 +6,7 @@ from ereuse_devicehub.resources.condition import condition
 from ereuse_devicehub.resources.device.component.settings import Component
 from ereuse_devicehub.resources.event.device.settings import place, EventWithOneDevice, EventSubSettingsOneDevice, \
     parent
+from ereuse_devicehub.resources.group.settings import Group
 
 
 class Snapshot(EventWithOneDevice):
@@ -189,6 +190,22 @@ class Snapshot(EventWithOneDevice):
     }
     licenseKey = {
         'type': 'string'
+    }
+    group = {
+        'type': 'dict',
+        'schema': {
+            '@type': {
+                'type': 'string',
+                'allowed': Group.types,
+                'required': True
+            },
+            '_id': {
+                'type': 'string',
+                'required': True
+            }
+        },
+        'description': 'Automatically add the device to the group, if any.',
+        'doc': 'After performing the snapshot, adds the device to the group if it was not there already.'
     }
 
     @classmethod

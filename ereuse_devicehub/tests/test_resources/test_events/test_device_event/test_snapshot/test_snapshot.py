@@ -5,18 +5,16 @@ from random import choice
 
 from assertpy import assert_that
 from bson import objectid
-from pydash import filter_
-from pydash import map_
-from pydash import pick
+from pydash import filter_, map_, pick
 
+from ereuse_devicehub.exceptions import SchemaError
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.remove.hooks import ComponentIsNotInside
 from ereuse_devicehub.security.perms import ADMIN
 from ereuse_devicehub.tests.test_resources.test_events import TestEvent
 from ereuse_devicehub.tests.test_resources.test_group import TestGroupBase
-from ereuse_devicehub.utils import NestedLookup
-from ereuse_devicehub.utils import coerce_type
+from ereuse_devicehub.utils import NestedLookup, coerce_type
 
 
 class TestSnapshot(TestEvent, TestGroupBase):
@@ -730,3 +728,26 @@ class TestSnapshot(TestEvent, TestGroupBase):
                 "@type": "StressTest"
             }
         ])
+
+    def test_snapshot_with_group(self):
+        """Tests an Snapshot with a group."""
+        # Let's create first a group
+        group = self.post_fixture(self.LOTS, self.LOTS, 'lot')
+        snapshot = self.get_fixture(self.SNAPSHOT, '9')
+        snapshot['group'] = {'@type': 'Lot', '_id': group['_id']}
+        snapshot = self.post_201(self.SNAPSHOT_URL, snapshot)
+        # Device is in the lot
+        group = self.get_200(self.LOTS, item=group['_id'])
+        assert_that(group).has_children({'devices': [snapshot['device']]})
+        device = self.get_200(self.DEVICES, item=snapshot['device'])
+        assert_that(device).has_ancestors({'_id': '4DkBR57h', '@type': 'Lot', 'lots': []})
+
+    def test_snapshot_with_group_error(self):
+        """
+        Tests correct error handling for posting a snapshot with a group, when there has been an error in adding
+        the devices to the group.
+        """
+        snapshot = self.get_fixture(self.SNAPSHOT, '9')
+        snapshot['group'] = {'@type': 'Lot', '_id': 'foo-bar'}
+        response, status = self.post(self.SNAPSHOT_URL, snapshot)
+        self.assert_error(response, status, SchemaError)

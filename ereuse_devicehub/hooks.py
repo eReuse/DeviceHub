@@ -47,7 +47,7 @@ def hooks(app):
 
     from ereuse_devicehub.resources.event.device.snapshot.hooks import on_insert_snapshot, save_request, \
         materialize_test_hard_drives, materialize_erase_basic, set_secured, delete_events, move_id, \
-        materialize_condition
+        materialize_condition, add_to_group
     from ereuse_devicehub.resources.event.device.hooks import validate_only_components_can_have_parents
     app.on_insert_devices_snapshot += validate_only_components_can_have_parents
     app.on_insert_devices_snapshot += set_secured
@@ -58,6 +58,7 @@ def hooks(app):
     app.on_inserted_devices_snapshot += materialize_condition
     app.on_delete_item += delete_events
     app.on_pre_POST_devices_snapshot = move_id
+    app.on_inserted_devices_snapshot += add_to_group
 
     from ereuse_devicehub.resources.event.device.hooks import get_place, materialize_components, materialize_parent, \
         set_place, unset_place, delete_events_in_device, remove_from_other_events, inherit_permissions_from_devices

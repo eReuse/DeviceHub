@@ -1,13 +1,16 @@
 from contextlib import suppress
+from typing import List
 
-from flask import request, g
+from flask import g, request
 from werkzeug.local import LocalProxy
 
-from ereuse_devicehub.exceptions import InnerRequestError
+from ereuse_devicehub.exceptions import InnerRequestError, SchemaError
 from ereuse_devicehub.resources.device.domain import DeviceDomain
+from ereuse_devicehub.resources.domain import ResourceNotFound
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.domain import EventNotFound
-from ereuse_devicehub.rest import execute_delete
+from ereuse_devicehub.resources.group.domain import GroupDomain
+from ereuse_devicehub.rest import execute_delete, execute_patch
 from ereuse_devicehub.utils import Naming
 from .snapshot import Snapshot, SnapshotWithoutComponents
 
@@ -99,3 +102,23 @@ def move_id(payload: LocalProxy):
         snapshot['device']['pid'] = snapshot.pop('pid')
     if snapshot.get('snapshotSoftware', None) in SNAPSHOT_SOFTWARE:
         snapshot['snapshotSoftware'] = SNAPSHOT_SOFTWARE[snapshot['snapshotSoftware']]
+
+
+def add_to_group(snapshots: List[dict]):
+    """Adds the device to the group, if it was not there before."""
+    for snapshot in snapshots:
+        if 'group' in snapshot:
+            try:
+                g_type = snapshot['group']['@type']
+                resource_name = Naming.resource(g_type)
+                group = GroupDomain.children_resources[resource_name].get_one(snapshot['group']['_id'])
+                # We add the device in the group if it didn't exist already
+                if snapshot['device'] not in group['children'].get('devices', []):
+                    group['children'].setdefault('devices', []).append(snapshot['device'])
+                    group_patch = {'@type': g_type, 'children': group['children']}
+                    execute_patch(resource_name, group_patch, group['_id'])
+            except (ResourceNotFound, InnerRequestError) as e:
+                raise SchemaError(field='group',
+                                  message='We created the Snapshot, but we couldn\'t add '
+                                          'the devices to the group {} because {}'
+                                  .format(snapshot['group']['_id'], e)) from e

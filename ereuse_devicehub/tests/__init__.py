@@ -18,7 +18,7 @@ from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.submitter.grd_submitter.grd_submitter import GRDSubmitter
 from ereuse_devicehub.resources.submitter.submitter_caller import SubmitterCaller
-from ereuse_devicehub.security.perms import ADMIN, ACCESS
+from ereuse_devicehub.security.perms import ACCESS, ADMIN
 from ereuse_devicehub.utils import Naming
 
 
@@ -35,8 +35,10 @@ class TestBase(TestMinimal):
     DEVICE_EVENT_SNAPSHOT = DEVICE_EVENT + '/' + SNAPSHOT
     RESERVE = 'reserve'
     SELL = 'sell'
+    CANCEL_RESERVATION = 'cancel-reservation'
     DEVICE_EVENT_RESERVE = DEVICE_EVENT + '/' + RESERVE
     DEVICE_EVENT_SELL = DEVICE_EVENT + '/' + SELL
+    DEVICE_EVENT_CANCEL_RESERVATION = DEVICE_EVENT + '/' + CANCEL_RESERVATION
     MEDIA = 'media'
 
     def setUp(self, settings_file=None, url_converters=None):
@@ -65,6 +67,7 @@ class TestBase(TestMinimal):
             'license key': 'license-key'
         }
         settings.MAIL_DEFAULT_SENDER = 'foo@ereuse.org'
+        settings.MAIL_SUPPRESS_SEND = True
 
     def prepare(self):
         self.MONGO_DBNAME = self.app.config['MONGO_DBNAME']

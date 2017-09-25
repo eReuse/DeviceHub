@@ -5,7 +5,7 @@ from distutils import version
 from uuid import UUID
 
 import validators
-from bson import json_util, ObjectId
+from bson import ObjectId, json_util
 from bson.errors import InvalidId
 from cerberus import errors
 from eve.io.mongo import Validator
@@ -13,7 +13,7 @@ from eve.utils import config
 from flask import current_app as app
 
 from ereuse_devicehub.resources.account.role import Role
-from ereuse_devicehub.utils import coerce_type
+from ereuse_devicehub.utils import Naming, coerce_type
 from . import errors as dh_errors
 
 ALLOWED_WRITE_ROLE = 'dh_allowed_write_role'
@@ -330,6 +330,13 @@ class DeviceHubValidator(Validator):
         if boolean:
             if len(value) != len(set(value)):
                 self._error(field, 'There cannot be repetitions')
+
+    def _validate_unique_for_type(self, unique, field, value):
+        """
+        Like regular ``unique``, but checking it only for a given ``@type``;
+        two resources of different ``@type`` can have the same value.
+        """
+        self._is_value_unique(unique, field, value, {'@type': Naming.type(self.resource)})
 
     def _validate_modifiable(self, boolean, field, value):
         """

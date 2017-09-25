@@ -740,7 +740,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
         group = self.get_200(self.LOTS, item=group['_id'])
         assert_that(group).has_children({'devices': [snapshot['device']]})
         device = self.get_200(self.DEVICES, item=snapshot['device'])
-        assert_that(device).has_ancestors({'_id': '4DkBR57h', '@type': 'Lot', 'lots': []})
+        assert_that(device).has_ancestors([{'_id': group['_id'], '@type': 'Lot', 'lots': []}])
 
     def test_snapshot_with_group_error(self):
         """

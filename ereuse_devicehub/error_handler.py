@@ -12,7 +12,6 @@ class ErrorHandlers:
 
     def __init__(self, app):
         @app.errorhandler(BasicError)
-        @app.cross_origin
         def handle_standard_error(error: BasicError) -> Response:
             """
                 Adapts the visualization of an standard error so it complies with the schema, Hydra.
@@ -24,7 +23,6 @@ class ErrorHandlers:
             return response
 
         @app.errorhandler(RedirectToClient)
-        @app.cross_origin
         def redirect(error: RedirectToClient) -> Response:
             """
                 For Redirect exceptions, performs a redirection to the client.

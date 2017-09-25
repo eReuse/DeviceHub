@@ -11,13 +11,11 @@ import flask_excel
 import gnupg
 from eve import Eve
 from eve.auth import requires_auth
-from eve.endpoints import schema_collection_endpoint, media_endpoint
+from eve.endpoints import media_endpoint, schema_collection_endpoint
 from eve.exceptions import ConfigException
-from eve.io.mongo import GridFSMediaStorage
-from eve.io.mongo import MongoJSONEncoder
+from eve.io.mongo import GridFSMediaStorage, MongoJSONEncoder
 from eve.render import send_response
-from flask import json
-from flask import request
+from flask import json, request
 from flask_mail import Mail
 from inflection import camelize
 from shortid import ShortId
@@ -44,7 +42,7 @@ from ereuse_devicehub.scripts.get_manufacturers import ManufacturersGetter
 from ereuse_devicehub.security.auth import Auth
 from ereuse_devicehub.static import send_device_icon
 from ereuse_devicehub.url_parse import UrlParse
-from ereuse_devicehub.utils import cache, DeviceHubConfig
+from ereuse_devicehub.utils import DeviceHubConfig, cache
 from ereuse_devicehub.validation.validation import DeviceHubValidator
 
 
@@ -65,20 +63,23 @@ class DeviceHub(Eve):
         self.cache = cache
         self.cache.init_app(self)
         self.sid = ShortId()  # Short id for groups
-        self.cross_origin = flask_cors.cross_origin(origins=self.config.get('DOMAINS', '*'),
-                                                    expose_headers=self.config['X_EXPOSE_HEADERS'],
-                                                    allow_headers=self.config['X_HEADERS'])
+        # Use flask_cors to extend flask's native implementation of options to use cors, for all the endpoints
+        # that are not resources.
+        flask_cors.CORS(self, origins=self.config.get('DOMAINS', '*'),
+                        expose_headers=self.config['X_EXPOSE_HEADERS'],
+                        allow_headers=self.config['X_HEADERS'],
+                        max_age=self.config['X_MAX_AGE'])
         self.url_parse = url_parse()
         flask_excel.init_excel(self)  # required since version 0.0.7
         self.geoip = GeoIPFactory(self)
         hooks(self)  # Set up hooks. You can add more hooks by doing something similar with app "hooks(app)"
         ErrorHandlers(self)
-        self.add_cors_url_rule('/login', 'login', view_func=login, methods=('POST', 'OPTIONS'))
-        self.add_cors_url_rule('/devices/icons/<file_name>', view_func=send_device_icon)
-        self.add_cors_url_rule('/<db>/aggregations/<resource>/<method>', 'aggregation', view_func=aggregate_view)
-        self.add_cors_url_rule('/<db>/export/<resource>', view_func=export)
-        self.add_cors_url_rule('/<db>/events/<resource>/placeholders', view_func=placeholders, methods=('POST',))
-        self.add_cors_url_rule('/<db>/inventory', view_func=inventory)
+        self.add_url_rule('/login', 'login', view_func=login, methods=['POST'])
+        self.add_url_rule('/devices/icons/<file_name>', view_func=send_device_icon)
+        self.add_url_rule('/<db>/aggregations/<resource>/<method>', 'aggregation', view_func=aggregate_view)
+        self.add_url_rule('/<db>/export/<resource>', view_func=export)
+        self.add_url_rule('/<db>/events/<resource>/placeholders', view_func=placeholders, methods=['POST'])
+        self.add_url_rule('/<db>/inventory', view_func=inventory)
         self.register_blueprint(documents)
         self.register_blueprint(mails)
         self.mail = Mail(self)
@@ -89,13 +90,6 @@ class DeviceHub(Eve):
         with self.app_context():
             if ManufacturerDomain.count() == 0:
                 ManufacturersGetter().execute(self)
-
-    def add_cors_url_rule(self, rule, endpoint=None, view_func=None, **options):
-        """
-        Like add_url_rule but adding CORS information. Use only for custom flask views as eve's resources already
-        handle this.
-        """
-        return super().add_url_rule(rule, endpoint, self.cross_origin(view_func), **options)
 
     def register_resource(self, resource: str, settings: ResourceSettings):
         """
@@ -155,7 +149,7 @@ class DeviceHub(Eve):
         endpoint = self.config['MEDIA_ENDPOINT']
         if endpoint:
             url = '{}/<db>/{}/<{}:_id>'.format(self.api_prefix, endpoint, self.config['MEDIA_URL'])
-            self.add_url_rule(url, 'media', view_func=_media_endpoint, methods=['GET'])
+            self.add_url_rule(url, 'media', view_func=_media_endpoint)
 
     def validate_roles(self, directive, candidate, resource):
         """

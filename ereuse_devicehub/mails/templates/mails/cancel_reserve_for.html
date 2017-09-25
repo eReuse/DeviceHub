@@ -1,0 +1,8 @@
+{% extends "mails/layout.html" %}
+{% import 'documents/macros.html' as macros %}
+{% block body %}
+  <p>
+    You have cancelled reservation <a href="{{ reserve_url }}">{{ reserve_url }}</a>.
+    See the details <a href="{{ cancel_reservation_url }}">here</a>.
+  </p>
+{% endblock %}

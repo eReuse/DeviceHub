@@ -21,7 +21,6 @@ class DeviceEvent(Event):
     perms['materialized'] = True
 
 
-
 settings = DeviceEvent._settings.copy()
 settings.update({'url': 'devices'})
 settings.update(prefix)

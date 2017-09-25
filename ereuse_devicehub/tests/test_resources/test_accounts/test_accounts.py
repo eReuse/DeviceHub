@@ -40,7 +40,7 @@ class TestDevice(TestStandard):
         # And now let's create an account
         self.post_201(self.ACCOUNTS, other_account, token=manager_token)
 
-    def test_login(self):
+    def test_invalid_logins(self):
         """Tests invalid logins"""
         # Normal login is performed for every test in a '_login' method in TestBase superclass
         # So there is no need to test it here again

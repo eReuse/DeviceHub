@@ -23,6 +23,6 @@ def notify(sells: List[dict]):
             'sell_url': url_for_resource(Reserve.resource_name, sell['_id']),
         }
         to = AccountDomain.get_one(sell['to'])
-        html = render_mail_template('New sold devices', 'mails/sell.html', recipient=to, **context)
+        html = render_mail_template('mails/sell.html', recipient=to, **context)
         msg = Message(html=html, recipients=[to['email']])
         app.mail.send(msg)

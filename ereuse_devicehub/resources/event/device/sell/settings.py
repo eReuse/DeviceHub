@@ -1,5 +1,5 @@
-from ereuse_devicehub.resources.event.device.settings import EventWithDevices, \
-    EventSubSettingsMultipleDevices, materialized_components
+from ereuse_devicehub.resources.event.device.settings import EventSubSettingsMultipleDevices, EventWithDevices, \
+    materialized_components
 
 
 class Sell(EventWithDevices):
@@ -11,7 +11,8 @@ class Sell(EventWithDevices):
             'type': 'media',
             'accept': 'application/pdf'
         },
-        'description': 'Upload PDFs that will be stored securely.'
+        'description': 'Upload invoices in PDF. You can select multiple by pressing Ctrl or Cmd.'
+                       'You won\'t be able to modify them later and we will save them with the name they have.'
     }
     to = {
         'type': 'objectid',
@@ -20,7 +21,7 @@ class Sell(EventWithDevices):
             'embeddable': True,
             'field': '_id'
         },
-        'description': 'The one buying the devices.'
+        'description': 'The user buying the devices.'
     }
     reserve = {
         'type': 'objectid',

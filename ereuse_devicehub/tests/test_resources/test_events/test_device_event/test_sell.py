@@ -62,7 +62,7 @@ class TestSell(TestDeviceEvent):
             assert_that(sell).contains('invoices')
             assert_that(sell['invoices']).is_length(2)
             # First PDF
-            pdf = self.get_200(sell['invoices'][0][1:])  # we remove the first '/'
+            pdf = self.get_200(sell['invoices'][0]['file'][1:])  # we remove the first '/'
             assert_that(pdf).is_equal_to(first_pdf)
-            pdf = self.get_200(sell['invoices'][1][1:])
+            pdf = self.get_200(sell['invoices'][1]['file'][1:])
             assert_that(pdf).is_equal_to(second_pdf)

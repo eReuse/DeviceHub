@@ -5,7 +5,7 @@
 """
 from datetime import timedelta
 
-from pymongo import IndexModel, HASHED, ASCENDING, DESCENDING
+from pymongo import ASCENDING, DESCENDING, HASHED, IndexModel
 from pymongo.collation import Collation, CollationStrength
 
 from ereuse_devicehub.resources.account.domain import AccountDomain
@@ -80,7 +80,7 @@ X_HEADERS = ['Content-Type', 'Authorization']
 X_EXPOSE_HEADERS = ['Authorization']
 MONGO_QUERY_BLACKLIST = ['$where']
 GRD_DOMAIN = 'https://sandbox.ereuse.org'
-BULK_ENABLED = False  # Some events cannot work with it todo fix
+BULK_ENABLED = False  # Some events cannot work with it
 CSRF_ENABLED = True
 # We do not need concurrency control for PUT (if true, we need to provide an etag (include it in x-headers!))
 IF_MATCH = False
@@ -109,6 +109,7 @@ RETURN_MEDIA_AS_URL = True
 MULTIPART_FORM_FIELDS_AS_JSON = True
 AUTO_COLLAPSE_MULTI_KEYS = True
 AUTO_CREATE_LISTS = True
+EXTENDED_MEDIA_INFO = ['content_type', 'name', 'length']
 
 # Resources
 DOMAIN = {

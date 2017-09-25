@@ -1,10 +1,9 @@
 from typing import List
 
-from flask import g, current_app as app
-from flask_mail import Message
+from flask import current_app as app, g
 from pydash import pluck
 
-from ereuse_devicehub.mails.mails import render_mail_template
+from ereuse_devicehub.mails.mails import create_email
 from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.device.domain import DeviceDomain
@@ -31,11 +30,6 @@ def set_for_and_notify(reserves: List[dict]):
 
 def notify(reserves: List[dict]):
     """Sends e-mails to the 'notify' and 'for' accounts of the reserves."""
-
-    def create_email(title: str, template_name: str, recipient: dict) -> Message:
-        html = render_mail_template(title, template_name, _for, **context)
-        return Message(html=html, recipients=[recipient['email']])
-
     msgs = []
     context = {
         'fields': (
@@ -49,10 +43,10 @@ def notify(reserves: List[dict]):
         context['devices'] = DeviceDomain.get_in('_id', reserve['devices'])
         context['reserve_url'] = url_for_resource(Reserve.resource_name, reserve['_id'])
         _for = AccountDomain.get_one(reserve['for'])
-        msgs.append(create_email('New reservation of devices', 'mails/reserve_for.html', _for))
+        msgs.append(create_email('mails/reserve_for.html', _for, **context))
         context['for'] = _for
         for recipient in g.get('dh_device_event_reserve_notify', []):
-            msgs.append(create_email('Your reservation', 'mails/reserve_notify.html', recipient))
+            msgs.append(create_email('mails/reserve_notify.html', recipient, **context))
     # We send all emails with the same connection (+ speed)
     with app.mail.connect() as conn:
         for msg in msgs:

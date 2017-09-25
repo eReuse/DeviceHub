@@ -1,6 +1,7 @@
 # Load the schema and resource classes
 from .add import settings
 from .allocate import settings
+from .cancel_reservation import settings
 from .deallocate import settings
 from .erase_basic import settings
 from .erase_sectors import settings

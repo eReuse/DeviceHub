@@ -137,7 +137,8 @@ class Device(IndividualProduct):
         'type': 'boolean',
         'default': False
     }
-    events = events_pk_schema.events
+    events = copy.copy(events_pk_schema.events)
+    events['default'] = []
     ancestors = Package.ancestors
     placeholder = {
         'type': 'boolean',

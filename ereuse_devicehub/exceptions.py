@@ -18,6 +18,7 @@ class BasicError(Exception):
 
 class StandardError(BasicError):
     message = None
+    status_code = 500
 
     def __init__(self, message="", status_code=None):
         if self.message is None:

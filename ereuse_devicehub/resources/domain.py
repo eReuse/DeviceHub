@@ -81,6 +81,17 @@ class Domain:
             raise ResourceNotFound('{} {} cannot be updated as it is not found.'.format(name, resource_id))
 
     @classmethod
+    @mongo_encode('id_or_filter', 'operation')
+    def update_one_raw_get(cls, resource_id: str or ObjectId, operation, return_document=ReturnDocument.AFTER,
+                           key='_id', **kwargs):
+        document = cls.collection.find_one_and_update({key: resource_id}, operation, return_document=return_document,
+                                                      **kwargs)
+        if document is None:
+            name = cls.resource_settings._schema.type_name
+            raise ResourceNotFound('{} {} cannot be updated as it is not found.'.format(name, resource_id))
+        return document
+
+    @classmethod
     @mongo_encode('operation', 'extra_query')
     def update_raw_get(cls, ids: str or ObjectId or list, operation: dict, key='_id',
                        return_document=ReturnDocument.AFTER, extra_query={}, **kwargs):

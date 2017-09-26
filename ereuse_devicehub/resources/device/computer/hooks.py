@@ -46,14 +46,14 @@ def update_materialized_computer(device_or_id: str or dict, components_id: list,
     else:
         component_query = {'$pull': {'components': {'$in': components_id}}}
     update_query.update(component_query)
-    DeviceDomain.update_one_raw(device_id, update_query)
+    # Apply changes and get updated device
+    device = DeviceDomain.update_one_raw_get(device_id, update_query)
 
     # Materialize fields in components
     set_materialized_parent_in_components(device_id, components_id, add)
 
     # Inherit groups
     if add:
-        device = device_or_id if type(device_or_id) is dict else DeviceDomain.get_one(device_id)
         inherit_group_and_perms(device['ancestors'], device['perms'], components_id)
         # Note that we do not anything on 'remove' regarding groups and permissions
         # We don't consider that, by removing a component, this should loose access to the group

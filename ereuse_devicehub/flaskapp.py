@@ -5,6 +5,8 @@ import inspect
 import locale
 from contextlib import contextmanager
 from datetime import timedelta
+from os import path
+from warnings import filterwarnings, resetwarnings
 
 import flask_cors
 import flask_excel
@@ -18,6 +20,9 @@ from eve.render import send_response
 from flask import json, request
 from flask_mail import Mail
 from inflection import camelize
+from rpy2 import robjects
+from rpy2.rinterface import RRuntimeWarning
+from rpy2.robjects import packages as rpackages, StrVector
 from shortid import ShortId
 
 from ereuse_devicehub.aggregation.settings import aggregate_view
@@ -30,7 +35,6 @@ from ereuse_devicehub.header_cache import header_cache
 from ereuse_devicehub.hooks import hooks
 from ereuse_devicehub.inventory import inventory
 from ereuse_devicehub.mails.mails import mails
-from ereuse_devicehub.request import RequestSignedJson
 from ereuse_devicehub.resources.account.login.settings import login
 from ereuse_devicehub.resources.event.device.live.geoip_factory import GeoIPFactory
 from ereuse_devicehub.resources.event.device.register.placeholders import placeholders
@@ -57,7 +61,6 @@ class DeviceHub(Eve):
                          **kwargs)
         self.check()
         self.json_encoder = MongoJSONEncoder
-        self.request_class = RequestSignedJson
         self.mongo_encoder = mongo_encoder()
         self.gpg = gnupg.GPG()
         self.cache = cache
@@ -90,6 +93,8 @@ class DeviceHub(Eve):
         with self.app_context():
             if ManufacturerDomain.count() == 0:
                 ManufacturersGetter().execute(self)
+        # Load RScore
+        self._load_r_score()
 
     def register_resource(self, resource: str, settings: ResourceSettings):
         """
@@ -219,3 +224,25 @@ class DeviceHub(Eve):
                 return f.read().decode(charset)
 
         self.jinja_env.globals['get_resource_as_string'] = get_resource_as_string
+
+    def _load_r_score(self):
+        """Prepares and loads the R score in memory and installs any needed packages."""
+        this_dir = path.dirname(path.realpath(__file__))
+        # Install R packages
+        # Adapted from https://rpy2.github.io/doc/v2.9.x/html/introduction.html#installing-packages
+        packages = 'dplyr', 'data.table', 'stringr'
+        packages_to_install = [package for package in packages if not rpackages.isinstalled(package)]
+        if packages_to_install:
+            utils = rpackages.importr('utils')
+            utils.chooseCRANmirror(ind=1)
+            utils.install_packages(StrVector(packages_to_install))
+        # Instantiate RScore
+        filterwarnings('ignore', category=RRuntimeWarning)
+        self.r_score_path = path.join(this_dir, 'resources', 'device', 'score')
+        robjects.r.source(path.join(self.r_score_path, 'R', 'utils.R'))
+        robjects.r.source(path.join(self.r_score_path, 'R', 'RdeviceScore.R'))
+        self.r_score_compute_score = robjects.r("""
+        function (input){
+            return (deviceScoreMainServer(input)) 
+        }""")
+        resetwarnings()

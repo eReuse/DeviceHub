@@ -1,7 +1,7 @@
 from contextlib import suppress
 from typing import List
 
-from flask import g, request
+from flask import current_app, g, request
 from werkzeug.local import LocalProxy
 
 from ereuse_devicehub.exceptions import InnerRequestError, SchemaError
@@ -30,6 +30,7 @@ def on_insert_snapshot(items):
         item['unsecured'] = snapshot.unsecured
         from ereuse_devicehub.resources.hooks import set_date
         set_date(None, items)  # Let's get the time AFTER creating the other events
+        g.dh_snapshot = snapshot
 
 
 def save_request(items):
@@ -42,12 +43,14 @@ def save_request(items):
 
 
 def materialize_test_hard_drives(_):
-    for i, test_hard_drives in getattr(g, 'snapshot_test_hard_drives', []):
+    """Materializes the ``tests`` property of the hard-drive with the new tests from the snapshot."""
+    for i, test_hard_drives in getattr(g.dh_snapshot, 'test_hard_drives', []):
         _materialize_event_in_device(test_hard_drives, 'tests')
 
 
-def materialize_erase_basic(_):
-    for i, erase_basic in getattr(g, 'snapshot_basic_erasures', []):
+def materialize_erasures(_):
+    """Materializes the ``erasures`` property of the hard-drive with the new erasures from the snapshot."""
+    for i, erase_basic in getattr(g.dh_snapshot, 'erasures', []):
         _materialize_event_in_device(erase_basic, 'erasures')
 
 
@@ -58,18 +61,15 @@ def _materialize_event_in_device(event, field_name):
 def materialize_condition(snapshots: list):
     """Materializes condition of devices after successful snapshot"""
     for snapshot in snapshots:
-        if 'condition' in snapshot:
+        try:
+            # The use or RDeviceScore is experimental and may give errors
+            # In this case we will "only" loose the new condition fields
+            # So we log the error for further investigation and just continue the execution
+            snapshot['condition'] = g.dh_snapshot.compute_condition(snapshot.get('condition', {}))
+        except Exception as e:
+            current_app.logger.info(e)
+        if snapshot.get('condition', None):
             DeviceDomain.update_one_raw(snapshot['device'], {'$set': {'condition': snapshot['condition']}})
-
-
-def set_secured(snapshots: list):
-    """
-    Sets secured param in a snapshot if this was signed.
-    :param snapshots:
-    :return:
-    """
-    for snapshot in snapshots:
-        snapshot['secured'] = g.get('trusted_json', False)
 
 
 def delete_events(_, snapshot: dict):

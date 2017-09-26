@@ -1,10 +1,14 @@
+from typing import List
+
 from eve.utils import document_etag
 from flask import current_app
 from passlib.utils import classproperty
 
+from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.device.exceptions import DeviceNotFound
 from ereuse_devicehub.resources.device.settings import DeviceSettings
 from ereuse_devicehub.resources.domain import Domain, ResourceNotFound
+from ereuse_devicehub.rest import execute_get
 from ereuse_devicehub.utils import Naming
 
 
@@ -76,3 +80,16 @@ class DeviceDomain(Domain):
         return Naming.url_word(manufacturer) + \
                '-' + Naming.url_word(serial_number) + \
                '-' + Naming.url_word(model)
+
+    @classmethod
+    def get_full_components(cls, components: List[str]):
+        """Get components with all their events and tests."""
+        if not components:
+            return []
+        params = {
+            'where': {'_id': {'$in': components}},
+            'embedded': {'tests': 1, 'erasures': 1}
+        }
+        db = AccountDomain.requested_database
+        return execute_get(db + '/devices', token=AccountDomain.hash_token(AccountDomain.actual_token),
+                           params=params)['_items']

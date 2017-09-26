@@ -1,4 +1,4 @@
-from collections import defaultdict, OrderedDict, Iterator
+from collections import Iterator, OrderedDict, defaultdict
 from contextlib import suppress
 from datetime import timedelta
 
@@ -7,9 +7,7 @@ from eve.auth import requires_auth
 from flask import request
 from inflection import humanize
 from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
-from pydash import keys
-from pydash import map_
-from pydash import py_
+from pydash import keys, map_, py_
 from pyexcel_webio import FILE_TYPE_MIME_TABLE as REVERSED_FILE_TYPE_MIME_TABLE
 from werkzeug.exceptions import NotAcceptable
 
@@ -20,7 +18,6 @@ from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.group.domain import GroupDomain
 from ereuse_devicehub.resources.group.settings import Group
 from ereuse_devicehub.resources.submitter.translator import Translator
-from ereuse_devicehub.rest import execute_get
 
 FILE_TYPE_MIME_TABLE = dict(zip(REVERSED_FILE_TYPE_MIME_TABLE.values(), REVERSED_FILE_TYPE_MIME_TABLE.keys()))
 
@@ -49,29 +46,19 @@ def export(db, resource):
             group = domain.get_one(_id)
             # Let's get the full devices and their components with embedded stuff
             devices = f(domain.get_descendants(DeviceDomain, _id))
-            devices_with_components = map(lambda device: get_components(device, db, token), devices)
+            devices_with_components = map(_get_device_with_components, devices)
             spreadsheets[group.get('label', group['_id'])] = translator.translate(devices_with_components)
     else:
         # Let's get the full devices and their components with embedded stuff
         QUERY = {'@type': {'$nin': Component.types}}
         devices = DeviceDomain.get_in('_id', ids, False) if ids else DeviceDomain.get(QUERY, False)
-        devices_with_components = map(lambda device: get_components(device, db, token), devices)
+        devices_with_components = map(_get_device_with_components, devices)
         spreadsheets['Devices'] = translator.translate(devices_with_components)
     return excel.make_response_from_book_dict(spreadsheets, file_type, file_name=resource)
 
 
-def get_components(device, db, token) -> dict:
-    """
-    Get the passed-in components with their tests and erasures embedded
-    :return The device
-    """
-    if not device['components']:
-        return device
-    params = {
-        'where': {'_id': {'$in': device['components']}},
-        'embedded': {'tests': 1, 'erasures': 1}
-    }
-    device['components'] = execute_get(db + '/devices', token, params=params)['_items']
+def _get_device_with_components(device):
+    device['components'] = DeviceDomain.get_full_components(device['components'])
     return device
 
 
@@ -119,7 +106,6 @@ class SpreadsheetTranslator(Translator):
         # Component translation
         # Let's decompose components so we get ComponentTypeA 1: ..., ComponentTypeA 2: ...
         pick = py_().pick(([] if self.brief else ['_id', 'serialNumber']) + ['model', 'manufacturer']).join(' ')
-        # For david
         counter_each_type = defaultdict(int)
         for pos, component in enumerate(device['components']):
             _type = device['components'][pos]['@type']
@@ -153,7 +139,8 @@ class SpreadsheetTranslator(Translator):
                     for field in 'size', 'speed':
                         with suppress(KeyError):
                             translated[header + ' ' + field] = component[field]
-        if 'Registered in' in translated:
+        if translated.get('Registered in', None):
+            # When snapshot executes this method devices don't have this property
             translated['Registered in'] = str(translated['Registered in'])
         return translated
 

@@ -334,7 +334,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
                 assert_that(erasure).is_subset_of(hard_drive['erasures'][0])
                 assert_that(erasure).is_subset_of(hard_drive['erasures'][1])
                 found = True
-        self.assertTrue(found, 'Any component has erasures!')
+        self.assertTrue(found, 'One of the two hard-drive should have "erasures" property.')
 
     def _test_signed(self):
         """
@@ -751,3 +751,17 @@ class TestSnapshot(TestEvent, TestGroupBase):
         snapshot['group'] = {'@type': 'Lot', '_id': 'foo-bar'}
         response, status = self.post(self.SNAPSHOT_URL, snapshot)
         self.assert_error(response, status, SchemaError)
+
+    def test_compute_condition_score(self):
+        """Tests computing the condition (score...) with RDeviceScore when performing a Snapshot."""
+        condition = {
+            'general': {'score': 2.09, 'range': 'Low'},
+            'appearance': {'general': 'B'},
+            'components': {'hardDrives': 3.82, 'processors': 3.59, 'ram': 1.54},
+            'scoringSoftware': {'version': '0.1', 'label': 'pangea'},
+            'functionality': {'general': 'B'}
+        }
+        snapshot = self.post_fixture(self.SNAPSHOT, '{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), '9')
+        device = self.get_200(self.DEVICES, item=snapshot['device'])
+        # Snapshot has the condition and the device has the last condition performed (materialized)
+        assert_that(snapshot['condition']).is_equal_to(device['condition']).is_equal_to(condition)

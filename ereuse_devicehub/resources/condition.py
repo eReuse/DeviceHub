@@ -1,5 +1,11 @@
 from ereuse_devicehub.validation.validation import DeviceHubValidator
 
+_score = {
+    'type': 'number',
+    'min': 0,
+    'max': 10
+}
+
 """Grades the state of the device in different areas."""
 condition = {
     'appearance': {
@@ -60,20 +66,20 @@ condition = {
     'general': {
         'type': 'dict',
         'schema': {
-            'score': {
-                'type': 'number',
-                'min': 0,
-                'max': 10,
-                'readonly': True,
-                'description': 'The overall grade of the device.',
-                'doc': 'If null, it means that the score was not computed.'
-            },
+            'score': _score,
             'range': {
-                'type': 'number',
-                'readonly': True,
-                'allowed': ['High', 'Medium', 'Low', 'Unacceptable'],
+                'type': 'string',
+                'allowed': ['High', 'Medium', 'Low', 'Inferior'],
                 'description': 'An easier way to see the grade.'
             }
+        }
+    },
+    'components': {
+        'type': 'dict',
+        'schema': {
+            'processors': _score,
+            'ram': _score,
+            'hardDrives': _score
         }
     },
     'scoringSoftware': {

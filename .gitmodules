@@ -1,0 +1,3 @@
+[submodule "ereuse_devicehub/resources/device/score"]
+	path = ereuse_devicehub/resources/device/score
+	url = https://github.com/eReuse/RdeviceScore

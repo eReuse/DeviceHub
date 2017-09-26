@@ -5,6 +5,14 @@ from ereuse_devicehub.resources.event.device.settings import EventSubSettingsMul
 class Sell(EventWithDevices):
     components = materialized_components
     components['materialized'] = True
+    invoiceNumber = {
+        'type': 'string',
+        'description': 'The id of your invoice so they can be linked.'
+    }
+    shippingDate = {
+        'type': 'datetime',
+        'description': 'When are the devices going to be ready for shipping?'
+    }
     invoices = {
         'type': 'list',
         'schema': {

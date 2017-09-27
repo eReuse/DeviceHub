@@ -178,14 +178,15 @@ class Snapshot(SnapshotWithoutComponents):
             'range': result['Range']
         }
         _condition['scoringSoftware'] = {
-            'label': 'pangea',
-            'version': '0.1'
+            'label': 'ereuse.org',
+            'version': '1.0'
         }
         _condition['components'] = {
             'ram': round(result['Ram.score'], ROUND_DECIMALS),
             'processors': round(result['Processor.score'], ROUND_DECIMALS),
             'hardDrives': round(result['Drive.score'], ROUND_DECIMALS)
         }
+        # Validate that the returned data complies with the schema
         validator = app.validator(condition_schema)
         if not validator.validate(_condition):
             t = 'RDeviceScore wrong condition:\n'

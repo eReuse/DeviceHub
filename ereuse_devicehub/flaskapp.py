@@ -238,9 +238,10 @@ class DeviceHub(Eve):
             utils.install_packages(StrVector(packages_to_install))
         # Instantiate RScore
         filterwarnings('ignore', category=RRuntimeWarning)
-        self.r_score_path = path.join(this_dir, 'resources', 'device', 'score')
+        self.r_score_path = path.join(this_dir, 'resources', 'device', 'score', 'RLanguage')
         robjects.r.source(path.join(self.r_score_path, 'R', 'utils.R'))
         robjects.r.source(path.join(self.r_score_path, 'R', 'RdeviceScore.R'))
+        # This is the function we call
         self.r_score_compute_score = robjects.r("""
         function (input){
             return (deviceScoreMainServer(input)) 

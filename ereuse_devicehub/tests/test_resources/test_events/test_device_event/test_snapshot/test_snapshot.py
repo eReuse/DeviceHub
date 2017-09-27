@@ -433,17 +433,17 @@ class TestSnapshot(TestEvent, TestGroupBase):
         condition = copy.deepcopy(snapshot['condition'])
         result = self.post_snapshot(snapshot)
         snapshot_result = self.get_200(self.EVENTS, item=result['_id'])
-        assert_that(snapshot_result).has_condition(condition)
+        assert_that(condition).is_subset_of(snapshot_result['condition'])
         # Ensure the materialization is correct
         device = self.get_200(self.DEVICES, item=snapshot_result['device'])
-        assert_that(device).has_condition(condition)
+        assert_that(condition).is_subset_of(device['condition'])
         # Now let's make it wrong
         snapshot['condition']['bios'] = 'X'
         _, status = self.post(self.SNAPSHOT_URL, snapshot)
         self.assert422(status)
         # The materialization has not changed
         device = self.get_200(self.DEVICES, item=snapshot_result['device'])
-        assert_that(device).has_condition(condition)
+        assert_that(condition).is_subset_of(device['condition'])
 
     def _test_giver(self, snapshot, account_email):
         _, device_id = self.creation(snapshot, 2, False)
@@ -648,7 +648,10 @@ class TestSnapshot(TestEvent, TestGroupBase):
                                 device_after_app['components']]
 
         assert_that(device_after_app.pop('events')).contains(*device_after_workbench.pop('events'))
+        condition_device_after_app = device_after_app.pop('condition')
+        condition_device_after_workbench = device_after_workbench.pop('condition')
         assert_that(device_after_app).is_equal_to(device_after_workbench)
+        assert_that(condition_device_after_app).is_subset_of(condition_device_after_workbench)
 
         for component_w, component_a in zip(components_after_workbench, components_after_app):
             assert_that(component_w.pop('events')).contains(*component_a.pop('events'))
@@ -755,10 +758,10 @@ class TestSnapshot(TestEvent, TestGroupBase):
     def test_compute_condition_score(self):
         """Tests computing the condition (score...) with RDeviceScore when performing a Snapshot."""
         condition = {
-            'general': {'score': 2.09, 'range': 'Low'},
+            'general': {'score': 2.59, 'range': 'Low'},
             'appearance': {'general': 'B'},
             'components': {'hardDrives': 3.82, 'processors': 3.59, 'ram': 1.54},
-            'scoringSoftware': {'version': '0.1', 'label': 'pangea'},
+            'scoringSoftware': {'version': '1.0', 'label': 'ereuse.org'},
             'functionality': {'general': 'B'}
         }
         snapshot = self.post_fixture(self.SNAPSHOT, '{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), '9')

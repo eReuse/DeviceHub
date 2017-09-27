@@ -69,8 +69,9 @@ condition = {
             'score': _score,
             'range': {
                 'type': 'string',
-                'allowed': ['High', 'Medium', 'Low', 'Inferior'],
-                'description': 'An easier way to see the grade.'
+                'allowed': ['VeryLow', 'Low', 'Medium', 'High'],
+                'description': 'An easier way to see the grade.',
+                'doc': 'allowed is ordered by range ascending.'
             }
         }
     },

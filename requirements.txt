@@ -30,4 +30,4 @@ werkzeug==0.11.15
 wikipedia==1.4.0
 WeasyPrint==0.39
 Flask-WeasyPrint==0.5
-rpy2==2.9.0
+rpy2==2.8.5

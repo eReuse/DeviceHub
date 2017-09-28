@@ -1,5 +1,9 @@
 from setuptools import find_packages, setup
 
+tests_require = [
+    'assertpy'
+]
+
 setup(
     name='eReuse-DeviceHub',
     version='0.4',
@@ -49,14 +53,13 @@ setup(
         'docs': [
             'sphinx>=1.4.7',
             'sphinxcontrib-httpdomain>=1.5'
-        ]
+        ],
+        'test': tests_require
     },
     # Use `python setup.py test` to run the tests
     # http://setuptools.readthedocs.io/en/latest/setuptools.html#test-build-package-and-run-a-unittest-suite
     test_suite='ereuse_devicehub.tests',
-    tests_require=[
-        'assertpy'
-    ],
+    tests_require=tests_require,
     include_package_data=True,
     classifiers=[
         'Development Status :: 3 - Alpha',

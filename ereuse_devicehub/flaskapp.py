@@ -22,7 +22,6 @@ from flask_mail import Mail
 from inflection import camelize
 from rpy2 import robjects
 from rpy2.rinterface import RRuntimeWarning
-from rpy2.robjects import packages as rpackages, StrVector
 from shortid import ShortId
 
 from ereuse_devicehub.aggregation.settings import aggregate_view
@@ -228,14 +227,6 @@ class DeviceHub(Eve):
     def _load_r_score(self):
         """Prepares and loads the R score in memory and installs any needed packages."""
         this_dir = path.dirname(path.realpath(__file__))
-        # Install R packages
-        # Adapted from https://rpy2.github.io/doc/v2.9.x/html/introduction.html#installing-packages
-        packages = 'dplyr', 'data.table', 'stringr'
-        packages_to_install = [package for package in packages if not rpackages.isinstalled(package)]
-        if packages_to_install:
-            utils = rpackages.importr('utils')
-            utils.chooseCRANmirror(ind=1)
-            utils.install_packages(StrVector(packages_to_install))
         # Instantiate RScore
         filterwarnings('ignore', category=RRuntimeWarning)
         self.r_score_path = path.join(this_dir, 'resources', 'device', 'score', 'RLanguage')

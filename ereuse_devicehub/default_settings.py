@@ -170,3 +170,11 @@ the app starts (even eve docs do not recommend using them in big apps).
 Instead, our indexes are re-set and re-computed only in specific Update scripts that require it (usually software
 updates that modify indexes).  
 """
+
+
+R_PACKAGES_PATH = None
+"""
+Location of the directory where the R packages that DeviceHub need (and only those) are installed. 
+Set None to use R's default directory. Useful to isolate your DeviceHub instance and when having to deal with
+different users (looking at you apache's www-data) executing the same thing. 
+"""

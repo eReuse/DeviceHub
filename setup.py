@@ -1,39 +1,8 @@
 from setuptools import find_packages, setup
-from setuptools.command.develop import develop
-from setuptools.command.install import install
 
 tests_require = [
     'assertpy'
 ]
-r_packages = 'dplyr', 'data.table', 'stringr'
-
-
-def install_r_packages():
-    from rpy2.robjects import StrVector, packages as rpackages
-    # Install R packages
-    # Adapted from https://rpy2.github.io/doc/v2.9.x/html/introduction.html#installing-packages
-    packages_to_install = [package for package in r_packages if not rpackages.isinstalled(package)]
-    if packages_to_install:
-        print('Installing R packages...')
-        utils = rpackages.importr('utils')
-        utils.chooseCRANmirror(ind=1)
-        utils.install_packages(StrVector(packages_to_install))
-        print('R packages installed')
-
-
-class PostInstall(install):
-    def run(self):
-        result = super().run()
-        install_r_packages()
-        return result
-
-
-class PostInstallDevelop(develop):
-    def run(self):
-        result = super().run()
-        install_r_packages()
-        return result
-
 
 setup(
     name='eReuse-DeviceHub',
@@ -92,7 +61,6 @@ setup(
     test_suite='ereuse_devicehub.tests',
     tests_require=tests_require,
     include_package_data=True,
-    cmdclass={'install': PostInstall, 'develop': PostInstallDevelop},
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',

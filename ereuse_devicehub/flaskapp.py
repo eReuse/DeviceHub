@@ -20,8 +20,8 @@ from eve.render import send_response
 from flask import json, request
 from flask_mail import Mail
 from inflection import camelize
-from rpy2 import robjects
 from rpy2.rinterface import RRuntimeWarning
+from rpy2.robjects import StrVector, packages as rpackages, r
 from shortid import ShortId
 
 from ereuse_devicehub.aggregation.settings import aggregate_view
@@ -227,13 +227,31 @@ class DeviceHub(Eve):
     def _load_r_score(self):
         """Prepares and loads the R score in memory and installs any needed packages."""
         this_dir = path.dirname(path.realpath(__file__))
+        # Let's ensure the user executing this (usually www-data) has the R packages installed
+
+        # Install R packages
+        # Note that we can't do it in setup.py because we need to access config
+        # Adapted from https://rpy2.github.io/doc/v2.9.x/html/introduction.html#installing-packages
+        r_packages = 'dplyr', 'data.table', 'stringr'
+        packages_to_install = [package for package in r_packages if not rpackages.isinstalled(package)]
+        if packages_to_install:
+            utils = rpackages.importr('utils')
+            utils.chooseCRANmirror(ind=1)
+            kwargs = {'lib': self.config['R_PACKAGES_PATH']} if self.config['R_PACKAGES_PATH'] else {}
+            utils.install_packages(StrVector(packages_to_install), **kwargs)
+
         # Instantiate RScore
         filterwarnings('ignore', category=RRuntimeWarning)
         self.r_score_path = path.join(this_dir, 'resources', 'device', 'score', 'RLanguage')
-        robjects.r.source(path.join(self.r_score_path, 'R', 'utils.R'))
-        robjects.r.source(path.join(self.r_score_path, 'R', 'RdeviceScore.R'))
+
+        for package in r_packages:
+            kwargs = {'lib_loc': self.config['R_PACKAGES_PATH']} if self.config['R_PACKAGES_PATH'] else {}
+            r.require(package, **kwargs)
+
+        r.source(path.join(self.r_score_path, 'R', 'RdeviceScore.R'))
+        r.source(path.join(self.r_score_path, 'R', 'RdeviceScore_Utils.R'))
         # This is the function we call
-        self.r_score_compute_score = robjects.r("""
+        self.r_score_compute_score = r("""
         function (input){
             return (deviceScoreMainServer(input)) 
         }""")

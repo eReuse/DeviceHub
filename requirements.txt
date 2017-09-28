@@ -1,4 +1,4 @@
-Flask-Mail==0.9.1,
+Flask-Mail==0.9.1
 toolz==0.8.2
 geojson_utils==0.0.2
 passlib==1.7.1

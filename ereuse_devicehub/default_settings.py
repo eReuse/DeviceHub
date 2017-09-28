@@ -171,10 +171,9 @@ Instead, our indexes are re-set and re-computed only in specific Update scripts 
 updates that modify indexes).  
 """
 
-
 R_PACKAGES_PATH = None
 """
 Location of the directory where the R packages that DeviceHub need (and only those) are installed. 
-Set None to use R's default directory. Useful to isolate your DeviceHub instance and when having to deal with
-different users (looking at you apache's www-data) executing the same thing. 
+Set None to use R's default directory. Useful when you execute DeviceHub with a different user of the one you
+installed it (We are looking at you, www-data) 
 """

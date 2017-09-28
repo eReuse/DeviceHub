@@ -5,7 +5,7 @@ import inspect
 import locale
 from contextlib import contextmanager
 from datetime import timedelta
-from os import path
+from os.path import dirname, join, realpath
 from warnings import filterwarnings, resetwarnings
 
 import flask_cors
@@ -21,7 +21,7 @@ from flask import json, request
 from flask_mail import Mail
 from inflection import camelize
 from rpy2.rinterface import RRuntimeWarning
-from rpy2.robjects import StrVector, packages as rpackages, r
+from rpy2.robjects import r
 from shortid import ShortId
 
 from ereuse_devicehub.aggregation.settings import aggregate_view
@@ -226,30 +226,18 @@ class DeviceHub(Eve):
 
     def _load_r_score(self):
         """Prepares and loads the R score in memory and installs any needed packages."""
-        this_dir = path.dirname(path.realpath(__file__))
         # Let's ensure the user executing this (usually www-data) has the R packages installed
-
-        # Install R packages
-        # Note that we can't do it in setup.py because we need to access config
-        # Adapted from https://rpy2.github.io/doc/v2.9.x/html/introduction.html#installing-packages
-        r_packages = 'dplyr', 'data.table', 'stringr'
-        packages_to_install = [package for package in r_packages if not rpackages.isinstalled(package)]
-        if packages_to_install:
-            utils = rpackages.importr('utils')
-            utils.chooseCRANmirror(ind=1)
-            kwargs = {'lib': self.config['R_PACKAGES_PATH']} if self.config['R_PACKAGES_PATH'] else {}
-            utils.install_packages(StrVector(packages_to_install), **kwargs)
 
         # Instantiate RScore
         filterwarnings('ignore', category=RRuntimeWarning)
-        self.r_score_path = path.join(this_dir, 'resources', 'device', 'score', 'RLanguage')
+        self.r_score_path = join(dirname(realpath(__file__)), 'resources', 'device', 'score', 'RLanguage')
 
-        for package in r_packages:
+        for package in 'dplyr', 'data.table', 'stringr':
             kwargs = {'lib_loc': self.config['R_PACKAGES_PATH']} if self.config['R_PACKAGES_PATH'] else {}
             r.require(package, **kwargs)
 
-        r.source(path.join(self.r_score_path, 'R', 'RdeviceScore.R'))
-        r.source(path.join(self.r_score_path, 'R', 'RdeviceScore_Utils.R'))
+        r.source(join(self.r_score_path, 'R', 'RdeviceScore.R'))
+        r.source(join(self.r_score_path, 'R', 'RdeviceScore_Utils.R'))
         # This is the function we call
         self.r_score_compute_score = r("""
         function (input){

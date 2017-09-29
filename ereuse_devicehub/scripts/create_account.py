@@ -6,10 +6,12 @@ from pymongo import MongoClient
 from ereuse_devicehub.exceptions import StandardError
 from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.account.hooks import hash_password, generate_token
+from ereuse_devicehub.resources.account.role import Role
+from ereuse_devicehub.security.perms import ADMIN
 
 
 def create_account(email: str, password: str, databases: list,
-                   role: str = None, name: str = None, organization: str = None, blocked: bool = False,
+                   role: str = Role.USER, name: str = None, organization: str = None, blocked: bool = False,
                    default_database: str = None, mongo_host: str = None, mongo_port: int = None,
                    db_name: str = 'dh__accounts'):
     """
@@ -38,7 +40,7 @@ def create_account(email: str, password: str, databases: list,
     account = {
         'email': email,
         'password': password,
-        'databases': {db: "a" for db in databases},
+        'databases': {db: ADMIN for db in databases},
         'defaultDatabase': default_database or databases[0],
         '@type': 'Account',
         'blocked': eval(blocked) if type(blocked) is str else blocked,
@@ -55,7 +57,7 @@ def create_account(email: str, password: str, databases: list,
         token = generate_token()
     account["token"] = token
     hash_password([account])
-    db.accounts.insert(account)
+    db.accounts.insert_one(account)
     returned_account = db.accounts.find_one({'email': email})
     return returned_account, AccountDomain.hash_token(returned_account['token'])
 

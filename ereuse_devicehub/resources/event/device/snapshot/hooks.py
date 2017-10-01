@@ -1,8 +1,7 @@
 from contextlib import suppress
 from typing import List
 
-from flask import current_app, g, request
-from werkzeug.local import LocalProxy
+from flask import Request, current_app, g, request
 
 from ereuse_devicehub.exceptions import InnerRequestError, SchemaError
 from ereuse_devicehub.resources.device.domain import DeviceDomain
@@ -93,7 +92,7 @@ SNAPSHOT_SOFTWARE = {
 }
 
 
-def move_id(payload: LocalProxy):
+def move_id(payload: Request):
     """Moves the _id and pid from the snapshot to the inner device of the snapshot, as a hotfix for Workbench's bug"""
     snapshot = payload.get_json()
     if '_id' in snapshot:

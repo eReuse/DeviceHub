@@ -1,0 +1,116 @@
+{
+  "_uuid": "58f1709c-9ceb-4cdc-8620-d861064723a9",
+  "version": "9.0",
+  "components": [
+    {
+      "model": "Mobile 945GSE Express Integrated Graphics Controller",
+      "memory": 256.0,
+      "@type": "GraphicCard",
+      "manufacturer": "Intel Corporation"
+    },
+    {
+      "model": "Mobile 945GM\\/GMS\\/GME, 943\\/940GML Express Integrated Graphics Controller",
+      "@type": "GraphicCard",
+      "manufacturer": "Intel Corporation"
+    },
+    {
+      "serialNumber": "5SV1W0WF",
+      "test": {
+        "status": "Completed without error",
+        "firstError": null,
+        "error": false,
+        "lifetime": 2128,
+        "type": "Short offline",
+        "@type": "TestHardDrive"
+      },
+      "interface": "ata",
+      "model": "ST9160310AS",
+      "manufacturer": "Seagate",
+      "@type": "HardDrive",
+      "size": 152627.8359375
+    },
+    {
+      "interface": "SDRAM",
+      "manufacturer": "Manufacturer0",
+      "@type": "RamModule",
+      "size": 2048
+    },
+    {
+      "totalSlots": 1,
+      "serialNumber": "EeePC-0123456789",
+      "connectors": {
+        "firewire": 0,
+        "serial": 0,
+        "pcmcia": 0,
+        "usb": 5
+      },
+      "model": "1000H",
+      "usedSlots": 1,
+      "@type": "Motherboard",
+      "manufacturer": "ASUSTeK Computer INC."
+    },
+    {
+      "model": "AR8121\\/AR8113\\/AR8114 Gigabit or Fast Ethernet",
+      "serialNumber": "00:23:54:8d:be:66",
+      "speed": 100,
+      "@type": "NetworkAdapter",
+      "manufacturer": "Qualcomm Atheros"
+    },
+    {
+      "model": "RT2790 Wireless 802.11n 1T\\/2R PCIe",
+      "serialNumber": "00:15:af:dc:44:eb",
+      "@type": "NetworkAdapter",
+      "manufacturer": "Ralink corp."
+    },
+    {
+      "benchmark": {
+        "score": 6383.92,
+        "@type": "BenchmarkProcessor"
+      },
+      "numberOfCores": 1,
+      "model": "Intel(R) Atom(TM) CPU N270 @ 1.60GHz",
+      "speed": 1.6,
+      "@type": "Processor",
+      "manufacturer": "Intel Corp."
+    },
+    {
+      "model": "NM10\\/ICH7 Family High Definition Audio Controller",
+      "@type": "SoundCard",
+      "manufacturer": "Intel Corporation"
+    }
+  ],
+  "device": {
+    "serialNumber": "8BOAAQ191999",
+    "model": "1000H",
+    "type": "Laptop",
+    "@type": "Computer",
+    "manufacturer": "ASUSTeK Computer INC."
+  },
+  "@type": "Snapshot",
+  "tests": [
+    {
+      "@type": "StressTest",
+      "success": true,
+      "elapsed": "0:01:00"
+    }
+  ],
+  "osInstallation": {
+    "label": "linux-mint-1801-ca",
+    "success": true,
+    "elapsed": "0:10:08"
+  },
+  "label": "Label 2",
+  "condition": {
+    "appearance": {
+      "general": "A"
+    },
+    "functionality": {
+      "general": "A"
+    }
+  },
+  "date": "2017-08-29T09:55:03",
+  "snapshotSoftware": "Workbench",
+  "inventory": {
+    "elapsed": "0:11:26"
+  }
+}

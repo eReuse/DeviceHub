@@ -76,7 +76,7 @@ if __name__ == '__main__':
     parser.add_argument('password')
     parser.add_argument('-d', '--databases', nargs='+', required=True,
                         help='Required. A list of databases the user has access to.')
-    parser.add_argument('-r', '--role', default='admin', help='By default is admin.')
+    parser.add_argument('-r', '--role', help='By default is admin.')
     parser.add_argument('-n', '--name')
     parser.add_argument('-o', '--organization')
     parser.add_argument('-b', '--blocked', action='store_true')

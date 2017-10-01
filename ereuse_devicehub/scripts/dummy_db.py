@@ -7,9 +7,9 @@ from passlib.handlers.sha2_crypt import sha256_crypt
 from pydash import map_
 
 from ereuse_devicehub.resources.account.role import Role
+from ereuse_devicehub.scripts.create_account import create_account
 from ereuse_devicehub.scripts.get_manufacturers import ManufacturersGetter
 from ereuse_devicehub.security.perms import ACCESS, READ
-from ereuse_devicehub.tests import TestBase
 from ereuse_devicehub.tests.test_resources.test_events.test_device_event.test_snapshot.test_snapshot import TestSnapshot
 
 
@@ -21,7 +21,7 @@ class DummyDB:
 
             app = DeviceHub()
             d = DummyDB(app)
-            d.create_dummy_devices()
+            d.create_dummy()
 
         This method uses the test class of TestSnapshot, and the credentials in
         :func:`ereuse_devicehub.tests.TestBase.create_dummy_user`.
@@ -33,11 +33,13 @@ class DummyDB:
         self.test = TestSnapshot()
         self.test.app = self.app
         self.test.prepare()
+        self.test.setupDB()
         self.test.create_dummy_user()
         self.test.create_self_machine_account()
         self.computers_id = None
 
     def create_dummy(self, maximum: int = None):
+        """Main dummy function. Creates devices, groups, performs some shares and adds devices to groups."""
         self.create_dummy_devices(maximum)
         computers = self.test.get(self.test.DEVICES, '?where={"@type": "Computer"}')[0]['_items']
         self.computers_id = map_(computers, '_id')
@@ -90,7 +92,7 @@ class DummyDB:
                 '@type': 'Account'
             }
         )
-        account2, _ = super(TestBase, self.test).post('/login', {'email': 'b@b.b', 'password': '1234'})
+        account2 = self.test.login('b@b.b', '1234')
         lot_patch = {'@type': 'Lot', 'perms': [{'account': account2['_id'], 'perm': READ}]}  # We share the lot
         self.test.patch_200(self.test.LOTS, item=self.test.get_first(self.test.LOTS)['_id'], data=lot_patch)
         pprint('Finished sharing the group')
@@ -104,6 +106,18 @@ class DummyDB:
 
     def _creation(self, input_snapshot, *args, **kwargs):
         self.test.post_201(self.test.DEVICE_EVENT + '/snapshot', input_snapshot)
+
+    def create_account(self, email: str, password: str, databases: list,
+                       role: str = Role.USER, name: str = None, organization: str = None, blocked: bool = False,
+                       default_database: str = None, mongo_host: str = None, mongo_port: int = None,
+                       db_name: str = 'dh__accounts'):
+        print('Creating account {} '.format(email))
+        account, hashed_token = create_account(email, password, databases, role, name, organization, blocked,
+                                               default_database, mongo_host, mongo_port, db_name)
+        print('Account:')
+        pprint(account)
+        print('Hashed token for REST:')
+        print(hashed_token)
 
 
 class DummyLiveResponse:

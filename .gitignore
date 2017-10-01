@@ -64,3 +64,5 @@ logs/**
 /documents
 /templates
 /static
+/share_group.py
+

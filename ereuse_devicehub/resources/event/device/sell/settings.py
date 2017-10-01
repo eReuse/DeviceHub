@@ -38,6 +38,7 @@ class Sell(EventWithDevices):
             'embeddable': True,
             'field': '_id'
         },
+        'unique': True,  # Only one event can have 'reserve'; or a CancelReservation or a Sell
         'description': 'The reserve this sell confirms.'
     }
 

@@ -66,3 +66,6 @@ class TestSell(TestDeviceEvent):
             assert_that(pdf).is_equal_to(first_pdf)
             pdf = self.get_200(sell['invoices'][1]['file'][1:])
             assert_that(pdf).is_equal_to(second_pdf)
+            # We check that reserve has 'sell' materialized
+            reserve = self.get_200(self.EVENTS, item=reserve['_id'])
+            assert_that(reserve).has_sell(sell['_id'])

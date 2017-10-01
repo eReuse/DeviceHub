@@ -36,7 +36,7 @@ class CancelReservation(EventWithDevices):
         'description': 'The reserve to cancel.',
         'doc': 'Write only a reservation.',
         'required': True,
-        'unique_for_type': True
+        'unique': True  # Only one event can have 'reserve'; or a CancelReservation or a Sell
     }
 
 

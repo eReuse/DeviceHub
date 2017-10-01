@@ -33,3 +33,10 @@ def notify(cancel_reservations: List[dict]):
     with app.mail.connect() as conn:
         for msg in msgs:
             conn.send(msg)
+
+
+def materialize_cancel_in_reserve(cancel_reservations: List[dict]):
+    """Materializes the field 'cancel' in reserve."""
+    cancel_reservation = cancel_reservations[0]
+    if 'reserve' in cancel_reservation:
+        DeviceEventDomain.update_one_raw(cancel_reservation['reserve'], {'$set': {'cancel': cancel_reservation['_id']}})

@@ -30,6 +30,26 @@ class Reserve(EventWithDevices):
         'materialized': True,
         'description': 'Accounts that have been notified for this reservation.'
     }
+    sell = {
+        'type': 'objectid',
+        'data_relation': {
+            'resource': 'events',
+            'embeddable': True,
+            'field': '_id'
+        },
+        'materialized': True,
+        'description': 'A Sell event that has completed this reservation.'
+    }
+    cancel = {
+        'type': 'objectid',
+        'data_relation': {
+            'resource': 'events',
+            'embeddable': True,
+            'field': '_id'
+        },
+        'materialized': True,
+        'description': 'A CancelReservation event has cancelled this reservation.'
+    }
 
     @classmethod
     def _clean(cls, attributes: dict, attributes_to_remove: tuple = None) -> dict:

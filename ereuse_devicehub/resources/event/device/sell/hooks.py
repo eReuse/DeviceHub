@@ -1,9 +1,8 @@
 from typing import List
 
 from flask import current_app as app
-from flask_mail import Message
 
-from ereuse_devicehub.mails.mails import render_mail_template
+from ereuse_devicehub.mails.mails import create_email
 from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device.reserve.settings import Reserve
@@ -23,6 +22,5 @@ def notify(sells: List[dict]):
             'sell_url': url_for_resource(Reserve.resource_name, sell['_id']),
         }
         to = AccountDomain.get_one(sell['to'])
-        html = render_mail_template('mails/sell.html', recipient=to, **context)
-        msg = Message(html=html, recipients=[to['email']])
+        msg = create_email('mails/sell.html', to, **context)
         app.mail.send(msg)

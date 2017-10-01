@@ -139,8 +139,8 @@ INDEXES = [
     (
         DeviceDomain,
         [
-            IndexModel((('@type', ASCENDING), ('events.@type', ASCENDING), ('events._updated', DESCENDING)),
-                       name='default device info'),
+            IndexModel((('@type', ASCENDING), ('events.@type', ASCENDING), ('events._updated', DESCENDING),
+                        ('condition.general.range', ASCENDING)), name='default device info'),
             IndexModel(PERMS_INDEX, name='perms')
         ]
     ),

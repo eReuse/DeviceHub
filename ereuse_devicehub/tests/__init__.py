@@ -22,7 +22,7 @@ from ereuse_devicehub.security.perms import ACCESS, ADMIN
 from ereuse_devicehub.utils import Naming
 
 
-class TestBase(TestMinimal):
+class Client(TestMinimal):
     DEVICES = 'devices'
     DEVICE_EVENT = 'events/devices'
     EVENTS = 'events'
@@ -41,6 +41,167 @@ class TestBase(TestMinimal):
     DEVICE_EVENT_CANCEL_RESERVATION = DEVICE_EVENT + '/' + CANCEL_RESERVATION
     MEDIA = 'media'
 
+    def __init__(self, methodName='runTest', app: DeviceHub = None):
+        if app:
+            self.app = app
+        super().__init__(methodName)
+
+    def setUp(self, settings_file=None, url_converters=None):
+        pass
+
+    def prepare(self):
+        self.MONGO_DBNAME = self.app.config['MONGO_DBNAME']
+        self.MONGO_HOST = self.app.config['MONGO_HOST']
+        self.MONGO_PORT = self.app.config['MONGO_PORT']
+        self.DATABASES = self.app.config['DATABASES']
+
+        self.connection = None
+        self.test_client = self.app.test_client()
+        self.domain = self.app.config['DOMAIN']
+
+        self.db1 = self.app.config['DATABASES'][0]
+        self.db2 = self.app.config['DATABASES'][1]
+
+    def post_201(self, url: str, data, headers: list = None, content_type='application/json', token: str = None,
+                 db: str = None, **kwargs) -> dict:
+        """POSTS and asserts for 201. Returns the response of the POST."""
+        response, status_code = self.post(url, data, headers, content_type, token, db, **kwargs)
+        with self._print_unsuccessful_request(url, response, status_code, data):
+            self.assert201(status_code)
+        return response
+
+    def patch_200(self, url: str, data: dict, headers: list = None, item: str = None, token: str = None,
+                  db: str = None) -> dict:
+        response, status_code = self.patch(url, data, headers, item, token, db)
+        with self._print_unsuccessful_request(url, response, status_code, data):
+            self.assert200(status_code)
+        return response
+
+    def put_and_check(self, url, payload):
+        response, status_code = self.put(url, payload)
+        with self._print_unsuccessful_request(url, response, status_code, payload):
+            self.assert200(status_code)
+        return response
+
+    def delete_and_check(self, url, item=None):
+        response, status_code = self.delete(url, item=item)
+        with self._print_unsuccessful_request(url, response, status_code):
+            self.assert204(status_code)
+        return response
+
+    @staticmethod
+    def assert_error(response: dict, status_code: int, error_class: type(StandardError)):
+        """Ensures that the response (a dict from a JSON) represents the *error_class*."""
+        name = error_class.__name__
+        if error_class.status_code != status_code or response['_error']['@type'] != name:
+            raise AssertionError('Response error {} is not an instance of error {}.'.format(response, name))
+
+    @contextlib.contextmanager
+    def _print_unsuccessful_request(self, url, response, status_code, payload=None):
+        try:
+            yield
+        except AssertionError:
+            m = 'Unsuccessful request on {} (HTTP {}):\n'.format(url, status_code)
+            if payload:
+                m += 'Payload:\n{}\n'.format(payload)
+            m += 'Response:\n{}'.format(response)
+            raise AssertionError(m)
+
+    def get_200(self, resource: str, query: str = '', item: str = None, authorize: bool = True,
+                db: str = None, params: dict = None, embedded: dict = None, token: str = None, **kwargs) -> dict:
+        """Performs a normal GET and then asserts for status code to be 200. Returns the response of the GET."""
+        response, status_code = self.get(resource, query, item, authorize, db, params, embedded, token, **kwargs)
+        try:
+            self.assert200(status_code)
+        except AssertionError:
+            text = '{} when HTTP 200 expected, resource {} q {} item {} params {} embedded {}'
+            raise AssertionError(text.format(status_code, resource, query, item, params, embedded))
+        return response
+
+    def get(self, resource: str, query='', item: str = None, authorize: bool = True, db: str = None,
+            params: dict = None, embedded: dict = None, token: str = None, **kwargs) -> (dict, int):
+        if embedded:
+            params = params or {}
+            params['embedded'] = json.dumps(embedded)
+        if params:
+            query += ('&' if '?' in query else '?') + urlencode(params, True)
+        if resource in self.domain:
+            resource = self.domain[resource]['url']
+        if item:
+            request = '/%s/%s%s' % (resource, item, query)
+        else:
+            request = '/%s%s' % (resource, query)
+        db = db or self.select_database(resource)
+        return self._get(db + request, token if authorize else None)
+
+    def _get(self, url: str, token: str = None, **kwargs) -> (dict, int):
+        environ_base = {'HTTP_AUTHORIZATION': 'Basic ' + token} if token else {}
+        environ_base.update(kwargs.pop('environ_base', {}))
+        r = self.test_client.get(url, environ_base=environ_base, **kwargs)
+        return self.parse_response(r)
+
+    def post(self, url: str, data, headers: list = None, content_type='application/json', token: str = None,
+             db: str = None, **kwargs) -> (dict, int):
+        full_url = (db or self.select_database(url)) + '/' + url
+        return self._post(full_url, data, token, headers, content_type, **kwargs)
+
+    def _post(self, url, data, token: str = None, headers: list = None,
+              content_type='application/json', **kwargs) -> (dict, int):
+        headers = headers or []
+        if token:
+            headers.append(('Authorization', 'Basic ' + token))
+        if type(data) is not str and content_type == 'application/json':
+            data = json.dumps(data)
+        # from super method
+        headers.append(('Content-Type', content_type))
+        r = self.test_client.post(url, data=data, headers=headers, **kwargs)
+        return self.parse_response(r)
+
+    def patch(self, url: str, data: dict, headers: list = None, item: str = None, token: str = None,
+              db: str = None) -> (dict, int):
+        headers = headers or []
+        url = url + '/' + str(item) if item else url
+        db = db or self.select_database(url)
+        return self._patch(db + '/' + url, data, token, headers)
+
+    def _patch(self, url, data, token, headers=None) -> (dict, int):
+        headers = headers or []
+        headers.append(('authorization', 'Basic ' + token))
+        return super().patch(url, data, headers)
+
+    def put(self, url, data, headers=None, auth_header=None) -> (dict, int):
+        headers = headers or []
+        return super().put(self.select_database(url) + '/' + url, data, headers + [auth_header])
+
+    def delete(self, url, headers=None, item=None, token: str = None, db: str = None, auth_header=None) -> (dict, int):
+        headers = headers or []
+        db = db or self.select_database(url)
+        headers.append(('authorization', 'Basic ' + token))
+        if item:
+            url = url + '/' + item
+        return super().delete(db + '/' + url, headers + [auth_header])
+
+    def login(self, email: str, password: str) -> dict:
+        """Performs login and obtains the token."""
+        return super().post('/login', data={'email': email, 'password': password})[0]
+
+    def assert308(self, status):
+        self.assertEqual(status, 308)
+
+    def parse_response(self, r):
+        v = r.get_data()
+        with contextlib.suppress(JSONDecodeError):
+            v = json.loads(v)
+        return v, r.status_code
+
+    def select_database(self, url):
+        if 'accounts' in url:
+            return ''
+        else:
+            return self.app.config['DATABASES'][0]
+
+
+class TestBase(Client):
     def setUp(self, settings_file=None, url_converters=None):
         from ereuse_devicehub import default_settings
         self.set_settings(default_settings)
@@ -70,22 +231,10 @@ class TestBase(TestMinimal):
         settings.MAIL_SUPPRESS_SEND = True
 
     def prepare(self):
-        self.MONGO_DBNAME = self.app.config['MONGO_DBNAME']
-        self.MONGO_HOST = self.app.config['MONGO_HOST']
-        self.MONGO_PORT = self.app.config['MONGO_PORT']
-        self.DATABASES = self.app.config['DATABASES']
-
-        self.connection = None
+        super().prepare()
         self.setupDB()
-
-        self.test_client = self.app.test_client()
-        self.domain = self.app.config['DOMAIN']
-
-        self.token = self._login()
+        self.token = self.login('a@a.a', '1234')['token']
         self.auth_header = ('authorization', 'Basic ' + self.token)
-
-        self.db2 = self.app.config['DATABASES'][1]  # 'dht2'
-        self.db1 = self.app.config['DATABASES'][0]  # 'dht1'
 
     def setupDB(self):
         self.connection = MongoClient(self.MONGO_HOST, self.MONGO_PORT)
@@ -143,86 +292,25 @@ class TestBase(TestMinimal):
     def full(self, resource_name: str, resource: dict or str or ObjectId) -> dict:
         return resource if type(resource) is dict else self.get(resource_name, '', str(resource))[0]
 
-    def select_database(self, url):
-        if 'accounts' in url:
-            return ''
-        else:
-            return self.app.config['DATABASES'][0]
+    def put(self, url, data, headers=None, auth_header=None) -> (dict, int):
+        if not auth_header:
+            auth_header = self.auth_header
+        return super().put(url, data, headers, auth_header)
 
     def get(self, resource: str, query='', item: str = None, authorize: bool = True, db: str = None,
             params: dict = None, embedded: dict = None, token: str = None, **kwargs) -> (dict, int):
-        if embedded:
-            params = params or {}
-            params['embedded'] = json.dumps(embedded)
-        if params:
-            query += ('&' if '?' in query else '?') + urlencode(params, True)
-        if resource in self.domain:
-            resource = self.domain[resource]['url']
-        if item:
-            request = '/%s/%s%s' % (resource, item, query)
-        else:
-            request = '/%s%s' % (resource, query)
-        db = db or self.select_database(resource)
-        return self._get(db + request, (token or self.token) if authorize else None)
-
-    def _get(self, url: str, token: str = None, **kwargs) -> (dict, int):
-        environ_base = {'HTTP_AUTHORIZATION': 'Basic ' + token} if token else {}
-        environ_base.update(kwargs.pop('environ_base', {}))
-        r = self.test_client.get(url, environ_base=environ_base, **kwargs)
-        return self.parse_response(r)
+        return super().get(resource, query, item, authorize, db, params, embedded, token or self.token)
 
     def post(self, url: str, data, headers: list = None, content_type='application/json', token: str = None,
              db: str = None, **kwargs) -> (dict, int):
-        full_url = (db or self.select_database(url)) + '/' + url
-        return self._post(full_url, data, token or self.token, headers, content_type, **kwargs)
-
-    def _post(self, url, data, token: str = None, headers: list = None,
-              content_type='application/json', **kwargs) -> (dict, int):
-        headers = headers or []
-        if token:
-            headers.append(('Authorization', 'Basic ' + token))
-        if type(data) is not str and content_type == 'application/json':
-            data = json.dumps(data)
-        # from super method
-        headers.append(('Content-Type', content_type))
-        r = self.test_client.post(url, data=data, headers=headers, **kwargs)
-        return self.parse_response(r)
+        return super().post(url, data, headers, content_type, token or self.token, db, **kwargs)
 
     def patch(self, url: str, data: dict, headers: list = None, item: str = None, token: str = None,
               db: str = None) -> (dict, int):
-        headers = headers or []
-        url = url + '/' + str(item) if item else url
-        db = db or self.select_database(url)
-        return self._patch(db + '/' + url, data, token or self.token, headers)
+        return super().patch(url, data, headers, item, token or self.token, db)
 
-    def _patch(self, url, data, token, headers=None) -> (dict, int):
-        headers = headers or []
-        headers.append(('authorization', 'Basic ' + token))
-        return super(TestBase, self).patch(url, data, headers)
-
-    def put(self, url, data, headers=None) -> (dict, int):
-        headers = headers or []
-        return super(TestBase, self).put(self.select_database(url) + '/' + url, data, headers + [self.auth_header])
-
-    def delete(self, url, headers=None, item=None, token: str = None, db: str = None) -> (dict, int):
-        headers = headers or []
-        db = db or self.select_database(url)
-        headers.append(('authorization', 'Basic ' + (token or self.token)))
-        if item:
-            url = url + '/' + item
-        return super(TestBase, self).delete(db + '/' + url, headers + [self.auth_header])
-
-    def _login(self) -> str:
-        return super(TestBase, self).post('/login', {"email": "a@a.a", "password": "1234"})[0]['token']
-
-    def assert308(self, status):
-        self.assertEqual(status, 308)
-
-    def parse_response(self, r):
-        v = r.get_data()
-        with contextlib.suppress(JSONDecodeError):
-            v = json.loads(v)
-        return v, r.status_code
+    def delete(self, url, headers=None, item=None, token: str = None, db: str = None, auth_header=None) -> (dict, int):
+        return super().delete(url, headers, item, token or self.token, db, auth_header or self.auth_header)
 
 
 class TestStandard(TestBase):
@@ -278,61 +366,6 @@ class TestStandard(TestBase):
 
     def get_list(self, resource_name: str, identifiers: list):
         return [self.get(resource_name, '', identifier)[0] for identifier in identifiers]
-
-    def post_201(self, url: str, data, headers: list = None, content_type='application/json', token: str = None,
-                 db: str = None, **kwargs) -> dict:
-        """POSTS and asserts for 201. Returns the response of the POST."""
-        response, status_code = self.post(url, data, headers, content_type, token, db, **kwargs)
-        with self._print_unsuccessful_request(url, response, status_code, data):
-            self.assert201(status_code)
-        return response
-
-    def patch_200(self, url: str, data: dict, headers: list = None, item: str = None, token: str = None,
-                  db: str = None) -> dict:
-        response, status_code = self.patch(url, data, headers, item, token, db)
-        with self._print_unsuccessful_request(url, response, status_code, data):
-            self.assert200(status_code)
-        return response
-
-    def put_and_check(self, url, payload):
-        response, status_code = self.put(url, payload)
-        with self._print_unsuccessful_request(url, response, status_code, payload):
-            self.assert200(status_code)
-        return response
-
-    def delete_and_check(self, url, item=None):
-        response, status_code = self.delete(url, item=item)
-        with self._print_unsuccessful_request(url, response, status_code):
-            self.assert204(status_code)
-        return response
-
-    def assert_error(self, response: dict, status_code: int, error_class: type(StandardError)):
-        """Ensures that the response (a dict from a JSON) represents the *error_class*."""
-        name = error_class.__name__
-        if error_class.status_code != status_code or response['_error']['@type'] != name:
-            raise AssertionError('Response error {} is not an instance of error {}.'.format(response, name))
-
-    @contextlib.contextmanager
-    def _print_unsuccessful_request(self, url, response, status_code, payload=None):
-        try:
-            yield
-        except AssertionError:
-            m = 'Unsuccessful request on {} (HTTP {}):\n'.format(url, status_code)
-            if payload:
-                m += 'Payload:\n{}\n'.format(payload)
-            m += 'Response:\n{}'.format(response)
-            raise AssertionError(m)
-
-    def get_200(self, resource: str, query: str = '', item: str = None, authorize: bool = True,
-                db: str = None, params: dict = None, embedded: dict = None, token: str = None, **kwargs) -> dict:
-        """Performs a normal GET and then asserts for status code to be 200. Returns the response of the GET."""
-        response, status_code = self.get(resource, query, item, authorize, db, params, embedded, token, **kwargs)
-        try:
-            self.assert200(status_code)
-        except AssertionError:
-            text = '{} when HTTP 200 expected, resource {} q {} item {} params {} embedded {}'
-            raise AssertionError(text.format(status_code, resource, query, item, params, embedded))
-        return response
 
     def get_fixtures_computers(self) -> list:
         """

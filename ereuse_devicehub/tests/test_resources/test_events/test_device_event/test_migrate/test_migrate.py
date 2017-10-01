@@ -38,7 +38,7 @@ class TestMigrate(TestDeviceEvent):
                 '@type': 'Account'
             }
         )
-        self.token_b = super(TestBase, self).post('/login', {'email': 'b@b.b', 'password': '1234'})[0]['token']
+        self.token_b = self.login('b@b.b', '1234')['token']
 
     def test_migrate(self):
         """Tests a basic migrate of multiple devices, from one database (db1) to another database (db2)."""
@@ -155,7 +155,7 @@ class TestMigrate(TestDeviceEvent):
                 '@type': 'Account'
             }
         )
-        self.token_c = super(TestBase, self).post('/login', {'email': 'c@c.c', 'password': '1234'})[0]['token']
+        self.token_c = self.login('c@c.c', '1234')['token']
         self.db.accounts.insert_one(
             {
                 'email': 'd@d.d',
@@ -167,7 +167,7 @@ class TestMigrate(TestDeviceEvent):
                 '@type': 'Account'
             }
         )
-        self.token_d = super(TestBase, self).post('/login', {'email': 'd@d.d', 'password': '1234'})[0]['token']
+        self.token_d = self.login('d@d.d', '1234')['token']
         self.db3 = self.app.config['DATABASES'][2]  # 'dht3'
         self.db4 = self.app.config['DATABASES'][3]  # 'dht4'
 

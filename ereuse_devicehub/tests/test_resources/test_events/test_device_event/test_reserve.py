@@ -21,7 +21,7 @@ class TestReserve(TestDeviceEvent):
                 '@type': 'Account'
             }
         )
-        self.account2, _ = super(TestBase, self).post('/login', {'email': 'b@b.b', 'password': '1234'})
+        self.account2 = self.login('b@b.b', '1234')
         self.token2 = self.account2['token']
 
     def test_reserve_in_shared_group(self):

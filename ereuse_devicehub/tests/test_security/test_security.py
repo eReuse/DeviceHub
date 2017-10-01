@@ -26,7 +26,7 @@ class TestSecurity(TestGroupBase):
                 '@type': 'Account'
             }
         )
-        self.account2, _ = super(TestBase, self).post('/login', {'email': 'b@b.b', 'password': '1234'})
+        self.account2 = self.login('b@b.b', '1234')
         self.token2 = self.account2['token']
 
     def test_credentials(self):
@@ -355,7 +355,7 @@ class TestSecurity(TestGroupBase):
                 '@type': 'Account'
             }
         )
-        account3, _ = super(TestBase, self).post('/login', {'email': 'c@c.c', 'password': '1234'})
+        account3 = self.login('c@c.c', '1234')
 
         # Account 2 can't share to account 3 as account2 has not ADMIN perms
         lot_patch = {'@type': 'Lot', 'perms': [{'account': account3['_id'], 'perm': READ}]}

@@ -5,8 +5,6 @@ from random import choice
 
 from assertpy import assert_that
 from bson import objectid
-from pydash import filter_, map_, pick
-
 from ereuse_devicehub.exceptions import SchemaError
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
@@ -15,6 +13,7 @@ from ereuse_devicehub.security.perms import ADMIN
 from ereuse_devicehub.tests.test_resources.test_events import TestEvent
 from ereuse_devicehub.tests.test_resources.test_group import TestGroupBase
 from ereuse_devicehub.utils import NestedLookup, coerce_type
+from pydash import filter_, map_, pick
 
 
 class TestSnapshot(TestEvent, TestGroupBase):
@@ -768,3 +767,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
         device = self.get_200(self.DEVICES, item=snapshot['device'])
         # Snapshot has the condition and the device has the last condition performed (materialized)
         assert_that(snapshot['condition']).is_equal_to(device['condition']).is_equal_to(condition)
+
+    def test_snapshot_9_b(self):
+        snapshot = self.post_fixture(self.SNAPSHOT, self.SNAPSHOT_URL, '9.1')
+        snapshot = self.get_200(self.SNAPSHOT_URL, item=snapshot['_id'])

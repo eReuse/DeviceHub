@@ -9,7 +9,6 @@ from rpy2.robjects import DataFrame, ListVector
 from ereuse_devicehub.exceptions import StandardError
 from ereuse_devicehub.export.export import SpreadsheetTranslator
 from ereuse_devicehub.resources.account.domain import AccountDomain
-from ereuse_devicehub.resources.condition import condition as condition_schema
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
 from ereuse_devicehub.resources.device.computer.settings import Computer
 from ereuse_devicehub.resources.device.domain import DeviceDomain
@@ -141,60 +140,3 @@ class Snapshot(SnapshotWithoutComponents):
             full_old_components = [ComponentDomain.get_one(component) for component in self.device['components']]
             for component_to_remove in ComponentDomain.difference(full_old_components, self.components):
                 self.events.append_remove(component_to_remove, self.device)
-
-    def compute_condition(self, condition: dict) -> dict:
-        """
-        Computes the scores for the passed-in ``condition`` of the ``self.device``.
-        This method only works when ``self.device`` is of type ``Computer``.
-
-        :return: The updated condition with scores.
-        """
-        # todo compute for all devices, not only computers
-        # todo this method is experimental. Exceptions are going to happen!
-        # todo condition is only computed in snapshot and not add/remove
-        if self.device['@type'] != Computer.type_name:
-            return condition
-        ROUND_DECIMALS = 2
-        device = DeviceDomain.get_one(self.device['_id'])
-        device['components'] = DeviceDomain.get_full_components(pluck(self.components, '_id'))
-        device['condition'] = _condition = copy.deepcopy(condition)
-        translator = SpreadsheetTranslator(brief=False)
-        keys, values = translator.translate([device])
-        data = {key.replace(' ', '.').replace('(', '.').replace(')', '.'): val for key, val in zip(keys, values)}
-        param = ListVector({
-            'pathApp': app.r_score_path,
-            'sourceData': DataFrame(data),
-            'simulation': '2',
-            'versionSchema': 'v021',
-            'versionScore': 'v2-2017-09-20'
-        })
-        data, status = tuple(app.r_score_compute_score(param))
-        status = int(status[0])
-        if status != 0:
-            raise RDeviceScoreError(message='RDeviceScore couldn\'t be computed for device {}'.format(device['_id']))
-        result = {name: data[i][0] for i, name in enumerate(data.names)}
-        _condition['general'] = {
-            'score': round(result['Score'], ROUND_DECIMALS),
-            'range': result['Range']
-        }
-        _condition['scoringSoftware'] = {
-            'label': 'ereuse.org',
-            'version': '1.0'
-        }
-        _condition['components'] = {
-            'ram': round(result['Ram.score'], ROUND_DECIMALS),
-            'processors': round(result['Processor.score'], ROUND_DECIMALS),
-            'hardDrives': round(result['Drive.score'], ROUND_DECIMALS)
-        }
-        # Validate that the returned data complies with the schema
-        validator = app.validator(condition_schema)
-        if not validator.validate(_condition):
-            t = 'RDeviceScore wrong condition:\n'
-            t += 'Device {} of {}: {}\n'.format(device['_id'], AccountDomain.requested_database, pformat(device))
-            t += 'Condition is: {}'.format(_condition)
-            raise RDeviceScoreError(t)
-        return _condition
-
-
-class RDeviceScoreError(StandardError):
-    pass

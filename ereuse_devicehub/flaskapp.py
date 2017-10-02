@@ -5,8 +5,6 @@ import inspect
 import locale
 from contextlib import contextmanager, suppress
 from datetime import timedelta
-from os.path import dirname, join, realpath
-from warnings import filterwarnings, resetwarnings
 
 import flask_cors
 import flask_excel
@@ -20,8 +18,6 @@ from eve.render import send_response
 from flask import json, redirect, request
 from flask_mail import Mail
 from inflection import camelize
-from rpy2.rinterface import RRuntimeWarning
-from rpy2.robjects import r
 from shortid import ShortId
 
 from ereuse_devicehub.aggregation.settings import aggregate_view
@@ -36,6 +32,7 @@ from ereuse_devicehub.inventory import inventory
 from ereuse_devicehub.mails.mails import mails
 from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.account.login.settings import login
+from ereuse_devicehub.resources.device.score_condition import Score, Price
 from ereuse_devicehub.resources.event.device.live.geoip_factory import GeoIPFactory
 from ereuse_devicehub.resources.event.device.register.placeholders import placeholders
 from ereuse_devicehub.resources.manufacturers import ManufacturerDomain
@@ -55,7 +52,7 @@ class DeviceHub(Eve):
 
     def __init__(self, import_name=__package__, settings='settings.py', validator=DeviceHubValidator, data=DataLayer,
                  auth=Auth, redis=None, url_converters=None, json_encoder=None, media=GridFSMediaStorage,
-                 url_parse=UrlParse, mongo_encoder=MongoEncoder, **kwargs):
+                 url_parse=UrlParse, mongo_encoder=MongoEncoder, score=Score, price=Price, **kwargs):
         kwargs.setdefault('static_url_path', '/static')
         super().__init__(import_name, settings, validator, data, auth, redis, url_converters, json_encoder, media,
                          **kwargs)
@@ -94,8 +91,9 @@ class DeviceHub(Eve):
         with self.app_context():
             if ManufacturerDomain.count() == 0:
                 ManufacturersGetter().execute(self)
-        # Load RScore
-        self._load_r_score()
+        # Load RScore and RPrice
+        self.score = score(self)
+        self.price = price(self)
 
     def register_resource(self, resource: str, settings: ResourceSettings):
         """
@@ -225,27 +223,6 @@ class DeviceHub(Eve):
                 return f.read().decode(charset)
 
         self.jinja_env.globals['get_resource_as_string'] = get_resource_as_string
-
-    def _load_r_score(self):
-        """Prepares and loads the R score in memory and installs any needed packages."""
-        # Let's ensure the user executing this (usually www-data) has the R packages installed
-
-        # Instantiate RScore
-        filterwarnings('ignore', category=RRuntimeWarning)
-        self.r_score_path = join(dirname(realpath(__file__)), 'resources', 'device', 'score', 'RLanguage')
-
-        for package in 'dplyr', 'data.table', 'stringr':
-            kwargs = {'lib_loc': self.config['R_PACKAGES_PATH']} if self.config['R_PACKAGES_PATH'] else {}
-            r.require(package, **kwargs)
-
-        r.source(join(self.r_score_path, 'R', 'RdeviceScore.R'))
-        r.source(join(self.r_score_path, 'R', 'RdeviceScore_Utils.R'))
-        # This is the function we call
-        self.r_score_compute_score = r("""
-        function (input){
-            return (deviceScoreMainServer(input)) 
-        }""")
-        resetwarnings()
 
     def redirect_on_browser(self):
         """

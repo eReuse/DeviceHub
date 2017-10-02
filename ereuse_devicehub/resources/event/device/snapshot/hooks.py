@@ -1,7 +1,7 @@
 from contextlib import suppress
 from typing import List
 
-from flask import Request, current_app, g, request
+from flask import Request, current_app as app, g, request
 
 from ereuse_devicehub.exceptions import InnerRequestError, SchemaError
 from ereuse_devicehub.resources.device.domain import DeviceDomain
@@ -64,9 +64,9 @@ def materialize_condition(snapshots: list):
             # The use or RDeviceScore is experimental and may give errors
             # In this case we will "only" loose the new condition fields
             # So we log the error for further investigation and just continue the execution
-            snapshot['condition'] = g.dh_snapshot.compute_condition(snapshot.get('condition', {}))
+            snapshot['condition'] = app.score.compute(g.dh_snapshot.device['_id'], snapshot.get('condition', {}))
         except Exception as e:
-            current_app.logger.info(e)
+            app.logger.info(e)
         if snapshot.get('condition', None):
             DeviceDomain.update_one_raw(snapshot['device'], {'$set': {'condition': snapshot['condition']}})
 

@@ -757,7 +757,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
     def test_compute_condition_score(self):
         """Tests computing the condition (score...) with RDeviceScore when performing a Snapshot."""
         condition = {
-            'general': {'score': 2.59, 'range': 'Low'},
+            'general': {'score': 2.39, 'range': 'Low'},
             'appearance': {'general': 'B'},
             'components': {'hardDrives': 3.82, 'processors': 3.59, 'ram': 1.54},
             'scoringSoftware': {'version': '1.0', 'label': 'ereuse.org'},

@@ -3,7 +3,7 @@ DeviceHub app
 """
 import inspect
 import locale
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from datetime import timedelta
 from os.path import dirname, join, realpath
 from warnings import filterwarnings, resetwarnings
@@ -249,15 +249,14 @@ class DeviceHub(Eve):
 
     def redirect_on_browser(self):
         """
-        Redirects the browsers (anything accepting text/html) to the client webApp.
+        Redirects the browsers GETting a resource (anything accepting text/html) to the client webApp.
         :param request:
         """
-        if request.accept_mimetypes.accept_html:
-            try:
+        if request.method == 'GET' and request.accept_mimetypes.accept_html:
+            with suppress(Exception):
                 resource_name = request.url_rule.endpoint.split('|')[0]
+                self.config['DOMAIN'].get(resource_name)  # Valid resource or exception
                 _id = request.view_args['_id']
                 db = AccountDomain.requested_database
                 url = '{}/inventories/{}/{}.{}'.format(self.config['CLIENT'], db, resource_name, _id)
-            except Exception:
-                url = self.config['CLIENT']
-            return redirect(code=302, location=url)
+                return redirect(code=302, location=url)

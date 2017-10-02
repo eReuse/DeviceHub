@@ -4,10 +4,11 @@ from random import choice
 from assertpy import assert_that
 from passlib.handlers.sha2_crypt import sha256_crypt
 from pydash import every, pluck, py_
+from werkzeug.datastructures import Headers
 
 from ereuse_devicehub.resources.account.role import Role
+from ereuse_devicehub.resources.event.device.reserve.settings import Reserve
 from ereuse_devicehub.security.perms import ACCESS, PARTIAL_ACCESS, READ
-from ereuse_devicehub.tests import TestBase
 from ereuse_devicehub.tests.test_resources.test_group import TestGroupBase
 
 
@@ -366,3 +367,17 @@ class TestSecurity(TestGroupBase):
         lot_patch = {'@type': 'Lot', 'perms': [{'account': self.account['_id'], 'perm': READ}]}
         _, status = self.patch(self.LOTS, item=lot['_id'], data=lot_patch)
         self.assert401(status)
+
+    def test_redirect_on_browser(self):
+        """Tests HTTP redirection to DevicehubClient when client is a browser (e.g. accepts HTML)"""
+        # We want all petitions with accept/html to be redirected to the following client
+        self.app.config['CLIENT'] = 'http://foo-client.com'
+        reserve = self.post_201(self.DEVICE_EVENT_RESERVE,
+                                data={'@type': Reserve.type_name, 'devices': self.devices_id})
+        headers = Headers()
+        headers.add('Accept', 'text/html')  # This is how we detect a browser
+        response = self.test_client.get('{}/{}/{}'.format(self.db1, self.DEVICE_EVENT_RESERVE, reserve['_id']),
+                                        headers=headers)
+        self.assert302(response.status_code)
+        url = 'http://foo-client.com/inventories/{}/devices_reserve.{}'.format(self.db1, reserve['_id'])
+        assert_that(response).has_location(url)

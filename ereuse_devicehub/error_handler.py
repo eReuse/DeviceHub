@@ -1,7 +1,7 @@
-from flask import Response, redirect as flask_redirect, request
+from flask import Response
 from flask.json import jsonify
 
-from ereuse_devicehub.exceptions import BasicError, RedirectToClient
+from ereuse_devicehub.exceptions import BasicError
 from ereuse_devicehub.utils import get_header_link
 
 
@@ -21,10 +21,3 @@ class ErrorHandlers:
             response.headers[header_name] = header_value
             response.status_code = error.status_code
             return response
-
-        @app.errorhandler(RedirectToClient)
-        def redirect(error: RedirectToClient) -> Response:
-            """
-                For Redirect exceptions, performs a redirection to the client.
-            """
-            return flask_redirect(app.config['CLIENT'] + request.full_path)

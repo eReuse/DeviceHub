@@ -1,11 +1,11 @@
 from datetime import datetime, timezone
 
 from bson import ObjectId
-from flask import current_app, json, Request
+from flask import Request, current_app, json
 from pydash import pick
 from requests import Response
 
-from ereuse_devicehub.exceptions import RedirectToClient, StandardError, SchemaError
+from ereuse_devicehub.exceptions import SchemaError, StandardError
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
@@ -13,15 +13,6 @@ from ereuse_devicehub.resources.event.device.settings import DeviceEvent
 from ereuse_devicehub.resources.group.domain import GroupDomain
 from ereuse_devicehub.resources.schema import RDFS
 from ereuse_devicehub.utils import get_header_link
-
-
-def redirect_on_browser(_, request, __):
-    """
-    Redirects the browsers to the client webApp.
-    :param request:
-    """
-    if request.accept_mimetypes.accept_html:
-        raise RedirectToClient()
 
 
 def set_response_headers_and_cache(resource: str, _, payload: Response):

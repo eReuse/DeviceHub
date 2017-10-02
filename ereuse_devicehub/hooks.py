@@ -2,9 +2,8 @@ def hooks(app):
     """
         This method "ties" all the hooks DeviceHub uses with the app.
     """
-    from ereuse_devicehub.resources.hooks import set_response_headers_and_cache, redirect_on_browser, check_type
+    from ereuse_devicehub.resources.hooks import set_response_headers_and_cache, check_type
     app.on_post_GET += set_response_headers_and_cache
-    app.on_pre_GET += redirect_on_browser
     app.on_insert += check_type
 
     from ereuse_devicehub.security.hooks import check_get_perms_for_list_of_items, check_get_perms_for_item

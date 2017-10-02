@@ -185,9 +185,6 @@ class Client(TestMinimal):
         """Performs login and obtains the token."""
         return super().post('/login', data={'email': email, 'password': password})[0]
 
-    def assert308(self, status):
-        self.assertEqual(status, 308)
-
     def parse_response(self, r):
         v = r.get_data()
         with contextlib.suppress(JSONDecodeError):
@@ -311,6 +308,12 @@ class TestBase(Client):
 
     def delete(self, url, headers=None, item=None, token: str = None, db: str = None, auth_header=None) -> (dict, int):
         return super().delete(url, headers, item, token or self.token, db, auth_header or self.auth_header)
+
+    def assert308(self, status):
+        self.assertEqual(status, 308)
+
+    def assert302(self, status):
+        self.assertEqual(status, 302)
 
 
 class TestStandard(TestBase):

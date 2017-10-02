@@ -17,7 +17,7 @@ from eve.endpoints import media_endpoint, schema_collection_endpoint
 from eve.exceptions import ConfigException
 from eve.io.mongo import GridFSMediaStorage, MongoJSONEncoder
 from eve.render import send_response
-from flask import json, request
+from flask import json, redirect, request
 from flask_mail import Mail
 from inflection import camelize
 from rpy2.rinterface import RRuntimeWarning
@@ -34,6 +34,7 @@ from ereuse_devicehub.header_cache import header_cache
 from ereuse_devicehub.hooks import hooks
 from ereuse_devicehub.inventory import inventory
 from ereuse_devicehub.mails.mails import mails
+from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.account.login.settings import login
 from ereuse_devicehub.resources.event.device.live.geoip_factory import GeoIPFactory
 from ereuse_devicehub.resources.event.device.register.placeholders import placeholders
@@ -82,6 +83,7 @@ class DeviceHub(Eve):
         self.add_url_rule('/<db>/export/<resource>', view_func=export)
         self.add_url_rule('/<db>/events/<resource>/placeholders', view_func=placeholders, methods=['POST'])
         self.add_url_rule('/<db>/inventory', view_func=inventory)
+        self.before_request(self.redirect_on_browser)
         self.register_blueprint(documents)
         self.register_blueprint(mails)
         self.mail = Mail(self)
@@ -244,3 +246,18 @@ class DeviceHub(Eve):
             return (deviceScoreMainServer(input)) 
         }""")
         resetwarnings()
+
+    def redirect_on_browser(self):
+        """
+        Redirects the browsers (anything accepting text/html) to the client webApp.
+        :param request:
+        """
+        if request.accept_mimetypes.accept_html:
+            try:
+                resource_name = request.url_rule.endpoint.split('|')[0]
+                _id = request.view_args['_id']
+                db = AccountDomain.requested_database
+                url = '{}/inventories/{}/{}.{}'.format(self.config['CLIENT'], db, resource_name, _id)
+            except Exception:
+                url = self.config['CLIENT']
+            return redirect(code=302, location=url)

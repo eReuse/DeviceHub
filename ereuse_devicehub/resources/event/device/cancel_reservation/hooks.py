@@ -18,17 +18,26 @@ def set_for_and_notify(cancel_reservations: List[dict]):
         cancel_reservation['notify'] = reserve['notify']
 
 
+def notify_and_materialize(cancel_reservations: List[dict]):
+    """
+    Calls notify and materialize_cancel_in_reserve
+    because we don't know how to do iadd with getattr / setattr and events.
+    """
+    notify(cancel_reservations)
+    materialize_cancel_in_reserve(cancel_reservations)
+
+
 def notify(cancel_reservations: List[dict]):
     msgs = []
-    for cancel_reservation in cancel_reservations:
-        context = {
-            'reserve_url': url_for_resource(Reserve.resource_name, cancel_reservation['reserve']),
-            'cancel_reservation_url': url_for_resource(CancelReservation.resource_name, cancel_reservation['_id']),
-            'for': AccountDomain.get_one(cancel_reservation['for'])
-        }
-        msgs.append(create_email('mails/cancel_reserve_for.html', context['for'], **context))
-        for recipient in AccountDomain.get_in('_id', cancel_reservation['notify']):
-            msgs.append(create_email('mails/cancel_reserve_notify.html', recipient, **context))
+    cancel_reservation = cancel_reservations[0]
+    context = {
+        'reserve_url': url_for_resource(Reserve.resource_name, cancel_reservation['reserve']),
+        'cancel_reservation_url': url_for_resource(CancelReservation.resource_name, cancel_reservation['_id']),
+        'for': AccountDomain.get_one(cancel_reservation['for'])
+    }
+    msgs.append(create_email('mails/cancel_reserve_for.html', context['for'], **context))
+    for recipient in AccountDomain.get_in('_id', cancel_reservation['notify']):
+        msgs.append(create_email('mails/cancel_reserve_notify.html', recipient, **context))
     # We send all emails with the same connection (+ speed)
     with app.mail.connect() as conn:
         for msg in msgs:

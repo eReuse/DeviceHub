@@ -65,7 +65,7 @@ def materialize_condition_and_price(snapshots: list):
             # In this case we will "only" loose the new condition fields
             # So we log the error for further investigation and just continue the execution
             snapshot['condition'] = app.score.compute(g.dh_snapshot.device['_id'], snapshot.get('condition', {}))
-            #snapshot['pricing'] = app.price.compute(g.dh_snapshot.device['_id'], snapshot['condition'])
+            # snapshot['pricing'] = app.price.compute(g.dh_snapshot.device['_id'], snapshot['condition'])
         except Exception as e:
             app.logger.info(e)
         if snapshot.get('condition', None):
@@ -95,12 +95,13 @@ SNAPSHOT_SOFTWARE = {
 
 def move_id(payload: Request):
     """Moves the _id and pid from the snapshot to the inner device of the snapshot, as a hotfix for Workbench's bug"""
+    # todo workbench hotfix
     snapshot = payload.get_json()
-    if '_id' in snapshot:
+    with suppress(Exception):
         snapshot['device']['_id'] = snapshot.pop('_id')
-    if 'pid' in snapshot:  # todo workbench hotfix for pid
+    with suppress(Exception):
         snapshot['device']['pid'] = snapshot.pop('pid')
-    if snapshot.get('snapshotSoftware', None) in SNAPSHOT_SOFTWARE:
+    with suppress(Exception):
         snapshot['snapshotSoftware'] = SNAPSHOT_SOFTWARE[snapshot['snapshotSoftware']]
 
 

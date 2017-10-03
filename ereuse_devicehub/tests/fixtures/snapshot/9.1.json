@@ -1,5 +1,5 @@
 {
-  "_uuid": "58f1709c-9ceb-4cdc-8620-d861064723a9",
+  "_uuid": "ab04c9eb-240b-468a-b182-2b0139fcd210",
   "version": "9.0",
   "components": [
     {
@@ -82,7 +82,7 @@
   "device": {
     "serialNumber": "8BOAAQ191999",
     "model": "1000H",
-    "type": "Laptop",
+    "type": "Netbook",
     "@type": "Computer",
     "manufacturer": "ASUSTeK Computer INC."
   },
@@ -99,16 +99,16 @@
     "success": true,
     "elapsed": "0:10:08"
   },
-  "label": "Label 2",
+  "label": "Label",
   "condition": {
     "appearance": {
-      "general": "A"
+      "general": "C"
     },
     "functionality": {
-      "general": "A"
+      "general": "C"
     }
   },
-  "date": "2017-08-29T09:55:03",
+  "date": "2017-08-22T09:55:03",
   "snapshotSoftware": "Workbench",
   "inventory": {
     "elapsed": "0:11:26"

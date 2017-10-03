@@ -57,7 +57,7 @@ def _materialize_event_in_device(event, field_name):
     DeviceDomain.update_one_raw(event['device'], {'$push': {field_name: event['_id']}})
 
 
-def materialize_condition(snapshots: list):
+def materialize_condition_and_price(snapshots: list):
     """Materializes condition of devices after successful snapshot"""
     for snapshot in snapshots:
         try:
@@ -65,6 +65,7 @@ def materialize_condition(snapshots: list):
             # In this case we will "only" loose the new condition fields
             # So we log the error for further investigation and just continue the execution
             snapshot['condition'] = app.score.compute(g.dh_snapshot.device['_id'], snapshot.get('condition', {}))
+            #snapshot['pricing'] = app.price.compute(g.dh_snapshot.device['_id'], snapshot['condition'])
         except Exception as e:
             app.logger.info(e)
         if snapshot.get('condition', None):

@@ -1,8 +1,10 @@
 import copy
+import itertools
+from collections import defaultdict
 from os.path import dirname, join, realpath
 from warnings import filterwarnings, resetwarnings
 
-from rpy2.rinterface import RRuntimeWarning
+from rpy2.rinterface import NA_Real, RRuntimeWarning
 from rpy2.robjects import DataFrame, ListVector, r
 
 from ereuse_devicehub.exceptions import StandardError
@@ -30,11 +32,8 @@ class ScorePriceBase:
         data = {key.replace(' ', '.').replace('(', '.').replace(')', '.'): val for key, val in zip(keys, values)}
         return DataFrame(data), condition
 
-    def _parse_response(self, response, device_id):
-        data, status = tuple(response)
-        status = int(status[0])
-        if status != 0:
-            raise ScorePriceError('{} couldn\'t be computed for device {}'.format(self.__class__.__name__, device_id))
+    @staticmethod
+    def _parse_response(data):
         return {name: data[i][0] for i, name in enumerate(data.names)}
 
 
@@ -46,23 +45,37 @@ class Score(ScorePriceBase):
 
         r.source(join(self.path, 'R', 'RdeviceScore_Utils.R'))
         r.source(join(self.path, 'R', 'RdeviceScore.R'))
+        r("""
+            scoreConfig <- read.csv2(file = "{}", sep = ";", fill = TRUE, dec = ",", na.strings = "NA", stringsAsFactors = FALSE, row.names = NULL) # Load Config file
+            scoreSchema <- read.csv2(file = "{}", sep = ";", fill = TRUE, dec = ",", na.strings = "NA", stringsAsFactors = FALSE, row.names = NULL)
+        """.format(join(self.path, 'config', 'models.csv'), join(self.path, 'schemas', 'schema.csv')))
+        r.source(join(self.path, 'R'))
         # This is the function we call
         self.compute_score = r("""
                 function (input){
-                    return (deviceScoreMainServer(input)) 
+                    return (deviceScoreMain(input)) 
                 }""")
         resetwarnings()
 
     def compute(self, device_id: str, condition: dict) -> dict:
         data, _condition = super().compute(device_id, condition)
         param = ListVector({
-            'pathApp': self.path,
             'sourceData': data,
-            'simulation': '2',
-            'versionSchema': 'v021',
-            'versionScore': 'v2-2017-09-20'
+            'config': r.scoreConfig,
+            'schema': r.scoreSchema,
+            'versionSchema': '1.0',
+            'versionScore': '1.0',
+            'bUpgrade': False,
+            'versionEntity': 'ereuse.org'
         })
-        result = self._parse_response(self.compute_score(param), device_id)
+        result, status, status_description = tuple(self.compute_score(param))
+        status = int(status[0])
+        if status != 0:
+            message = '{} couldn\'t be computed for device {}, status {}'.format(self.__class__.__name__, device_id,
+                                                                                 status_description)
+            raise ScorePriceError(message)
+
+        result = self._parse_response(result)
         _condition['general'] = {
             'score': round(result['Score'], self.ROUND_DECIMALS),
             'range': result['Range']
@@ -89,18 +102,43 @@ class Score(ScorePriceBase):
 class Price(ScorePriceBase):
     def __init__(self, app) -> None:
         super().__init__(app)
-        self.path = join(dirname(realpath(__file__)), 'price', 'RLanguage')
+        self.path = join(dirname(realpath(__file__)), 'price')
 
-        r.source(join(self.path, 'R', 'RDevicePrice_Utils.R'))
-        r.source(join(self.path, 'R', 'RDevicePrice.R'))
+        r.source(join(self.path, 'RLanguage', 'R', 'RDevicePrice_Utils.R'))
+        r.source(join(self.path, 'RLanguage', 'R', 'RDevicePrice.R'))
+        r("""
+            priceConfig <- read.csv2(file = "{}", sep = ";", fill = TRUE, dec = ",", na.strings = "NA", stringsAsFactors = FALSE, row.names = NULL) # Load Config file
+            priceSchema <- read.csv2(file = "{}", sep = ";", fill = TRUE, dec = ",", na.strings = "NA", stringsAsFactors = FALSE, row.names = NULL)
+        """.format(join(self.path, 'circuits', 'pangea-catalonia', 'config', 'config.csv'),
+                   join(self.path, 'RLanguage', 'schemas', 'schema.csv')))
         # This is the function we call
         self.compute_price = r("""
                 function (input){
                     return (devicePriceMain(input))
                 }""")
 
+    FIELDS = ('per', 'amount'), ('standard', '2yearsGuarantee'), ('refurbisher', 'retailer', 'platform')
+    VAL = {'per': 'percentage', 'amount': 'amount'}
+    SERVICE = {'2yearsGuarantee': 'guarantee', 'standard': 'standard'}
+
     def compute(self, device_id: str, condition: dict):
         data, condition = super().compute(device_id, condition)
+        param = ListVector({
+            'sourceData': data,
+            'config': r.priceConfig,
+            'schema': r.priceSchema,
+            'versionSchema': '1.0',
+            'versionPrice': '1.0'
+        })
+        result = self._parse_response(self.compute_price(param))
+        # Combinatronics of self.FIELDS to do d['refurbisher']['standard']['per'] = val['per.standard.refurbisher']
+        d = defaultdict(lambda: defaultdict(dict))
+        for val, service, role in itertools.product(*self.FIELDS):
+            x = result['{}.{}.{}'.format(val, service, role)]
+            if x is not NA_Real:
+                d[role][self.SERVICE[service]][self.VAL[val]] = float(x)
+        d['price'] = float(result['Price'])
+        return d
 
 
 class ScorePriceError(StandardError):

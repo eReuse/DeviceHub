@@ -4,9 +4,10 @@ from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.account.settings import unregistered_user
 from ereuse_devicehub.resources.condition import condition
 from ereuse_devicehub.resources.device.component.settings import Component
-from ereuse_devicehub.resources.event.device.settings import place, EventWithOneDevice, EventSubSettingsOneDevice, \
-    parent
+from ereuse_devicehub.resources.event.device.settings import EventSubSettingsOneDevice, EventWithOneDevice, parent, \
+    place
 from ereuse_devicehub.resources.group.settings import Group
+from ereuse_devicehub.resources.pricing import pricing
 
 
 class Snapshot(EventWithOneDevice):
@@ -120,6 +121,12 @@ class Snapshot(EventWithOneDevice):
     condition = {
         'type': 'dict',
         'schema': condition,
+        'sink': 1,
+        'teaser': True
+    }
+    pricing = {
+        'type': 'dict',
+        'schema': pricing,
         'sink': 1,
         'teaser': True
     }

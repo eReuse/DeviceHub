@@ -3,6 +3,7 @@ import copy
 from ereuse_devicehub.resources import events_pk_schema
 from ereuse_devicehub.resources.condition import condition
 from ereuse_devicehub.resources.group.physical.package.settings import Package
+from ereuse_devicehub.resources.pricing import pricing
 from ereuse_devicehub.security.perms import perms
 from ..schema import Thing, UnitCodes
 
@@ -152,6 +153,13 @@ class Device(IndividualProduct):
         'teaser': True,
         'materialized': True,
         'doc': 'Materialized condition from the last snapshot.'
+    }
+    pricing = {
+        'type': 'dict',
+        'schema': pricing,
+        'sink': 1,
+        'teaser': True,
+        'materialized': True
     }
     perms = copy.copy(perms)
     perms['materialized'] = True

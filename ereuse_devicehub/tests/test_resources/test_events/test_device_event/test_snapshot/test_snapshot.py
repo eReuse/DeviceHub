@@ -5,6 +5,8 @@ from random import choice
 
 from assertpy import assert_that
 from bson import objectid
+from pydash import filter_, map_, pick
+
 from ereuse_devicehub.exceptions import SchemaError
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
@@ -13,7 +15,6 @@ from ereuse_devicehub.security.perms import ADMIN
 from ereuse_devicehub.tests.test_resources.test_events import TestEvent
 from ereuse_devicehub.tests.test_resources.test_group import TestGroupBase
 from ereuse_devicehub.utils import NestedLookup, coerce_type
-from pydash import filter_, map_, pick
 
 
 class TestSnapshot(TestEvent, TestGroupBase):
@@ -757,7 +758,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
     def test_compute_condition_score(self):
         """Tests computing the condition (score...) with RDeviceScore when performing a Snapshot."""
         condition = {
-            'general': {'score': 2.39, 'range': 'Low'},
+            'general': {'score': 2.09, 'range': 'Low'},
             'appearance': {'general': 'B'},
             'components': {'hardDrives': 3.82, 'processors': 3.59, 'ram': 1.54},
             'scoringSoftware': {'version': '1.0', 'label': 'ereuse.org'},
@@ -769,5 +770,5 @@ class TestSnapshot(TestEvent, TestGroupBase):
         assert_that(snapshot['condition']).is_equal_to(device['condition']).is_equal_to(condition)
 
     def test_snapshot_9_b(self):
-        snapshot = self.post_fixture(self.SNAPSHOT, self.SNAPSHOT_URL, '9.1')
-        snapshot = self.get_200(self.SNAPSHOT_URL, item=snapshot['_id'])
+        snapshot = self.get_fixture(self.SNAPSHOT, '9.1')
+        self.post(self.SNAPSHOT_URL, data=snapshot, token=self.token)

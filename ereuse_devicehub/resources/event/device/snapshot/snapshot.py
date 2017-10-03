@@ -1,16 +1,6 @@
-import copy
 from contextlib import suppress
-from pprint import pformat
 
-from flask import current_app as app
-from pydash import pluck
-from rpy2.robjects import DataFrame, ListVector
-
-from ereuse_devicehub.exceptions import StandardError
-from ereuse_devicehub.export.export import SpreadsheetTranslator
-from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
-from ereuse_devicehub.resources.device.computer.settings import Computer
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.exceptions import DeviceNotFound, NoDevicesToProcess
 from ereuse_devicehub.resources.event.device import DeviceEventDomain

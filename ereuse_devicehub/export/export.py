@@ -80,19 +80,22 @@ class SpreadsheetTranslator(Translator):
             d['Serial Number'] = p.get('serialNumber')
         d['Model'] = p.get('model')
         d['Manufacturer'] = p.get('manufacturer')
-        d['State'] = p.get('events').head().pick('@type', 'label').join(' ')
         if not brief:
+            d['State'] = p.get('events').head().pick('@type', 'label').join(' ')
             d['Registered in'] = p.get('_created')
-        d['Condition'] = p.get('condition.general.score')
-        d['Condition Range'] = p.get('condition.general.range')
+        d['Processor'] = p.get('processorModel')
+        d['RAM (GB)'] = p.get('totalRamSize').floor()
+        d['HDD (MB)'] = p.get('totalHardDriveSize').floor()
+        d['Condition Score'] = p.get('condition.general.score')
+        d['Condition'] = p.get('condition.general.range')
         if not brief:
             d['Appearance'] = p.get('condition.appearance.general')
             d['Functionality'] = p.get('condition.functionality.general')
             d['Labelling'] = p.get('condition.labelling')
             d['Bios'] = p.get('condition.bios.general')
-        d['Processor'] = p.get('processorModel')
-        d['RAM (GB)'] = p.get('totalRamSize').floor()
-        d['HDD (MB)'] = p.get('totalHardDriveSize').floor()
+            d['Processor Score'] = p.get('condition.components.processors')
+            d['RAM Score'] = p.get('condition.components.ram')
+            d['HDD Score'] = p.get('condition.components.hardDrives')
         # Note that in translate_one we translate 'components'
         super().__init__(d)
 

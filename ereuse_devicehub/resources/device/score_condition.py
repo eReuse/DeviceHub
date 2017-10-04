@@ -1,4 +1,3 @@
-import copy
 import itertools
 from collections import defaultdict
 from os.path import dirname, join, realpath
@@ -11,7 +10,10 @@ from ereuse_devicehub.exceptions import StandardError
 from ereuse_devicehub.export.export import SpreadsheetTranslator
 from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.condition import condition as condition_schema
+from ereuse_devicehub.resources.device.computer.settings import Computer
 from ereuse_devicehub.resources.device.domain import DeviceDomain
+from ereuse_devicehub.resources.pricing import pricing
+from ereuse_devicehub.validation.validation import DeviceHubValidator
 
 
 class ScorePriceBase:
@@ -20,21 +22,34 @@ class ScorePriceBase:
     def __init__(self, app) -> None:
         self.app = app
         self.translator = SpreadsheetTranslator(brief=False)
+        self.validator = NotImplementedError()
         for package in 'dplyr', 'data.table', 'stringr':
             kwargs = {'lib_loc': app.config['R_PACKAGES_PATH']} if app.config['R_PACKAGES_PATH'] else {}
             r.require(package, **kwargs)
 
-    def compute(self, device_id: str, condition: dict) -> (DataFrame, dict):
+    def compute(self, device_id: str, condition: dict) -> DataFrame:
+        # We can't compute empty conditions or anything that is not a computer
+        if not condition:
+            raise ScorePriceNotSuitableError()
         device = DeviceDomain.get_one(device_id)
+        if device['@type'] != Computer.type_name:
+            raise ScorePriceNotSuitableError()
         device['components'] = DeviceDomain.get_full_components(device['components'])
-        device['condition'] = copy.deepcopy(condition)
+        device['condition'] = condition
         keys, values = self.translator.translate([device])
         data = {key.replace(' ', '.').replace('(', '.').replace(')', '.'): val for key, val in zip(keys, values)}
-        return DataFrame(data), condition
+        return DataFrame(data)
 
     @staticmethod
     def _parse_response(data):
         return {name: data[i][0] for i, name in enumerate(data.names)}
+
+    def _validate(self, validator: DeviceHubValidator, condition: dict, device_id: str):
+        if not validator.validate(condition):
+            t = '{} wrong condition:\n'.format(self.__class__.__name__)
+            t += 'Device {} of {}\n'.format(device_id, AccountDomain.requested_database)
+            t += 'Condition is: {}'.format(condition)
+            raise ScorePriceError(t)
 
 
 class Score(ScorePriceBase):
@@ -56,9 +71,10 @@ class Score(ScorePriceBase):
                     return (deviceScoreMain(input)) 
                 }""")
         resetwarnings()
+        self.validator = self.app.validator(condition_schema)
 
     def compute(self, device_id: str, condition: dict) -> dict:
-        data, _condition = super().compute(device_id, condition)
+        data = super().compute(device_id, condition)
         param = ListVector({
             'sourceData': data,
             'config': r.scoreConfig,
@@ -76,27 +92,24 @@ class Score(ScorePriceBase):
             raise ScorePriceError(message)
 
         result = self._parse_response(result)
-        _condition['general'] = {
-            'score': round(result['Score'], self.ROUND_DECIMALS),
+        FIELDS = 'Score', 'Ram.score', 'Processor.score', 'Drive.score'
+        parsed = list(map(lambda x: None if result[x] is NA_Real else round(result[x], self.ROUND_DECIMALS), FIELDS))
+        condition['general'] = {
+            'score': parsed[0],
             'range': result['Range']
         }
-        _condition['scoringSoftware'] = {
+        condition['scoringSoftware'] = {
             'label': 'ereuse.org',
             'version': '1.0'
         }
-        _condition['components'] = {
-            'ram': round(result['Ram.score'], self.ROUND_DECIMALS),
-            'processors': round(result['Processor.score'], self.ROUND_DECIMALS),
-            'hardDrives': round(result['Drive.score'], self.ROUND_DECIMALS)
+        condition['components'] = {
+            'ram': parsed[1],
+            'processors': parsed[2],
+            'hardDrives': parsed[3]
         }
         # Validate that the returned data complies with the schema
-        validator = self.app.validator(condition_schema)
-        if not validator.validate(_condition):
-            t = 'RDeviceScore wrong condition:\n'
-            t += 'Device {} of {}\n'.format(device_id, AccountDomain.requested_database)
-            t += 'Condition is: {}'.format(_condition)
-            raise ScorePriceError(t)
-        return _condition
+        self._validate(self.validator, condition, device_id)
+        return condition
 
 
 class Price(ScorePriceBase):
@@ -116,6 +129,7 @@ class Price(ScorePriceBase):
                 function (input){
                     return (devicePriceMain(input))
                 }""")
+        self.validator = self.app.validator(pricing)
 
     FIELDS = ('per', 'amount'), ('standard', '2yearsGuarantee'), ('refurbisher', 'retailer', 'platform')
     VAL = {'per': 'percentage', 'amount': 'amount'}
@@ -138,8 +152,13 @@ class Price(ScorePriceBase):
             if x is not NA_Real:
                 d[role][self.SERVICE[service]][self.VAL[val]] = float(x)
         d['price'] = float(result['Price'])
+        self._validate(self.validator, d, device_id)
         return d
 
 
 class ScorePriceError(StandardError):
+    pass
+
+
+class ScorePriceNotSuitableError(StandardError):
     pass

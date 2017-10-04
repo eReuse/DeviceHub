@@ -1,5 +1,6 @@
 from contextlib import contextmanager, suppress
 
+from ereuse_devicehub.resources.account.role import Role
 from eve.auth import TokenAuth
 from flask import current_app as app
 from werkzeug.exceptions import NotFound
@@ -98,7 +99,7 @@ class Auth(TokenAuth):
         """
         account = account or AccountDomain.actual
         db = db or AccountDomain.requested_database
-        return account['databases'].get(db, None) in EXPLICIT_DB_PERMS
+        return account['role'] == Role.SUPERUSER or account['databases'].get(db, None) in EXPLICIT_DB_PERMS
 
     @contextmanager
     def database(self, database: str, headers=None):

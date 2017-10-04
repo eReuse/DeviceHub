@@ -34,7 +34,6 @@ def export(db, resource):
     except KeyError:
         raise NotAcceptable()
     ids = request.args.getlist('ids')  # Returns empty list by default
-    token = AccountDomain.hash_token(AccountDomain.actual_token)
     translator = SpreadsheetTranslator(request.args.get('type', 'detailed') == 'brief')
     spreadsheets = OrderedDict()
     if resource in Group.resource_names:

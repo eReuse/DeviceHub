@@ -1,4 +1,4 @@
-from pydash import py_
+from ereuse_devicehub.resources.account.domain import AccountDomain
 
 
 class Update:
@@ -12,11 +12,14 @@ class Update:
         :param update_indexes: If true, it will drop all indexes and re-add them from each ResourceSettings.
         """
         self.app = app
+        app.config['DEBUG'] = True  # Print log messages on screen
         for database in app.config['DATABASES']:
             # We need to have an active request to 'trick' set_database and work with the database we want
             with app.test_request_context('/{}/devices'.format(database), headers=headers):
                 print('Starting update process for database {}'.format(database))
+                app.preprocess_request()
                 app.auth.set_database_from_url()
+                AccountDomain.actual
                 self.execute(database)
                 if update_indexes:
                     self._update_indexes(update_default_db_ones=False)

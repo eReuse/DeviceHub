@@ -63,6 +63,10 @@ class UnauthorizedToUseDatabase(StandardError):
     message = 'User has no access to this database.'
 
 
+class AuthHeaderError(StandardError):
+    status_code = 400
+
+
 class InsufficientDatabasePerm(StandardError):
     status_code = 401
 

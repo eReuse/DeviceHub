@@ -7,7 +7,8 @@ from passlib.handlers.sha2_crypt import sha256_crypt
 from passlib.utils import classproperty
 from werkzeug.http import parse_authorization_header
 
-from ereuse_devicehub.exceptions import BasicError, StandardError, UserHasExplicitDbPerms, WrongCredentials
+from ereuse_devicehub.exceptions import BasicError, StandardError, UserHasExplicitDbPerms, WrongCredentials, \
+    AuthHeaderError
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.account.settings import AccountSettings
 from ereuse_devicehub.resources.domain import Domain, ResourceNotFound
@@ -52,7 +53,7 @@ class AccountDomain(Domain):
             x = request.headers.environ['HTTP_AUTHORIZATION']
             return parse_authorization_header(x)['username']
         except (KeyError, TypeError) as e:
-            raise StandardError('The Authorization header is not well written or missing', 400) from e
+            raise AuthHeaderError('The Authorization header is not well written or missing') from e
 
     @classproperty
     def requested_database(cls) -> str:

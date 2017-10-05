@@ -102,10 +102,9 @@ def move_id(payload: Request):
     """Moves the _id and pid from the snapshot to the inner device of the snapshot, as a hotfix for Workbench's bug"""
     # todo workbench hotfix
     snapshot = payload.get_json()
-    with suppress(Exception):
-        snapshot['device']['_id'] = snapshot.pop('_id')
-    with suppress(Exception):
-        snapshot['device']['pid'] = snapshot.pop('pid')
+    for identifier in '_id', 'pid', 'gid', 'hid', 'rid':
+        with suppress(Exception):
+            snapshot['device'][identifier] = snapshot.pop(identifier)
     with suppress(Exception):
         snapshot['snapshotSoftware'] = SNAPSHOT_SOFTWARE[snapshot['snapshotSoftware']]
 

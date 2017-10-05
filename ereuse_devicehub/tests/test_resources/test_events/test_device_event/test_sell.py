@@ -7,7 +7,6 @@ from pydash import map_values
 
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.security.perms import ACCESS, READ
-from ereuse_devicehub.tests import TestBase
 from ereuse_devicehub.tests.test_resources.test_events.test_device_event import TestDeviceEvent
 
 

@@ -1,4 +1,5 @@
 from assertpy import assert_that
+from rpy2.robjects import ListVector, r
 
 from ereuse_devicehub.resources.device.component.hard_drive.settings import HardDrive
 from ereuse_devicehub.resources.event.device.add.settings import Add
@@ -63,3 +64,16 @@ class TestDevice(TestStandard):
         for event in device['events']:
             _, status = self.get(self.EVENTS, item=event['_id'])
             self.assert404(status)
+
+    def test_condition_price(self):
+        """Tests executing r price using an example data."""
+        data = r('data.frame(Type ="Computer", Subtype = "Desktop", Condition.Score = "2.09", Condition = "Low")')
+        param = ListVector({
+            'sourceData': data,
+            'config': r.priceConfig,
+            'schema': r.priceSchema,
+            'versionSchema': '1.0',
+            'versionPrice': '1.0'
+        })
+        # This execution should not generate any error
+        self.app.price._parse_response(self.app.price.compute_price(param))

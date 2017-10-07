@@ -1,6 +1,6 @@
+import contextlib
 import itertools
 from collections import defaultdict
-from os.path import dirname, join, realpath
 from warnings import filterwarnings, resetwarnings
 
 from rpy2.rinterface import NA_Real, RRuntimeWarning
@@ -23,9 +23,9 @@ class ScorePriceBase:
         self.app = app
         self.translator = SpreadsheetTranslator(brief=False)
         self.validator = NotImplementedError()
-        for package in 'dplyr', 'data.table', 'stringr':
+        with self.filter_warnings():
             kwargs = {'lib_loc': app.config['R_PACKAGES_PATH']} if app.config['R_PACKAGES_PATH'] else {}
-            r.require(package, **kwargs)
+            r.library('Rdevicescore', **kwargs)
 
     def compute(self, device_id: str, condition: dict) -> DataFrame:
         # We can't compute empty conditions or anything that is not a computer
@@ -51,27 +51,25 @@ class ScorePriceBase:
             t += 'Condition is: {}'.format(condition)
             raise ScorePriceError(t)
 
+    @contextlib.contextmanager
+    def filter_warnings(self):
+        filterwarnings('ignore', category=RRuntimeWarning)
+        yield
+        resetwarnings()
+
 
 class Score(ScorePriceBase):
     def __init__(self, app) -> None:
-        filterwarnings('ignore', category=RRuntimeWarning)
         super().__init__(app)
-        self.path = join(dirname(realpath(__file__)), 'score', 'RLanguage')
-
-        r.source(join(self.path, 'R', 'RdeviceScore_Utils.R'))
-        r.source(join(self.path, 'R', 'RdeviceScore.R'))
-        r("""
-            scoreConfig <- read.csv2(file = "{}", sep = ";", fill = TRUE, dec = ",", na.strings = "NA", stringsAsFactors = FALSE, row.names = NULL) # Load Config file
-            scoreSchema <- read.csv2(file = "{}", sep = ";", fill = TRUE, dec = ",", na.strings = "NA", stringsAsFactors = FALSE, row.names = NULL)
-        """.format(join(self.path, 'config', 'models.csv'), join(self.path, 'schemas', 'schema.csv')))
-        r.source(join(self.path, 'R'))
-        # This is the function we call
-        self.compute_score = r("""
-                function (input){
-                    return (deviceScoreMain(input)) 
-                }""")
-        resetwarnings()
-        self.validator = self.app.validator(condition_schema)
+        with self.filter_warnings():
+            r('scoreConfig <- Rdevicescore::models')
+            r('scoreSchema <- Rdevicescore::schemas')
+            # This is the function we call
+            self.compute_score = r("""
+                    function (input){
+                        return (Rdevicescore::deviceScoreMain(input)) 
+                    }""")
+            self.validator = self.app.validator(condition_schema)
 
     def compute(self, device_id: str, condition: dict) -> dict:
         data = super().compute(device_id, condition)
@@ -92,21 +90,25 @@ class Score(ScorePriceBase):
             raise ScorePriceError(message)
 
         result = self._parse_response(result)
-        FIELDS = 'Score', 'Ram.score', 'Processor.score', 'Drive.score'
-        parsed = list(map(lambda x: None if result[x] is NA_Real else round(result[x], self.ROUND_DECIMALS), FIELDS))
+        FIELDS = 'Score', 'Ram.score', 'Processor.score', 'Drive.score', 'appearance.score', 'functionality.score'
+        score, ram_score, processor_score, drive_score, appearance_score, functionality_score = list(
+            map(lambda x: None if result[x] is NA_Real else round(result[x], self.ROUND_DECIMALS), FIELDS)
+        )
         condition['general'] = {
-            'score': parsed[0],
-            'range': result['Range']
+            'score': score,
+            'range': result['Range'],
         }
         condition['scoringSoftware'] = {
             'label': 'ereuse.org',
             'version': '1.0'
         }
         condition['components'] = {
-            'ram': parsed[1],
-            'processors': parsed[2],
-            'hardDrives': parsed[3]
+            'ram': ram_score,
+            'processors': processor_score,
+            'hardDrives': drive_score
         }
+        condition.setdefault('appearance', {})['score'] = appearance_score
+        condition.setdefault('functionality', {})['score'] = functionality_score
         # Validate that the returned data complies with the schema
         self._validate(self.validator, condition, device_id)
         return condition
@@ -115,28 +117,22 @@ class Score(ScorePriceBase):
 class Price(ScorePriceBase):
     def __init__(self, app) -> None:
         super().__init__(app)
-        self.path = join(dirname(realpath(__file__)), 'price')
-
-        r.source(join(self.path, 'RLanguage', 'R', 'RDevicePrice_Utils.R'))
-        r.source(join(self.path, 'RLanguage', 'R', 'RDevicePrice.R'))
-        r("""
-            priceConfig <- read.csv2(file = "{}", sep = ";", fill = TRUE, dec = ",", na.strings = "NA", stringsAsFactors = FALSE, row.names = NULL) # Load Config file
-            priceSchema <- read.csv2(file = "{}", sep = ";", fill = TRUE, dec = ",", na.strings = "NA", stringsAsFactors = FALSE, row.names = NULL)
-        """.format(join(self.path, 'circuits', 'pangea-catalonia', 'config', 'config.csv'),
-                   join(self.path, 'RLanguage', 'schemas', 'schema.csv')))
-        # This is the function we call
-        self.compute_price = r("""
+        with self.filter_warnings():
+            r('priceConfig <- Rdeviceprice::config')
+            r('priceSchema <- Rdeviceprice::schemas')
+            # This is the function we call
+            self.compute_price = r("""
                 function (input){
-                    return (devicePriceMain(input))
+                    return (Rdeviceprice::devicePriceMain(input))
                 }""")
-        self.validator = self.app.validator(pricing)
+            self.validator = self.app.validator(pricing)
 
     FIELDS = ('per', 'amount'), ('standard', '2yearsGuarantee'), ('refurbisher', 'retailer', 'platform')
     VAL = {'per': 'percentage', 'amount': 'amount'}
     SERVICE = {'2yearsGuarantee': 'guarantee', 'standard': 'standard'}
 
     def compute(self, device_id: str, condition: dict):
-        data, condition = super().compute(device_id, condition)
+        data = super().compute(device_id, condition)
         param = ListVector({
             'sourceData': data,
             'config': r.priceConfig,

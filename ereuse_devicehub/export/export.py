@@ -12,7 +12,6 @@ from pyexcel_webio import FILE_TYPE_MIME_TABLE as REVERSED_FILE_TYPE_MIME_TABLE
 from werkzeug.exceptions import NotAcceptable
 
 from ereuse_devicehub.header_cache import header_cache
-from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.device.component.settings import Component
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.group.domain import GroupDomain
@@ -89,7 +88,9 @@ class SpreadsheetTranslator(Translator):
         d['Condition'] = p.get('condition.general.range')
         if not brief:
             d['Appearance'] = p.get('condition.appearance.general')
+            d['Appearance Score'] = p.get('condition.appearance.score')
             d['Functionality'] = p.get('condition.functionality.general')
+            d['Functionality Score'] = p.get('condition.functionality.score')
             d['Labelling'] = p.get('condition.labelling')
             d['Bios'] = p.get('condition.bios.general')
             d['Processor Score'] = p.get('condition.components.processors')
@@ -154,4 +155,4 @@ class SpreadsheetTranslator(Translator):
         field_names = list(self.dict.keys())  # We want first the keys we set in the translation dict
         field_names += py_(translated).map(keys).flatten().uniq().difference(field_names).sort().value()
         # compute the rows; header titles + fields (note we do not use pick as we don't want None but '' for empty)
-        return [field_names] + map_(translated, lambda res: [res.get(f, '') or '' for f in field_names])
+        return [field_names] + map_(translated, lambda res: [res.get(f, '') if res.get(f, None) is not None else '' for f in field_names])

@@ -29,7 +29,8 @@ events to them. We can *Repair* a device, *Allocate* it to an employee, etc.
 * Python 3.5 or newer.
 * MongoDB 3.4 or newer.
 * GnuPG. For debian, ``gpg2``.
-* R. For debian install ``r-base`` and ``python3-rpy2``
+* R. For debian install ``r-base``, ``python3-rpy2``, ``build-essential``,
+  ``libcurl4-gnutls-dev``, ``libxml2-dev``, ``libssl-dev``
 * Weasyprint requires some system packages. 
   [Their docs explain which ones and how to install them](http://weasyprint.readthedocs.io/en/stable/install.html).
 

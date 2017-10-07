@@ -52,7 +52,7 @@ class DeviceHub(Eve):
 
     def __init__(self, import_name=__package__, settings='settings.py', validator=DeviceHubValidator, data=DataLayer,
                  auth=Auth, redis=None, url_converters=None, json_encoder=None, media=GridFSMediaStorage,
-                 url_parse=UrlParse, mongo_encoder=MongoEncoder, score=Score, **kwargs):
+                 url_parse=UrlParse, mongo_encoder=MongoEncoder, score=Score, price=Price, **kwargs):
         kwargs.setdefault('static_url_path', '/static')
         super().__init__(import_name, settings, validator, data, auth, redis, url_converters, json_encoder, media,
                          **kwargs)
@@ -93,7 +93,7 @@ class DeviceHub(Eve):
                 ManufacturersGetter().execute(self)
         # Load RScore and RPrice
         self.score = score(self)
-        # self.price = price(self)
+        self.price = price(self)
 
     def register_resource(self, resource: str, settings: ResourceSettings):
         """

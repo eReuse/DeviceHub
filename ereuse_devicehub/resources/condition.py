@@ -6,6 +6,12 @@ _score = {
     'max': 10
 }
 
+_score_negative = {
+    'type': 'number',
+    'min': -3,
+    'max': 10
+}
+
 """Grades the state of the device in different areas."""
 condition = {
     'appearance': {
@@ -23,7 +29,8 @@ condition = {
                     'E': 'E. Is unacceptable (considerable visual damage that can affect usage)'
                 },
                 'description': 'Grades the imperfections that aesthetically affect the device, but not its usage.'
-            }
+            },
+            'score': _score_negative
         }
     },
     'functionality': {
@@ -39,7 +46,8 @@ condition = {
                     'D': 'D. Multiple buttons don\'t work; screen has visual damage resulting in uncomfortable usage',
                 },
                 'description': 'Grades the defects of a device that affect its usage.',
-            }
+            },
+            'score': _score_negative
         }
     },
     'labelling': {

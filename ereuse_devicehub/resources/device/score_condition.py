@@ -97,7 +97,8 @@ class Score(ScorePriceBase):
     def __init__(self, app) -> None:
         super().__init__(app)
         with self.filter_warnings():
-            self.compute_score = rpackages.importr('Rdevicescore', **self.library_kwargs, suppress_messages=False).deviceScoreMain
+            r.library('Rdevicescore', **self.library_kwargs)
+            self.compute_score = rpackages.importr('Rdevicescore').deviceScoreMain
             r('deviceScoreConfig <- Rdevicescore::models')
             r('deviceScoreSchema <- Rdevicescore::schemas')
 
@@ -155,8 +156,8 @@ class Price(ScorePriceBase):
     def __init__(self, app) -> None:
         super().__init__(app)
         with self.filter_warnings():
-            self.compute_price = rpackages.importr('Rdeviceprice', **self.library_kwargs,
-                                                   suppress_messages=False).devicePriceMain
+            r.library('Rdeviceprice', **self.library_kwargs)
+            self.compute_price = rpackages.importr('Rdeviceprice').devicePriceMain
             r('devicePriceConfig <- Rdeviceprice::config')
             r('devicePriceSchemas <- Rdeviceprice::schemas')
         self.validator = self.app.validator(pricing)

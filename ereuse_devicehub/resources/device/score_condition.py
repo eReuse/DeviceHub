@@ -37,7 +37,6 @@ class ScorePriceBase:
         self.validator = NotImplementedError()
         self.library_kwargs = {'lib_loc': app.config['R_PACKAGES_PATH']} if app.config['R_PACKAGES_PATH'] else {}
 
-
     @staticmethod
     def get_device(device_id: str, condition: dict) -> dict:
         """
@@ -98,7 +97,7 @@ class Score(ScorePriceBase):
     def __init__(self, app) -> None:
         super().__init__(app)
         with self.filter_warnings():
-            self.compute_score = rpackages.importr('Rdevicescore', **self.library_kwargs).deviceScoreMain
+            self.compute_score = rpackages.importr('Rdevicescore', **self.library_kwargs, suppress_messages=False).deviceScoreMain
             r('deviceScoreConfig <- Rdevicescore::models')
             r('deviceScoreSchema <- Rdevicescore::schemas')
 
@@ -156,7 +155,8 @@ class Price(ScorePriceBase):
     def __init__(self, app) -> None:
         super().__init__(app)
         with self.filter_warnings():
-            self.compute_price = rpackages.importr('Rdeviceprice', **self.library_kwargs).devicePriceMain
+            self.compute_price = rpackages.importr('Rdeviceprice', **self.library_kwargs,
+                                                   suppress_messages=False).devicePriceMain
             r('devicePriceConfig <- Rdeviceprice::config')
             r('devicePriceSchemas <- Rdeviceprice::schemas')
         self.validator = self.app.validator(pricing)

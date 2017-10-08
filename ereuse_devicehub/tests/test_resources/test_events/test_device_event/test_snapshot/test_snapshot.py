@@ -425,8 +425,8 @@ class TestSnapshot(TestEvent, TestGroupBase):
         """
         snapshot = self.get_fixture(self.SNAPSHOT, 'vaio')
         snapshot['condition'] = {
-            'appearance': {'general': 'A'},
-            'functionality': {'general': 'C'},
+            'appearance': {'general': 'A', 'score': 0.3},
+            'functionality': {'general': 'C', 'score': -0.75},
             'labelling': False,
             'bios': {'general': 'E'}
         }
@@ -759,15 +759,22 @@ class TestSnapshot(TestEvent, TestGroupBase):
         """Tests computing the condition (score...) with RDeviceScore when performing a Snapshot."""
         condition = {
             'general': {'score': 2.09, 'range': 'Low'},
-            'appearance': {'general': 'B'},
+            'appearance': {'general': 'B', 'score': 0.0},
             'components': {'hardDrives': 3.82, 'processors': 3.59, 'ram': 1.54},
             'scoringSoftware': {'version': '1.0', 'label': 'ereuse.org'},
-            'functionality': {'general': 'B'}
+            'functionality': {'general': 'B', 'score': -0.5}
+        }
+        pricing = {
+            'total': 41.8, 'refurbisher': {'standard': {'percentage': 0.5, 'amount': 21.0}},
+            'retailer': {'standard': {'percentage': 0.19, 'amount': 7.89}},
+            'platform': {'standard': {'percentage': 0.31, 'amount': 12.91}}
         }
         snapshot = self.post_fixture(self.SNAPSHOT, '{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), '9')
         device = self.get_200(self.DEVICES, item=snapshot['device'])
         # Snapshot has the condition and the device has the last condition performed (materialized)
         assert_that(snapshot['condition']).is_equal_to(device['condition']).is_equal_to(condition)
+        # And the same for the pricing
+        assert_that(snapshot['pricing']).is_equal_to(device['pricing']).is_equal_to(pricing)
 
     def test_snapshot_9_b(self):
         snapshot = self.get_fixture(self.SNAPSHOT, '9.1')

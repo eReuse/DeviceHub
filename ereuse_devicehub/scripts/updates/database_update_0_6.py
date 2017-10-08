@@ -3,7 +3,7 @@ from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.device.component.domain import ComponentDomain
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
-from ereuse_devicehub.resources.event.device.snapshot.hooks import materialize_condition_and_price
+from ereuse_devicehub.resources.event.device.snapshot.hooks import compute_condition_price_and_materialize_in_device
 from ereuse_devicehub.resources.event.device.snapshot.settings import Snapshot
 from ereuse_devicehub.resources.group.domain import GroupDomain
 from ereuse_devicehub.scripts.updates.update import Update
@@ -46,4 +46,4 @@ class DatabaseUpdate06(Update):
             AccountDomain.update_one_raw(account['_id'], q)
         # Compute condition
         snapshots = DeviceEventDomain.get({'@type': Snapshot.type_name})
-        materialize_condition_and_price(snapshots)
+        compute_condition_price_and_materialize_in_device(snapshots)

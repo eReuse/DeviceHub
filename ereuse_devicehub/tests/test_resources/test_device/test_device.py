@@ -10,10 +10,6 @@ from ereuse_devicehub.tests import TestStandard
 
 
 class TestDevice(TestStandard):
-    def setUp(self, settings_file=None, url_converters=None):
-        super().setUp(settings_file, url_converters)
-        self.place = self.post_fixture(self.PLACES, self.PLACES, 'place')
-
     def test_materializations_events(self):
         """
         Tests materializations related to events.
@@ -67,11 +63,11 @@ class TestDevice(TestStandard):
 
     def test_condition_price(self):
         """Tests executing r price using an example data."""
-        data = r('data.frame(Type ="Computer", Subtype = "Desktop", Condition.Score = "2.09", Condition = "Low")')
+        data = r('data.frame(Type ="Computer", Subtype = "Desktop", Condition.Score = 2.09, Condition = "Low")')
         param = ListVector({
             'sourceData': data,
-            'config': r.priceConfig,
-            'schema': r.priceSchema,
+            'config': r.devicePriceConfig,
+            'schema': r.devicePriceSchemas,
             'versionSchema': '1.0',
             'versionPrice': '1.0'
         })

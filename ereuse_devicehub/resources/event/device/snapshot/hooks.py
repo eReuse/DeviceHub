@@ -58,22 +58,26 @@ def _materialize_event_in_device(event, field_name):
     DeviceDomain.update_one_raw(event['device'], {'$push': {field_name: event['_id']}})
 
 
-def materialize_condition_and_price(snapshots: list):
-    """Materializes condition of devices after successful snapshot"""
+def compute_condition_price_and_materialize_in_device(snapshots: list):
+    """Computes condition and pricing and then saves it in snapshot and materializes in device."""
     for snapshot in snapshots:
         try:
-            # The use or RDeviceScore is experimental and may give errors
-            # In this case we will "only" loose the new condition fields
-            # So we log the error for further investigation and just continue the execution
-            snapshot['condition'] = app.score.compute(snapshot['device'], snapshot.get('condition', {}))
-            # snapshot['pricing'] = app.price.compute(g.dh_snapshot.device['_id'], snapshot['condition'])
-            DeviceEventDomain.update_one_raw(snapshot['_id'], {'$set': {'condition': snapshot['condition']}})
+            # condition and pricing may fail as they are executing external unstable libraries
+            # Pricing needs condition, so if condition fails there is no need to execute pricing
+            device = app.score.get_device(snapshot['device'], snapshot.get('condition', {}))
+            snapshot['condition'] = app.score.compute(device)
+            snapshot['pricing'] = app.price.compute(device)
+            q = {'$set': {'condition': snapshot['condition'], 'pricing': snapshot['pricing']}}
+            DeviceEventDomain.update_one_raw(snapshot['_id'], q)
         except ScorePriceNotSuitableError:
+            # Note that we silent some expected exceptions
             pass
         except (ScorePriceError, ScorePriceNotSuitableError) as e:
             app.logger.info(e)
-        if snapshot.get('condition', None):
-            DeviceDomain.update_one_raw(snapshot['device'], {'$set': {'condition': snapshot['condition']}})
+        # Materialize to device if needed
+        if 'condition' in snapshot or 'pricing' in snapshot:
+            q = {'$set': {'condition': snapshot.get('condition', {}), 'pricing': snapshot.get('pricing', {})}}
+            DeviceDomain.update_one_raw(snapshot['device'], q)
 
 
 def delete_events(_, snapshot: dict):

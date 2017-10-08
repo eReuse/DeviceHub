@@ -7,7 +7,9 @@ tests_require = [
     'assertpy'
 ]
 
+
 def install_r_packages():
+    """Installs required R packages"""
     from rpy2.robjects import StrVector, packages as rpackages
     # Install R packages
     # Adapted from https://rpy2.github.io/doc/v2.9.x/html/introduction.html#installing-packages
@@ -16,8 +18,8 @@ def install_r_packages():
         utils.chooseCRANmirror(ind=1)
         utils.install_packages(StrVector('devtools'), )
     r.library('devtools')
-    r.install_github('eReuse/Rdevicescore')
-    r.install_github('eReuse/Rdeviceprice')
+    r.install_github('eReuse/Rdevicescore', ref='1.0')
+    r.install_github('eReuse/Rdeviceprice', ref='1.0')
 
 
 class PostInstall(install):
@@ -104,5 +106,9 @@ setup(
         'Topic :: Office/Business',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content'
-    ]
+    ],
+    cmdclass={
+        'install': PostInstall,
+        'develop': PostInstallDevelop
+    }
 )

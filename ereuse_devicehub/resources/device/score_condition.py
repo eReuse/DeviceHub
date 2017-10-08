@@ -3,8 +3,9 @@ import itertools
 from collections import defaultdict
 from warnings import filterwarnings, resetwarnings
 
+from pydash import ceil
 from rpy2.rinterface import NA_Real, RRuntimeWarning
-from rpy2.robjects import DataFrame, ListVector, r
+from rpy2.robjects import DataFrame, ListVector, packages as rpackages, r
 
 from ereuse_devicehub.exceptions import StandardError
 from ereuse_devicehub.export.export import SpreadsheetTranslator
@@ -17,6 +18,17 @@ from ereuse_devicehub.validation.validation import DeviceHubValidator
 
 
 class ScorePriceBase:
+    """
+    Abstract class to compute device attributes, like score and pricing, that use R libraries for such purpose.
+
+    The way of executing this class is as follows:
+
+    1. Get a device with all the data needed by executing``get_device()``.
+    2. Then execute ``compute()`` to generate the score/price.
+
+    See an example in
+    :py:func:`ereuse_devicehub.resources.event.device.snapshot.hooks.compute_condition_price_and_materialize_in_device`.
+    """
     ROUND_DECIMALS = 2
 
     def __init__(self, app) -> None:
@@ -27,7 +39,13 @@ class ScorePriceBase:
             kwargs = {'lib_loc': app.config['R_PACKAGES_PATH']} if app.config['R_PACKAGES_PATH'] else {}
             r.library('Rdevicescore', **kwargs)
 
-    def compute(self, device_id: str, condition: dict) -> DataFrame:
+    @staticmethod
+    def get_device(device_id: str, condition: dict) -> dict:
+        """
+        Retrieves a device alongside its full components, part of their events and condition –everything needed
+        for ``compute`` to get the score or the price.
+        :return: The device.
+        """
         # We can't compute empty conditions or anything that is not a computer
         if not condition:
             raise ScorePriceNotSuitableError()
@@ -36,47 +54,65 @@ class ScorePriceBase:
             raise ScorePriceNotSuitableError()
         device['components'] = DeviceDomain.get_full_components(device['components'])
         device['condition'] = condition
+        return device
+
+    def compute(self, device: dict) -> DataFrame:
+        """Computes the score or condition. Subclass this method to perform something valuable."""
         keys, values = self.translator.translate([device])
-        data = {key.replace(' ', '.').replace('(', '.').replace(')', '.'): val for key, val in zip(keys, values)}
+        # R cannot parse parenthesis in fieldnames
+        data = {key.replace('(', '.').replace(')', '.'): val for key, val in zip(keys, values)}
         return DataFrame(data)
 
     @staticmethod
-    def _parse_response(data):
+    def _parse_response(data: DataFrame) -> dict:
+        """Parses the DataFrame returned from eReuse.org's R libraries to a dictionary."""
         return {name: data[i][0] for i, name in enumerate(data.names)}
 
-    def _validate(self, validator: DeviceHubValidator, condition: dict, device_id: str):
-        if not validator.validate(condition):
-            t = '{} wrong condition:\n'.format(self.__class__.__name__)
+    def _validate(self, validator: DeviceHubValidator, value: dict, device_id: str):
+        """
+        Validates the passed-in ``value`` against the validator ``validator``.
+        :raise ScorePriceError: If validation is wrong.
+        """
+        if not validator.validate(value):
+            t = '{} wrong condition or pricing:\n'.format(self.__class__.__name__)
             t += 'Device {} of {}\n'.format(device_id, AccountDomain.requested_database)
-            t += 'Condition is: {}'.format(condition)
+            t += 'Condition or pricing is: {}\n'.format(value)
+            t += 'Validation error is: {}'.format(validator.errors)
             raise ScorePriceError(t)
 
     @contextlib.contextmanager
     def filter_warnings(self):
+        """Filter warning coming from R. Use it in a ``with`` block."""
         filterwarnings('ignore', category=RRuntimeWarning)
         yield
         resetwarnings()
 
 
 class Score(ScorePriceBase):
+    """
+    Computes the Score of a device.
+
+    When calling ``compute``, this class sends the passed-in ``device`` to the Rdevicescore R package and returns
+    the ``condition`` representing the score.
+    """
+
     def __init__(self, app) -> None:
         super().__init__(app)
         with self.filter_warnings():
-            r('scoreConfig <- Rdevicescore::models')
-            r('scoreSchema <- Rdevicescore::schemas')
-            # This is the function we call
-            self.compute_score = r("""
-                    function (input){
-                        return (Rdevicescore::deviceScoreMain(input)) 
-                    }""")
-            self.validator = self.app.validator(condition_schema)
+            self.compute_score = rpackages.importr('Rdevicescore').deviceScoreMain
+            r('deviceScoreConfig <- Rdevicescore::models')
+            r('deviceScoreSchema <- Rdevicescore::schemas')
 
-    def compute(self, device_id: str, condition: dict) -> dict:
-        data = super().compute(device_id, condition)
+        # This is the function we call
+        self.validator = self.app.validator(condition_schema)
+
+    def compute(self, device) -> dict:
+        """Computes the score for the passed-in ``device``. This method mutates ``device.condition``."""
+        data = super().compute(device)
         param = ListVector({
             'sourceData': data,
-            'config': r.scoreConfig,
-            'schema': r.scoreSchema,
+            'config': r.deviceScoreConfig,
+            'schema': r.deviceScoreSchema,
             'versionSchema': '1.0',
             'versionScore': '1.0',
             'bUpgrade': False,
@@ -85,7 +121,7 @@ class Score(ScorePriceBase):
         result, status, status_description = tuple(self.compute_score(param))
         status = int(status[0])
         if status != 0:
-            message = '{} couldn\'t be computed for device {}, status {}'.format(self.__class__.__name__, device_id,
+            message = '{} couldn\'t be computed for device {}, status {}'.format(self.__class__.__name__, device['_id'],
                                                                                  status_description)
             raise ScorePriceError(message)
 
@@ -94,6 +130,7 @@ class Score(ScorePriceBase):
         score, ram_score, processor_score, drive_score, appearance_score, functionality_score = list(
             map(lambda x: None if result[x] is NA_Real else round(result[x], self.ROUND_DECIMALS), FIELDS)
         )
+        condition = device['condition']
         condition['general'] = {
             'score': score,
             'range': result['Range'],
@@ -110,33 +147,32 @@ class Score(ScorePriceBase):
         condition.setdefault('appearance', {})['score'] = appearance_score
         condition.setdefault('functionality', {})['score'] = functionality_score
         # Validate that the returned data complies with the schema
-        self._validate(self.validator, condition, device_id)
-        return condition
+        self._validate(self.validator, condition, device['_id'])
+        return device['condition']
 
 
 class Price(ScorePriceBase):
+    """As Score, but computing the Price."""
+
     def __init__(self, app) -> None:
         super().__init__(app)
         with self.filter_warnings():
-            r('priceConfig <- Rdeviceprice::config')
-            r('priceSchema <- Rdeviceprice::schemas')
-            # This is the function we call
-            self.compute_price = r("""
-                function (input){
-                    return (Rdeviceprice::devicePriceMain(input))
-                }""")
-            self.validator = self.app.validator(pricing)
+            self.compute_price = rpackages.importr('Rdeviceprice').devicePriceMain
+            r('devicePriceConfig <- Rdeviceprice::config')
+            r('devicePriceSchemas <- Rdeviceprice::schemas')
+        self.validator = self.app.validator(pricing)
 
     FIELDS = ('per', 'amount'), ('standard', '2yearsGuarantee'), ('refurbisher', 'retailer', 'platform')
     VAL = {'per': 'percentage', 'amount': 'amount'}
     SERVICE = {'2yearsGuarantee': 'guarantee', 'standard': 'standard'}
 
-    def compute(self, device_id: str, condition: dict):
-        data = super().compute(device_id, condition)
+    def compute(self, device: dict):
+        """Computes the price of the passed-in ``device``. This method mutates ``device.pricing``."""
+        data = super().compute(device)
         param = ListVector({
             'sourceData': data,
-            'config': r.priceConfig,
-            'schema': r.priceSchema,
+            'config': r.devicePriceConfig,
+            'schema': r.devicePriceSchemas,
             'versionSchema': '1.0',
             'versionPrice': '1.0'
         })
@@ -146,9 +182,11 @@ class Price(ScorePriceBase):
         for val, service, role in itertools.product(*self.FIELDS):
             x = result['{}.{}.{}'.format(val, service, role)]
             if x is not NA_Real:
-                d[role][self.SERVICE[service]][self.VAL[val]] = float(x)
-        d['price'] = float(result['Price'])
-        self._validate(self.validator, d, device_id)
+                d[role][self.SERVICE[service]][self.VAL[val]] = round(x, self.ROUND_DECIMALS)
+        # Let's remove some differences in rounding above by ceiling the final price
+        d['total'] = ceil(result['Price'], self.ROUND_DECIMALS)
+        self._validate(self.validator, d, device['_id'])
+        device['pricing'] = d
         return d
 
 

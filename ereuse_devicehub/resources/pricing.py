@@ -28,5 +28,10 @@ pricing = {
     'platform': {
         'type': 'dict',
         'schema': _service
+    },
+    'total': {
+        'type': 'number',
+        'min': 0,
+        'max': 10000
     }
 }

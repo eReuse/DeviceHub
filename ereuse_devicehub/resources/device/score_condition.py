@@ -36,6 +36,11 @@ class ScorePriceBase:
         self.translator = SpreadsheetTranslator(brief=False)
         self.validator = NotImplementedError()
         self.library_kwargs = {'lib_loc': app.config['R_PACKAGES_PATH']} if app.config['R_PACKAGES_PATH'] else {}
+        # If we use R_PACKAGES_PATH we need to load all dependencies one by one, otherwise
+        # R does it automatically
+        with self.filter_warnings():
+            for library in 'stringr', 'data.table', 'dplyr':
+                r.library(library, **self.library_kwargs)
 
     @staticmethod
     def get_device(device_id: str, condition: dict) -> dict:

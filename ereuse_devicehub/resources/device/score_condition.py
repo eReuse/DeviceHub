@@ -3,7 +3,7 @@ import itertools
 from collections import defaultdict
 from warnings import filterwarnings, resetwarnings
 
-from pydash import ceil
+from pydash import ceil, floor
 from rpy2.rinterface import NA_Real, RRuntimeWarning
 from rpy2.robjects import DataFrame, ListVector, packages as rpackages, r
 
@@ -19,7 +19,7 @@ from ereuse_devicehub.validation.validation import DeviceHubValidator
 
 class ScorePriceBase:
     """
-    Abstract class to compute device attributes, like score and pricing, that use R libraries for such purpose.
+    Abstract class `to compute device attributes, like score and pricing, that use R libraries for such purpose.
 
     The way of executing this class is as follows:
 
@@ -187,9 +187,12 @@ class Price(ScorePriceBase):
         for val, service, role in itertools.product(*self.FIELDS):
             x = result['{}.{}.{}'.format(val, service, role)]
             if x is not NA_Real:
-                d[role][self.SERVICE[service]][self.VAL[val]] = round(x, self.ROUND_DECIMALS)
+                d[role][self.SERVICE[service]][self.VAL[val]] = floor(x, self.ROUND_DECIMALS)
         # Let's remove some differences in rounding above by ceiling the final price
-        d['total'] = ceil(result['Price'], self.ROUND_DECIMALS)
+        if result['Price'] is not NA_Real:
+            d.setdefault('total', {})['standard'] = ceil(result['Price'], self.ROUND_DECIMALS)
+        if result['Price.2yearsGuarantee'] is not NA_Real:
+            d.setdefault('total', {})['warranty2'] = ceil(result['Price.2yearsGuarantee'], self.ROUND_DECIMALS)
         self._validate(self.validator, d, device['_id'])
         device['pricing'] = d
         return d

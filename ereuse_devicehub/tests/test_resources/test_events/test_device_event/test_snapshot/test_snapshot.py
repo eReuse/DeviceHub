@@ -765,9 +765,10 @@ class TestSnapshot(TestEvent, TestGroupBase):
             'functionality': {'general': 'B', 'score': -0.5}
         }
         pricing = {
-            'total': 41.8, 'refurbisher': {'standard': {'percentage': 0.5, 'amount': 21.0}},
-            'retailer': {'standard': {'percentage': 0.19, 'amount': 7.89}},
-            'platform': {'standard': {'percentage': 0.31, 'amount': 12.91}}
+            'total': {'standard': 41.8},
+            'refurbisher': {'standard': {'percentage': 0.5, 'amount': 21.0}},
+            'retailer': {'standard': {'percentage': 0.18, 'amount': 7.88}},
+            'platform': {'standard': {'percentage': 0.3, 'amount': 12.9}}
         }
         snapshot = self.post_fixture(self.SNAPSHOT, '{}/{}'.format(self.DEVICE_EVENT, self.SNAPSHOT), '9')
         device = self.get_200(self.DEVICES, item=snapshot['device'])
@@ -786,19 +787,21 @@ class TestSnapshot(TestEvent, TestGroupBase):
             'components': {'processors': 2.44, 'ram': 4.07, 'hardDrives': 4.1}
         }
         pricing = {
+            'total': {
+                'warranty2': 105.01, 'standard': 75.0
+            },
             'retailer': {
-                'standard': {'amount': 26.94, 'percentage': 0.36},
-                'warranty2': {'amount': 37.71, 'percentage': 0.5}
+                'warranty2': {'percentage': 0.5, 'amount': 37.71},
+                'standard': {'percentage': 0.35, 'amount': 26.93}
             },
             'refurbisher': {
-                'standard': {'amount': 28.88, 'percentage': 0.39},
-                'warranty2': {'amount': 40.43, 'percentage': 0.54}
+                'warranty2': {'percentage': 0.53, 'amount': 40.42},
+                'standard': {'percentage': 0.38, 'amount': 28.87}
             },
             'platform': {
-                'standard': {'amount': 19.19, 'percentage': 0.26},
-                'warranty2': {'amount': 26.86, 'percentage': 0.36}
-            },
-            'total': 75.0
+                'warranty2': {'percentage': 0.35, 'amount': 26.86},
+                'standard': {'percentage': 0.25, 'amount': 19.18}
+            }
         }
         snapshot = self.get_fixture(self.SNAPSHOT, 'high-score')
         snapshot = self.post_201(self.SNAPSHOT_URL, data=snapshot, token=self.token)

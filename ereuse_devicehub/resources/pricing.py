@@ -36,8 +36,18 @@ pricing = {
         'schema': _service
     },
     'total': {
-        'type': 'number',
-        'min': 0,
-        'max': 10000
+        'type': 'dict',
+        'schema': {
+            'standard': {
+                'type': 'number',
+                'min': 0,
+                'max': 10000
+            },
+            'warranty2': {
+                'type': 'number',
+                'min': 0,
+                'max': 10000
+            }
+        }
     }
 }

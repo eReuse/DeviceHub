@@ -15,10 +15,7 @@ def share_group(app: DeviceHub, email: str, password: str, group_type: str, rece
     Sets the permission for the user in the group, known as sharing. If the user had an existing permission,
     this is replaced.
 
-    To use this method, you will need to create a file:
-
-        from app import app
-        from ereuse_devicehub
+    If you want to execute it through the console, see the next function ``main()``.
 
     :param email: Email of the person sharing the group.
     :param password: Password of the person sharing the group.
@@ -68,7 +65,8 @@ def main(app):
     parser.add_argument('-i', '--group_id', help='The group id.')
     parser.add_argument('-n', '--group_name', help='The group name. If set, this is used over the id. '
                                                    'Note that names are not unique, use the id when possible.')
-    parser.add_argument('-p', '--perm', help='The permission the user will have. READ by default.')
+    # We need to set default or this will be ``None``
+    parser.add_argument('-p', '--perm', help='The permission the user will have. READ by default.', default=READ)
     args = vars(parser.parse_args())
     response = share_group(app, **args)
     print('Response:')

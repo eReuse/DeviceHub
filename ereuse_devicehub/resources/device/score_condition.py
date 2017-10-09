@@ -169,7 +169,7 @@ class Price(ScorePriceBase):
 
     FIELDS = ('per', 'amount'), ('standard', '2yearsGuarantee'), ('refurbisher', 'retailer', 'platform')
     VAL = {'per': 'percentage', 'amount': 'amount'}
-    SERVICE = {'2yearsGuarantee': 'guarantee', 'standard': 'standard'}
+    SERVICE = {'2yearsGuarantee': 'warranty2', 'standard': 'standard'}
 
     def compute(self, device: dict):
         """Computes the price of the passed-in ``device``. This method mutates ``device.pricing``."""

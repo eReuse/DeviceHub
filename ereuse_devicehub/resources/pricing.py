@@ -1,18 +1,24 @@
+_type = {
+    'percentage': {
+        'type': 'number',
+        'min': 0,
+        'max': 1
+    },
+    'amount': {
+        'type': 'number',
+        'min': 0,
+        'max': 10000  # Sanity check
+    }
+}
+
 _service = {
     'standard': {
         'type': 'dict',
-        'schema': {
-            'percentage': {
-                'type': 'number',
-                'min': 0,
-                'max': 1
-            },
-            'amount': {
-                'type': 'number',
-                'min': 0,
-                'max': 10000  # Sanity check
-            }
-        }
+        'schema': _type
+    },
+    'warranty2': {
+        'type': 'dict',
+        'schema': _type
     }
 }
 

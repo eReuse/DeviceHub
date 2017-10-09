@@ -776,6 +776,37 @@ class TestSnapshot(TestEvent, TestGroupBase):
         # And the same for the pricing
         assert_that(snapshot['pricing']).is_equal_to(device['pricing']).is_equal_to(pricing)
 
+    def test_compute_condition_score_higher(self):
+        """Higher """
+        condition = {
+            'general': {'range': 'Medium', 'score': 3.75},
+            'appearance': {'general': 'A', 'score': 0.3},
+            'scoringSoftware': {'version': '1.0', 'label': 'ereuse.org'},
+            'functionality': {'general': 'A', 'score': 0.4},
+            'components': {'processors': 2.44, 'ram': 4.07, 'hardDrives': 4.1}
+        }
+        pricing = {
+            'retailer': {
+                'standard': {'amount': 26.94, 'percentage': 0.36},
+                'warranty2': {'amount': 37.71, 'percentage': 0.5}
+            },
+            'refurbisher': {
+                'standard': {'amount': 28.88, 'percentage': 0.39},
+                'warranty2': {'amount': 40.43, 'percentage': 0.54}
+            },
+            'platform': {
+                'standard': {'amount': 19.19, 'percentage': 0.26},
+                'warranty2': {'amount': 26.86, 'percentage': 0.36}
+            },
+            'total': 75.0
+        }
+        snapshot = self.get_fixture(self.SNAPSHOT, 'high-score')
+        snapshot = self.post_201(self.SNAPSHOT_URL, data=snapshot, token=self.token)
+        device = self.get_200(self.DEVICES, item=snapshot['device'])
+        # Snapshot has the condition and the device has the last condition performed (materialized)
+        assert_that(snapshot['condition']).is_equal_to(device['condition']).is_equal_to(condition)
+        assert_that(snapshot['pricing']).is_equal_to(device['pricing']).is_equal_to(pricing)
+
     def test_snapshot_9_b(self):
         snapshot = self.get_fixture(self.SNAPSHOT, '9.1')
         self.post(self.SNAPSHOT_URL, data=snapshot, token=self.token)

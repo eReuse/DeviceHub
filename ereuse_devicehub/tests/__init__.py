@@ -226,7 +226,6 @@ class TestBase(Client):
         }
         settings.MAIL_DEFAULT_SENDER = 'foo@ereuse.org'
         settings.MAIL_SUPPRESS_SEND = True
-        settings.R_PACKAGES_PATH = '/Library/Frameworks/R.framework/Versions/3.3/Resources/library'
 
     def prepare(self):
         super().prepare()

@@ -19,7 +19,8 @@ class Update:
                 print('Starting update process for database {}'.format(database))
                 app.preprocess_request()
                 app.auth.set_database_from_url()
-                AccountDomain.actual
+                if headers and 'Authorization' in headers:
+                    AccountDomain.actual
                 self.execute(database)
                 if update_indexes:
                     self._update_indexes(update_default_db_ones=False)

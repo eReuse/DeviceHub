@@ -15,7 +15,7 @@ def install_r_packages():
     if not rpackages.isinstalled('devtools'):
         utils = rpackages.importr('utils')
         utils.chooseCRANmirror(ind=1)
-        utils.install_packages(StrVector('devtools'), )
+        utils.install_packages('devtools')
     r.library('devtools')
     r.install_github('eReuse/Rdevicescore', ref='1.0')
     r.install_github('eReuse/Rdeviceprice', ref='1.0.1')

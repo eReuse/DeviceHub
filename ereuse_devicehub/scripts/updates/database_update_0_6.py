@@ -13,6 +13,12 @@ from ereuse_devicehub.scripts.updates.update import Update
 from ereuse_devicehub.security.perms import ADMIN
 
 
+class DatabaseUpdate06:
+    def __init__(self, app, headers=None) -> None:
+        DatabaseUpdate06A(app, headers)
+        DatabaseUpdate06B(app, headers)
+
+
 class DatabaseUpdate06A(Update):
     ROLE_DICT = {
         'basic': Role.USER,
@@ -38,7 +44,7 @@ class DatabaseUpdate06A(Update):
 
 
 # todo create a new_app (first time execution script) to create the indexes
-class DatabaseUpdate06(Update):
+class DatabaseUpdate06B(Update):
     """
         Updates the database to the version 0.6 of DeviceHub.
 

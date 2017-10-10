@@ -1,4 +1,3 @@
-from rpy2.robjects import r
 from setuptools import find_packages, setup
 from setuptools.command.develop import develop
 from setuptools.command.install import install
@@ -10,7 +9,7 @@ tests_require = [
 
 def install_r_packages():
     """Installs required R packages"""
-    from rpy2.robjects import StrVector, packages as rpackages
+    from rpy2.robjects import StrVector, packages as rpackages, r
     # Install R packages
     # Adapted from https://rpy2.github.io/doc/v2.9.x/html/introduction.html#installing-packages
     if not rpackages.isinstalled('devtools'):

@@ -19,7 +19,7 @@ def install_r_packages():
         utils.install_packages(StrVector('devtools'), )
     r.library('devtools')
     r.install_github('eReuse/Rdevicescore', ref='1.0')
-    r.install_github('eReuse/Rdeviceprice', ref='1.0')
+    r.install_github('eReuse/Rdeviceprice', ref='1.0.1')
 
 
 class PostInstall(install):

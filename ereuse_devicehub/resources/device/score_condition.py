@@ -105,6 +105,8 @@ class Score(ScorePriceBase):
             r.library('Rdevicescore', **self.library_kwargs)
             self.compute_score = rpackages.importr('Rdevicescore').deviceScoreMain
             r('deviceScoreConfig <- Rdevicescore::models')
+            # todo to get the range values
+            # [a for a in r.deviceScoreConfig[4]][[a for a in r.deviceScoreConfig[3]].index('range.medium')]
             r('deviceScoreSchema <- Rdevicescore::schemas')
 
         # This is the function we call

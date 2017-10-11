@@ -9,6 +9,7 @@ from ereuse_devicehub.exceptions import SchemaError, StandardError
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
+from ereuse_devicehub.resources.event.device.migrate.settings import Migrate
 from ereuse_devicehub.resources.event.device.settings import DeviceEvent
 from ereuse_devicehub.resources.group.domain import GroupDomain
 from ereuse_devicehub.resources.schema import RDFS
@@ -162,11 +163,26 @@ def convert_dh_operators(_, request: Request, __):
     if 'where' in request.args:
         request.args = request.args.copy()
         where = json.loads(request.args['where'])
+        _or = where.setdefault('$or', [])
         if 'dh$eventOfDevice' in where:
             val = where.pop('dh$eventOfDevice')
-            where['$or'] = where.setdefault('$or', []) + [
+            _or.extend([
                 {'device': val},
                 {'devices': {'$in': [val]}},
                 {'components': {'$in': [val]}}
-            ]
+            ])
+        if 'dh$active' in where:
+            # Find devices that are not recycled or disposed or have been migrated to another db
+            if where.pop('dh$active'):
+                _or.extend([
+                    {'events.@type': {'$nin': ['devices:Recycle', 'devices:Dispose', Migrate.type_name]}},
+                    {'events': {'$not': {'$elemMatch': {'@type': Migrate.type_name, 'to': {'$exists': True}}}}}
+                ])
+            else:
+                _or.extend([
+                    {'events.@type': {'$in': ['devices:Recycle', 'devices:Dispose']}},
+                    {'events': {'$elemMatch': {'@type': Migrate.type_name, 'to': {'$exists': True}}}}
+                ])
+        if not where['$or']:  # If we did not add anything, just delete it or mongo will complain
+            del where['$or']
         request.args['where'] = json.dumps(where)

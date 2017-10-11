@@ -9,6 +9,7 @@ from eve.methods.common import parse
 from eve.tests import TestMinimal
 from flask import json
 from flask_pymongo import MongoClient
+from os import path
 from simplejson.scanner import JSONDecodeError
 
 from ereuse_devicehub import utils
@@ -202,7 +203,8 @@ class TestBase(Client):
     def setUp(self, settings_file=None, url_converters=None):
         from ereuse_devicehub import default_settings
         self.set_settings(default_settings)
-        self.app = DeviceHub(settings=vars(default_settings))
+        directory = path.abspath(path.dirname(__file__))
+        self.app = DeviceHub(settings=vars(default_settings), static_folder=path.join(directory, 'static'))
         self.prepare()
 
     @staticmethod

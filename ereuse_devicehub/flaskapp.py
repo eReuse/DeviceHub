@@ -5,10 +5,12 @@ import inspect
 import locale
 from contextlib import contextmanager, suppress
 from datetime import timedelta
+from typing import Type
 
 import flask_cors
 import flask_excel
 import gnupg
+from ereuse_devicehub.desktop_app.desktop_app import desktop_app, DesktopApp
 from eve import Eve
 from eve.auth import requires_auth
 from eve.endpoints import media_endpoint, schema_collection_endpoint
@@ -52,7 +54,7 @@ class DeviceHub(Eve):
 
     def __init__(self, import_name=__package__, settings='settings.py', validator=DeviceHubValidator, data=DataLayer,
                  auth=Auth, redis=None, url_converters=None, json_encoder=None, media=GridFSMediaStorage,
-                 url_parse=UrlParse, mongo_encoder=MongoEncoder, score=Score, price=Price, **kwargs):
+                 url_parse=UrlParse, mongo_encoder=MongoEncoder, score=Score, price=Price, desktop_app=DesktopApp, **kwargs):
         kwargs.setdefault('static_url_path', '/static')
         super().__init__(import_name, settings, validator, data, auth, redis, url_converters, json_encoder, media,
                          **kwargs)
@@ -83,6 +85,7 @@ class DeviceHub(Eve):
         self.before_request(self.redirect_on_browser)
         self.register_blueprint(documents)
         self.register_blueprint(mails)
+        self.desktop_app = desktop_app(self)
         self.mail = Mail(self)
         self._load_jinja_stuff()
         if self.config.get('GRD', True):
@@ -95,7 +98,7 @@ class DeviceHub(Eve):
         self.score = score(self)
         self.price = price(self)
 
-    def register_resource(self, resource: str, settings: ResourceSettings):
+    def register_resource(self, resource: str, settings: Type[ResourceSettings]):
         """
             Recursively registers a resource and it's sub-resources.
         """
@@ -150,10 +153,16 @@ class DeviceHub(Eve):
         def _media_endpoint(db, _id):
             return media_endpoint(_id)
 
+        @header_cache(expires=timedelta(weeks=1).total_seconds())
+        def _media_endpoint_open(_id):
+            return media_endpoint(_id)
+
         endpoint = self.config['MEDIA_ENDPOINT']
         if endpoint:
             url = '{}/<db>/{}/<{}:_id>'.format(self.api_prefix, endpoint, self.config['MEDIA_URL'])
             self.add_url_rule(url, 'media', view_func=_media_endpoint)
+            url = '{}/{}/<{}:_id>'.format(self.api_prefix, endpoint, self.config['MEDIA_URL'])
+            self.add_url_rule(url, 'media-open', view_func=_media_endpoint)
 
     def validate_roles(self, directive, candidate, resource):
         """

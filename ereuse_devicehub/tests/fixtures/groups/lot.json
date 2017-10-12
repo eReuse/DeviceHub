@@ -1,6 +1,7 @@
 {
   "@type": "Lot",
   "label": "lot",
+  "date": "2017-01-01",
   "children": {
     "devices": []
   }

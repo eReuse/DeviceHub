@@ -11,6 +11,11 @@ class Lot(Abstract):
         'type': 'dict',
         'schema': Policies()
     }
+    date = {
+        'type': 'datetime',
+        'sink': -2,
+        'description': 'The date of creation or assignment for this lot, if any. We record too when you create the lot.'
+    }
     label = copy.copy(Abstract.label)
     label['required'] = True
     ancestors = copy.deepcopy(Abstract.ancestors)

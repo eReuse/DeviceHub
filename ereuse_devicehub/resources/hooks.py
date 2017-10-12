@@ -11,9 +11,15 @@ from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.migrate.settings import Migrate
 from ereuse_devicehub.resources.event.device.settings import DeviceEvent
+from ereuse_devicehub.resources.group.abstract.lot.incoming_lot.settings import IncomingLot
+from ereuse_devicehub.resources.group.abstract.lot.outgoing_lot.settings import OutgoingLot
+from ereuse_devicehub.resources.group.abstract.lot.settings import Lot
 from ereuse_devicehub.resources.group.domain import GroupDomain
+from ereuse_devicehub.resources.group.physical.package.settings import Package
+from ereuse_devicehub.resources.group.physical.pallet.settings import Pallet
+from ereuse_devicehub.resources.group.physical.place.settings import Place
 from ereuse_devicehub.resources.schema import RDFS
-from ereuse_devicehub.utils import get_header_link
+from ereuse_devicehub.utils import Naming, get_header_link
 
 
 def set_response_headers_and_cache(resource: str, _, payload: Response):
@@ -151,6 +157,14 @@ class TypeIsInvalid(SchemaError):
     message = '@type is missing or misspelled.'
 
 
+def _get_is_ancestor(resource_type: str, _id: str):
+    resource_name = Naming.resource(resource_type)
+    return [
+        {'ancestors': {'$elemMatch': {'@type': resource_type, '_id': _id}}},
+        {'ancestors': {'$elemMatch': {resource_name: {'$elemMatch': {'$in': [_id]}}}}}
+    ]
+
+
 def convert_dh_operators(_, request: Request, __):
     """
     Devicehub defines mongo-like operators that simplify writing queries when getting resources.
@@ -163,26 +177,46 @@ def convert_dh_operators(_, request: Request, __):
     if 'where' in request.args:
         request.args = request.args.copy()
         where = json.loads(request.args['where'])
-        _or = where.setdefault('$or', [])
+        _and = where.setdefault('$and', [])
         if 'dh$eventOfDevice' in where:
             val = where.pop('dh$eventOfDevice')
-            _or.extend([
-                {'device': val},
-                {'devices': {'$in': [val]}},
-                {'components': {'$in': [val]}}
-            ])
+            _and.append({
+                '$or': [
+                    {'device': val},
+                    {'devices': {'$in': [val]}},
+                    {'components': {'$in': [val]}}
+                ]
+            })
         if 'dh$active' in where:
             # Find devices that are not recycled or disposed or have been migrated to another db
             if where.pop('dh$active'):
-                _or.extend([
-                    {'events.@type': {'$nin': ['devices:Recycle', 'devices:Dispose', Migrate.type_name]}},
-                    {'events': {'$not': {'$elemMatch': {'@type': Migrate.type_name, 'to': {'$exists': True}}}}}
-                ])
+                _and.append({
+                    '$or': [
+                        {'events.@type': {'$nin': ['devices:Recycle', 'devices:Dispose', Migrate.type_name]}},
+                        {'events': {'$not': {'$elemMatch': {'@type': Migrate.type_name, 'to': {'$exists': True}}}}}
+                    ]
+                })
             else:
-                _or.extend([
-                    {'events.@type': {'$in': ['devices:Recycle', 'devices:Dispose']}},
-                    {'events': {'$elemMatch': {'@type': Migrate.type_name, 'to': {'$exists': True}}}}
-                ])
-        if not where['$or']:  # If we did not add anything, just delete it or mongo will complain
-            del where['$or']
+                _and.append({
+                    '$or': [
+                        {'events.@type': {'$in': ['devices:Recycle', 'devices:Dispose']}},
+                        {'events': {'$elemMatch': {'@type': Migrate.type_name, 'to': {'$exists': True}}}}
+                    ]
+                })
+        if 'dh$insideLot' in where:
+            lot_id = where.pop('dh$insideLot')
+            _and.append({
+                '$or': _get_is_ancestor(Lot.type_name, lot_id) + [
+                    {'ancestors': {'$elemMatch': {'@type': IncomingLot.type_name, '_id': lot_id}}},
+                    {'ancestors': {'$elemMatch': {'@type': OutgoingLot.type_name, '_id': lot_id}}}
+                ]
+            })
+        if 'dh$insidePackage' in where:
+            _and.append({'$or': _get_is_ancestor(Package.type_name, where.pop('dh$insidePackage'))})
+        if 'dh$insidePallet' in where:
+            _and.append({'$or': _get_is_ancestor(Pallet.type_name, where.pop('dh$insidePallet'))})
+        if 'dh$insidePlace' in where:
+            _and.append({'$or': _get_is_ancestor(Place.type_name, where.pop('dh$insidePlace'))})
+        if not where['$and']:  # If we did not add anything, just delete it or mongo will complain
+            del where['$and']
         request.args['where'] = json.dumps(where)

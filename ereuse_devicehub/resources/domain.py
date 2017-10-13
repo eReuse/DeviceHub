@@ -18,7 +18,7 @@ class Domain:
 
     @classmethod
     @mongo_encode('id_or_filter')
-    def get_one(cls, id_or_filter: dict or ObjectId or str):
+    def get_one(cls, id_or_filter: dict or ObjectId or str) -> dict:
         """
         Obtains a resource.
         :param id_or_filter: An identifier or the filter in Mongo to obtain the resource.

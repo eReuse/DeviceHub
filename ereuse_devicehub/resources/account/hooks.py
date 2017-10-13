@@ -71,6 +71,16 @@ def add_or_get_inactive_account_snapshot(events: list):
         _add_or_get_inactive_account_id(event, 'from')
 
 
+def add_or_get_inactive_account_reserve(events: list):
+    for event in events:
+        _add_or_get_inactive_account_id(event, 'for')
+
+
+def add_or_get_inactive_account_sell(events: list):
+    for event in events:
+        _add_or_get_inactive_account_id(event, 'to')
+
+
 def _add_or_get_inactive_account_id(event, field_name):
     """
     We need to execute after insert and insert_resource.

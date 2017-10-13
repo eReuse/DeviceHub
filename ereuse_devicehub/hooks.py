@@ -148,7 +148,9 @@ def hooks(app):
     app.on_replaced += add_group_change_to_log
 
     from ereuse_devicehub.resources.event.device.reserve.hooks import notify, set_for_and_notify
+    from ereuse_devicehub.resources.account.hooks import add_or_get_inactive_account_reserve
     app.on_insert_devices_reserve += set_for_and_notify
+    app.on_inserted_devices_reserve += add_or_get_inactive_account_reserve
     app.on_inserted_devices_reserve += notify
 
     from ereuse_devicehub.resources.event.device.cancel_reservation.hooks import set_for_and_notify, \
@@ -157,5 +159,7 @@ def hooks(app):
     setattr(app, 'on_inserted_devices_cancel-reservation', notify_and_materialize)  # how to do iadd with events?
 
     from ereuse_devicehub.resources.event.device.sell.hooks import notify, materialize_sell_in_reserve
+    from ereuse_devicehub.resources.account.hooks import add_or_get_inactive_account_sell
+    app.on_inserted_devices_sell += add_or_get_inactive_account_sell
     app.on_inserted_devices_sell += notify
     app.on_inserted_devices_sell += materialize_sell_in_reserve

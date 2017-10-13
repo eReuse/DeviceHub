@@ -35,7 +35,8 @@ def notify(cancel_reservations: List[dict]):
         'cancel_reservation_url': url_for_resource(CancelReservation.resource_name, cancel_reservation['_id']),
         'for': AccountDomain.get_one(cancel_reservation['for'])
     }
-    msgs.append(create_email('mails/cancel_reserve_for.html', context['for'], **context))
+    if context['for']['active']:
+        msgs.append(create_email('mails/cancel_reserve_for.html', context['for'], **context))
     for recipient in AccountDomain.get_in('_id', cancel_reservation['notify']):
         msgs.append(create_email('mails/cancel_reserve_notify.html', recipient, **context))
     # We send all emails with the same connection (+ speed)

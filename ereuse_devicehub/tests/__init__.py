@@ -257,7 +257,8 @@ class TestBase(Client):
                 'databases': {db: ADMIN for db in self.app.config['DATABASES']},
                 'defaultDatabase': self.app.config['DATABASES'][0],
                 '@type': 'Account',
-                'shared': []
+                'shared': [],
+                'active': True
             }
         )
         self.account = self.db.accounts.find_one({'email': 'a@a.a'})
@@ -272,7 +273,8 @@ class TestBase(Client):
                 '@type': 'Account',
                 'email': email,
                 'password': AccountDomain.encrypt_password(password),
-                'shared': []
+                'shared': [],
+                'active': True
             }
         )
 

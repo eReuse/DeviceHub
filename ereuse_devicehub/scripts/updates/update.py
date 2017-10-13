@@ -1,3 +1,4 @@
+from ereuse_devicehub import DeviceHub
 from ereuse_devicehub.resources.account.domain import AccountDomain
 
 
@@ -6,7 +7,7 @@ class Update:
         Abstract class to update the database.
     """
 
-    def __init__(self, app, headers=None, update_indexes=False):
+    def __init__(self, app: DeviceHub, headers=None, update_indexes=False):
         """
         Updates the app.
         :param update_indexes: If true, it will drop all indexes and re-add them from each ResourceSettings.

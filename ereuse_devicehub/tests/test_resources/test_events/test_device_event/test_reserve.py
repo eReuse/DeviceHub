@@ -1,7 +1,10 @@
+from json import dumps
+
 from assertpy import assert_that
 from passlib.handlers.sha2_crypt import sha256_crypt
 
 from ereuse_devicehub.resources.account.role import Role
+from ereuse_devicehub.resources.event.device.reserve.settings import Reserve
 from ereuse_devicehub.security.perms import ACCESS, READ
 from ereuse_devicehub.tests.test_resources.test_events.test_device_event import TestDeviceEvent
 
@@ -17,7 +20,8 @@ class TestReserve(TestDeviceEvent):
                 'token': 'TOKENB',
                 'databases': {self.app.config['DATABASES'][1]: ACCESS},
                 'defaultDatabase': self.app.config['DATABASES'][1],
-                '@type': 'Account'
+                '@type': 'Account',
+                'active': True
             }
         )
         self.account2 = self.login('b@b.b', '1234')
@@ -48,3 +52,17 @@ class TestReserve(TestDeviceEvent):
         assert_that(reserve).has_devices(devices_to_reserve)
         assert_that(reserve).has_for(self.account2['_id'])
         assert_that(reserve).has_notify([str(self.account['_id'])])
+
+    def test_reserve_new_user(self):
+        """Tests reserving where its 'to' is a new user. A difference is, for example, that no email is sent."""
+        reserve = {'@type': Reserve.type_name, 'devices': self.devices_id, 'for': {'email': 'foo@bar.com'}}
+        with self.app.mail.record_messages() as outbox:
+            reserve = self.post_201(self.DEVICE_EVENT_RESERVE, reserve)
+            account = self.get_200(self.ACCOUNTS, params={'where': dumps({'email': 'foo@bar.com'})})['_items'][0]
+            assert_that(reserve).has_for(account['_id'])
+            # The new created account is not active so no e-mail is sent to it
+            assert_that(account['active']).is_false()
+            assert_that(reserve).has_notify([str(self.account['_id'])])
+            assert_that(outbox).is_length(1)
+            assert_that(outbox[0]).has_recipients(['a@a.a'])
+

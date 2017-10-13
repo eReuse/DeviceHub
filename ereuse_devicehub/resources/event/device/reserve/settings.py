@@ -1,3 +1,4 @@
+from ereuse_devicehub.resources.account.settings import unregistered_user_doc, unregistered_user
 from ereuse_devicehub.resources.event.device.settings import EventWithDevices, \
     EventSubSettingsMultipleDevices, materialized_components
 
@@ -8,14 +9,17 @@ class Reserve(EventWithDevices):
         'type': 'datetime'
     }
     _for = {
-        'type': 'objectid',
+        'type': ['objectid', 'dict', 'string'],  # We should not add string but it does not work otherwise...
         'data_relation': {
             'resource': 'accounts',
+            'field': '_id',
             'embeddable': True,
-            'field': '_id'
         },
+        'schema': unregistered_user,
+        'get_from_data_relation_or_create': 'email',
+        'sink': 2,
         'description': 'Who are you reserving for? If you leave it blank, you will reserve it for yourself.'
-        # todo set permissions for only owners setting this field
+        # todo set permissions for only owners setting this field (for now a hook overrides the value)
     }
     notify = {
         'type': 'list',

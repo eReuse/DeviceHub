@@ -2,6 +2,7 @@ import json
 from io import BytesIO
 
 from assertpy import assert_that
+from ereuse_devicehub.resources.event.device.sell.settings import Sell
 from passlib.handlers.sha2_crypt import sha256_crypt
 from pydash import map_values
 
@@ -21,7 +22,8 @@ class TestSell(TestDeviceEvent):
                 'token': 'TOKENB',
                 'databases': {self.app.config['DATABASES'][1]: ACCESS},
                 'defaultDatabase': self.app.config['DATABASES'][1],
-                '@type': 'Account'
+                '@type': 'Account',
+                'active': True
             }
         )
         self.account2 = self.login('b@b.b', '1234')
@@ -68,3 +70,15 @@ class TestSell(TestDeviceEvent):
             # We check that reserve has 'sell' materialized
             reserve = self.get_200(self.EVENTS, item=reserve['_id'])
             assert_that(reserve).has_sell(sell['_id'])
+
+    def test_sell_new_user(self):
+        """Tests sell where its 'for' is a new user. A difference is, for example, that no email is sent."""
+        sell = {'@type': Sell.type_name, 'devices': self.devices_id, 'to': {'email': 'foo@bar.com'}}
+        with self.app.mail.record_messages() as outbox:
+            sell = self.post_201(self.DEVICE_EVENT_SELL, sell)
+            account = self.get_200(self.ACCOUNTS, params={'where': json.dumps({'email': 'foo@bar.com'})})['_items'][0]
+            assert_that(sell).has_to(account['_id'])
+            # The new created account is not active so no e-mail is sent to it
+            assert_that(account['active']).is_false()
+            assert_that(outbox).is_length(0)
+

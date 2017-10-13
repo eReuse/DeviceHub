@@ -78,7 +78,7 @@ class AccountDomain(Domain):
         return request.headers.environ['HTTP_AUTHORIZATION']
 
     @classmethod
-    def get_one(cls, id_or_filter: dict or ObjectId or str):
+    def get_one(cls, id_or_filter: dict or ObjectId or str) -> dict:
         try:
             return super().get_one(id_or_filter)
         except ResourceNotFound:

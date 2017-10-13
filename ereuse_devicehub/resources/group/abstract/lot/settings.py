@@ -1,9 +1,8 @@
 import copy
 
 from ereuse_devicehub.resources.group.abstract.lot.policy import Policies
-from ereuse_devicehub.resources.group.abstract.settings import AbstractSettings, Abstract
-from ereuse_devicehub.resources.group.settings import place_fk, packages_fk, lots_fk, \
-    devices_fk, pallets_fk
+from ereuse_devicehub.resources.group.abstract.settings import Abstract, AbstractSettings
+from ereuse_devicehub.resources.group.settings import devices_fk, lots_fk, packages_fk, pallets_fk, place_fk
 
 
 class Lot(Abstract):
@@ -14,7 +13,8 @@ class Lot(Abstract):
     date = {
         'type': 'datetime',
         'sink': -2,
-        'description': 'The date of creation or assignment for this lot, if any. We record too when you create the lot.'
+        'description': 'An agreed or official date of creation or transfer '
+                       'for this lot, most useful in Incoming/Outgoing lots.'
     }
     label = copy.copy(Abstract.label)
     label['required'] = True

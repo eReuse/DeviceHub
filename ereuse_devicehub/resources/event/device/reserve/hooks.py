@@ -43,7 +43,8 @@ def notify(reserves: List[dict]):
         context['devices'] = DeviceDomain.get_in('_id', reserve['devices'])
         context['reserve_url'] = url_for_resource(Reserve.resource_name, reserve['_id'])
         _for = AccountDomain.get_one(reserve['for'])
-        msgs.append(create_email('mails/reserve_for.html', _for, **context))
+        if _for['active']:
+            msgs.append(create_email('mails/reserve_for.html', _for, **context))
         context['for'] = _for
         for recipient in g.get('dh_device_event_reserve_notify', []):
             msgs.append(create_email('mails/reserve_notify.html', recipient, **context))

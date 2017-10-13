@@ -27,6 +27,7 @@
       "model": "ST9160310AS",
       "manufacturer": "Seagate",
       "@type": "HardDrive",
+      "logical_name": "/dev/sda",
       "size": 152627.8359375
     },
     {

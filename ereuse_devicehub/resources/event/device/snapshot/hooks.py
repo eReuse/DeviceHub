@@ -101,7 +101,7 @@ SNAPSHOT_SOFTWARE = {
 }
 
 
-def move_id(payload: Request):
+def move_id_remove_logical_name(payload: Request):
     """Moves the _id and pid from the snapshot to the inner device of the snapshot, as a hotfix for Workbench's bug"""
     # todo workbench hotfix
     snapshot = payload.get_json()
@@ -110,6 +110,10 @@ def move_id(payload: Request):
             snapshot['device'][identifier] = snapshot.pop(identifier)
     with suppress(Exception):
         snapshot['snapshotSoftware'] = SNAPSHOT_SOFTWARE[snapshot['snapshotSoftware']]
+    with suppress(Exception):
+        for component in snapshot['components']:
+            if 'logical_name' in component:
+                del component['logical_name']
 
 
 def add_to_group(snapshots: List[dict]):

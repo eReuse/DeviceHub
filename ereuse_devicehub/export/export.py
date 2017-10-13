@@ -76,6 +76,8 @@ class SpreadsheetTranslator(Translator):
             d['Giver ID'] = p.get('gid')
             d['Refurbisher ID'] = p.get('rid')
             d['Serial Number'] = p.get('serialNumber')
+        d['Price'] = p.get('pricing.total.standard')
+        d['Price 2 years warranty'] = p.get('pricing.total.warranty2')
         d['Model'] = p.get('model')
         d['Manufacturer'] = p.get('manufacturer')
         if not brief:
@@ -96,6 +98,18 @@ class SpreadsheetTranslator(Translator):
             d['Processor Score'] = p.get('condition.components.processors')
             d['RAM Score'] = p.get('condition.components.ram')
             d['HDD Score'] = p.get('condition.components.hardDrives')
+            d['Refurbisher percentage'] = p.get('pricing.refurbisher.standard.percentage')
+            d['Refurbisher amount'] = p.get('pricing.refurbisher.standard.amount')
+            d['Retailer percentage'] = p.get('pricing.retailer.standard.percentage')
+            d['Retailer amount'] = p.get('pricing.retailer.standard.amount')
+            d['Platform percentage'] = p.get('pricing.platform.standard.percentage')
+            d['Platform amount'] = p.get('pricing.platform.standard.amount')
+            d['Refurbisher percentage 2 years warranty'] = p.get('pricing.refurbisher.warranty2.percentage')
+            d['Refurbisher amount 2 years warranty'] = p.get('pricing.refurbisher.warranty2.amount')
+            d['Retailer percentage 2 years warranty'] = p.get('pricing.retailer.warranty2.percentage')
+            d['Retailer amount 2 years warranty'] = p.get('pricing.retailer.warranty2.amount')
+            d['Platform percentage 2 years warranty'] = p.get('pricing.platform.warranty2.percentage')
+            d['Platform amount 2 years warranty'] = p.get('pricing.platform.warranty2.amount')
         # Note that in translate_one we translate 'components'
         super().__init__(d)
 

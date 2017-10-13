@@ -24,7 +24,8 @@ class TestSecurity(TestGroupBase):
                 'token': 'TOKENB',
                 'databases': {self.app.config['DATABASES'][1]: ACCESS},
                 'defaultDatabase': self.app.config['DATABASES'][1],
-                '@type': 'Account'
+                '@type': 'Account',
+                'active': True
             }
         )
         self.account2 = self.login('b@b.b', '1234')

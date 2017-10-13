@@ -1,5 +1,6 @@
 import argparse
 import json
+from getpass import getpass
 
 from ereuse_devicehub import DeviceHub
 from ereuse_devicehub.resources.group.settings import Group
@@ -66,7 +67,6 @@ def main(app):
     epilog = 'Minimum example: python share_group.py a@a.a 1234 Lot b@b.b -i identifier'
     parser = argparse.ArgumentParser(description=desc, epilog=epilog)
     parser.add_argument('email', help='The email of the person sharing this.')
-    parser.add_argument('password', help='The password of the person sharing this.')
     parser.add_argument('group_type')
     parser.add_argument('receiver_email', help='The email of the user that this is being shared to.')
     parser.add_argument('-i', '--group_id', help='The group id.')
@@ -76,6 +76,7 @@ def main(app):
     parser.add_argument('-p', '--perm', help='The permission the user will have. READ by default.', default=READ)
     parser.add_argument('-d', '--db', help='The database of the group. Otherwise the default database of the user.')
     args = vars(parser.parse_args())
+    args['password'] = getpass('Enter {} password: '.format(args['email']))
     response = share_group(app, **args)
     print('Response:')
     print(json.dumps(response, indent=4))

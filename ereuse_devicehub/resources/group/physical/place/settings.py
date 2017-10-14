@@ -40,7 +40,7 @@ class Place(Physical):
                 'type': 'string',
                 'allowed': list(COUNTRIES.keys()),
                 'description': 'The name of the country',
-                'allowed_description': list(COUNTRIES.values()),
+                'allowed_description': COUNTRIES,
                 'doc': 'The addressCountry as per ISO 3166 (2 characters).'
             },
             'addressLocality': {

@@ -168,5 +168,5 @@ class Thing(RDFS):
         'type': 'string',
         'maxlength': 500,
         'sink': -4,
-        'description': 'Full long description'
+        'description': 'Full long description.'
     }

@@ -7,7 +7,7 @@ class Event(Thing):
     date = {
         'type': 'datetime',  # User specified date when the event was triggered
         'sink': -2,
-        'description': 'When this happened. Leave blank if it is happening now'
+        'description': 'When this happened. Leave blank if it is happening now.'
     }
     secured = {
         'type': 'boolean',
@@ -23,6 +23,7 @@ class Event(Thing):
     comment = {
         'type': 'string',
         'sink': -4,
+        'doc': 'This field is deprecated (it does not show in clients); use description instead.',
         'description': 'Short comment for fast and easy reading'
     }
     byUser = {

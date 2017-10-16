@@ -3,7 +3,7 @@ from typing import List
 from flask import current_app as app, g
 from pydash import pluck
 
-from ereuse_devicehub.mails.mails import create_email
+from ereuse_devicehub.mails.mails import create_email, suppressAndLogSendingException
 from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.device.domain import DeviceDomain
@@ -51,4 +51,5 @@ def notify(reserves: List[dict]):
     # We send all emails with the same connection (+ speed)
     with app.mail.connect() as conn:
         for msg in msgs:
-            conn.send(msg)
+            with suppressAndLogSendingException(msg):
+                conn.send(msg)

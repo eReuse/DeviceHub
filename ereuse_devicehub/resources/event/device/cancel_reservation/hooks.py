@@ -2,7 +2,7 @@ from typing import List
 
 from flask import current_app as app
 
-from ereuse_devicehub.mails.mails import create_email
+from ereuse_devicehub.mails.mails import create_email, suppressAndLogSendingException
 from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.cancel_reservation.settings import CancelReservation
@@ -42,7 +42,8 @@ def notify(cancel_reservations: List[dict]):
     # We send all emails with the same connection (+ speed)
     with app.mail.connect() as conn:
         for msg in msgs:
-            conn.send(msg)
+            with suppressAndLogSendingException(msg):
+                conn.send(msg)
 
 
 def materialize_cancel_in_reserve(cancel_reservations: List[dict]):

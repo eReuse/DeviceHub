@@ -89,7 +89,8 @@ class DummyDB:
                 'token': 'TOKENB',
                 'databases': {self.app.config['DATABASES'][1]: ACCESS},
                 'defaultDatabase': self.app.config['DATABASES'][1],
-                '@type': 'Account'
+                '@type': 'Account',
+                'active': True
             }
         )
         account2 = self.test.login('b@b.b', '1234')

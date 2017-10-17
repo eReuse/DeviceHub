@@ -158,8 +158,9 @@ def hooks(app):
     setattr(app, 'on_insert_devices_cancel-reservation', set_for_and_notify)
     setattr(app, 'on_inserted_devices_cancel-reservation', notify_and_materialize)  # how to do iadd with events?
 
-    from ereuse_devicehub.resources.event.device.sell.hooks import notify, materialize_sell_in_reserve
+    from ereuse_devicehub.resources.event.device.sell.hooks import notify, materialize_sell_in_reserve, set_to
     from ereuse_devicehub.resources.account.hooks import add_or_get_inactive_account_sell
+    app.on_insert_devices_sell += set_to
     app.on_inserted_devices_sell += add_or_get_inactive_account_sell
     app.on_inserted_devices_sell += notify
     app.on_inserted_devices_sell += materialize_sell_in_reserve

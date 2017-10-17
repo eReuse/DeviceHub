@@ -33,7 +33,8 @@ class Sell(EventWithDevices):
         'schema': unregistered_user,
         'get_from_data_relation_or_create': 'email',
         'sink': 2,
-        'description': 'The user buying.'
+        'description': 'The user buying. If you leave it empty and you reference below a reference, '
+                       'we will set it to the user of the reference.'
     }
     reserve = {
         'type': 'objectid',

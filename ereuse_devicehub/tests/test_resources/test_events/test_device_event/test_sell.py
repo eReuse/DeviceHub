@@ -47,8 +47,7 @@ class TestSell(TestDeviceEvent):
         sell = {
             '@type': 'devices:Sell',
             'devices': self.devices_id,
-            'reserve': reserve['_id'],
-            'to': self.account2['_id']
+            'reserve': reserve['_id']
         }
         sell = map_values(sell, lambda x: json.dumps(x))
         sell['invoices'] = [(BytesIO(first_pdf), 'pdf1.pdf'), (BytesIO(second_pdf), 'pdf2.pdf')]
@@ -56,7 +55,7 @@ class TestSell(TestDeviceEvent):
             sell = self.post_201(self.DEVICE_EVENT_SELL, sell, content_type='multipart/form-data')
             sell = self.get_200(self.EVENTS, item=sell['_id'])
             assert_that(sell).has_reserve(reserve['_id'])
-            # The second account gets notified
+            # The second account gets notified although because it is taken from the Reserve
             assert_that(outbox[0]).has_recipients(['b@b.b'])
 
             # The first account accesses the pdfs

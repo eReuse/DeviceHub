@@ -1,6 +1,6 @@
-from ereuse_devicehub.resources.account.settings import unregistered_user_doc, unregistered_user
-from ereuse_devicehub.resources.event.device.settings import EventWithDevices, \
-    EventSubSettingsMultipleDevices, materialized_components
+from ereuse_devicehub.resources.account.settings import unregistered_user
+from ereuse_devicehub.resources.event.device.settings import EventSubSettingsMultipleDevices, EventWithDevices, \
+    materialized_components
 
 
 class Reserve(EventWithDevices):
@@ -18,7 +18,9 @@ class Reserve(EventWithDevices):
         'schema': unregistered_user,
         'get_from_data_relation_or_create': 'email',
         'sink': 2,
-        'description': 'Who are you reserving for? If you leave it blank, you will reserve it for yourself.'
+        'description': 'Who are you reserving for? If you leave it blank, you will reserve it for yourself.',
+        'doc': 'This field is auto-fulfilled with "byUser" value if the user is the owner of the DB, otherwise it is'
+               'required to be fulfilled.'
         # todo set permissions for only owners setting this field (for now a hook overrides the value)
     }
     notify = {

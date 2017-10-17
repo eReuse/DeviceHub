@@ -10,6 +10,13 @@ from ereuse_devicehub.resources.event.device.reserve.settings import Reserve
 from ereuse_devicehub.utils import url_for_resource
 
 
+def set_to(sells: List[dict]):
+    sell = sells[0]
+    if 'reserve' in sell and 'to' not in sell:
+        reserve = DeviceEventDomain.get_one(sell['reserve'])
+        sell['to'] = reserve['for']
+
+
 def notify(sells: List[dict]):
     """Sends an e-mail about the selling to the buyer, if any."""
     sell = sells[0]

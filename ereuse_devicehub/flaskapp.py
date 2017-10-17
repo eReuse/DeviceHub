@@ -10,6 +10,8 @@ from typing import Type
 import flask_cors
 import flask_excel
 import gnupg
+from os import path
+
 from ereuse_devicehub.desktop_app.desktop_app import desktop_app, DesktopApp
 from eve import Eve
 from eve.auth import requires_auth
@@ -228,7 +230,7 @@ class DeviceHub(Eve):
         # Global functions
         def get_resource_as_string(name, charset='utf-8'):
             # From http://flask.pocoo.org/snippets/77/
-            with self.open_resource(name) as f:
+            with self.open_resource(path.join(self.static_folder, name)) as f:
                 return f.read().decode(charset)
 
         self.jinja_env.globals['get_resource_as_string'] = get_resource_as_string

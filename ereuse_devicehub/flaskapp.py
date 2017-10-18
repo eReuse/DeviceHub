@@ -10,9 +10,6 @@ from typing import Type
 import flask_cors
 import flask_excel
 import gnupg
-from os import path
-
-from ereuse_devicehub.desktop_app.desktop_app import desktop_app, DesktopApp
 from eve import Eve
 from eve.auth import requires_auth
 from eve.endpoints import media_endpoint, schema_collection_endpoint
@@ -24,8 +21,11 @@ from flask_mail import Mail
 from inflection import camelize
 from shortid import ShortId
 
+# noinspection PyUnresolvedReferences
+from ereuse_devicehub import helpers
 from ereuse_devicehub.aggregation.settings import aggregate_view
 from ereuse_devicehub.data_layer import DataLayer, MongoEncoder
+from ereuse_devicehub.desktop_app.desktop_app import DesktopApp
 from ereuse_devicehub.dh_pydash import pydash
 from ereuse_devicehub.documents.documents import documents
 from ereuse_devicehub.error_handler import ErrorHandlers
@@ -36,7 +36,7 @@ from ereuse_devicehub.inventory import inventory
 from ereuse_devicehub.mails.mails import mails
 from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.account.login.settings import login
-from ereuse_devicehub.resources.device.score_condition import Score, Price
+from ereuse_devicehub.resources.device.score_condition import Price, Score
 from ereuse_devicehub.resources.event.device.live.geoip_factory import GeoIPFactory
 from ereuse_devicehub.resources.event.device.register.placeholders import placeholders
 from ereuse_devicehub.resources.manufacturers import ManufacturerDomain
@@ -56,8 +56,8 @@ class DeviceHub(Eve):
 
     def __init__(self, import_name=__package__, settings='settings.py', validator=DeviceHubValidator, data=DataLayer,
                  auth=Auth, redis=None, url_converters=None, json_encoder=None, media=GridFSMediaStorage,
-                 url_parse=UrlParse, mongo_encoder=MongoEncoder, score=Score, price=Price, desktop_app=DesktopApp, **kwargs):
-        kwargs.setdefault('static_url_path', '/static')
+                 url_parse=UrlParse, mongo_encoder=MongoEncoder, score=Score, price=Price, desktop_app=DesktopApp,
+                 **kwargs):
         super().__init__(import_name, settings, validator, data, auth, redis, url_converters, json_encoder, media,
                          **kwargs)
         self.check()
@@ -226,14 +226,6 @@ class DeviceHub(Eve):
         """Gets the name or email of the account."""
         self.jinja_env.filters['resourceTitle'] = lambda r: r['@type'] + ' ' + r.get('label', r['_id'])
         """A title for the resource like 'Event 23' or 'Lot donation of Laura'"""
-
-        # Global functions
-        def get_resource_as_string(name, charset='utf-8'):
-            # From http://flask.pocoo.org/snippets/77/
-            with self.open_resource(path.join(self.static_folder, name)) as f:
-                return f.read().decode(charset)
-
-        self.jinja_env.globals['get_resource_as_string'] = get_resource_as_string
 
     def redirect_on_browser(self):
         """

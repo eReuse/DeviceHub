@@ -24,8 +24,8 @@ def render_mail_template(template_name: str, recipient: dict, **context) -> (str
     """Adds default template variables and renders the template."""
     context = defaults(context, {
         'recipient': recipient,
-        'title': TITLES[template_name]
-
+        'title': TITLES[template_name],
+        'mail_style': mails.get_static_as_string('mail-style.css')
     })
     return render_template(template_name, **context), TITLES[template_name]
 

@@ -1,6 +1,0 @@
-[submodule "ereuse_devicehub/resources/device/score"]
-	path = ereuse_devicehub/resources/device/score
-	url = https://github.com/eReuse/DeviceScore
-[submodule "ereuse_devicehub/resources/device/price"]
-	path = ereuse_devicehub/resources/device/price
-	url = https://github.com/eReuse/DevicePrice

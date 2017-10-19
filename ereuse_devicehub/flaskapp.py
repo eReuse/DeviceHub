@@ -39,6 +39,7 @@ from ereuse_devicehub.resources.account.login.settings import login
 from ereuse_devicehub.resources.device.score_condition import Price, Score
 from ereuse_devicehub.resources.event.device.live.geoip_factory import GeoIPFactory
 from ereuse_devicehub.resources.event.device.register.placeholders import placeholders
+from ereuse_devicehub.resources.event.device.snapshot.hooks import return_202_when_could_not_add_to_group
 from ereuse_devicehub.resources.manufacturers import ManufacturerDomain
 from ereuse_devicehub.resources.resource import ResourceSettings
 from ereuse_devicehub.resources.submitter.grd_submitter.grd_submitter import GRDSubmitter
@@ -85,6 +86,7 @@ class DeviceHub(Eve):
         self.add_url_rule('/<db>/events/<resource>/placeholders', view_func=placeholders, methods=['POST'])
         self.add_url_rule('/<db>/inventory', view_func=inventory)
         self.before_request(self.redirect_on_browser)
+        self.after_request(return_202_when_could_not_add_to_group)
         self.register_blueprint(documents)
         self.register_blueprint(mails)
         self.desktop_app = desktop_app(self)

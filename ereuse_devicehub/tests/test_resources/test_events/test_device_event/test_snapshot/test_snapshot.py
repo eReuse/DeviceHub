@@ -7,7 +7,6 @@ from assertpy import assert_that
 from bson import objectid
 from pydash import filter_, map_, pick
 
-from ereuse_devicehub.exceptions import SchemaError
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.remove.hooks import ComponentIsNotInside
@@ -753,7 +752,14 @@ class TestSnapshot(TestEvent, TestGroupBase):
         snapshot = self.get_fixture(self.SNAPSHOT, '9')
         snapshot['group'] = {'@type': 'Lot', '_id': 'foo-bar'}
         response, status = self.post(self.SNAPSHOT_URL, snapshot)
-        self.assert_error(response, status, SchemaError)
+        self.assert202(status)
+        assert_that(response).has__status('WARN')
+        assert_that(response).has__warning({'@type': 'SchemaError',
+                                            'code': 422,
+                                            'message': "We created the Snapshot, but we couldn't add the devices to the"
+                                                       " group foo-bar because The resource with id foo-bar does not"
+                                                       " exist."
+                                            })
 
     def test_compute_condition_score(self):
         """Tests computing the condition (score...) with RDeviceScore when performing a Snapshot."""

@@ -319,6 +319,9 @@ class TestBase(Client):
     def assert302(self, status):
         self.assertEqual(status, 302)
 
+    def assert202(self, status):
+        self.assertEqual(status, 202)
+
 
 class TestStandard(TestBase):
     @staticmethod

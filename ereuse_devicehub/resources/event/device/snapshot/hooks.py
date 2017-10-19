@@ -1,7 +1,8 @@
+import json
 from contextlib import suppress
 from typing import List
 
-from flask import Request, current_app as app, g, request
+from flask import Request, Response, current_app as app, g, request
 
 from ereuse_devicehub.exceptions import InnerRequestError, SchemaError
 from ereuse_devicehub.resources.device.domain import DeviceDomain
@@ -130,7 +131,20 @@ def add_to_group(snapshots: List[dict]):
                     group_patch = {'@type': g_type, 'children': group['children']}
                     execute_patch(resource_name, group_patch, group['_id'])
             except (ResourceNotFound, InnerRequestError) as e:
-                raise SchemaError(field='group',
-                                  message='We created the Snapshot, but we couldn\'t add '
-                                          'the devices to the group {} because {}'
-                                  .format(snapshot['group']['_id'], e)) from e
+                g.dh_snapshot_add_to_group = SchemaError(field='group',
+                                                         message='We created the Snapshot, but we couldn\'t add '
+                                                                 'the devices to the group {} because {}'
+                                                         .format(snapshot['group']['_id'], e))
+
+
+def return_202_when_could_not_add_to_group(response: Response):
+    # This is executed in an after_request
+    if 'dh_snapshot_add_to_group' in g:
+        response.status_code = 202
+        data = json.loads(response.data.decode())
+        e = g.dh_snapshot_add_to_group.to_dict()
+        data['_warning'] = e['_error']
+        data['_status'] = 'WARN'
+        data.update(data)
+        response.data = json.dumps(data)
+    return response

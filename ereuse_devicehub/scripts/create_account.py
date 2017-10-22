@@ -1,5 +1,6 @@
 import argparse
 import json
+from getpass import getpass
 
 from pymongo import MongoClient
 
@@ -70,10 +71,9 @@ class UserAlreadyExists(StandardError):
 if __name__ == '__main__':
     # comment this for autodoc to work. todo Why does it fail?
     desc = 'Create an account. This script connects directly to a Mongo interface, so you need to set the connection.'
-    epilog = 'Minimum example: python create_account.py a@a.a 1234 -d db1 db2'
+    epilog = 'Minimum example: python create_account.py a@a.a -d db1 db2'
     parser = argparse.ArgumentParser(description=desc, epilog=epilog)
     parser.add_argument('email')
-    parser.add_argument('password')
     parser.add_argument('-d', '--databases', nargs='+', required=True,
                         help='Required. A list of databases the user has access to.')
     parser.add_argument('-r', '--role', help='By default is admin.', default=Role.USER)
@@ -87,6 +87,7 @@ if __name__ == '__main__':
     parser.add_argument('-dn', '--db-name', default='dh__accounts',
                         help='The database in Mongo used to store the account.')
     args = vars(parser.parse_args())  # If --help or -h or wrong value this will print message to user and abort
+    args['password'] = getpass('Enter new password for {}: '.format(args['email']))
     account, hashed_token = create_account(**args)
     account['_id'] = str(account['_id'])
     print('Account:')

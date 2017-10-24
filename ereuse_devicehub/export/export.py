@@ -74,6 +74,7 @@ class SpreadsheetTranslator(Translator):
         if not brief:
             d['Label ID'] = p.get('labelId')
             d['Giver ID'] = p.get('gid')
+            d['Platform ID'] = p.get('pid')
             d['Refurbisher ID'] = p.get('rid')
             d['Serial Number'] = p.get('serialNumber')
         d['Price'] = p.get('pricing.total.standard')

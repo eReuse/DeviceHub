@@ -9,6 +9,7 @@ from ereuse_devicehub.exceptions import InsufficientDatabasePerm
 from ereuse_devicehub.resources.account.domain import AccountDomain, NotADatabase
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.schema import Device
+from ereuse_devicehub.resources.event.device.cancel_reservation.settings import CancelReservation
 from ereuse_devicehub.resources.event.device.reserve.settings import Reserve
 from ereuse_devicehub.resources.event.settings import Event
 from ereuse_devicehub.resources.group.settings import Group
@@ -59,7 +60,7 @@ def check_post_perms(resource_name: str, resources: List[dict]):
     with suppress(NotADatabase):
         if not current_app.auth.has_full_db_access():
             db = AccountDomain.requested_database
-            if resource_name == Reserve.resource_name:
+            if resource_name in {Reserve.resource_name, CancelReservation.resource_name}:
                 for resource in resources:
                     # We don't need to check for access in group if we already check on all devices
                     # because you can't perform an event to empty group
@@ -69,6 +70,8 @@ def check_post_perms(resource_name: str, resources: List[dict]):
                             '$elemMatch': {'account': AccountDomain.actual['_id'], 'perm': {'$in': RESOURCE_PERMS}}
                         }
                     }
+                    if resource_name == CancelReservation.resource_name:
+                        q['byUser'] = AccountDomain.actual['_id']  # Only the author if still has access
                     accessible_devices = DeviceDomain.get(q)
                     non_accessible_devices = difference(resource['devices'], pluck(accessible_devices, '_id'))
                     if non_accessible_devices:

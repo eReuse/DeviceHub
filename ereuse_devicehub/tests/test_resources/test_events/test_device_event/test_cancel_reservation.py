@@ -1,7 +1,10 @@
 from assertpy import assert_that
+from passlib.handlers.sha2_crypt import sha256_crypt
 
+from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.event.device.cancel_reservation.settings import CancelReservation
 from ereuse_devicehub.resources.event.device.sell.settings import Sell
+from ereuse_devicehub.security.perms import ACCESS, READ
 from ereuse_devicehub.tests.test_resources.test_events.test_device_event import TestDeviceEvent
 
 
@@ -47,3 +50,34 @@ class TestCancelReservation(TestDeviceEvent):
         response, status = self.post(self.DEVICE_EVENT_CANCEL_RESERVATION, data=cancel_reservation)
         assert_that(response['_issues']['reserve'][0]).contains('NotUnique')
         self.assert422(status)
+
+    def test_cancel_reservation_for_non_owner_author(self):
+        """Tests an author of a reservation that is not an owner cancelling it."""
+        # Let's create an user and share a group to it
+        self.db.accounts.insert_one(
+            {
+                'email': 'b@b.b',
+                'password': sha256_crypt.hash('1234'),
+                'role': Role.ADMIN,
+                'token': 'TOKENB',
+                'databases': {self.app.config['DATABASES'][1]: ACCESS},
+                'defaultDatabase': self.app.config['DATABASES'][1],
+                '@type': 'Account',
+                'active': True
+            }
+        )
+        account2 = self.login('b@b.b', '1234')
+        lot = self.get_fixture(self.LOTS, 'lot')
+        lot['children'] = {'devices': self.devices_id}
+        lot['perms'] = [{'account': account2['_id'], 'perm': READ}]
+        self.post_201(self.LOTS, lot)
+
+        reserve = {'@type': 'devices:Reserve', 'devices': self.devices_id}
+        reserve = self.post_201(self.DEVICE_EVENT_RESERVE, reserve, token=account2['token'])
+        reserve = self.get_200(self.EVENTS, item=reserve['_id'])
+
+        cancel_reservation = {'@type': CancelReservation.type_name, 'reserve': reserve['_id']}
+        cancel_reservation = self.post_201(self.DEVICE_EVENT_CANCEL_RESERVATION, cancel_reservation,
+                                           token=account2['token'])
+        reserve = self.get_200(self.EVENTS, item=reserve['_id'])
+        assert_that(reserve).has_cancel(cancel_reservation['_id'])

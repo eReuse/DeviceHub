@@ -2,16 +2,17 @@ import argparse
 import json
 from getpass import getpass
 
+from pydash import find, remove
+
 from ereuse_devicehub import DeviceHub
 from ereuse_devicehub.resources.group.settings import Group
 from ereuse_devicehub.security.perms import READ
 from ereuse_devicehub.tests import Client
 from ereuse_devicehub.utils import Naming
-from pydash import find
 
 
 def share_group(app: DeviceHub, email: str, password: str, group_type: str, receiver_email: str, perm=READ,
-                group_id: str = None, group_label=None, db: str = None):
+                group_id: str = None, group_label=None, db: str = None, unshare: bool = False):
     """
     Sets the permission for the user in the group, known as sharing. If the user had an existing permission,
     this is replaced.
@@ -27,6 +28,7 @@ def share_group(app: DeviceHub, email: str, password: str, group_type: str, rece
     :param group_id: Optional. The identifier of the group. Name xor group id needed.
     :param group_label: Optional. The name of the group. Name xor group id needed.
     :param db: The database where the group is in.
+    :param unshare: Optional. If set, it removes the account from being shared in the group.
     """
     if not group_id and not group_label:
         raise ValueError('Group name xor group_id needed.')
@@ -44,11 +46,15 @@ def share_group(app: DeviceHub, email: str, password: str, group_type: str, rece
     group = response['_items'][0] if group_label else response
     account_params = {'where': json.dumps({'email': receiver_email})}
     receiver = c.get_200(c.ACCOUNTS, params=account_params, token=token)['_items'][0]
-    existing_perm = find(group.setdefault('perms', []), {'_id': receiver['_id']})
-    if existing_perm:
-        existing_perm['perm'] = perm
+    if unshare:
+        if not remove(group['perms'], {'account': receiver['_id']}):
+            raise ValueError('User does not have any permission in this group (is not shared). Nothing done.')
     else:
-        group['perms'].append({'account': receiver['_id'], 'perm': perm})
+        existing_perm = find(group.setdefault('perms', []), {'_id': receiver['_id']})
+        if existing_perm:  # user had access with another permission
+            existing_perm['perm'] = perm
+        else:  # user didn't have access
+            group['perms'].append({'account': receiver['_id'], 'perm': perm})
     group_patch = {'@type': group_type, 'perms': group['perms']}
     return c.patch_200(Naming.resource(group_type), item=group['_id'], data=group_patch, token=token, db=db)
 
@@ -63,18 +69,22 @@ def main(app):
 
     And execute it.
     """
-    desc = 'Share a group.'
-    epilog = 'Minimum example: python share_group.py a@a.a 1234 Lot b@b.b -i identifier'
+    desc = 'Share and unshares an account from a group.'
+    epilog = 'Minimum example: python share_group.py a@a.a Lot b@b.b -i identifier\n' \
+             'Minimum unshare example: python share_group.py a@a.a Package b@b.b -l foo -u'
     parser = argparse.ArgumentParser(description=desc, epilog=epilog)
     parser.add_argument('email', help='The email of the person sharing this.')
-    parser.add_argument('group_type')
+    parser.add_argument('group_type', help='Lot, Package, Pallet or Place.')
     parser.add_argument('receiver_email', help='The email of the user that this is being shared to.')
     parser.add_argument('-i', '--group_id', help='The group id.')
     parser.add_argument('-l', '--group_label', help='The group name. If set, this is used over the id. '
-                                                   'Note that names are not unique, use the id when possible.')
+                                                    'Note that names are not unique, use the id when possible.')
     # We need to set default or this will be ``None``
     parser.add_argument('-p', '--perm', help='The permission the user will have. READ by default.', default=READ)
-    parser.add_argument('-d', '--db', help='The database of the group. Otherwise the default database of the user.')
+    parser.add_argument('-d', '--db', help='The database of the group. If not set we use '
+                                           'the default database of the user.')
+    parser.add_argument('-u', '--unshare', action='store_true', help='Stop sharing the account in this group. '
+                                                                     'If set we don\'t use "perm".', default=False)
     args = vars(parser.parse_args())
     args['password'] = getpass('Enter {} password: '.format(args['email']))
     response = share_group(app, **args)

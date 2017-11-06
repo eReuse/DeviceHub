@@ -819,3 +819,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
     def test_snapshot_9_b(self):
         snapshot = self.get_fixture(self.SNAPSHOT, '9.1')
         self.post(self.SNAPSHOT_URL, data=snapshot, token=self.token)
+
+    def test_snapshot_91b(self):
+        snapshot = self.get_fixture(self.SNAPSHOT, '9.1b')
+        self.post(self.SNAPSHOT_URL, data=snapshot, token=self.token)

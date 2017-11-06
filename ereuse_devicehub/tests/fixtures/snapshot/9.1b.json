@@ -1,0 +1,128 @@
+{
+  "snapshotSoftware": "Workbench",
+  "_id": "607",
+  "gid": "01007894",
+  "version": "9.0.1b0",
+  "@type": "Snapshot",
+  "osInstallation": {
+    "label": "linux-mint-1801-ca",
+    "elapsed": "0:03:10",
+    "success": true
+  },
+  "device": {
+    "model": "HP Compaq dc7900 Small Form Factor",
+    "@type": "Computer",
+    "serialNumber": "CZC9013827",
+    "type": "Desktop",
+    "manufacturer": "Hewlett-Packard",
+    "_uuid": "890d3005d74244b48d873358f06163c6"
+  },
+  "tests": [
+    {
+      "@type": "StressTest",
+      "elapsed": "0:05:00",
+      "success": true
+    }
+  ],
+  "components": [
+    {
+      "model": "4 Series Chipset Integrated Graphics Controller",
+      "@type": "GraphicCard",
+      "memory": 256.0,
+      "manufacturer": "Intel Corporation"
+    },
+    {
+      "model": "4 Series Chipset Integrated Graphics Controller",
+      "@type": "GraphicCard",
+      "manufacturer": "Intel Corporation"
+    },
+    {
+      "model": "ST3160815AS",
+      "@type": "HardDrive",
+      "serialNumber": "6RX7E75N",
+      "size": 152627.8359375,
+      "interface": "ata",
+      "logical_name": "/dev/sda",
+      "test": {
+        "status": "Completed without error",
+        "type": "Short offline",
+        "error": false,
+        "firstError": null,
+        "lifetime": 17122,
+        "@type": "TestHardDrive"
+      },
+      "manufacturer": "Seagate"
+    },
+    {
+      "@type": "RamModule",
+      "speed": 800.0,
+      "serialNumber": "20100000",
+      "size": 2048,
+      "interface": "DDR2",
+      "manufacturer": "JEDEC ID:AD 00 00 00 00 00 00 00"
+    },
+    {
+      "model": "3031h",
+      "@type": "Motherboard",
+      "usedSlots": 1,
+      "totalSlots": 0,
+      "serialNumber": "CZC9013827",
+      "connectors": {
+        "serial": 0,
+        "firewire": 0,
+        "pcmcia": 0,
+        "usb": 8
+      },
+      "manufacturer": "Hewlett-Packard"
+    },
+    {
+      "model": "82567LM-3 Gigabit Network Connection",
+      "@type": "NetworkAdapter",
+      "speed": 1000,
+      "serialNumber": "00:23:7d:49:9f:da",
+      "manufacturer": "Intel Corporation"
+    },
+    {
+      "model": "DVD-RAM GH40L",
+      "@type": "OpticalDrive",
+      "manufacturer": "hp",
+      "description": "DVD-RAM writer"
+    },
+    {
+      "model": "Intel(R) Core(TM)2 Duo CPU E8400 @ 3.00GHz",
+      "@type": "Processor",
+      "manufacturer": "Intel Corp.",
+      "benchmark": {
+        "@type": "BenchmarkProcessor",
+        "score": 11969.6
+      },
+      "numberOfCores": 2
+    },
+    {
+      "@type": "Processor",
+      "benchmark": {
+        "@type": "BenchmarkProcessor",
+        "score": 11969.6
+      },
+      "numberOfCores": 2
+    },
+    {
+      "model": "82801JD/DO (ICH10 Family) HD Audio Controller",
+      "@type": "SoundCard",
+      "manufacturer": "Intel Corporation"
+    }
+  ],
+  "condition": {
+    "functionality": {
+      "general": "B"
+    },
+    "appearance": {
+      "general": "B"
+    }
+  },
+  "date": "2017-11-02T11:18:11",
+  "inventory": {
+    "elapsed": "0:08:27"
+  },
+  "_uuid": "445bc09d094446398935c2dd728a0dda"
+}

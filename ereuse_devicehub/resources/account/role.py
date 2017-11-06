@@ -8,16 +8,16 @@ class Role:
 
     We can use operators to compare between roles. For example BASIC < AMATEUR == True
     """
-    """Accounts used by services accessing DeviceHub"""
     MACHINE = 'm'
-    """Regular user."""
+    """Accounts used by services accessing DeviceHub"""
     USER = 'u'
-    """Machines with more access"""
+    """Regular user."""
     SUPERMACHINE = 'sm'
-    """Managers of the devicehub, in general."""
+    """Machines with more access"""
     ADMIN = 'a'
-    """Total system control"""
+    """Managers of the devicehub, in general."""
     SUPERUSER = 'su'
+    """Total system control"""
 
     ROLES = MACHINE, USER, SUPERMACHINE, ADMIN, SUPERUSER
     MANAGERS = ADMIN, SUPERUSER

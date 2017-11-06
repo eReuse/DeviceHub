@@ -76,7 +76,9 @@ if __name__ == '__main__':
     parser.add_argument('email')
     parser.add_argument('-d', '--databases', nargs='+', required=True,
                         help='Required. A list of databases the user has access to.')
-    parser.add_argument('-r', '--role', help='By default is admin.', default=Role.USER)
+    parser.add_argument('-r', '--role', help='Options: "m": MACHINE, "u": USER (default), '
+                                             '"sm": SUPERMACHINE, "a": ADMIN and "su": SUPERUSER.',
+                        default=Role.USER, choices=Role.ROLES)
     parser.add_argument('-n', '--name')
     parser.add_argument('-o', '--organization')
     parser.add_argument('-b', '--blocked', action='store_true')

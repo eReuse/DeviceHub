@@ -13,7 +13,7 @@ from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.domain import Domain, ResourceNotFound
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.group.settings import Group, GroupSettings
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 Perms = List[Dict[str, str]]
 

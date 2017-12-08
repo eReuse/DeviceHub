@@ -16,7 +16,7 @@ from ereuse_devicehub.resources.group.domain import GroupDomain
 from ereuse_devicehub.resources.group.physical.place.domain import CoordinatesAndPlaceDoNotMatch, \
     NoPlaceForGivenCoordinates, PlaceDomain
 from ereuse_devicehub.rest import execute_delete, execute_patch
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 def get_place(resource_name: str, events: list):

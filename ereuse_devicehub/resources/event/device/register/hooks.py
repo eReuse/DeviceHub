@@ -12,7 +12,7 @@ from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.exceptions import DeviceNotFound, NoDevicesToProcess
 from ereuse_devicehub.resources.event.device.register.settings import Register
 from ereuse_devicehub.rest import execute_post_internal, execute_delete
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 def post_devices(registers: list):

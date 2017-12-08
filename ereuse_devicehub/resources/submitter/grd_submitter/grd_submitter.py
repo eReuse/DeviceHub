@@ -10,7 +10,7 @@ from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.submitter.grd_submitter.old_translator import ResourceTranslator
 from ereuse_devicehub.resources.submitter.submitter import ThreadedSubmitter
 from ereuse_devicehub.security.request_auth import Auth
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 class GRDSubmitter(ThreadedSubmitter):

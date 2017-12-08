@@ -7,7 +7,7 @@ from flask import json
 
 from ereuse_devicehub.resources.group.group_log.settings import UpdateGroupLogEntry
 from ereuse_devicehub.tests import TestStandard
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 class TestGroupBase(TestStandard):

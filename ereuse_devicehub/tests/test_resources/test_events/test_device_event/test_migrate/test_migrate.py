@@ -10,7 +10,7 @@ from ereuse_devicehub.resources.event.device.register.settings import Register
 from ereuse_devicehub.security.perms import ACCESS
 from ereuse_devicehub.tests import TestBase
 from ereuse_devicehub.tests.test_resources.test_events.test_device_event import TestDeviceEvent
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 class TestMigrate(TestDeviceEvent):

@@ -1,7 +1,7 @@
 from assertpy import assert_that
 
 from ereuse_devicehub.tests import TestBase
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 class TestResourceNaming(TestBase):

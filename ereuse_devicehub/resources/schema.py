@@ -4,11 +4,12 @@ the UN/CEFACT Common Code.
 """
 import copy
 
+from ereuse_utils.naming import Naming
+from ereuse_utils.nested_lookup import NestedLookup
 from passlib.utils import classproperty
 
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.resource import Resource
-from ereuse_devicehub.utils import Naming, NestedLookup
 
 
 class UnitCodes:

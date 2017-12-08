@@ -11,7 +11,7 @@ from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.migrate.settings import Migrate
 from ereuse_devicehub.resources.event.domain import EventNotFound
 from ereuse_devicehub.rest import execute_delete
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 def generate_etag(resource: str, items: list):

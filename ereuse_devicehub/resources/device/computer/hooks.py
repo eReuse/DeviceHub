@@ -8,7 +8,7 @@ from ereuse_devicehub.resources.device.component.processor.settings import Proce
 from ereuse_devicehub.resources.device.component.ram_module.settings import RamModule
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.group.domain import GroupDomain
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 def update_materialized_computer(device_or_id: str or dict, components_id: list, add: bool = True):

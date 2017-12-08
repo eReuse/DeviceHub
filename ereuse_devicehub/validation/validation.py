@@ -8,12 +8,13 @@ import validators
 from bson import ObjectId, json_util
 from bson.errors import InvalidId
 from cerberus import errors
+from ereuse_utils.naming import Naming
 from eve.io.mongo import Validator
 from eve.utils import config
 from flask import current_app as app
 
 from ereuse_devicehub.resources.account.role import Role
-from ereuse_devicehub.utils import Naming, coerce_type
+from ereuse_devicehub.utils import coerce_type
 from . import errors as dh_errors
 
 ALLOWED_WRITE_ROLE = 'dh_allowed_write_role'

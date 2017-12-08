@@ -12,7 +12,7 @@ from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.domain import EventNotFound
 from ereuse_devicehub.resources.group.domain import GroupDomain
 from ereuse_devicehub.rest import execute_delete, execute_patch
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 from .snapshot import Snapshot, SnapshotWithoutComponents
 
 

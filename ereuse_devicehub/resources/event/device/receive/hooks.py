@@ -4,7 +4,7 @@ from contextlib import suppress
 from ereuse_devicehub.resources.account.domain import AccountDomain, UserNotFound
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.rest import execute_post_internal
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 def transfer_property(receives: list):

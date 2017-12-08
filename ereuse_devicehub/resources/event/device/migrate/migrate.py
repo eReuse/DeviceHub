@@ -9,7 +9,7 @@ from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.submitter.grd_submitter.old_translator import ResourceTranslator
 from ereuse_devicehub.resources.submitter.submitter import Submitter
 from ereuse_devicehub.rest import execute_get
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 class MigrateSubmitter(Submitter):

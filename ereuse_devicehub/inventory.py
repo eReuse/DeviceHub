@@ -10,7 +10,7 @@ from ereuse_devicehub.aggregation.aggregation import Aggregation
 from ereuse_devicehub.header_cache import header_cache
 from ereuse_devicehub.resources.device.component.settings import Component
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 @header_cache(expires=5)

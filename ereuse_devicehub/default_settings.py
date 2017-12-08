@@ -21,7 +21,7 @@ from ereuse_devicehub.resources.group.physical.pallet.domain import PalletDomain
 from ereuse_devicehub.resources.group.physical.place.domain import PlaceDomain
 from ereuse_devicehub.resources.group.settings import GroupSettings
 from ereuse_devicehub.resources.manufacturers import ManufacturerDomain, ManufacturerSettings
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 CLIENT = None
 """

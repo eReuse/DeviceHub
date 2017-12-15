@@ -6,7 +6,8 @@ class NetworkAdapter(Component):
     speed = {
         'type': 'float',
         'unitCode': UnitCodes.mbps,
-        'sink': 1
+        'sink': 1,
+        'min': 0.1  # todo this should be more however it can jeopardize speed of other components
     }
 
 

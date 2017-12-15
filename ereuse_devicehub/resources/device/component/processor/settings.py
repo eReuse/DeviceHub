@@ -12,6 +12,7 @@ class Processor(Component):
     speed = {
         'type': 'float',
         'unitCode': UnitCodes.ghz,
+        'min': 0.1,
         'sink': 1
     }
     address = {

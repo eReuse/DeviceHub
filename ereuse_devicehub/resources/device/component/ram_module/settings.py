@@ -12,7 +12,7 @@ class RamModule(Component):
     speed = {
         'type': 'float',
         'unitCode': UnitCodes.mhz,
-        'min': 1,
+        'min': 0.1,  # todo this should be more however it can jeopardize speed of other components
         'sink': -1
     }
 

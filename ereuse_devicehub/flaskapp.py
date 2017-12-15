@@ -9,7 +9,7 @@ from typing import Type
 import flask_cors
 import flask_excel
 import gnupg
-from ereuse_utils.utils import ensure_utf8
+from ereuse_utils import ensure_utf8
 from eve import Eve
 from eve.auth import requires_auth
 from eve.endpoints import media_endpoint, schema_collection_endpoint

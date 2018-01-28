@@ -1,7 +1,6 @@
 {
     "@type": "Snapshot", 
-    "_id": "1192", 
-    "_uuid": "87a4f1a0-29eb-4631-a44a-3944da47b02a", 
+    "_uuid": "87a4f1a0-29eb-4631-a44a-3944da47b02a",
     "components": [
         {
             "@type": "GraphicCard", 

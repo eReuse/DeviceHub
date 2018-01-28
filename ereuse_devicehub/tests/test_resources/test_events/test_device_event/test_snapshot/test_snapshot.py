@@ -603,12 +603,94 @@ class TestSnapshot(TestEvent, TestGroupBase):
     def test_placeholder_snapshot_hid(self):
         """Tests that hid is correctly computed in placeholders."""
         placeholder = self.get_fixture('register', '1-placeholder')
-        placeholder['device']['_id'] = '1192'
-        self.post_201('{}/{}'.format(self.DEVICE_EVENT, 'register'), placeholder)
+        result_s = self.post_201('{}/{}'.format(self.DEVICE_EVENT, 'register'), placeholder)
         snapshot = self.get_fixture(self.SNAPSHOT, 'lenovo-6072')
+        snapshot['device']['_id'] = result_s['device']
         result = self.post_201(self.SNAPSHOT_URL, snapshot)
         device = self.get_200(self.DEVICES, item=result['device'])
         assert_that(device).has_hid(DeviceDomain.hid(device['manufacturer'], device['serialNumber'], device['model']))
+
+    def test_placeholder_snapshot_no_hid(self):
+        """
+        Tests system consistency when discovering a
+        placeholder with a device that does not generate a HID.
+
+        DeviceHub still accepts the device because it has already
+        set an _id, the placeholder's, but it sets it an unsecured.
+        """
+        placeholder = self.get_fixture('register', '1-placeholder')
+        result_s = self.post_201('{}/{}'.format(self.DEVICE_EVENT, 'register'), placeholder)
+        snapshot = self.get_fixture(self.SNAPSHOT, 'mounted')
+        snapshot['device']['_id'] = result_s['device']
+        result = self.post_201(self.SNAPSHOT_URL, snapshot)
+        assert_that(result).has_unsecured(
+            [
+                {
+                    '@type': 'Device',
+                    '_id': '1',
+                    'type': 'model'
+                },
+                {
+                    '@type': 'Processor',
+                    '_id': '2',
+                    'type': 'model'
+                },
+                {
+                    '@type': 'RamModule',
+                    '_id': '3',
+                    'type': 'model'
+                },
+                {
+                    '@type': 'HardDrive',
+                    '_id': '4',
+                    'type': 'model'
+                },
+                {
+                    '@type': 'GraphicCard',
+                    '_id': '8',
+                    'type': 'model'
+                },
+                {
+                    '@type': 'NetworkAdapter',
+                    '_id': '12',
+                    'type': 'model'
+                },
+                {
+                    '@type': 'NetworkAdapter',
+                    '_id': '13',
+                    'type': 'model'
+                },
+                {
+                    '@type': 'SoundCard',
+                    '_id': '14',
+                    'type': 'model'
+                }
+            ])
+        device = self.get_200(self.DEVICES, item=result_s['device'])
+        assert_that(device).has_isUidSecured(False)
+
+    def test_placeholder_wrong_schema(self):
+        """
+        Tests discovering a placeholder with a wrong schema, whose error
+        is not due to a wrong HID.
+
+        DeviceHub does not accept the device because it is just wrong,
+        and keeps the placeholder untouched.
+        """
+        placeholder = self.get_fixture('register', '1-placeholder')
+        result_s = self.post_201('{}/{}'.format(self.DEVICE_EVENT, 'register'), placeholder)
+        _id = result_s['device']
+        snapshot = self.get_fixture(self.SNAPSHOT, 'mounted')
+        snapshot['device']['_id'] = _id
+        processor = next(c for c in snapshot['components'] if c['@type'] == 'Processor')
+        processor['address'] = 'wrong value'
+        result, status = self.post(self.SNAPSHOT_URL, snapshot)
+        self.assert422(status)
+        assert_that(result).has__issues(
+            {'components': [{'0': [{'address': ['must be of integer type']}]}]}
+        )
+        placeholder = self.get_200(self.DEVICES, item=_id)
+        assert_that(placeholder['@type']).is_equal_to('Device')
 
     def test_snapshot_software_old(self):
         """Tests snapshotSoftware"""

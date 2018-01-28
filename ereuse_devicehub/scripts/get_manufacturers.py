@@ -44,6 +44,12 @@ class ManufacturersGetter:
     PATHS_TO_REMOVE = 'index.php', 'List of'
     LOGO_AVOID = 'commons-logo', 'old'
     FILENAME = '_manufacturers.json'
+    CUSTOM_MANUFACTURERS = {'Belinea', 'OKI Data Corporation'}
+    """
+    A list of manufacturer labels (names) 
+    that are not in (or we can't take them from) Wikipedia,
+    so we can add them too.
+    """
 
     def execute(self, app):
         """
@@ -76,6 +82,8 @@ class ManufacturersGetter:
                         ManufacturerDomain.insert(man)
                 with open(self.FILENAME, 'w') as fp:
                     json.dump(m, fp)
+            for label in self.CUSTOM_MANUFACTURERS:
+                ManufacturerDomain.insert({'label': label})
 
     def get(self) -> list:
         """

@@ -8,7 +8,7 @@ from pydash import pick
 from ereuse_devicehub.exceptions import SchemaError
 from ereuse_devicehub.resources.hooks import TooLateToDelete, MaterializeEvents
 from ereuse_devicehub.tests import TestStandard
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 class TestDeviceEventBasic(TestStandard):

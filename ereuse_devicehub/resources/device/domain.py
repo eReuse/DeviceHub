@@ -9,7 +9,7 @@ from ereuse_devicehub.resources.device.exceptions import DeviceNotFound
 from ereuse_devicehub.resources.device.settings import DeviceSettings
 from ereuse_devicehub.resources.domain import Domain, ResourceNotFound
 from ereuse_devicehub.rest import execute_get
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 class DeviceDomain(Domain):
@@ -77,9 +77,7 @@ class DeviceDomain(Domain):
     @staticmethod
     def hid(manufacturer: str, serial_number: str, model: str) -> str:
         """Generates the HID"""
-        return Naming.url_word(manufacturer) + \
-               '-' + Naming.url_word(serial_number) + \
-               '-' + Naming.url_word(model)
+        return Naming.hid(manufacturer, serial_number, model)
 
     @classmethod
     def get_full_components(cls, components: List[str]):

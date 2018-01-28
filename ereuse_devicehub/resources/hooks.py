@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from bson import ObjectId
+from ereuse_utils.naming import Naming
 from flask import Request, current_app, json
 from pydash import pick
 from requests import Response
@@ -19,7 +20,7 @@ from ereuse_devicehub.resources.group.physical.package.settings import Package
 from ereuse_devicehub.resources.group.physical.pallet.settings import Pallet
 from ereuse_devicehub.resources.group.physical.place.settings import Place
 from ereuse_devicehub.resources.schema import RDFS
-from ereuse_devicehub.utils import Naming, get_header_link
+from ereuse_devicehub.utils import get_header_link
 
 
 def set_response_headers_and_cache(resource: str, _, payload: Response):

@@ -1,6 +1,7 @@
 import contextlib
 import copy
 import os
+from os import path
 from urllib.parse import urlencode
 
 from assertpy import assert_that
@@ -9,7 +10,6 @@ from eve.methods.common import parse
 from eve.tests import TestMinimal
 from flask import json
 from flask_pymongo import MongoClient
-from os import path
 from simplejson.scanner import JSONDecodeError
 
 from ereuse_devicehub import utils
@@ -20,7 +20,7 @@ from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.submitter.grd_submitter.grd_submitter import GRDSubmitter
 from ereuse_devicehub.resources.submitter.submitter_caller import SubmitterCaller
 from ereuse_devicehub.security.perms import ACCESS, ADMIN
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 class Client(TestMinimal):

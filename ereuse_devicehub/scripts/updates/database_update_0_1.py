@@ -5,7 +5,7 @@ from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.allocate.allocate import materialize_owners
 from ereuse_devicehub.resources.hooks import MaterializeEvents
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 class DatabaseUpdate01:

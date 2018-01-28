@@ -4,7 +4,7 @@ import pymongo
 from pydash import chain
 
 from ereuse_devicehub.resources.event.domain import EventDomain
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 class DeviceEventDomain(EventDomain):

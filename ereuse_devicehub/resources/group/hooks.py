@@ -2,7 +2,7 @@ from flask import current_app
 
 from ereuse_devicehub.resources.group.domain import GroupDomain
 from ereuse_devicehub.resources.group.settings import Group
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 def set_children(_, groups: list):

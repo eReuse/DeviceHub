@@ -6,9 +6,9 @@ from pydash import find, remove
 
 from ereuse_devicehub import DeviceHub
 from ereuse_devicehub.resources.group.settings import Group
-from ereuse_devicehub.security.perms import READ
+from ereuse_devicehub.security.perms import READ, RESOURCE_PERMS
 from ereuse_devicehub.tests import Client
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 def share_group(app: DeviceHub, email: str, password: str, group_type: str, receiver_email: str, perm=READ,
@@ -74,15 +74,16 @@ def main(app):
              'Minimum unshare example: python share_group.py a@a.a Package b@b.b -l foo -u'
     parser = argparse.ArgumentParser(description=desc, epilog=epilog)
     parser.add_argument('email', help='The email of the person sharing this.')
-    parser.add_argument('group_type', help='Lot, Package, Pallet or Place.')
     parser.add_argument('receiver_email', help='The email of the user that this is being shared to.')
+    parser.add_argument('group_type', help='The type of the group.', choices=Group.types)
     parser.add_argument('-i', '--group_id', help='The group id.')
     parser.add_argument('-l', '--group_label', help='The group name. If set, this is used over the id. '
                                                     'Note that names are not unique, use the id when possible.')
     # We need to set default or this will be ``None``
-    parser.add_argument('-p', '--perm', help='The permission the user will have. READ by default.', default=READ)
+    parser.add_argument('-p', '--perm', help='The permission the user will have. READ (r) by default.', default=READ,
+                        choices=RESOURCE_PERMS)
     parser.add_argument('-d', '--db', help='The database of the group. If not set we use '
-                                           'the default database of the user.')
+                                           'the default database of the user.', choices=app.config['DATABASES'])
     parser.add_argument('-u', '--unshare', action='store_true', help='Stop sharing the account in this group. '
                                                                      'If set we don\'t use "perm".', default=False)
     args = vars(parser.parse_args())

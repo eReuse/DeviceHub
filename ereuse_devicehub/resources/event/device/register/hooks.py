@@ -12,7 +12,7 @@ from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.exceptions import DeviceNotFound, NoDevicesToProcess
 from ereuse_devicehub.resources.event.device.register.settings import Register
 from ereuse_devicehub.rest import execute_post_internal, execute_delete
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 def post_devices(registers: list):
@@ -95,14 +95,23 @@ def _execute_register(device: dict, created: str, log: list) -> bool:
                 # And we really need the placeholder default set, specially when
                 # discovering a device
                 device['placeholder'] = False
-                # We create hid when we validate (wrong thing) so we need to manually set it here as we won't
+                # We create hid when we validate (wrong thing) so we
+                # need to manually set it here as we won't
                 # validate in this db operation
-                device['hid'] = DeviceDomain.hid(device['manufacturer'], device['serialNumber'], device['model'])
+                try:
+                    # We can discard wrong hid because the solution for it
+                    # is setting a _id, which becoming from a placeholder is
+                    # already granted
+                    device['hid'] = DeviceDomain.hid(device['manufacturer'],
+                                                     device['serialNumber'], device['model'])
+                except KeyError:
+                    device['isUidSecured'] = False
                 DeviceDomain.update_one_raw(db_device['_id'], {'$set': device})
             elif not is_empty(external_synthetic_id_fields):
                 # External Synthetic identifiers are not intrinsically inherent
                 # of devices, and thus can be added later in other Snapshots
-                # Note that the device / post and _get_existing_device() have already validated those ids
+                # Note that the device / post and _get_existing
+                # device() have already validated those ids
                 DeviceDomain.update_one_raw(db_device['_id'], {'$set': external_synthetic_id_fields})
         except DeviceNotFound:
             raise e

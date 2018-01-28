@@ -3,7 +3,7 @@ import inspect
 from collections import Sequence
 from contextlib import suppress
 
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 class Resource:

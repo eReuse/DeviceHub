@@ -4,7 +4,7 @@ from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.hooks import MaterializeEvents
 from ereuse_devicehub.scripts.updates.update import Update
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 
 class ReMaterializeEventsInDevices(Update):

@@ -2,7 +2,6 @@
 DeviceHub app
 """
 import inspect
-import locale
 from contextlib import contextmanager, suppress
 from datetime import timedelta
 from typing import Type
@@ -10,6 +9,7 @@ from typing import Type
 import flask_cors
 import flask_excel
 import gnupg
+from ereuse_utils import ensure_utf8
 from eve import Eve
 from eve.auth import requires_auth
 from eve.endpoints import media_endpoint, schema_collection_endpoint
@@ -59,9 +59,9 @@ class DeviceHub(Eve):
                  auth=Auth, redis=None, url_converters=None, json_encoder=None, media=GridFSMediaStorage,
                  url_parse=UrlParse, mongo_encoder=MongoEncoder, score=Score, price=Price, desktop_app=DesktopApp,
                  **kwargs):
+        ensure_utf8(self.__class__.__name__)
         super().__init__(import_name, settings, validator, data, auth, redis, url_converters, json_encoder, media,
                          **kwargs)
-        self.check()
         self.json_encoder = MongoJSONEncoder
         self.mongo_encoder = mongo_encoder()
         self.gpg = gnupg.GPG()
@@ -198,21 +198,6 @@ class DeviceHub(Eve):
                     .map_keys(lambda _, key: camelize(key, False)) \
                     .value()
         return send_response(None, (schemas,))
-
-    @staticmethod
-    def check():
-        """Performs startup generic checks"""
-        if locale.getpreferredencoding().lower() != 'utf-8':
-            """
-            Python3 uses by default the system set, but it expects it to be ‘utf-8’ to work correctly.
-            An example how to 'fix' it:
-
-            nano .bash_profile and add the following:
-            export LC_CTYPE=en_US.UTF-8
-            export LC_ALL=en_US.UTF-8
-            """
-            raise OSError('DeviceHub will only work well with UTF-8 systems, however yours is {}'
-                          .format(locale.getpreferredencoding()))
 
     def _load_jinja_stuff(self):
         """

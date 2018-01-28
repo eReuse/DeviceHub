@@ -21,7 +21,7 @@ from ereuse_devicehub.resources.group.physical.place.domain import PlaceDomain
 from ereuse_devicehub.resources.group.physical.place.settings import Place
 from ereuse_devicehub.rest import execute_delete, execute_patch
 from ereuse_devicehub.security.request_auth import AgentAuth
-from ereuse_devicehub.utils import Naming
+from ereuse_utils.naming import Naming
 
 MIGRATE_RETURNED_SAME_AS = 'migrate_returned_same_as'
 

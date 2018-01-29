@@ -73,9 +73,9 @@ setup(
         'wikipedia>=1.4,<2',
         'Flask-WeasyPrint',
         'toolz>=0.8,<1.0',
-        'geojson_utils',
         'Flask-Mail',
-        'rpy2'
+        'rpy2',
+        'ereuse-utils [naming]'
     ],
     keywords='eReuse.org DeviceHub devices devicehub reuse recycle it asset management',
     # http://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies

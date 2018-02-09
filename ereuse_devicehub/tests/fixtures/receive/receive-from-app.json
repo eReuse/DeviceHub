@@ -1,0 +1,17 @@
+{
+  "acceptedConditions": true,
+  "@type": "Receive",
+  "type": "FinalUser",
+  "receiver": {
+    "email": "foo@bar.com"
+  },
+  "comment": "dds",
+  "geo": {
+    "coordinates": [
+      2.1614917,
+      41.3901749
+    ],
+    "type": "Point"
+  },
+  "label": "foo"
+}

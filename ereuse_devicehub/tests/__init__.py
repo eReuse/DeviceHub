@@ -2,6 +2,7 @@ import contextlib
 import copy
 import os
 from os import path
+from typing import Type
 from urllib.parse import urlencode
 
 from assertpy import assert_that
@@ -91,7 +92,7 @@ class Client(TestMinimal):
         return response
 
     @staticmethod
-    def assert_error(response: dict, status_code: int, error_class: type(StandardError)):
+    def assert_error(response: dict, status_code: int, error_class: Type[StandardError]):
         """Ensures that the response (a dict from a JSON) represents the *error_class*."""
         name = error_class.__name__
         if error_class.status_code != status_code or response['_error']['@type'] != name:

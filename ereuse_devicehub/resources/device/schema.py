@@ -96,7 +96,8 @@ class Device(IndividualProduct):
         'short': 'GID',
         'description': 'The Giver ID links the device to the giver\'s (donor, seller) internal inventory.',
         'uid': True,
-        'externalSynthetic': True
+        'externalSynthetic': True,
+        'teaser': True
     }
     isUidSecured = {
         'type': 'boolean',

@@ -1,33 +1,24 @@
-..  DeviceHub documentation master file, created by
-sphinx-quickstart on Mon Apr 18 16:40:20 2016.
-You can adapt this file completely to your liking, but it should at least
-contain the root `toctree` directive.
-
 ..  Dependencies: sphinx sphinxcontrib-httpdomain
+..  title:: DeviceHub
 
-DeviceHub's documentation
-=========================
+.. image:: https://www.ereuse.org/files/2017/04/DeviceHub-logo-V2.svg
+   :height: 100px
+   :alt: DeviceHub logo
 
-This is the API and in-line documentation of the development version of  `DeviceHub <https://github.com/eReuse/DeviceHub>`_.
-
-Contents:
+This is the documentation and API of the
+`eReuse.org DeviceHub <https://github.com/eReuse/DeviceHub>`_.
 
 ..  toctree::
-:maxdepth: 5
+    :maxdepth: 4
 
-        vocabulary
-        api
-        modules
-        manual-testing
-        authorization
+    vocabulary
+    api
+    modules
+    manual-testing
+    authorization
 
-
-
-
-Indices and tables
-==================
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
 
+.. image::

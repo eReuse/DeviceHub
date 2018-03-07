@@ -54,7 +54,6 @@ help:
 clean:
 	rm -rf $(BUILDDIR)/*
 	rm -rf modules
-	rm -rf api.rst
 
 .PHONY: html
 html:

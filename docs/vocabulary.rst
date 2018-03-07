@@ -6,12 +6,16 @@ In DeviceHub there are four main resources:
 
 - :ref:`device`
 - :ref:`event`
-- Place
+- Group
 - Account
 
 
-Check in :ref: `api` how to consume the resources, or `download the formal JSON Schema with the specification of the different devices (among other resources) <https://api.devicetag.io/schema>`_,
-note that you can `get here <https://github.com/eReuse/DeviceHub/blob/master/ereuse_devicehub/resources/schema.py>`_ the reference for the unit codes.
+Check in :ref:`api` how to consume the resources, or `download the formal JSON Schema with the
+specification of the different devices (among other resources)
+<https://raw.githubusercontent.com/eReuse/DeviceHubClient/master/tests/fixtures/schema.json>`_,
+note that you can `get here
+<https://github.com/eReuse/DeviceHub/blob/master/ereuse_devicehub/resources/schema.py>`_
+the reference for the unit codes.
 
 
 .. _device:
@@ -104,7 +108,7 @@ There are the following events:
 Allocate, Deallocate and Receive usually present some confusion, so we explain the differences: Allocate assigns the user or organization that has some kind of property over the device. Allocate can be performed on different users, and all of them will share the property.
 Deallocate removes the property from one user. On the other hand, Receive sets the device physically with the user or organization. Performing Receive again to another user will move the device to that one. The system is quite granular, and it is up to the organization to adopt a more or less rigorous way to apply the events.
 
-.. figure:: https://www.devicetag.io/common/assets/common/components/event/event-explanation/event.svg
+.. figure:: https://www.devicetag.io/app/common/assets/common/components/event/event-explanation/event.svg
 
    An easy explanation used in DeviceTag.io to explain the most used events.
 

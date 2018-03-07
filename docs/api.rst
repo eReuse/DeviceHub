@@ -149,11 +149,11 @@ API Endpoints
 The following list describes the details of every endpoint in DeviceHub:
 
 
-.. toctree::
-:maxdepth: 4
+..  toctree::
+    :maxdepth: 4
 
-       other-endpoints
-       api-endpoints
+    other-endpoints
+    api-endpoints
 
 
 Errors
@@ -344,6 +344,9 @@ the broken rules. As an example (see the ``ruling`` property)::
 
 Deleting resources
 ==================
+
+.. todo:: This is no longer true as for now. We will allow deleting again in the future.
+
 Deleting resources (events or devices specifically) is against traceability. What is the credibility of a log if you
 can modify it and delete it? So, we usually don't let deleting anything. However, as an exception, we let deleting
 an event or device if:

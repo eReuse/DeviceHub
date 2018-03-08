@@ -7,14 +7,14 @@ class Update:
         Abstract class to update the database.
     """
 
-    def __init__(self, app: DeviceHub, headers=None, update_indexes=False):
+    def __init__(self, app: DeviceHub, headers=None, update_indexes=False, databases=None):
         """
         Updates the app.
         :param update_indexes: If true, it will drop all indexes and re-add them from each ResourceSettings.
         """
         self.app = app
         app.config['DEBUG'] = True  # Print log messages on screen
-        for database in app.config['DATABASES']:
+        for database in (databases or app.config['DATABASES']):
             # We need to have an active request to 'trick' set_database and work with the database we want
             with app.test_request_context('/{}/devices'.format(database), headers=headers):
                 print('Starting update process for database {}'.format(database))

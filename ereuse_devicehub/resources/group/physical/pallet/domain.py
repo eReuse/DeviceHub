@@ -9,8 +9,8 @@ class PalletDomain(PhysicalDomain):
     resource_settings = PalletSettings
 
     @classmethod
-    def remove_other_parents_of_type(cls, child_domain: Domain, children: Iterable):
+    def remove_other_parents_of_type(cls, new_parent_id: str, child_domain: Domain, children: Iterable):
         """Removes other pallets and packages the resource may have."""
         query = {'$pull': {'ancestors': {'@type': 'Package'}}}
         child_domain.update_raw(children, query)
-        super().remove_other_parents_of_type(child_domain, children)
+        super().remove_other_parents_of_type(new_parent_id, child_domain, children)

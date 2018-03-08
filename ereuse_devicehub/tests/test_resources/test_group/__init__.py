@@ -1,4 +1,5 @@
 import sys
+from contextlib import suppress
 from pprint import pprint
 
 import pymongo
@@ -35,31 +36,34 @@ class TestGroupBase(TestStandard):
         parent = self.get_200(parent_resource_name, item=parent_id)
         parent_id = parent['_id']
         assert_that(parent).contains('children')
-
+        exceptions = 0
         try:
             # Child does have parent
             assert_that(child['ancestors']).extracting('@type', '_id').contains((parent_type, parent_id))
             for component in child.get('components', []):
                 assert_that(component).contains('ancestors')
                 assert_that(component['ancestors']).extracting('@type', '_id').contains((parent_type, parent_id))
-
+        except AssertionError:
+            exceptions += 1
+        try:
             # Parent does have child
             assert_that(parent['children']).contains(child_resource_name)
-            assert_that(parent['children'][child_resource_name]).contains(child['_id'])
+            assert_that(parent['children'][child_resource_name]).contains(child_id)
             # todo materialize children
             # if 'components' in child:  # If the child has components, the father should have relationship to them
             #    assert_that(parent['children']['components']).contains(*pluck(child['components'], '_id'))
-        except AssertionError as e:
-            raise IsNotAncestor('{} is not a parent of {}'.format(parent['label'], str(child_id))) from e
+        except AssertionError:
+            exceptions += 1
+        if exceptions == 1:
+            raise AncestorMismatch('One resource says is ancestor but the other says it is not')
+        elif exceptions == 2:
+            raise IsNotAncestor('{} is not a parent of {}'.format(parent.get('label', parent['_id']), str(child_id)))
 
     def is_not_parent(self, parent_id: str, parent_resource_name: str, child_id: str, child_resource_name: str):
         """As `is_parent` but opposite."""
-        try:
-
+        with suppress(IsNotAncestor):
             self.is_parent(parent_id, parent_resource_name, child_id, child_resource_name)
             raise AssertionError('{} is a parent of {}'.format(parent_id, str(child_id)))
-        except IsNotAncestor:
-            pass
 
     def is_grandpa_or_above(self, parent_id: str, parent_resource_name: str, child_id: str, child_resource_name: str):
         child, status = self.get(child_resource_name, item=child_id, embedded={'components': True})
@@ -138,4 +142,8 @@ class TestGroupBase(TestStandard):
 
 
 class IsNotAncestor(AssertionError):
+    pass
+
+
+class AncestorMismatch(AssertionError):
     pass

@@ -42,5 +42,5 @@ class LotDomain(AbstractDomain):
             raise KeyError('{} of {} cannot inherit a lot.'.format(children, child_resource_name))
 
     @classmethod
-    def remove_other_parents_of_type(cls, child_domain: Domain, children: Iterable):
+    def remove_other_parents_of_type(cls, new_parent_id: str, child_domain: Domain, children: Iterable):
         pass

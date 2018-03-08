@@ -2,8 +2,10 @@ from collections import Iterable
 from typing import Dict, List, Set, Type
 
 from bson import ObjectId
+from ereuse_utils.naming import Naming
 from passlib.utils import classproperty
-from pydash import compact, difference, difference_with, flatten, map_values, pick, pluck, py_, union_by
+from pydash import compact, difference, difference_with, flatten, map_values, pick, pluck, py_, \
+    union_by
 from pymongo.errors import OperationFailure
 
 from ereuse_devicehub.resources.account.domain import AccountDomain
@@ -13,7 +15,6 @@ from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.domain import Domain, ResourceNotFound
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.group.settings import Group, GroupSettings
-from ereuse_utils.naming import Naming
 
 Perms = List[Dict[str, str]]
 
@@ -57,7 +58,7 @@ class GroupDomain(Domain):
 
                 # We remove other parents (some groups may override it and do nothing here)
                 # Inherit, executed after, will propagate this changes to the descendants
-                cls.remove_other_parents_of_type(child_domain, new_adopted)
+                cls.remove_other_parents_of_type(_id, child_domain, new_adopted)
 
                 # We add our foreign key (with our ancestors) in the new adopted's documents
                 # and we propagate all changes to our descendants
@@ -88,7 +89,8 @@ class GroupDomain(Domain):
             cls._update_inheritance_grandchildren(full_children, child_domain, accounts_to_remove=parent_accounts)
 
     @classmethod
-    def remove_other_parents_of_type(cls, child_domain: Type[Domain], children: Set[str]):
+    def remove_other_parents_of_type(cls, new_parent_id: str, child_domain: Type[Domain],
+                                     children: Set[str]):
         """
         Removes any parent of the same type of the parent children have.
 
@@ -104,6 +106,10 @@ class GroupDomain(Domain):
         """
         query = {'$pull': {'ancestors': {'@type': cls.resource_settings._schema.type_name}}}
         child_domain.update_raw(children, query)
+        # Remove child ids from all parents of the given type
+        child_rname = child_domain.resource_settings.resource_name()
+        cls.update_many_raw({'_id': {'$ne': new_parent_id}},
+                            {'$pullAll': {'children.{}'.format(child_rname): children}})
 
     @classmethod
     def inherit(cls, parent_id: str, parent_ancestors: list, child_domain: Type[Domain], children: Set[str],

@@ -11,7 +11,7 @@ class Migrate(EventWithDevices):
         'schema': {
             'baseUrl': {
                 'type': 'url',
-                'doc': 'The scheme, domain, any path to reach the DeviceHub.',
+                'doc': 'The scheme, domain, any path to reach the DeviceHub. With trailing slash.',
                 'required': True
             },
             'database': {

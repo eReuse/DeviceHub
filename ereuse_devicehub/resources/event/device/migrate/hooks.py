@@ -34,6 +34,7 @@ def submit_migrate(migrates: dict):
     """
     for migrate in migrates:
         if 'to' in migrate:
+            assert migrate['to']['baseUrl'][-1] == '/'
             auth = AgentAuth(migrate['to']['baseUrl'])
             submitter = MigrateSubmitter(current_app, MigrateTranslator(current_app.config), auth=auth)
             try:

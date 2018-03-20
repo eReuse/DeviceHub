@@ -5,7 +5,7 @@ from passlib.handlers.sha2_crypt import sha256_crypt
 
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.event.device.reserve.settings import Reserve
-from ereuse_devicehub.security.perms import ACCESS, READ
+from ereuse_devicehub.security.perms import ACCESS, READ, ADMIN
 from ereuse_devicehub.tests.test_resources.test_events.test_device_event import TestDeviceEvent
 
 
@@ -28,12 +28,32 @@ class TestReserve(TestDeviceEvent):
         self.token2 = self.account2['token']
 
     def test_reserve_in_shared_group(self):
-        """Shares a group to a second user, and this second user reserves some inner devices, notifying the owner."""
+        """
+        Shares a group to a second user, and this second user reserves
+        some inner devices, notifying the owner.
+        """
+
+        # Let's add an extra account (account3)
+        # This account is not active so it does not receive any email
+        self.db.accounts.insert_one(
+            {
+                'email': 'c@c.c',
+                'password': sha256_crypt.hash('1234'),
+                'role': Role.ADMIN,
+                'token': 'TOKENC',
+                'databases': {self.app.config['DATABASES'][0]: ADMIN},
+                'defaultDatabase': self.app.config['DATABASES'][0],
+                '@type': 'Account',
+                'active': False
+            }
+        )
         # Account is owner and performs share, and account2 will perform reserve
         # Create a lot and share it to account2
         lot = self.get_fixture(self.LOTS, 'lot')
         lot['children'] = {'devices': self.devices_id}
-        lot['perms'] = [{'account': self.account2['_id'], 'perm': READ}]
+        lot['perms'] = [
+            {'account': self.account2['_id'], 'perm': READ}
+        ]
         self.post_201(self.LOTS, lot)
 
         devices_to_reserve = self.devices_id[:2]

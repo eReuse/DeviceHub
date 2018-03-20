@@ -22,7 +22,11 @@ def set_for_and_notify(reserves: List[dict]):
         # 'notify'
         db = AccountDomain.requested_database
         # We notify to accounts that own the database and represent real users (not machines)
-        q = {'databases.{}'.format(db): {'$in': EXPLICIT_DB_PERMS}, 'role': {'$nin': Role.MACHINES}}
+        q = {
+            'databases.{}'.format(db): {'$in': EXPLICIT_DB_PERMS},
+            'role': {'$nin': Role.MACHINES},
+            'active': True
+        }
         accounts_with_full_access = AccountDomain.get(q)
         reserve['notify'] = pluck(accounts_with_full_access, '_id')
         g.dh_device_event_reserve_notify = accounts_with_full_access

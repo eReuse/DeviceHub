@@ -11,6 +11,7 @@ from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.device.schema import Device
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
 from ereuse_devicehub.resources.event.device.migrate.settings import Migrate
+from ereuse_devicehub.resources.event.device.receive.settings import Receive
 from ereuse_devicehub.resources.event.device.settings import DeviceEvent
 from ereuse_devicehub.resources.group.abstract.lot.incoming_lot.settings import IncomingLot
 from ereuse_devicehub.resources.group.abstract.lot.outgoing_lot.settings import OutgoingLot
@@ -193,8 +194,9 @@ def convert_dh_operators(_, request: Request, __):
             if where.pop('dh$active'):
                 _and.append({
                     '$or': [
-                        {'events.@type': {'$nin': ['devices:Recycle', 'devices:Dispose', Migrate.type_name]}},
-                        {'events': {'$not': {'$elemMatch': {'@type': Migrate.type_name, 'to': {'$exists': True}}}}}
+                        {'events.@type': {'$nin': ['devices:Recycle', 'devices:Dispose']}},
+                        {'events': {'$not': {'$elemMatch': {'@type': Migrate.type_name, 'to': {'$exists': True}}}}},
+                        {'events': {'$not': {'$elemMatch': {'@type': Receive.type_name, 'type': 'FinalUser'}}}}
                     ]
                 })
             else:

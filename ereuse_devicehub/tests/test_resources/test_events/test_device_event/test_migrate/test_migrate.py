@@ -2,15 +2,14 @@ import os
 from uuid import uuid4
 
 from assertpy import assert_that
+from ereuse_utils.naming import Naming
 from passlib.handlers.sha2_crypt import sha256_crypt
 
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.event.device.migrate.settings import Migrate
 from ereuse_devicehub.resources.event.device.register.settings import Register
 from ereuse_devicehub.security.perms import ACCESS
-from ereuse_devicehub.tests import TestBase
 from ereuse_devicehub.tests.test_resources.test_events.test_device_event import TestDeviceEvent
-from ereuse_utils.naming import Naming
 
 
 class TestMigrate(TestDeviceEvent):
@@ -206,3 +205,16 @@ class TestMigrate(TestDeviceEvent):
                 full_snapshot['device']['_id'] = device_id
                 _, status = self._post('{}/{}/{}'.format(db, self.DEVICE_EVENT, self.SNAPSHOT), full_snapshot, token)
                 self.assert201(status)
+
+    def test_placeholder_monitor(self):
+        placeholder = self.get_fixture('register', '1-placeholder')
+        register = self.post_201('{}/{}'.format(self.DEVICE_EVENT, 'register'), placeholder)
+        monitor = self.get_fixture(self.SNAPSHOT, 'monitor')
+        monitor['device']['_id'] = register['device']
+        monitor_from_snapshot = self.post_201(self.DEVICE_EVENT_SNAPSHOT, monitor)
+        migrate_to = self.get_fixture('migrate', 'migrate_to')
+        migrate_to['devices'] = [monitor_from_snapshot['device']]
+        migrate_to['to']['database'] = self.db2
+        migrate_to = self.post_201(self.MIGRATE_URL, migrate_to)
+        migrate_other_db, status = self._get(migrate_to['to']['url'], self.token_b)
+        self.assert200(status)

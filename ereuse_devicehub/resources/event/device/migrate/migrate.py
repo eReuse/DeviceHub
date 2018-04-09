@@ -57,7 +57,11 @@ class MigrateTranslator(ResourceTranslator):
         schema = current_app.config['DOMAIN'][Naming.resource(device['@type'])]['schema']
         _id = device['_id']
         for field in copy.copy(device):
-            if '_' in field or not {'materialized', 'readonly'}.isdisjoint(set(schema[field].keys())):
+            try:
+                if '_' in field or not {'materialized', 'readonly'}.isdisjoint(set(schema[field].keys())):
+                    del device[field]
+            except KeyError:
+                # todo hotfix for default fields from other schemas that contaminated this resource
                 del device[field]
         device['url'] = DeviceDomain.url_agent_for(AccountDomain.requested_database, _id)
 

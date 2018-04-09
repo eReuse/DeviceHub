@@ -40,14 +40,14 @@ class TestSnapshot(TestEvent, TestGroupBase):
         events = [self.get_200('events', item=event_id) for event_id in snapshot['events']]
         return snapshot, events
 
-    def creation(self, input_snapshot: dict, num_of_events: int = 1, do_second_time_snapshot=True) -> (str, dict):
+    def creation(self, input_snapshot: dict, num_of_events: int = 1, do_second_time_snapshot=True) -> (str, str):
         """
         Posts a snapshot checking correctness.
         :param input_snapshot: The Snapshot.
         :param num_of_events: How many events should the snapshot create?
         :param do_second_time_snapshot: Try performing the snapshot again. If the snapshot has an UUID the system
         should return an error, otherwise the snapshot would be saved as a new one, but without creating any event.
-        :return: the id of the snapshot and its device.
+        :return: the id of the snapshot and the id of its device.
         """
         # Creates
         snapshot, events = self.post_snapshot_get_full_events(input_snapshot, num_of_events)

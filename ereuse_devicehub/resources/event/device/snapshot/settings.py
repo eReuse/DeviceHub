@@ -214,6 +214,58 @@ class Snapshot(EventWithOneDevice):
         'description': 'Automatically add the device to the group, if any.',
         'doc': 'After performing the snapshot, adds the device to the group if it was not there already.'
     }
+    color = {
+        'type': 'string',
+        'description': 'The primary color of the device.',
+        'allowed_description': {
+            '#000000': 'black',
+            '#C0C0C0': 'silver',
+            '#808080': 'gray',
+            '#FFFFFF': 'white',
+            '#800000': 'maroon',
+            '#FF0000': 'red',
+            '#800080': 'purple',
+            '#FF00FF': 'fuchsia',
+            '#008000': 'green',
+            '#00FF00': 'lime',
+            '#808000': 'olive',
+            '#FFFF00': 'yellow',
+            '#000080': 'navy',
+            '#0000FF': 'blue',
+            '#008080': 'teal',
+            '#00FFFF': 'aqua'
+        }
+    }
+    orientation = {
+        'type': 'string',
+        'allowed': {'Vertical', 'Horizontal'}
+    }
+    picture_info = {
+        'type': 'dict',
+        'schema': {
+            'software': {
+                'type': 'string',
+                'allowed': {'Pbx'},
+                'allowed_description': {
+                    'Pbx': 'Photobox'
+                },
+                'description': 'The software used to take the picture.'
+            },
+            'version': {
+                'type': 'version',
+                'description': 'The version of the software.'
+            }
+        },
+        'description': 'Information about the pictures of the device.'
+    }
+    pictures = {
+        'type': 'list',
+        'schema': {
+            'type': 'media',
+            'accept': 'image/jpeg'
+        },
+        'description': 'Pictures of the device.'
+    }
 
     @classmethod
     def _clean(cls, attributes: dict, attributes_to_remove: tuple = None) -> dict:

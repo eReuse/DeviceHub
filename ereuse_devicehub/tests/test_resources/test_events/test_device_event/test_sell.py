@@ -49,7 +49,7 @@ class TestSell(TestDeviceEvent):
             'devices': self.devices_id,
             'reserve': reserve['_id']
         }
-        sell = map_values(sell, lambda x: json.dumps(x))
+        sell = {k: json.dumps(v) for k, v in sell.items()}
         sell['invoices'] = [(BytesIO(first_pdf), 'pdf1.pdf'), (BytesIO(second_pdf), 'pdf2.pdf')]
         with self.app.mail.record_messages() as outbox:
             sell = self.post_201(self.DEVICE_EVENT_SELL, sell, content_type='multipart/form-data')

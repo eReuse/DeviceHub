@@ -1,6 +1,8 @@
 import copy
+import json
 import os
 import uuid
+from io import BytesIO
 from random import choice
 
 from assertpy import assert_that
@@ -905,3 +907,22 @@ class TestSnapshot(TestEvent, TestGroupBase):
     def test_snapshot_91b(self):
         snapshot = self.get_fixture(self.SNAPSHOT, '9.1b')
         self.post(self.SNAPSHOT_URL, data=snapshot, token=self.token)
+
+    def test_snapshot_pictures(self):
+        snapshot = self.get_fixture(self.SNAPSHOT, 'snapshot-simple')
+        first_pic = b'im1'
+        second_pic = b'im2'
+        snapshot['picture_info'] = {
+            'software': 'Pbx',
+            'version': '0.0.1'
+        }
+        snapshot = {k: json.dumps(v) for k, v in snapshot.items()}
+        snapshot['pictures'] = [(BytesIO(first_pic), '1.jpg'), (BytesIO(second_pic), '2.jpg')]
+        snapshot = self.post_201(self.DEVICE_EVENT_SNAPSHOT, snapshot, content_type='multipart/form-data')
+        snapshot = self.get_200(self.EVENTS, item=snapshot['_id'])
+        pics = snapshot['pictures']
+        assert_that(snapshot['picture_info']).is_equal_to({'software': 'Pbx', 'version': '0.0.1'})
+        assert_that(pics[0]['name'] == '1.jpg')
+        assert_that(pics[1]['name'] == '2.jpg')
+        assert_that(self.get_200(pics[0]['file'][1:])).is_equal_to(first_pic)
+        assert_that(self.get_200(pics[1]['file'][1:])).is_equal_to(second_pic)

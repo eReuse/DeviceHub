@@ -926,3 +926,40 @@ class TestSnapshot(TestEvent, TestGroupBase):
         assert_that(pics[1]['name'] == '2.jpg')
         assert_that(self.get_200(pics[0]['file'][1:])).is_equal_to(first_pic)
         assert_that(self.get_200(pics[1]['file'][1:])).is_equal_to(second_pic)
+
+    def test_snapshot_photobox(self):
+        """
+        Tests a Snapshot made directly from Photobox.
+
+        Ensures the scope of the Photobox snapshot (i.e. not modifying
+        condition values, components, etc.).
+        """
+        # First let's make a normal Snapshot through Workbench
+        snapshot = self.get_fixture(self.SNAPSHOT, 'high-score')
+        snapshot = self.post_201(self.SNAPSHOT_URL, data=snapshot, token=self.token)
+        device_id = snapshot['device']
+        device = self.get_200(self.DEVICES, item=device_id)
+        # Now a new snapshot through the photobox
+        snapshot_pbx = {
+            '@type': 'devices:Snapshot',
+            'snapshotSoftware': 'Photobox',
+            'version': '0.0.1',
+            'device': {'_id': device_id, '@type': 'Computer'},
+            'picture_info': {
+                'software': 'Pbx',
+                'version': '0.0.1'
+            }
+        }
+        snapshot_pbx = {k: json.dumps(v) for k, v in snapshot_pbx.items()}
+        snapshot_pbx['pictures'] = [(BytesIO(b'foo'), '1.jpg')]
+        snapshot_pbx = self.post_201(self.DEVICE_EVENT_SNAPSHOT, snapshot_pbx,
+                                     content_type='multipart/form-data')
+        assert_that(snapshot_pbx['pictures'][0]).has_name('1.jpg')
+        device_updated = self.get_200(self.DEVICES, item=device_id)
+        assert_that(device_updated).has_condition(device['condition'])
+        assert_that(device_updated).has_pricing(device['pricing'])
+        assert_that(device_updated).has_serialNumber(device['serialNumber'])
+        assert_that(device_updated).has_model(device['model'])
+        assert_that(device_updated).has_manufacturer(device['manufacturer'])
+        assert_that(device_updated).has_totalHardDriveSize(device['totalHardDriveSize'])
+

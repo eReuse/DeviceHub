@@ -1,9 +1,12 @@
 import json
+import warnings
 from argparse import ArgumentParser
 from getpass import getpass
 from io import BytesIO
 from pathlib import Path
 from uuid import uuid4
+
+from PIL import Image
 
 from ereuse_devicehub import DeviceHub
 from ereuse_devicehub.tests import Client
@@ -30,9 +33,18 @@ def snapshot_pictures(app: DeviceHub, email: str, password: str, device_id: str,
     }
     snapshot = {k: json.dumps(v) for k, v in snapshot.items()}
     snapshot['pictures'] = []
+    warnings.simplefilter('error', Image.DecompressionBombWarning)  # Throw security error
     for path in pic_dir.iterdir():
-        with path.open('rb') as pic:
-            snapshot['pictures'].append((BytesIO(pic.read()), path.name))
+        pic = Image.open(path)  # type: Image
+        try:
+            pic.thumbnail(size=(1600, 1600))
+            bytes = BytesIO()
+            pic.save(bytes, 'JPEG', quality=80, optimize=True, progressive=True)
+            bytes.seek(0)  # Reset position of the bytes array
+            snapshot['pictures'].append((bytes, path.name))
+        finally:
+            pic.close()
+
     snapshot = c.post_201(c.DEVICE_EVENT_SNAPSHOT, snapshot,
                           content_type='multipart/form-data',
                           token=account['token'],
@@ -40,7 +52,7 @@ def snapshot_pictures(app: DeviceHub, email: str, password: str, device_id: str,
     # Ensure we can get a picture
     c.get_200(snapshot['pictures'][0]['file'][1:], token=account['token'], db=db)
     print('Uploaded picture paths:')
-    print(*['{}/{}'.format(db, p['file']) for p in snapshot['pictures']], sep='\n')
+    print(*['{}{}'.format(db, p['file']) for p in snapshot['pictures']], sep='\n')
 
 
 def main(app: DeviceHub):

@@ -902,11 +902,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
 
     def test_snapshot_9_b(self):
         snapshot = self.get_fixture(self.SNAPSHOT, '9.1')
-        self.post(self.SNAPSHOT_URL, data=snapshot, token=self.token)
-
-    def test_snapshot_91b(self):
-        snapshot = self.get_fixture(self.SNAPSHOT, '9.1b')
-        self.post(self.SNAPSHOT_URL, data=snapshot, token=self.token)
+        self.post_201(self.SNAPSHOT_URL, data=snapshot)
 
     def test_snapshot_pictures(self):
         snapshot = self.get_fixture(self.SNAPSHOT, 'snapshot-simple')
@@ -936,7 +932,7 @@ class TestSnapshot(TestEvent, TestGroupBase):
         """
         # First let's make a normal Snapshot through Workbench
         snapshot = self.get_fixture(self.SNAPSHOT, 'high-score')
-        snapshot = self.post_201(self.SNAPSHOT_URL, data=snapshot, token=self.token)
+        snapshot = self.post_201(self.SNAPSHOT_URL, data=snapshot)
         device_id = snapshot['device']
         device = self.get_200(self.DEVICES, item=device_id)
         # Now a new snapshot through the photobox

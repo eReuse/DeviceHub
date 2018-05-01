@@ -58,3 +58,5 @@ class ComponentDomain(DeviceDomain):
         assert '_id' in component, 'Component needs to be created'
         if 'benchmark' in component:
             cls.update_raw(component['_id'], {'$push': {'benchmarks': component['benchmark']}})
+        elif 'benchmarks' in component:
+            cls.update_raw(component['_id'], {'$push': {'benchmarks': {'$each': component['benchmarks']}}})

@@ -3,6 +3,7 @@ import copy
 from ereuse_devicehub.resources.account.role import Role
 from ereuse_devicehub.resources.account.settings import unregistered_user
 from ereuse_devicehub.resources.condition import condition
+from ereuse_devicehub.resources.device.benchmark_settings import BenchmarkRamSysbench
 from ereuse_devicehub.resources.device.component.settings import Component
 from ereuse_devicehub.resources.event.device.settings import EventSubSettingsOneDevice, EventWithOneDevice, parent, \
     place
@@ -265,6 +266,13 @@ class Snapshot(EventWithOneDevice):
             'accept': 'image/jpeg'
         },
         'description': 'Pictures of the device.'
+    }
+    benchmarks = {
+        'type': 'list',
+        'schema': {
+            'type': 'dict',
+            'schema': BenchmarkRamSysbench
+        }
     }
 
     @classmethod

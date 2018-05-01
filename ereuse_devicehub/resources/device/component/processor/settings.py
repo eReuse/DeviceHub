@@ -31,8 +31,7 @@ class Processor(Component):
         'schema': {
             'type': 'dict',
             'schema': BenchmarkProcessor
-        },
-        'readonly': True
+        }
     }
 
 

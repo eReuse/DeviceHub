@@ -152,7 +152,7 @@ class SpreadsheetTranslator(Translator):
                     with suppress(KeyError):
                         translated[header + ' number of cores'] = component['numberOfCores']
                     with suppress(KeyError):
-                        translated[header + ' score'] = component['benchmarks'][0]['score']
+                        translated[header + ' score'] = next(b['score'] for b in component['benchmarks'] if b['@type'] == 'BenchmarkProcessor')
                 elif _type == 'RamModule':
                     for field in 'size', 'speed':
                         with suppress(KeyError):

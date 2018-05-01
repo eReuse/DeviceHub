@@ -959,3 +959,51 @@ class TestSnapshot(TestEvent, TestGroupBase):
         assert_that(device_updated).has_manufacturer(device['manufacturer'])
         assert_that(device_updated).has_totalHardDriveSize(device['totalHardDriveSize'])
 
+    def test_new_benchmarks(self):
+        snapshot = self.get_fixture(self.SNAPSHOT, '9.1')
+        cpu = next(c for c in snapshot['components'] if c['@type'] == 'Processor')
+        snapshot['version'] = '10.0b7'
+        cpu['benchmarks'] = [
+            cpu.pop('benchmark'),
+            {
+                '@type': 'BenchmarkProcessorSysbench',
+                'score': 11.8707,
+            }
+        ]
+        snapshot['benchmarks'] = [
+            {
+                '@type': 'BenchmarkRamSysbench',
+                'score': 19.2744
+            }
+        ]
+        snapshot = self.post_201(self.DEVICE_EVENT_SNAPSHOT, snapshot)
+        snapshot = self.get_200(self.EVENTS, item=snapshot['_id'])
+        assert_that(snapshot).has_benchmarks([{'score': 19.2744, '@type': 'BenchmarkRamSysbench'}])
+        cpu = self.get_200(self.DEVICES, params={'where': json.dumps({'@type': 'Processor'})})['_items'][0]
+        assert_that(cpu).has_benchmarks([
+            {'score': 6383.92, '@type': 'BenchmarkProcessor'},
+            {'score': 11.8707, '@type': 'BenchmarkProcessorSysbench'}
+        ])
+        # Let's try to perform a second snapshot with another benchmark
+        snapshot = self.get_fixture(self.SNAPSHOT, '9.1')
+        snapshot['_uuid'] = uuid.uuid4()
+        cpu = next(c for c in snapshot['components'] if c['@type'] == 'Processor')
+        snapshot['version'] = '10.0b7'
+        cpu['benchmarks'] = [
+            cpu.pop('benchmark'),
+            {
+                '@type': 'BenchmarkProcessorSysbench',
+                'score': 2.0,
+            }
+        ]
+        self.post_201(self.DEVICE_EVENT_SNAPSHOT, snapshot)
+        cpu = self.get_200(self.DEVICES, params={'where': json.dumps({'@type': 'Processor'})})['_items'][0]
+        assert_that(cpu).has_benchmarks([
+            {'score': 6383.92, '@type': 'BenchmarkProcessor'},
+            {'score': 11.8707, '@type': 'BenchmarkProcessorSysbench'},
+            {'score': 6383.92, '@type': 'BenchmarkProcessor'},
+            {'score': 2, '@type': 'BenchmarkProcessorSysbench'}
+        ])
+
+
+

@@ -1,4 +1,4 @@
-from ereuse_devicehub.resources.schema import UnitCodes, RDFS
+from ereuse_devicehub.resources.schema import RDFS, UnitCodes
 
 
 class Benchmark(RDFS):
@@ -8,6 +8,16 @@ class Benchmark(RDFS):
         BENCHMARK_HARD_DRIVE,
         BENCHMARK_PROCESSOR
     )
+
+    @classmethod
+    def _clean(cls, attributes: dict, attributes_to_remove: tuple = None) -> dict:
+        attributes_to_remove = tuple() if attributes_to_remove is None else attributes_to_remove
+        benchmark_attributes_to_remove = ('BENCHMARK_HARD_DRIVE', 'BENCHMARK_PROCESSOR', 'TYPES')
+        return super(Benchmark, cls)._clean(attributes,
+                                            attributes_to_remove + benchmark_attributes_to_remove)
+
+
+class BenchmarkHardDrive(Benchmark):
     readingSpeed = {
         'type': 'float',
         'unitCode': UnitCodes.mbyte
@@ -17,16 +27,6 @@ class Benchmark(RDFS):
         'unitCode': UnitCodes.mbyte
     }
 
-    @classmethod
-    def _clean(cls, attributes: dict, attributes_to_remove: tuple = None) -> dict:
-        attributes_to_remove = tuple() if attributes_to_remove is None else attributes_to_remove
-        benchmark_attributes_to_remove = ('BENCHMARK_HARD_DRIVE', 'BENCHMARK_PROCESSOR', 'TYPES')
-        return super(Benchmark, cls)._clean(attributes, attributes_to_remove + benchmark_attributes_to_remove)
-
-
-class BenchmarkHardDrive(Benchmark):
-    pass
-
 
 class BenchmarkWithScore(Benchmark):
     score = {
@@ -35,4 +35,12 @@ class BenchmarkWithScore(Benchmark):
 
 
 class BenchmarkProcessor(BenchmarkWithScore):
+    pass
+
+
+class BenchmarkProcessorSysbench(BenchmarkProcessor):
+    pass
+
+
+class BenchmarkRamSysbench(BenchmarkWithScore):
     pass

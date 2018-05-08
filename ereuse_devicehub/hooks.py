@@ -38,11 +38,13 @@ def hooks(app):
 
     from ereuse_devicehub.resources.device.hooks import generate_etag, autoincrement, post_benchmark, \
         materialize_public_in_components, materialize_public_in_components_update
+    from ereuse_devicehub.resources.device.component.hooks import del_blacklist
     app.on_insert += generate_etag
     app.on_insert += autoincrement
     app.on_insert += post_benchmark
     app.on_inserted += materialize_public_in_components
     app.on_updated += materialize_public_in_components_update
+    app.on_insert += del_blacklist
 
     from ereuse_devicehub.resources.event.device.snapshot.hooks import on_insert_snapshot, save_request, \
         materialize_test_hard_drives, materialize_erasures, delete_events, move_id_remove_logical_name, \

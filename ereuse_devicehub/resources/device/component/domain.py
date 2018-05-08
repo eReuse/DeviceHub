@@ -18,7 +18,8 @@ class ComponentDomain(DeviceDomain):
         devices_id = set()
         for snapshot in snapshots:
             for unsecured in snapshot['unsecured']:
-                devices_id.add(unsecured['_id'])
+                if unsecured['_id'] not in component['_blacklist']:
+                    devices_id.add(unsecured['_id'])
         # We get the devices whose _id and etag matches
         etag = cls.generate_etag(component)
         query = {'_id': {'$in': list(devices_id)}, '_etag': etag}

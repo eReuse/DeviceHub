@@ -1012,4 +1012,81 @@ class TestSnapshot(TestEvent, TestGroupBase):
         hdd['test']['passedLifetime'] = 2000
         self.post_201(self.DEVICE_EVENT_SNAPSHOT, snapshot)
 
+    def test_duplicate_component_blacklist_non_hid_components_blacklist(self):
+        """
+        Checks that similar components that don't generate HID and are
+        in the same parent are not treated as one.
+        """
+        # We add the same RAM module another time (so we have 2)
+        # The RAM module doesn't generate HID
+        snapshot = self.get_fixture(self.SNAPSHOT, '9.1')
+        ram = next(c for c in snapshot['components'] if c['@type'] == 'RamModule') # there is only 1
+        snapshot['components'].append(ram)
+        s = self.post_201(self.DEVICE_EVENT_SNAPSHOT, snapshot)
+        registered_rams = self.get_200(self.DEVICES,
+                                          params={'where': json.dumps({'_id': {'$in': s['components']}, '@type': 'RamModule'})})['_items']
+        assert_that(len(registered_rams)).is_equal_to(2)
+        # Now we try to upload another snapshot
+        # now with 3 sticks of the same RAM
+        # The system should detect
+        snapshot['_uuid'] = str(uuid.uuid4())
+        snapshot['components'].append(ram)
+        s = self.post_201(self.DEVICE_EVENT_SNAPSHOT, snapshot)
+        new_registered_rams = self.get_200(self.DEVICES,
+                                              params={'where': json.dumps({'_id': {'$in': s['components']}, '@type': 'RamModule'})})['_items']
+        # It should have the original 2 RAM modules plus the new one
+        assert_that(new_registered_rams).is_length(3)
+        assert {r['_id'] for r in new_registered_rams}.issuperset(r['_id'] for r in registered_rams)
 
+    def test_snapshot_multiple_non_hid_components(self):
+        """
+        Tests the component detection heuristics when there are multiple
+        components that don't generate HID with the same specs
+        (example: ram modules without HID with exactly the same specs).
+
+        If performing two snapshots with those components, the detection
+        should map the three components with the three components.
+
+        If performing a snapshot with only one component (same specs no
+        HID) and then another snapshot with multiple components
+        (same specs no HID), the detection should map one component
+        to the original one, and create new components with the rest.
+        """
+        snapshot1 = {
+            '@type': 'devices:Snapshot',
+            'device': {
+                'model': 'foo',
+                'serialNumber': 'bar',
+                '@type': 'Computer',
+                'type': 'Desktop',
+                'manufacturer': 'baz'
+            },
+            'components': [
+                {
+                    'model': 'm1',
+                    'speed': 1000,
+                    '@type': 'RamModule'
+                }
+            ]
+        }
+        snapshot2 = snapshot1.copy()
+        snapshot2['components'] = [
+            {
+                'model': 'm1',
+                'speed': 1000,
+                '@type': 'RamModule'
+            },
+            {
+                'model': 'm1',
+                'speed': 1000,
+                '@type': 'RamModule'
+            }
+        ]
+
+        snapshot1_r = self.post_201(self.DEVICE_EVENT_SNAPSHOT, snapshot1)
+        assert_that(snapshot1_r['components']).is_length(1)
+        snapshot2_r = self.post_201(self.DEVICE_EVENT_SNAPSHOT, snapshot2)
+        assert_that(snapshot2_r['components']).is_length(2)
+        assert_that(snapshot2_r['components']).does_not_contain_duplicates()
+        ram1_id, ram2_id = snapshot2_r['components']
+        assert_that(snapshot1_r['components'][0]).is_equal_to(ram1_id)

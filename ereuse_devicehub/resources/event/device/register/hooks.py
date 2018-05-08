@@ -40,12 +40,15 @@ def post_devices(registers: list):
         register['deviceIsNew'] = device_is_new = _execute_register(device, register.get('created'), log)
         register['device'] = device['_id']
         components_created = []  # Note that components_created it doesn't need to be equal to register['comp.']
+        blacklist = set()
         for component in register.get('components', []):
             # Although we set materialized 'parent' in component after (in add_components), this one is needed
             # to help in case of a new component that cannot generate HID, linking it to its parent
             component['parent'] = device['_id']
+            component['_blacklist'] = blacklist
             if _execute_register(component, register.get('created'), log):  # Component is new
                 components_created.append(component['_id'])
+            blacklist.add(component['_id'])
         register['components'] = components_created  # We only keep in the event the new components
         if not device_is_new and is_empty(components_created):
             t = 'Device {} and components {} already exist.'.format(register['device'], register['components'])

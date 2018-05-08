@@ -19,6 +19,9 @@ class Component(Device):
             'embeddable': True
         }
     }
+    _blacklist = {
+        'type': 'set'
+    }
 
     @classmethod
     def subclasses_fields(cls):

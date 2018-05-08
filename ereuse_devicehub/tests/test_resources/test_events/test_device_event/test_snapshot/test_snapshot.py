@@ -1005,5 +1005,11 @@ class TestSnapshot(TestEvent, TestGroupBase):
             {'score': 2, '@type': 'BenchmarkProcessorSysbench'}
         ])
 
+    def test_workbench_tester(self):
+        snapshot = self.get_fixture(self.SNAPSHOT, '9.1')
+        hdd = next(c for c in snapshot['components'] if c['@type'] == 'HardDrive')
+        hdd['type'] = 'SSD'
+        hdd['test']['passedLifetime'] = 2000
+        self.post_201(self.DEVICE_EVENT_SNAPSHOT, snapshot)
 
 

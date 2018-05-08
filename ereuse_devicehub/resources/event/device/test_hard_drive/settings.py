@@ -30,6 +30,9 @@ class TestHardDrive(EventWithOneDevice):
         'type': 'boolean',
         'required': True
     }
+    passedLifetime = {
+        'type': 'integer'
+    }
     parent = parent_materialized
 
 

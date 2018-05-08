@@ -6,6 +6,12 @@ from ereuse_devicehub.resources.schema import UnitCodes
 
 
 class HardDrive(Component):
+    type = {
+        'type': 'string',
+        'allowed': {'SSD', 'HDD'},
+        'sink': 2,
+        'teaser': True
+    }
     interface = {
         'type': 'string',
         'sink': -1,

@@ -38,6 +38,9 @@ class TestHardDrive(EventWithOneDevice):
         'type': 'integer'
     }
     parent = parent_materialized
+    assessment = {
+        'type': 'boolean'
+    }
     reallocatedSectorCount = {
         'type': 'integer'
     }

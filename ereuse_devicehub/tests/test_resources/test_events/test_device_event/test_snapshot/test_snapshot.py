@@ -1090,3 +1090,26 @@ class TestSnapshot(TestEvent, TestGroupBase):
         assert_that(snapshot2_r['components']).does_not_contain_duplicates()
         ram1_id, ram2_id = snapshot2_r['components']
         assert_that(snapshot1_r['components'][0]).is_equal_to(ram1_id)
+
+    def test_pc_sharing_hid_with_component(self):
+        """Tests a PC that has the same HID than a component."""
+        snapshot = {
+            '_uuid': str(uuid.uuid4()),
+            '@type': 'devices:Snapshot',
+            'device': {
+                'model': 'foo',
+                'manufacturer': 'bar',
+                'serialNumber': 'foobar',
+                '@type': 'Computer'
+            },
+            'components': [{
+                'model': 'foo',
+                'manufacturer': 'bar',
+                'serialNumber': 'foobar',
+                '@type': 'Motherboard'
+            }]
+        }
+        s = self.post_201(self.DEVICE_EVENT_SNAPSHOT, snapshot)
+        # There is only one component: the motherboard
+        assert len(s['components']) == 1
+        assert s['components'][0] != s['device']

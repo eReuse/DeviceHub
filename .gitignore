@@ -67,4 +67,5 @@ logs/**
 /static
 /share_group.py
 /venv
+/duplicate_snapshot.py
 

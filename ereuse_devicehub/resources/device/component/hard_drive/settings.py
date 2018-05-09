@@ -10,7 +10,8 @@ class HardDrive(Component):
         'type': 'string',
         'allowed': {'SSD', 'HDD'},
         'sink': 2,
-        'teaser': True
+        'teaser': True,
+        'required': False
     }
     interface = {
         'type': 'string',

@@ -42,8 +42,20 @@ def submit_migrate(migrates: dict):
                 migrate['to']['url'] = migrate['to']['baseUrl'] + response['_links']['self']['href']
                 _update_same_as(response['returnedSameAs'])
             except InnerRequestError as e:
-                execute_delete(Migrate.resource_name, migrate['_id'])
-                raise e
+
+                # don't do delete_internal or check_migrate won't allow us because
+                # it will detect that the migrate we want to delete
+                # already exists so 'device has migrated'
+                DeviceEventDomain.delete_one({'_id': migrate['_id']})
+                DeviceDomain.update_many_raw({'events': {'$elemMatch': {'_id': migrate['_id']}}},
+                                             {"$pull": {'events': {'_id': migrate['_id']}}})
+                if e.status_code == 401:
+                    raise InnerRequestError(401,
+                                            {'message': 'The self@eruese account does not have '
+                                                        'access to this db! You forgot to set it ;-)'
+                                            })
+                else:
+                    raise e
             else:
                 update = {'$set': {'to.url': migrate['to']['url'], 'devices': [_id for _id in migrate['devices']]}}
                 DeviceEventDomain.update_one_raw(migrate['_id'], update)

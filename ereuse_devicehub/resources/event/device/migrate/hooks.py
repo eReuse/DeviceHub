@@ -17,6 +17,7 @@ from ereuse_devicehub.resources.event.device.migrate.migrate import DeviceHasMig
 from ereuse_devicehub.resources.event.device.migrate.migrate_creator import MigrateCreator
 from ereuse_devicehub.resources.event.device.migrate.settings import Migrate
 from ereuse_devicehub.resources.event.domain import EventNotFound
+from ereuse_devicehub.resources.group.abstract.lot.settings import Lot
 from ereuse_devicehub.resources.group.physical.place.domain import PlaceDomain
 from ereuse_devicehub.resources.group.physical.place.settings import Place
 from ereuse_devicehub.rest import execute_delete, execute_patch
@@ -133,6 +134,8 @@ def check_migrate(_, resource: dict):
     come back.
     :raises DeviceHasMigrated
     """
+    if resource.get('@type', None) in Lot.types:
+        return  # We can change devices from lots for now even if they migrated
     for device_id in DeviceEventDomain.devices_id(resource) + get(resource, 'children.devices', []):
         with suppress(EventNotFound):
             # todo can it be done with only one access to the DB for all devices (optimization)?

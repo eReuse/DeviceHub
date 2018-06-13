@@ -7,8 +7,12 @@ from ereuse_devicehub.resources.device.settings import DeviceSubSettings
 class Peripheral(Device):
     type = {
         'type': 'string',
-        'allowed': {'Router', 'Switch', 'Printer', 'Scanner', 'MultifunctionPrinter', 'Terminal', 'HUB', 'SAI',
-                    'Keyboard', 'Mouse', 'WirelessAccessPoint', 'LabelPrinter', 'Projector', 'VideoconferenceDevice'},
+        'allowed': {
+            'Router', 'Switch', 'Printer', 'Scanner', 'MultifunctionPrinter', 'Terminal', 'HUB',
+            'SAI', 'Keyboard', 'Mouse', 'WirelessAccessPoint', 'LabelPrinter', 'Projector',
+            'VideoconferenceDevice', 'SoundDevice', 'Microphone', 'WirelessMicrophone',
+            'Scaler', 'VideoScaler', 'MemoryCardReader', 'Amplifier', 'AudioAmplifier'
+        },
         'required': True
     }
     manufacturer = copy.copy(Device.manufacturer)

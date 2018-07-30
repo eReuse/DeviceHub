@@ -44,7 +44,7 @@ class ManufacturersGetter:
     PATHS_TO_REMOVE = 'index.php', 'List of'
     LOGO_AVOID = 'commons-logo', 'old'
     FILENAME = '_manufacturers.json'
-    CUSTOM_MANUFACTURERS = {'Belinea', 'OKI Data Corporation'}
+    CUSTOM_MANUFACTURERS = {'Belinea', 'OKI Data Corporation', 'Vivitek', 'Yuraku'}
     """
     A list of manufacturer labels (names) 
     that are not in (or we can't take them from) Wikipedia,

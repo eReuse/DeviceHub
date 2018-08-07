@@ -54,7 +54,14 @@ class TestExport(TestStandard):
             'devices': computers_id[0:2],
             'margin': 'foo',
             'price': '1.3',
-            'partners': 'baz'
+            'partners': 'u1'
+        }
+        self.post_201(self.DEVICE_EVENT_UPDATE, update)
+        update = {
+            '@type': 'devices:Update',
+            'devices': computers_id[0:2],
+            'partners': 'u2',
+            'originNote': 'xyz'
         }
         self.post_201(self.DEVICE_EVENT_UPDATE, update)
         book_dict = self._get_spreadsheet('lots', [lot['_id'], inner_lot['_id']])
@@ -65,7 +72,9 @@ class TestExport(TestStandard):
         assert_that(get_ids(book_dict['lot'])).is_equal_to(['Identifier', '1', '11', '25', '35'])
         assert_that(py_().map_(lambda row: row[40])(book_dict['inner lot'])).is_equal_to(['Margin', 'foo', 'foo'])
         assert_that(py_().map_(lambda row: row[41])(book_dict['inner lot'])).is_equal_to(['Price', '1.3', '1.3'])
-        assert_that(py_().map_(lambda row: row[42])(book_dict['inner lot'])).is_equal_to(['Partners', 'baz', 'baz'])
+        assert_that(py_().map_(lambda row: row[42])(book_dict['inner lot'])).is_equal_to(['Partners', 'u2', 'u2'])
+        assert_that(py_().map_(lambda row: row[43])(book_dict['inner lot'])).is_equal_to(['Origin note', 'xyz', 'xyz'])
+        assert_that(py_().map_(lambda row: row[44])(book_dict['inner lot'])).is_equal_to(['Target note', '', ''])
         book_dict_ods = self._get_spreadsheet('lots', [lot['_id'], inner_lot['_id']], xlsx=False)
         assert_that(book_dict_ods).is_equal_to(book_dict)
 

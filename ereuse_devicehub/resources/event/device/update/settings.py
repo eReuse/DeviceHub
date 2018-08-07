@@ -11,6 +11,12 @@ class Update(EventWithDevices):
     partners = {
         'type': 'string'
     }
+    originNote = {
+        'type': 'string'
+    }
+    targetNote = {
+        'type': 'string'
+    }
 
 
 class UpdateSettings(EventSubSettingsMultipleDevices):

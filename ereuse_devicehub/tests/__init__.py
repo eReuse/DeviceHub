@@ -34,12 +34,14 @@ class Client(TestMinimal):
     GROUPS = 'groups'
     LOTS = 'lots'
     PACKAGES = 'packages'
+    UPDATE = 'update'
     DEVICE_EVENT_SNAPSHOT = DEVICE_EVENT + '/' + SNAPSHOT
     RESERVE = 'reserve'
     SELL = 'sell'
     CANCEL_RESERVATION = 'cancel-reservation'
     DEVICE_EVENT_RESERVE = DEVICE_EVENT + '/' + RESERVE
     DEVICE_EVENT_SELL = DEVICE_EVENT + '/' + SELL
+    DEVICE_EVENT_UPDATE = DEVICE_EVENT + '/' + UPDATE
     DEVICE_EVENT_CANCEL_RESERVATION = DEVICE_EVENT + '/' + CANCEL_RESERVATION
     MEDIA = 'media'
 

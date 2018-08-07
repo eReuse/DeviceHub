@@ -1,3 +1,4 @@
+import pymongo
 from collections import Iterator, OrderedDict, defaultdict
 from contextlib import suppress
 from datetime import timedelta
@@ -14,6 +15,8 @@ from werkzeug.exceptions import NotAcceptable
 from ereuse_devicehub.header_cache import header_cache
 from ereuse_devicehub.resources.device.component.settings import Component
 from ereuse_devicehub.resources.device.domain import DeviceDomain
+from ereuse_devicehub.resources.event.device import DeviceEventDomain
+from ereuse_devicehub.resources.event.domain import EventNotFound
 from ereuse_devicehub.resources.group.domain import GroupDomain
 from ereuse_devicehub.resources.group.settings import Group
 from ereuse_devicehub.resources.submitter.translator import Translator
@@ -160,6 +163,13 @@ class SpreadsheetTranslator(Translator):
         if translated.get('Registered in', None):
             # When snapshot executes this method devices don't have this property
             translated['Registered in'] = str(translated['Registered in'])
+        if not self.brief:
+            with suppress(EventNotFound):
+                last_update = DeviceEventDomain.get_one({'$query': {'devices': {'$in': [device['_id']]}, '@type': 'devices:Update'},
+                                                        '$orderby': {'_created': pymongo.DESCENDING}})
+                translated['Margin'] = last_update['margin']
+                translated['Price'] = last_update['price']
+                translated['Partners'] = last_update['partners']
         return translated
 
     def translate(self, devices: Iterator) -> list:
@@ -167,7 +177,7 @@ class SpreadsheetTranslator(Translator):
         translated = super().translate(devices)
         # Let's transform the dict to a table-like array
         # Generation of table headers
-        field_names = list(self.dict.keys())  # We want first the keys we set in the translation dict
+        field_names = list(self.dict.keys()) + ['Margin', 'Price', 'Partners']  # We want first the keys we set in the translation dict
         field_names += py_(translated).map(keys).flatten().uniq().difference(field_names).sort().value()
         # compute the rows; header titles + fields (note we do not use pick as we don't want None but '' for empty)
         return [field_names] + map_(translated, lambda res: [res.get(f, '') if res.get(f, None) is not None else '' for f in field_names])

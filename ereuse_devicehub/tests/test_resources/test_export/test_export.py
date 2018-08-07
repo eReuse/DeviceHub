@@ -49,12 +49,23 @@ class TestExport(TestStandard):
         lot['children']['devices'] = computers_id[2:4]
         lot['children']['lots'] = [inner_lot['_id']]  # Inner lot is inside lot
         lot = self.post_201('lots', lot)
+        update = {
+            '@type': 'devices:Update',
+            'devices': computers_id[0:2],
+            'margin': 'foo',
+            'price': '1.3',
+            'partners': 'baz'
+        }
+        self.post_201(self.DEVICE_EVENT_UPDATE, update)
         book_dict = self._get_spreadsheet('lots', [lot['_id'], inner_lot['_id']])
         assert_that(book_dict).contains_only('inner lot', 'lot')
         # Inner lot has devices 1, 11, and lot has 25 and 35, plus the ones of 'inner lot'
         get_ids = py_().map_(lambda row: row[0])
         assert_that(get_ids(book_dict['inner lot'])).is_equal_to(['Identifier', '1', '11'])
         assert_that(get_ids(book_dict['lot'])).is_equal_to(['Identifier', '1', '11', '25', '35'])
+        assert_that(py_().map_(lambda row: row[40])(book_dict['inner lot'])).is_equal_to(['Margin', 'foo', 'foo'])
+        assert_that(py_().map_(lambda row: row[41])(book_dict['inner lot'])).is_equal_to(['Price', '1.3', '1.3'])
+        assert_that(py_().map_(lambda row: row[42])(book_dict['inner lot'])).is_equal_to(['Partners', 'baz', 'baz'])
         book_dict_ods = self._get_spreadsheet('lots', [lot['_id'], inner_lot['_id']], xlsx=False)
         assert_that(book_dict_ods).is_equal_to(book_dict)
 

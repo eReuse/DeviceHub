@@ -54,7 +54,8 @@ class TestExport(TestStandard):
             'devices': computers_id[0:2],
             'margin': 'foo',
             'price': '1.3',
-            'partners': 'u1'
+            'partners': 'u1',
+            'guaranteeYears': 3
         }
         self.post_201(self.DEVICE_EVENT_UPDATE, update)
         update = {
@@ -75,6 +76,7 @@ class TestExport(TestStandard):
         assert_that(py_().map_(lambda row: row[42])(book_dict['inner lot'])).is_equal_to(['Partners', 'u2', 'u2'])
         assert_that(py_().map_(lambda row: row[43])(book_dict['inner lot'])).is_equal_to(['Origin note', 'xyz', 'xyz'])
         assert_that(py_().map_(lambda row: row[44])(book_dict['inner lot'])).is_equal_to(['Target note', '', ''])
+        assert_that(py_().map_(lambda row: row[46])(book_dict['inner lot'])).is_equal_to(['Guarantee Years', 3, 3])
         book_dict_ods = self._get_spreadsheet('lots', [lot['_id'], inner_lot['_id']], xlsx=False)
         assert_that(book_dict_ods).is_equal_to(book_dict)
 

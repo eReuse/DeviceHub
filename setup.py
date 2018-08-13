@@ -75,7 +75,8 @@ setup(
         'toolz>=0.8,<1.0',
         'Flask-Mail',
         'rpy2',
-        'ereuse-utils [naming]'
+        'ereuse-utils [naming]',
+        'lxml'
     ],
     keywords='eReuse.org DeviceHub devices devicehub reuse recycle it asset management',
     # http://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies

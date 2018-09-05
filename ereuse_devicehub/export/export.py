@@ -178,10 +178,12 @@ class SpreadsheetTranslator(Translator):
                         translated['Origin note'] = update['originNote']
                     if update.get('targetNote', None):
                         translated['Target note'] = update['targetNote']
-                    if update.get('maintenance', None):
-                        translated['Maintenance'] = update['maintenance']
                     if update.get('guaranteeYears', None):
                         translated['Guarantee Years'] = update['guaranteeYears']
+                    if update.get('invoicePlatformId', None):
+                        translated['invoicePlatformId'] = update['invoicePlatformId']
+                    if update.get('invoiceRetailerId', None):
+                        translated['invoiceRetailerId'] = update['invoiceRetailerId']
         return translated
 
     def translate(self, devices: Iterator) -> list:

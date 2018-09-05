@@ -8,7 +8,6 @@ from typing import Type
 
 import flask_cors
 import flask_excel
-import gnupg
 from ereuse_utils import ensure_utf8
 from eve import Eve
 from eve.auth import requires_auth
@@ -64,7 +63,6 @@ class DeviceHub(Eve):
                          **kwargs)
         self.json_encoder = MongoJSONEncoder
         self.mongo_encoder = mongo_encoder()
-        self.gpg = gnupg.GPG()
         self.cache = cache
         self.cache.init_app(self)
         self.sid = ShortId()  # Short id for groups

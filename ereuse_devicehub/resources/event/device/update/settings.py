@@ -17,11 +17,14 @@ class Update(EventWithDevices):
     targetNote = {
         'type': 'string'
     }
-    maintenance = {
-        'type': 'boolean'
-    }
     guaranteeYears = {
         'type': 'natural'
+    }
+    invoicePlatformId = {
+        'type': 'string'
+    }
+    invoiceRetailerId = {
+        'type': 'string'
     }
 
 

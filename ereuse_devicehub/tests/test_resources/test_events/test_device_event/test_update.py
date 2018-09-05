@@ -11,9 +11,11 @@ class TestDeviceEventUpdate(TestStandard):
             'devices': computers_id,
             'margin': 'foo',
             'price': '1.3',
-            'partners': 'baz'
+            'partners': 'baz',
+            'invoiceRetailerId': 'fff'
         }
         update = self.post_201(self.DEVICE_EVENT_UPDATE, update)
         assert_that(update).has_margin('foo')
         assert_that(update).has_price('1.3')
         assert_that(update).has_partners('baz')
+        assert_that(update).has_invoiceRetailerId('fff')

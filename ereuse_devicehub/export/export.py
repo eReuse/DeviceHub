@@ -171,7 +171,7 @@ class SpreadsheetTranslator(Translator):
                     if update.get('margin', None):
                         translated['Margin'] = update['margin']
                     if update.get('price', None):
-                        translated['Price'] = update['price']
+                        translated['Price Update'] = update['price']
                     if update.get('partners', None):
                         translated['Partners'] = update['partners']
                     if update.get('originNote', None):
@@ -181,9 +181,9 @@ class SpreadsheetTranslator(Translator):
                     if update.get('guaranteeYears', None):
                         translated['Guarantee Years'] = update['guaranteeYears']
                     if update.get('invoicePlatformId', None):
-                        translated['invoicePlatformId'] = update['invoicePlatformId']
+                        translated['Invoice Platform ID'] = update['invoicePlatformId']
                     if update.get('invoiceRetailerId', None):
-                        translated['invoiceRetailerId'] = update['invoiceRetailerId']
+                        translated['Invoice Retailer ID'] = update['invoiceRetailerId']
         return translated
 
     def translate(self, devices: Iterator) -> list:
@@ -192,7 +192,7 @@ class SpreadsheetTranslator(Translator):
         # Let's transform the dict to a table-like array
         # Generation of table headers
         # We want first the keys we set in the translation dict
-        field_names = list(self.dict.keys()) + ['Margin', 'Price', 'Partners', 'Origin note', 'Target note', 'Maintenance', 'Guarantee Years']
+        field_names = list(self.dict.keys()) + ['Margin', 'Price Update', 'Partners', 'Origin note', 'Target note', 'Maintenance', 'Guarantee Years', 'Invoice Platform ID', 'Invoice Retailer ID']
         field_names += py_(translated).map(keys).flatten().uniq().difference(field_names).sort().value()
         # compute the rows; header titles + fields (note we do not use pick as we don't want None but '' for empty)
         return [field_names] + map_(translated, lambda res: [res.get(f, '') if res.get(f, None) is not None else '' for f in field_names])

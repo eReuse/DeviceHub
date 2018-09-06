@@ -72,7 +72,7 @@ class TestExport(TestStandard):
         assert_that(get_ids(book_dict['inner lot'])).is_equal_to(['Identifier', '1', '11'])
         assert_that(get_ids(book_dict['lot'])).is_equal_to(['Identifier', '1', '11', '25', '35'])
         assert_that(py_().map_(lambda row: row[40])(book_dict['inner lot'])).is_equal_to(['Margin', 'foo', 'foo'])
-        assert_that(py_().map_(lambda row: row[41])(book_dict['inner lot'])).is_equal_to(['Price', '1.3', '1.3'])
+        assert_that(py_().map_(lambda row: row[41])(book_dict['inner lot'])).is_equal_to(['Price Update', '1.3', '1.3'])
         assert_that(py_().map_(lambda row: row[42])(book_dict['inner lot'])).is_equal_to(['Partners', 'u2', 'u2'])
         assert_that(py_().map_(lambda row: row[43])(book_dict['inner lot'])).is_equal_to(['Origin note', 'xyz', 'xyz'])
         assert_that(py_().map_(lambda row: row[44])(book_dict['inner lot'])).is_equal_to(['Target note', '', ''])

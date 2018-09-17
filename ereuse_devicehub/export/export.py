@@ -63,7 +63,8 @@ def export(db, resource):
 
 
 def _get_device_with_components(device):
-    device['components'] = DeviceDomain.get_full_components(device['components'])
+    if 'components' in device:
+        device['components'] = DeviceDomain.get_full_components(device['components'])
     return device
 
 

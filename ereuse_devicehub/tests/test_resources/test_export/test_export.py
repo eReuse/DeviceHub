@@ -95,10 +95,17 @@ class TestExport(TestStandard):
         book_dict_ods = self._get_spreadsheet('devices', computers_id, xlsx=False)
         assert_that(book_dict_ods).is_equal_to(book_dict)
 
-    def _get_spreadsheet(self, resource_name: str, ids: list, detailed: bool = True, xlsx: bool = True) -> dict:
+    def test_export_max_of_type(self):
+        self.get_fixtures_computers()  # Create 4 computers
+        book_dict = self._get_spreadsheet('devices', [], max_of_type=2)
+        assert_that(book_dict).contains_only('Devices')
+        assert all('3' not in n for n in book_dict['Devices'][0])
+
+    def _get_spreadsheet(self, resource_name: str, ids: list, detailed: bool = True,
+                         xlsx: bool = True, max_of_type=None) -> dict:
         """Helper method to request the spreadsheet to DeviceHub and return a dict"""
         _type = 'detailed' if detailed else 'brief'
-        url = '/{}/export/{}?{}'.format(self.db1, resource_name, urlencode({'ids': ids, 'type': _type}, True))
+        url = '/{}/export/{}?{}'.format(self.db1, resource_name, urlencode({'ids': ids, 'type': _type, 'max-of-type': max_of_type}, True))
         headers = Headers()
         headers.add('Authorization', 'Basic ' + self.token)
         headers.add('Accept', _XLSX_MIME if xlsx else FILE_TYPE_MIME_TABLE['ods'])

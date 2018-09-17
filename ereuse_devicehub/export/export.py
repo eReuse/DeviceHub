@@ -13,6 +13,7 @@ from pyexcel_webio import FILE_TYPE_MIME_TABLE as REVERSED_FILE_TYPE_MIME_TABLE
 from werkzeug.exceptions import NotAcceptable
 
 from ereuse_devicehub.header_cache import header_cache
+from ereuse_devicehub.resources.account.domain import AccountDomain
 from ereuse_devicehub.resources.device.component.settings import Component
 from ereuse_devicehub.resources.device.domain import DeviceDomain
 from ereuse_devicehub.resources.event.device import DeviceEventDomain
@@ -36,7 +37,10 @@ def export(db, resource):
     except KeyError:
         raise NotAcceptable()
     ids = request.args.getlist('ids')  # Returns empty list by default
-    translator = SpreadsheetTranslator(request.args.get('type', 'detailed') == 'brief')
+    translator = SpreadsheetTranslator(
+        request.args.get('type', 'detailed') == 'brief',
+        request.args.get('max-of-type', None, type=int)
+    )
     spreadsheets = OrderedDict()
     if resource in Group.resource_names:
         domain = GroupDomain.children_resources[resource]
@@ -66,9 +70,10 @@ def _get_device_with_components(device):
 class SpreadsheetTranslator(Translator):
     """Translates a set of devices into a dict for flask-excel representing a spreadsheet"""
 
-    def __init__(self, brief: bool):
+    def __init__(self, brief: bool, max_components_of_type=None):
         # Definition of the dictionary used to translate
         self.brief = brief
+        self.max_components_of_type = max_components_of_type
         p = py_()
         d = OrderedDict()  # we want ordered dict as in translate we want to preserve this order in the spreadsheet
         d['Identifier'] = p.get('_id')
@@ -131,6 +136,8 @@ class SpreadsheetTranslator(Translator):
         for pos, component in enumerate(device['components']):
             _type = device['components'][pos]['@type']
             count = counter_each_type[_type] = counter_each_type[_type] + 1
+            if self.max_components_of_type and count >= self.max_components_of_type:
+                continue
             header = '{} {}'.format(_type, count)
             translated[header + ' system id'] = component.get('_id', '')
             translated[header + ' serial number'] = component.get('serialNumber', '')
@@ -163,6 +170,8 @@ class SpreadsheetTranslator(Translator):
         if translated.get('Registered in', None):
             # When snapshot executes this method devices don't have this property
             translated['Registered in'] = str(translated['Registered in'])
+
+        # Update event
         if not self.brief:
             with suppress(EventNotFound):
                 updates = DeviceEventDomain.get({'$query': {'devices': {'$in': [device['_id']]}, '@type': 'devices:Update'},
@@ -184,6 +193,14 @@ class SpreadsheetTranslator(Translator):
                         translated['Invoice Platform ID'] = update['invoicePlatformId']
                     if update.get('invoiceRetailerId', None):
                         translated['Invoice Retailer ID'] = update['invoiceRetailerId']
+
+            # Same as
+            same_as = device.get('sameAs', None)
+            if same_as:
+                components = same_as[-1].split('/')
+                translated['Actual inventory ID'] = '{} {}'.format(components[3], components[-1])
+            # The inventory
+            translated['Inventory'] = AccountDomain.requested_database
         return translated
 
     def translate(self, devices: Iterator) -> list:
@@ -192,7 +209,11 @@ class SpreadsheetTranslator(Translator):
         # Let's transform the dict to a table-like array
         # Generation of table headers
         # We want first the keys we set in the translation dict
-        field_names = list(self.dict.keys()) + ['Margin', 'Price Update', 'Partners', 'Origin note', 'Target note', 'Maintenance', 'Guarantee Years', 'Invoice Platform ID', 'Invoice Retailer ID']
+        field_names = list(self.dict.keys()) + [
+            'Margin', 'Price Update', 'Partners', 'Origin note', 'Target note',
+            'Maintenance', 'Guarantee Years', 'Invoice Platform ID', 'Invoice Retailer ID',
+            'Actual inventory ID', 'Inventory'
+        ]
         field_names += py_(translated).map(keys).flatten().uniq().difference(field_names).sort().value()
         # compute the rows; header titles + fields (note we do not use pick as we don't want None but '' for empty)
         return [field_names] + map_(translated, lambda res: [res.get(f, '') if res.get(f, None) is not None else '' for f in field_names])

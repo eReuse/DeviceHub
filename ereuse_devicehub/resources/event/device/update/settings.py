@@ -26,6 +26,9 @@ class Update(EventWithDevices):
     invoiceRetailerId = {
         'type': 'string'
     }
+    eTag = {
+        'type': 'string'
+    }
 
 
 class UpdateSettings(EventSubSettingsMultipleDevices):

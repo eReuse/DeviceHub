@@ -196,6 +196,8 @@ class SpreadsheetTranslator(Translator):
                         translated['Invoice Platform ID'] = update['invoicePlatformId']
                     if update.get('invoiceRetailerId', None):
                         translated['Invoice Retailer ID'] = update['invoiceRetailerId']
+                    if update.get('eTag', None):
+                        translated['eTag'] = update['eTag']
 
             # Same as
             same_as = device.get('sameAs', None)
@@ -215,7 +217,7 @@ class SpreadsheetTranslator(Translator):
         field_names = list(self.dict.keys()) + [
             'Margin', 'Price Update', 'Partners', 'Origin note', 'Target note',
             'Maintenance', 'Guarantee Years', 'Invoice Platform ID', 'Invoice Retailer ID',
-            'Actual inventory ID', 'Inventory'
+            'Actual inventory ID', 'Inventory', 'eTag'
         ]
         field_names += py_(translated).map(keys).flatten().uniq().difference(field_names).sort().value()
         # compute the rows; header titles + fields (note we do not use pick as we don't want None but '' for empty)

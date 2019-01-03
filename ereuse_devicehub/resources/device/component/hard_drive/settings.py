@@ -81,8 +81,7 @@ class HardDrive(Component):
         'schema': {
             'type': 'dict',
             'schema': BenchmarkHardDrive
-        },
-        'readonly': True
+        }
     }
 
     @classmethod

@@ -78,8 +78,8 @@ class TestExport(TestStandard):
         assert_that(py_().map_(lambda row: row[42])(book_dict['inner lot'])).is_equal_to(['Partners', 'u2', 'u2'])
         assert_that(py_().map_(lambda row: row[43])(book_dict['inner lot'])).is_equal_to(['Origin note', 'xyz', 'xyz'])
         assert_that(py_().map_(lambda row: row[44])(book_dict['inner lot'])).is_equal_to(['Target note', '', ''])
-        assert_that(py_().map_(lambda row: row[46])(book_dict['inner lot'])).is_equal_to(['Guarantee Years', 3, 3])
-        assert_that(py_().map_(lambda row: row[47])(book_dict['inner lot'])).is_equal_to(['Invoice Platform ID', 'f2', 'f2'])
+        assert_that(py_().map_(lambda row: row[45])(book_dict['inner lot'])).is_equal_to(['Guarantee Years', 3, 3])
+        assert_that(py_().map_(lambda row: row[46])(book_dict['inner lot'])).is_equal_to(['Invoice Platform ID', 'f2', 'f2'])
         book_dict_ods = self._get_spreadsheet('lots', [lot['_id'], inner_lot['_id']], xlsx=False)
         assert_that(book_dict_ods).is_equal_to(book_dict)
 

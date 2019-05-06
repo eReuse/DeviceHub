@@ -204,8 +204,11 @@ class SpreadsheetTranslator(Translator):
             if same_as:
                 components = same_as[-1].split('/')
                 translated['Actual inventory ID'] = '{} {}'.format(components[3], components[-1])
+                for url in same_as:
+                    components = url.split('/')
+                    translated[components[3]] = components[-1]
             # The inventory
-            translated['Inventory'] = AccountDomain.requested_database
+            translated['Actual inventory'] = AccountDomain.requested_database
         return translated
 
     def translate(self, devices: Iterator) -> list:
@@ -214,11 +217,13 @@ class SpreadsheetTranslator(Translator):
         # Let's transform the dict to a table-like array
         # Generation of table headers
         # We want first the keys we set in the translation dict
-        field_names = list(self.dict.keys()) + [
-            'Margin', 'Price Update', 'Partners', 'Origin note', 'Target note',
-            'Maintenance', 'Guarantee Years', 'Invoice Platform ID', 'Invoice Retailer ID',
-            'Actual inventory ID', 'Inventory', 'eTag'
-        ]
+        field_names = list(self.dict.keys())
+        if not self.brief:
+            field_names.extend([
+                'Margin', 'Price Update', 'Partners', 'Origin note', 'Target note',
+                'Guarantee Years', 'Invoice Platform ID', 'Invoice Retailer ID',
+                'Actual inventory ID', 'Actual inventory', 'eTag'
+            ])
         field_names += py_(translated).map(keys).flatten().uniq().difference(field_names).sort().value()
         # compute the rows; header titles + fields (note we do not use pick as we don't want None but '' for empty)
         return [field_names] + map_(translated, lambda res: [res.get(f, '') if res.get(f, None) is not None else '' for f in field_names])

@@ -202,13 +202,11 @@ class SpreadsheetTranslator(Translator):
             # Same as
             same_as = device.get('sameAs', None)
             if same_as:
-                components = same_as[-1].split('/')
-                translated['Actual inventory ID'] = '{} {}'.format(components[3], components[-1])
+                components = same_as[0].split('/')
+                translated['Last other inventory ID'] = '{} {}'.format(components[3], components[-1])
                 for url in same_as:
                     components = url.split('/')
                     translated[components[3]] = components[-1]
-            # The inventory
-            translated['Actual inventory'] = AccountDomain.requested_database
         return translated
 
     def translate(self, devices: Iterator) -> list:
@@ -222,7 +220,7 @@ class SpreadsheetTranslator(Translator):
             field_names.extend([
                 'Margin', 'Price Update', 'Partners', 'Origin note', 'Target note',
                 'Guarantee Years', 'Invoice Platform ID', 'Invoice Retailer ID',
-                'Actual inventory ID', 'Actual inventory', 'eTag'
+                'Last other inventory ID', 'eTag'
             ])
         field_names += py_(translated).map(keys).flatten().uniq().difference(field_names).sort().value()
         # compute the rows; header titles + fields (note we do not use pick as we don't want None but '' for empty)

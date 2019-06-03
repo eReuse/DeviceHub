@@ -149,7 +149,7 @@ class SpreadsheetTranslator(Translator):
             if not self.brief or _type not in {'Motherboard', 'RamModule', 'Processor'}:
                 translated[header] = pick(component)
                 if _type == 'HardDrive':
-                    with suppress(KeyError):
+                    with suppress(KeyError, TypeError):
                         erasure = component['erasures'][0]
                         t = '{} {}'.format('Successful' if erasure['success'] else 'Failed', humanize(erasure['@type']))
                         translated[header + ' erasure'] = t

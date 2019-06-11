@@ -89,7 +89,7 @@ XML = False  # Will probably cause bugs
 # See https://www.mnot.net/cache_docs/ for more info with cache
 CACHE_CONTROL = 'private, max-age=' + str(60 * 60 * 12)
 PAGINATION_DEFAULT = 30
-PAGINATION_LIMIT = 100
+PAGINATION_LIMIT = 10000
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
 SECONDARY_DATE_FORMAT = DATE_FORMAT + '.%fZ'
 SCHEMA_ENDPOINT = 'schema'
